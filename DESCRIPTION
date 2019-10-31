@@ -6,6 +6,11 @@ Author: Tiago Chedraoui Silva
 Maintainer: Tiago Chedraoui Silva <txs902@miami.edu>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: GPL3
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 2.1.0)
+VignetteBuilder: knitr

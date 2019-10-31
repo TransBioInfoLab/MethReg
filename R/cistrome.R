@@ -3,7 +3,7 @@
 #' which is a comprehensive resource for predicted transcription factor (TF)
 #' targets and enhancer profiles in cancers.
 #' For more information: http://cistrome.org/CistromeCancer/
-#' @importfrom dplyr pull filter %>% tbl
+#' @importFrom dplyr pull filter %>% tbl
 #' @importFrom plyr adply
 #' @import dbplyr
 #' @param tcga.study A TCGA study from the database

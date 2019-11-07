@@ -4,7 +4,7 @@
 \alias{getTFtargetsCistrome}
 \title{Access TF targets from Cistrome cancer database}
 \usage{
-getTFtargetsCistrome(tcga.study)
+getTFtargetsCistrome(tcga.study, minCor = 0.2)
 }
 \arguments{
 \item{tcga.study}{A TCGA study from the database

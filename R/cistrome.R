@@ -16,7 +16,7 @@
 #'  getTFtargetsCistrome("COAD_READ*")
 #' }
 #' @export
-getTFtargetsCistrome <- function(tcga.study) {
+getTFtargetsCistrome <- function(tcga.study, minCor = 0.2) {
     con <- getCistromDBConn()
     checkCistromeStudy(con, tcga.study)
 
@@ -40,10 +40,13 @@ getTFtargetsCistrome <- function(tcga.study) {
                                    as.data.frame
                            },.id = NULL, .progress = "time",.parallel = FALSE)
     results <- results %>% reshape2::melt()
-    colnames(results) <- c("tf", "feature", "study","cor")
-    results$cor <- results$cor/100
+    colnames(results) <- c("TF", "Target", "study","cor")
+    results$cor <- results$cor / 100
     results <- na.omit(results)
-    results
+    message("Cistrome TF target # links: ", nrow(results))
+    message("Applying minCor filter (minCor: ", minCor)
+    results <- results %>% filter(cor > minCor)
+    message("Cistrome TF target with minCor # links: ", nrow(results))
     return(results)
 }
 

@@ -23,6 +23,7 @@ getDNAm.target <- function(
 
     method <- match.arg(method)
     genome <- match.arg(genome)
+
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
 
     tssAnnot <- ELMER::getTSS(genome = genome)

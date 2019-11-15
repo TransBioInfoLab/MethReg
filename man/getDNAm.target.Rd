@@ -4,8 +4,11 @@
 \alias{getDNAm.target}
 \title{Mapping regions to closes gene}
 \usage{
-getDNAm.target(regions.gr, genome = c("hg38", "hg19"),
-  method = c("closest.gene"))
+getDNAm.target(
+  regions.gr,
+  genome = c("hg38", "hg19"),
+  method = c("closest.gene")
+)
 }
 \arguments{
 \item{genome}{Human genome of reference "hg38" or "hg19"}

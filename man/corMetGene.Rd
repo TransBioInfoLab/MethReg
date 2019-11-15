@@ -4,7 +4,7 @@
 \alias{corMetGene}
 \title{Evaluate correlation of region and gene using spearman test}
 \usage{
-corMetGene(links, met, exp, file.out)
+corMetGene(links, met, exp, file.out, min.cor.fdr = 0.05, min.cor.estimate = 0)
 }
 \arguments{
 \item{met}{DNA methylation matrix (rows are regions, columns samples). Samples should be in the

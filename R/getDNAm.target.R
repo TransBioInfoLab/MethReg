@@ -73,35 +73,42 @@ getDNAm.target <- function(
 #'               nrow = length(links$geneID),
 #'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
 #' corMetGene(links, met, exp)
-corMetGene <- function(links, met, exp, file.out){
+corMetGene <- function(links,
+                       met,
+                       exp,
+                       file.out,
+                       min.cor.fdr = 0.05,
+                       min.cor.estimate = 0.0){
 
     if(is.null(exp)) stop("Please set exp matrix")
     if(is.null(met)) stop("Please set met matrix")
     if(ncol(met) != ncol(exp)) stop("exp and met does not have the same size")
+    if(!all(c("geneID","regionID") %in% colnames(links))) stop("links object must have geneID and regionID columns")
+
+    links <- links[links$geneID %in% rownames(exp),]
+    links <- links[links$regionID %in% rownames(met),]
+    if(nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
 
     correlation.df <- plyr::adply(.data = links,
                                   .margins = 1,
                                   .fun = function(link){
-
-                                      idx <- which(rownames(exp) %in% link$geneID)
-
-                                      if(length(idx) < 1) {
-                                          return(tibble(p.value = NA, estimate_rho = NA))
-                                      }
-
-                                      exp <- log2(exp[idx,] + 1)
+                                      exp <- log2(exp[link$geneID,] + 1)
                                       met <- met[link$regionID,]
-                                      res <- cor.test(exp,
-                                                      met,
+                                      res <- cor.test(exp %>% as.numeric,
+                                                      met %>% as.numeric,
                                                       method = "spearman",
                                                       exact = FALSE)
-                                      return(tibble(p.value = res$p.value,
-                                                    estimate_rho = res$estimate))
+                                      return(tibble(met_exp_cor_pvalue = res$p.value,
+                                                    met_exp_cor_estimate = res$estimate))
                                   },.progress = "time")
 
 
     correlation.df <- na.omit(correlation.df)
-    correlation.df$fdr <- p.adjust(correlation.df$p.value,method = "fdr")
+    correlation.df$met_exp_cor_fdr <- p.adjust(correlation.df$met_exp_cor_pvalue, method = "fdr")
+
+    correlation.df <- correlation.df %>%
+        dplyr::filter(met_exp_cor_fdr <= min.cor.fdr & abs(met_exp_cor_estimate) >= min.cor.estimate)
+
     if(!missing(file.out)) readr::write_tsv(x = correlation.df, path = file.out)
 
     return(correlation.df)

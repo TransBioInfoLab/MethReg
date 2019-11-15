@@ -46,6 +46,7 @@ getTFtargetsCistrome <- function(tcga.study, minCor = 0.2) {
     message("Cistrome TF target # links: ", nrow(results))
     message("Applying minCor filter (minCor: ", minCor)
     results <- results %>% filter(cor > minCor)
+
     message("Cistrome TF target with minCor # links: ", nrow(results))
     return(results)
 }

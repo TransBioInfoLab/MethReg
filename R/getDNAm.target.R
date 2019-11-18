@@ -53,6 +53,8 @@ getDNAm.target <- function(
 #' @param exp Gene expression matrix (rows are genes, columns samples)
 #' Samples should be in the same order as gene expression.
 #' @param file.out A csv file name to save the results.
+#' @param min.cor.pval Filter of significant correlations (default: 0.05)
+#' @param min.cor.estimate Filter of significant correlations (default: not applied)
 #' @importFrom plyr adply
 #' @export
 #' @examples
@@ -77,7 +79,7 @@ corMetGene <- function(links,
                        met,
                        exp,
                        file.out,
-                       min.cor.fdr = 0.05,
+                       min.cor.pval = 0.05,
                        min.cor.estimate = 0.0){
 
     if(is.null(exp)) stop("Please set exp matrix")
@@ -93,7 +95,7 @@ corMetGene <- function(links,
                                   .margins = 1,
                                   .fun = function(link){
                                       exp <- log2(exp[link$geneID,] + 1)
-                                      met <- met[link$regionID,]
+                                      met <- met[rownames(met) == link$regionID,]
                                       res <- cor.test(exp %>% as.numeric,
                                                       met %>% as.numeric,
                                                       method = "spearman",
@@ -107,7 +109,7 @@ corMetGene <- function(links,
     correlation.df$met_exp_cor_fdr <- p.adjust(correlation.df$met_exp_cor_pvalue, method = "fdr")
 
     correlation.df <- correlation.df %>%
-        dplyr::filter(met_exp_cor_fdr <= min.cor.fdr & abs(met_exp_cor_estimate) >= min.cor.estimate)
+        dplyr::filter(met_exp_cor_fdr <= min.cor.pval & abs(met_exp_cor_estimate) >= min.cor.estimate)
 
 
     if(!missing(file.out)) readr::write_tsv(x = correlation.df, path = file.out)

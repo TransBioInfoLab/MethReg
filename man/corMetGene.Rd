@@ -4,7 +4,14 @@
 \alias{corMetGene}
 \title{Evaluate correlation of region and gene using spearman test}
 \usage{
-corMetGene(links, met, exp, file.out, min.cor.fdr = 0.05, min.cor.estimate = 0)
+corMetGene(
+  links,
+  met,
+  exp,
+  file.out,
+  min.cor.pval = 0.05,
+  min.cor.estimate = 0
+)
 }
 \arguments{
 \item{met}{DNA methylation matrix (rows are regions, columns samples). Samples should be in the
@@ -14,6 +21,10 @@ same order as gene expression.}
 Samples should be in the same order as gene expression.}
 
 \item{file.out}{A csv file name to save the results.}
+
+\item{min.cor.pval}{Filter of significant correlations (default: 0.05)}
+
+\item{min.cor.estimate}{Filter of significant correlations (default: not applied)}
 
 \item{links.df}{A dataframe with the following collumns
 region and gene}

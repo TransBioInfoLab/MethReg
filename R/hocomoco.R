@@ -15,6 +15,7 @@
 #' }
 #' @export
 #' @importFrom sesameData sesameDataGet
+#' @importFrom GenomicRanges findOverlaps
 mapTFBSHocomoco <- function(region,
                             genome = c("hg19","hg38"),
                             arrayType = c("450k","EPIC"),
@@ -29,16 +30,17 @@ mapTFBSHocomoco <- function(region,
     genome <- match.arg(genome)
     classification <- match.arg(classification)
 
-    if(is(region,"character")){
+    if(is(region,"character") | is(region,"factor")){
         regions.gr <- makeGrangesFromNames(region)
     } else  if(is(region,"GenomicRanges")){
-        regions.gr <- region
+        stop("Region must be a list of character")
     }
 
     motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",arrayType),package = "ELMER.data"))
     motifs.tfs <- get(data(list = paste0("TF.",classification),package = "ELMER.data"))
 
     probes.gr <- sesameDataGet(paste0(gsub("450K","HM450",arrayType),".",genome,".manifest"))
+    probes.gr <- probes.gr[names(probes.gr) %in% rownames(motifs.probes)]
     hits <- findOverlaps(regions.gr,probes.gr) %>% as.data.frame()
     df <- plyr::adply(unique(hits$queryHits),1, function(x){
         idx <- hits %>% filter(queryHits == x) %>% pull(subjectHits)
@@ -46,7 +48,7 @@ mapTFBSHocomoco <- function(region,
         motifs <- colnames(motifs.probes)[Matrix::colSums(motifs.probes[probes,,drop = FALSE]) > 0]
         tfs <- unlist(motifs.tfs[motifs]) %>% as.character() %>% unique()
         tibble::tibble(region[x],tfs)
-    },.id = NULL,.progress = "time")
+    },.id = NULL,.progress = "time",.inform = TRUE)
     colnames(df) <- c("region","TF")
     return(df)
 }

@@ -39,7 +39,7 @@ getDNAm.target <- function(
                         start(regions.gr),
                         "-",
                         end(regions.gr))
-    out <- cbind(regionID, neargenes)
+    out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
     return(out)
 }
 

@@ -49,7 +49,9 @@ mapTFBSHocomoco <- function(region,
         tfs <- unlist(motifs.tfs[motifs]) %>% as.character() %>% unique()
         tibble::tibble(region[x],tfs)
     },.id = NULL,.progress = "time",.inform = TRUE)
-    colnames(df) <- c("region","TF")
+    genome.info <- TCGAbiolinks::get.GRCh.bioMart(genome)
+    df$TF_id <- genome.info$ensembl_gene_id[match(df$tfs,genome.info$external_gene_name)]
+    colnames(df) <- c("regionID","TF_external_gene_name","TF_ensembl_gene_id")
     return(df)
 }
 

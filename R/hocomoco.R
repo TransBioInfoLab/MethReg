@@ -25,6 +25,10 @@ mapTFBSHocomoco <- function(region,
         stop("ELMER.data is needed. Please install it.",
              call. = FALSE)
     }
+    if (!requireNamespace("TCGAbiolinks", quietly = TRUE)) {
+        stop("TCGAbiolinks is needed. Please install it.",
+             call. = FALSE)
+    }
 
     arrayType <- toupper(match.arg(arrayType))
     genome <- match.arg(genome)
@@ -55,6 +59,7 @@ mapTFBSHocomoco <- function(region,
     return(df)
 }
 
+#' Create granges from name
 #' @importFrom tidyr separate
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
 #' @examples

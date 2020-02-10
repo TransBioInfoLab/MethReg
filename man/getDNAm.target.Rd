@@ -7,13 +7,17 @@
 getDNAm.target(
   regions.gr,
   genome = c("hg38", "hg19"),
-  method = c("closest.gene")
+  method = c("closest.gene", "window"),
+  window.width = 5e+05
 )
 }
 \arguments{
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
-\item{method}{For the moment mapping region to closest gene}
+\item{method}{How to map regions to genes: closest gene, gens overlapping a window
+around the genomic region input.}
+
+\item{window.width}{Number of base pair to extend the region (+-window.width/2)}
 
 \item{regions}{A dataframe with chrom, start, end or a GRanges}
 }
@@ -21,11 +25,14 @@ getDNAm.target(
 Maps a given region to th closest gene
 }
 \examples{
+library(GenomicRanges)
+library(dplyr)
 regions.gr <- data.frame(
  chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
   start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
   end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
                          stringsAsFactors = FALSE)  \%>\%
                          makeGRangesFromDataFrame
- getDNAm.target(regions.gr = regions.gr ,genome = "hg19")
+ getDNAm.target(regions.gr = regions.gr ,genome = "hg19",)
+ getDNAm.target(regions.gr = regions.gr ,genome = "hg19",method = "window")
 }

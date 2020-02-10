@@ -2,23 +2,29 @@
 #' @description Maps a given region to th closest gene
 #' @param regions A dataframe with chrom, start, end or a GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method For the moment mapping region to closest gene
+#' @param method How to map regions to genes: closest gene, gens overlapping a window
+#' around the genomic region input.
+#' @param window.width Number of base pairs to extend the region (+-window.width/2)
 #' @importFrom coMethDMR AnnotateResults
 #' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values
 #' @importFrom tidyr unite
 #' @importFrom ELMER getTSS
 #' @examples
+#' library(GenomicRanges)
+#' library(dplyr)
 #' regions.gr <- data.frame(
 #'  chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
 #'   start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
 #'   end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
 #'                          stringsAsFactors = FALSE)  %>%
 #'                          makeGRangesFromDataFrame
-#'  getDNAm.target(regions.gr = regions.gr ,genome = "hg19")
+#'  getDNAm.target(regions.gr = regions.gr ,genome = "hg19",)
+#'  getDNAm.target(regions.gr = regions.gr ,genome = "hg19",method = "window")
 getDNAm.target <- function(
     regions.gr,
     genome = c("hg38","hg19"),
-    method = c("closest.gene")
+    method = c("closest.gene","window"),
+    window.width = 500000
 ){
 
     method <- match.arg(method)
@@ -27,19 +33,49 @@ getDNAm.target <- function(
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
 
     tssAnnot <- ELMER::getTSS(genome = genome)
-    neargenes <- tssAnnot[nearest(regions.gr,tssAnnot)] %>% as.data.frame()
-    distance.region.tss <- values(distanceToNearest(regions.gr,tssAnnot))$distance
 
-    neargenes <- cbind(neargenes[,c("seqnames","start","end","external_gene_name","ensembl_gene_id")],
-                       distance.region.tss)
+    if(method == "closest.gene"){
+        neargenes <- tssAnnot[nearest(regions.gr,tssAnnot)] %>% as.data.frame()
+        distance.region.tss <- values(distanceToNearest(regions.gr,tssAnnot))$distance
 
-    colnames(neargenes)[1:3] <- c("gene_chrom","gene_start","gene_end")
-    regionID <- paste0( seqnames(regions.gr) %>% as.character(),
-                        ":",
-                        start(regions.gr),
-                        "-",
-                        end(regions.gr))
-    out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
+        neargenes <- cbind(neargenes[,c("seqnames","start","end","external_gene_name","ensembl_gene_id")],
+                           distance.region.tss)
+
+        colnames(neargenes)[1:3] <- c("gene_chrom","gene_start","gene_end")
+        regionID <- paste0( seqnames(regions.gr) %>% as.character(),
+                            ":",
+                            start(regions.gr),
+                            "-",
+                            end(regions.gr))
+        out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
+    } else {
+        regions.gr.extend <- regions.gr + (window.width/2)
+
+        overlap <- findOverlaps(regions.gr.extend,tssAnnot)
+
+        regionID <- paste0(
+            seqnames(  regions.gr[queryHits(overlap)]) %>% as.character(),
+            ":",
+            start(  regions.gr[queryHits(overlap)]),
+            "-",
+            end(  regions.gr[queryHits(overlap)]))
+
+
+        regionID.extended <- paste0(
+            seqnames(  regions.gr.extend[queryHits(overlap)]) %>% as.character(),
+            ":",
+            start(  regions.gr.extend[queryHits(overlap)]),
+            "-",
+            end(  regions.gr.extend[queryHits(overlap)]))
+
+        genes.overlapping <- tssAnnot[subjectHits(overlap)] %>% as.data.frame()
+        colnames(genes.overlapping) <- paste0("gene_",colnames(genes.overlapping))
+
+        out <- dplyr::bind_cols(data.frame("regionID" = regionID),
+                                data.frame("regionID.extended" = regionID.extended,
+                                           "window.extended.width" = window.width),
+                                genes.overlapping)
+    }
     return(out)
 }
 

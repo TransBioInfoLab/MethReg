@@ -32,9 +32,10 @@ getDNAm.target <- function(
 
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
 
-    tssAnnot <- ELMER::getTSS(genome = genome)
 
     if(method == "closest.gene"){
+        tssAnnot <- ELMER::getTSS(genome = genome)
+
         neargenes <- tssAnnot[nearest(regions.gr,tssAnnot)] %>% as.data.frame()
         distance.region.tss <- values(distanceToNearest(regions.gr,tssAnnot))$distance
 
@@ -49,9 +50,10 @@ getDNAm.target <- function(
                             end(regions.gr))
         out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
     } else {
+        geneAnnot <- ELMER:::get.GRCh(genome = genome,as.granges = TRUE)
         regions.gr.extend <- regions.gr + (window.width/2)
 
-        overlap <- findOverlaps(regions.gr.extend,tssAnnot)
+        overlap <- findOverlaps(regions.gr.extend,geneAnnot)
 
         regionID <- paste0(
             seqnames(  regions.gr[queryHits(overlap)]) %>% as.character(),

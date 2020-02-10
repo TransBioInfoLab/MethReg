@@ -74,7 +74,8 @@ getDNAm.target <- function(
 
         out <- dplyr::bind_cols(data.frame("regionID" = regionID),
                                 data.frame("regionID.extended" = regionID.extended,
-                                           "window.extended.width" = window.width),
+                                           "window.extended.width" = window.width,
+                                           "Distance region-gene" = distance(regions.gr[queryHits(overlap)], geneAnnot[subjectHits(overlap)])),
                                 genes.overlapping)
     }
     return(out)

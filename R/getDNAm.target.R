@@ -32,7 +32,6 @@ getDNAm.target <- function(
 
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
 
-
     if(method == "closest.gene"){
         tssAnnot <- ELMER::getTSS(genome = genome)
 
@@ -70,7 +69,7 @@ getDNAm.target <- function(
             "-",
             end(  regions.gr.extend[queryHits(overlap)]))
 
-        genes.overlapping <- tssAnnot[subjectHits(overlap)] %>% as.data.frame()
+        genes.overlapping <- geneAnnot[subjectHits(overlap)] %>% as.data.frame()
         colnames(genes.overlapping) <- paste0("gene_",colnames(genes.overlapping))
 
         out <- dplyr::bind_cols(data.frame("regionID" = regionID),

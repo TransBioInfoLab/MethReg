@@ -17,7 +17,7 @@ getDNAm.target(
 \item{method}{How to map regions to genes: closest gene, gens overlapping a window
 around the genomic region input.}
 
-\item{window.width}{Number of base pair to extend the region (+-window.width/2)}
+\item{window.width}{Number of base pairs to extend the region (+-window.width/2)}
 
 \item{regions}{A dataframe with chrom, start, end or a GRanges}
 }

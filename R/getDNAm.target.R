@@ -6,7 +6,7 @@
 #' around the genomic region input.
 #' @param window.width Number of base pairs to extend the region (+-window.width/2)
 #' @importFrom coMethDMR AnnotateResults
-#' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values
+#' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames
 #' @importFrom tidyr unite
 #' @importFrom ELMER getTSS
 #' @examples
@@ -50,6 +50,8 @@ getDNAm.target <- function(
         out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
     } else {
         geneAnnot <- ELMER:::get.GRCh(genome = genome,as.granges = TRUE)
+        geneAnnot$entrezgene <- NULL
+        geneAnnot <- unique(geneAnnot)
         regions.gr.extend <- regions.gr + (window.width/2)
 
         overlap <- findOverlaps(regions.gr.extend,geneAnnot)

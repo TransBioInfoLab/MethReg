@@ -4,16 +4,15 @@
 \alias{interaction_model}
 \title{Calculate interaction linear model Target ~ TF + DNAm}
 \usage{
-interaction_model(met, exp, TF.target, DNAm.target)
+interaction_model(triplet, dnam, exp)
 }
 \arguments{
-\item{met}{DNA methylation matrix}
+\item{triplet}{Dataframe with region (column name: regionID),
+TF  (column name: TF),  and target gene  (column name: target),}
 
-\item{exp}{gene EXpression matrix}
+\item{dnam}{DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)}
 
-\item{TF.target}{Dataframe with TF and target gene}
-
-\item{DNAm.target}{Dataframe with DNAm and target gene}
+\item{exp}{gene expression matrix (columns: samples same order as met, rows: genes)}
 }
 \value{
 A dataframe with Region, TF, Estimates and Pvalue from linear model
@@ -21,7 +20,10 @@ A dataframe with Region, TF, Estimates and Pvalue from linear model
 \description{
 Evaluate interaction of DNA methylation,
 TF expression with target gene interaction using a linear model
-log2(RNA target ) ~ log2(TF) + DNAm + log2(TF) * DNAm
+\deqn{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+
+To consider covariates, RNA can also be the residuals.
+\deqn{log2(RNA target residuals) ~ log2(TF residual) + DNAm + log2(TF residual) * DNAm}
 }
 \examples{
 \dontrun{

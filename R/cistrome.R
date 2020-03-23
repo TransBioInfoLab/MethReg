@@ -12,13 +12,13 @@
 #' @return A dataframe with TF, target and correlation
 #' @examples
 #' \dontrun{
-#'  getTFtargetsCistrome("ACC")
-#'  getTFtargetsCistrome("COAD_READ*")
+#'  get_tf_targets_cistrome("ACC")
+#'  get_tf_targets_cistrome("COAD_READ*")
 #' }
 #' @export
-getTFtargetsCistrome <- function(tcga.study, minCor = 0.2) {
-    con <- getCistromDBConn()
-    checkCistromeStudy(con, tcga.study)
+get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
+    con <- get_cistrome_dbconn()
+    check_cistrome_study(con, tcga.study)
 
     db <- dplyr::tbl(con, "targets_tf")
     study.tf <- db %>%
@@ -54,7 +54,7 @@ getTFtargetsCistrome <- function(tcga.study, minCor = 0.2) {
 #' @importFrom  RSQLite dbConnect SQLite
 #' @importFrom  R.utils gunzip
 #' @importFrom downloader download
-getCistromDBConn <- function(){
+get_cistrome_dbconn <- function(){
     file <- "cRegulome.db"
     if(!file.exists(file)){
         downloader::download("https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/9537385/cRegulome.db.gz","cRegulome.db.gz")
@@ -65,8 +65,8 @@ getCistromDBConn <- function(){
 }
 
 #' @importFrom knitr kable
-checkCistromeStudy <- function(conn, study){
-    studies <- getCistromSudies()
+check_cistrome_study <- function(conn, study){
+    studies <- get_cistrome_sudies()
     if(!study %in% studies){
         message("Available studies: ")
         print(knitr::kable(data.frame("Studies" = studies)))
@@ -75,7 +75,7 @@ checkCistromeStudy <- function(conn, study){
 }
 
 #' @importFrom DBI dbListFields
-getCistromSudies <- function(conn = NULL){
+get_cistrome_sudies <- function(conn = NULL){
     if(!is.null(conn)) {
         studies <- dbListFields(conn, "cor_tf")
     } else {
@@ -116,7 +116,8 @@ getCistromSudies <- function(conn = NULL){
 #' @importFrom parallel detectCores
 #' @importFrom doParallel registerDoParallel
 #' @param cores A interger which defines the number of cores to be used in parallel
-registerCores <- function(cores){
+#' @noRd
+register_cores <- function(cores){
     parallel <- FALSE
     if (cores > 1){
         if (cores > detectCores()) cores <- detectCores()

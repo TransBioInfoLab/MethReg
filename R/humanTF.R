@@ -4,10 +4,10 @@
 #' @return A dataframe with Human TF
 #' @examples
 #' \dontrun{
-#'  human.tfs <- getHumanTFs()
+#'  human.tfs <- get_human_tfs()
 #' }
 #' @export
-getHumanTFs <- function(tcga.study) {
+get_human_tfs <- function(tcga.study) {
     human.TF <- readr::read_csv("http://humantfs.ccbr.utoronto.ca/download/v_1.01/DatabaseExtract_v_1.01.csv")
     human.TF <- human.TF[human.TF$`Is TF?` == "Yes",]
     colnames(human.TF)[2:3] <- c("ensembl_gene_id","external_gene_name")

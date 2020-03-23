@@ -1,10 +1,12 @@
-#' @title Mapping regions to closes gene
-#' @description Maps a given region to th closest gene
+#' @title Mapping regions to gene
+#' @description To map a region to genes there are two options: 1) closest gene
+#' 2) map to all genes within a window around the region (default 500kbp/+- 250kbp around the region)
 #' @param regions A dataframe with chrom, start, end or a GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How to map regions to genes: closest gene, gens overlapping a window
+#' @param method How to map regions to genes: closest gene ("closest.gene)
+#' genes within a window around the region ("window").
 #' around the genomic region input.
-#' @param window.width Number of base pairs to extend the region (+-window.width/2)
+#' @param window.width Number of base pairs to extend the region (+-window.width/2). Default is 500kbp (+- 250kbp)
 #' @importFrom coMethDMR AnnotateResults
 #' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames
 #' @importFrom tidyr unite
@@ -12,15 +14,19 @@
 #' @examples
 #' library(GenomicRanges)
 #' library(dplyr)
+#'
+#' # Create example region
 #' regions.gr <- data.frame(
 #'  chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
 #'   start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
 #'   end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
 #'                          stringsAsFactors = FALSE)  %>%
 #'                          makeGRangesFromDataFrame
-#'  getDNAm.target(regions.gr = regions.gr ,genome = "hg19",)
-#'  getDNAm.target(regions.gr = regions.gr ,genome = "hg19",method = "window")
-getDNAm.target <- function(
+#'  # map to closest gene
+#'  get_dnam_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+#'  # map to all gene within region +- 250kbp
+#'  get_dnam_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
+get_dnam_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
     method = c("closest.gene","window"),
@@ -84,29 +90,32 @@ getDNAm.target <- function(
 }
 
 
-#' @title Evaluate correlation of region and gene using spearman test
+#' @title Evaluate correlation of region and gene
 #' @description Evaluate correlation of region and gene using spearman test
-#' @param links.df A dataframe with the following collumns
-#' region and gene
-#' @param met DNA methylation matrix (rows are regions, columns samples). Samples should be in the
+#' @param links.df A dataframe with the following columns: region ID and gene ID
+#' @param met DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 #' same order as gene expression.
-#' @param exp Gene expression matrix (rows are genes, columns samples)
-#' Samples should be in the same order as gene expression.
-#' @param file.out A csv file name to save the results.
+#' @param exp Gene expression matrix (rows are genes, columns are samples)
+#' Samples should be in the same order as the DNA methylation matrix.
 #' @param min.cor.pval Filter of significant correlations (default: 0.05)
 #' @param min.cor.estimate Filter of significant correlations (default: not applied)
+#' @param file.out A csv file name that if provied will be used to save the results.
 #' @importFrom plyr adply
 #' @export
 #' @examples
+#' # Create example region
 #' regions.gr <- data.frame(
 #'  chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
 #'   start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
 #'   end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
 #'                          stringsAsFactors = FALSE)  %>%
 #'                          makeGRangesFromDataFrame
-#' map <- getDNAm.target(regions.gr = regions.gr ,genome = "hg19")
+#' # Map example region to closest gene
+#' map <- getDNAm.target(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 #' map <- unite(map,col = "regionID",c("region_chrom", "region_start", "region_end" ))
 #' links <- tibble::tibble(regionID = map$regionID, geneID = map$ensembl_gene_id)
+#'
+#' # Create data example
 #' met <- matrix(rep(0,length(links$regionID) * 4),
 #'               nrow = length(links$regionID),
 #'               dimnames = list(c(links$regionID),c(paste0("S",c(1:4)))))
@@ -114,13 +123,14 @@ getDNAm.target <- function(
 #' exp <- matrix(rep(0,length(links$geneID) * 4),
 #'               nrow = length(links$geneID),
 #'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
-#' corMetGene(links, met, exp)
-corMetGene <- function(links,
+#' # Correalted DNAm and gene expression
+#' cor_dnam_target_gene(links = links, met = met, exp = exp)
+cor_dnam_target_gene <- function(links,
                        met,
                        exp,
-                       file.out,
                        min.cor.pval = 0.05,
-                       min.cor.estimate = 0.0){
+                       min.cor.estimate = 0.0,
+                       file.out){
 
     if(is.null(exp)) stop("Please set exp matrix")
     if(is.null(met)) stop("Please set met matrix")

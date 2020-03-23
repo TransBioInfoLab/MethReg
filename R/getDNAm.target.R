@@ -23,10 +23,10 @@
 #'                          stringsAsFactors = FALSE)  %>%
 #'                          makeGRangesFromDataFrame
 #'  # map to closest gene
-#'  get_dnam_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+#'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 #'  # map to all gene within region +- 250kbp
-#'  get_dnam_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
-get_dnam_target_gene <- function(
+#'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
+get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
     method = c("closest.gene","window"),
@@ -124,8 +124,8 @@ get_dnam_target_gene <- function(
 #'               nrow = length(links$geneID),
 #'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
 #' # Correalted DNAm and gene expression
-#' cor_dnam_target_gene(links = links, met = met, exp = exp)
-cor_dnam_target_gene <- function(links,
+#' cor_region_dnam_target_gene(links = links, met = met, exp = exp)
+cor_region_dnam_target_gene <- function(links,
                        met,
                        exp,
                        min.cor.pval = 0.05,

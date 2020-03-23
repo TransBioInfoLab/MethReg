@@ -26,6 +26,7 @@
 #'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 #'  # map to all gene within region +- 250kbp
 #'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
+#' @export
 get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
@@ -48,11 +49,12 @@ get_region_target_gene <- function(
                            distance.region.tss)
 
         colnames(neargenes)[1:3] <- c("gene_chrom","gene_start","gene_end")
-        regionID <- paste0( seqnames(regions.gr) %>% as.character(),
-                            ":",
-                            start(regions.gr),
-                            "-",
-                            end(regions.gr))
+        regionID <- paste0(
+            regions.gr %>% seqnames %>% as.character(),
+            ":",
+            regions.gr %>% start,
+            "-",
+            regions.gr %>% end)
         out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
     } else {
         geneAnnot <- ELMER:::get.GRCh(genome = genome,as.granges = TRUE)
@@ -63,19 +65,20 @@ get_region_target_gene <- function(
         overlap <- findOverlaps(regions.gr.extend,geneAnnot)
 
         regionID <- paste0(
-            seqnames(  regions.gr[queryHits(overlap)]) %>% as.character(),
+            regions.gr[queryHits(overlap)] %>% seqnames %>% as.character(),
             ":",
-            start(  regions.gr[queryHits(overlap)]),
+            regions.gr[queryHits(overlap)] %>% start,
             "-",
-            end(  regions.gr[queryHits(overlap)]))
+            regions.gr[queryHits(overlap)] %>% end)
 
 
         regionID.extended <- paste0(
-            seqnames(  regions.gr.extend[queryHits(overlap)]) %>% as.character(),
+            regions.gr.extend[queryHits(overlap)] %>% seqnames %>% as.character(),
             ":",
-            start(  regions.gr.extend[queryHits(overlap)]),
+            regions.gr.extend[queryHits(overlap)] %>% start,
             "-",
-            end(  regions.gr.extend[queryHits(overlap)]))
+            regions.gr.extend[queryHits(overlap)] %>% end
+        )
 
         genes.overlapping <- geneAnnot[subjectHits(overlap)] %>% as.data.frame()
         colnames(genes.overlapping) <- paste0("gene_",colnames(genes.overlapping))
@@ -83,7 +86,8 @@ get_region_target_gene <- function(
         out <- dplyr::bind_cols(data.frame("regionID" = regionID),
                                 data.frame("regionID.extended" = regionID.extended,
                                            "window.extended.width" = window.width,
-                                           "Distance region-gene" = distance(regions.gr[queryHits(overlap)], geneAnnot[subjectHits(overlap)])),
+                                           "Distance region-gene" = distance(regions.gr[queryHits(overlap)],
+                                                                             geneAnnot[subjectHits(overlap)])),
                                 genes.overlapping)
     }
     return(out)
@@ -101,6 +105,7 @@ get_region_target_gene <- function(
 #' @param min.cor.estimate Filter of significant correlations (default: not applied)
 #' @param file.out A csv file name that if provied will be used to save the results.
 #' @importFrom plyr adply
+#' @importFrom tibble tibble
 #' @export
 #' @examples
 #' # Create example region
@@ -109,28 +114,31 @@ get_region_target_gene <- function(
 #'   start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
 #'   end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
 #'                          stringsAsFactors = FALSE)  %>%
-#'                          makeGRangesFromDataFrame
+#'                          GenomicRanges::makeGRangesFromDataFrame()
 #' # Map example region to closest gene
-#' map <- getDNAm.target(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
-#' map <- unite(map,col = "regionID",c("region_chrom", "region_start", "region_end" ))
+#' map <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+#' map <- tidyr::unite(map,col = "regionID",c("gene_chrom", "gene_start", "gene_end"))
 #' links <- tibble::tibble(regionID = map$regionID, geneID = map$ensembl_gene_id)
 #'
 #' # Create data example
-#' met <- matrix(rep(0,length(links$regionID) * 4),
+#' met <- matrix(runif(length(links$regionID) * 4, 0, 1),
 #'               nrow = length(links$regionID),
 #'               dimnames = list(c(links$regionID),c(paste0("S",c(1:4)))))
 #'
-#' exp <- matrix(rep(0,length(links$geneID) * 4),
+#' exp <- matrix(runif(length(links$regionID) * 4, 0, 10),
 #'               nrow = length(links$geneID),
 #'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
 #' # Correalted DNAm and gene expression
 #' cor_region_dnam_target_gene(links = links, met = met, exp = exp)
-cor_region_dnam_target_gene <- function(links,
-                       met,
-                       exp,
-                       min.cor.pval = 0.05,
-                       min.cor.estimate = 0.0,
-                       file.out){
+#' cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)
+cor_region_dnam_target_gene <- function(
+    links,
+    met,
+    exp,
+    min.cor.pval = 0.05,
+    min.cor.estimate = 0.0,
+    file.out
+){
 
     if(is.null(exp)) stop("Please set exp matrix")
     if(is.null(met)) stop("Please set met matrix")

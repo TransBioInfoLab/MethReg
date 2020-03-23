@@ -38,20 +38,21 @@ regions.gr <- data.frame(
   start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
   end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
                          stringsAsFactors = FALSE)  \%>\%
-                         makeGRangesFromDataFrame
+                         GenomicRanges::makeGRangesFromDataFrame()
 # Map example region to closest gene
-map <- getDNAm.target(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
-map <- unite(map,col = "regionID",c("region_chrom", "region_start", "region_end" ))
+map <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+map <- tidyr::unite(map,col = "regionID",c("gene_chrom", "gene_start", "gene_end"))
 links <- tibble::tibble(regionID = map$regionID, geneID = map$ensembl_gene_id)
 
 # Create data example
-met <- matrix(rep(0,length(links$regionID) * 4),
+met <- matrix(runif(length(links$regionID) * 4, 0, 1),
               nrow = length(links$regionID),
               dimnames = list(c(links$regionID),c(paste0("S",c(1:4)))))
 
-exp <- matrix(rep(0,length(links$geneID) * 4),
+exp <- matrix(runif(length(links$regionID) * 4, 0, 10),
               nrow = length(links$geneID),
               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
 # Correalted DNAm and gene expression
 cor_region_dnam_target_gene(links = links, met = met, exp = exp)
+cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)
 }

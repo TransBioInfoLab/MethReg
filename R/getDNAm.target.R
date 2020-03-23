@@ -112,11 +112,12 @@ get_region_target_gene <- function(
 #' @examples
 #' # Create example region
 #' regions.gr <- data.frame(
-#'  chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
-#'   start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
-#'   end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
-#'                          stringsAsFactors = FALSE)  %>%
-#'                          GenomicRanges::makeGRangesFromDataFrame()
+#'                 chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
+#'                 start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
+#'                 end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
+#'                 stringsAsFactors = FALSE)  %>%
+#'               GenomicRanges::makeGRangesFromDataFrame()
+#'
 #' # Map example region to closest gene
 #' map <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 #' map <- tidyr::unite(map,col = "regionID",c("gene_chrom", "gene_start", "gene_end"))
@@ -130,6 +131,7 @@ get_region_target_gene <- function(
 #' exp <- matrix(runif(length(links$regionID) * 4, 0, 10),
 #'               nrow = length(links$geneID),
 #'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
+#'
 #' # Correalted DNAm and gene expression
 #' cor_region_dnam_target_gene(links = links, met = met, exp = exp)
 #' cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)

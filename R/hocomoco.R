@@ -13,7 +13,7 @@
 #' @examples
 #' \dontrun{
 #'  regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
-#'  get_region_tf("chr22:18267969-18268249",
+#'  get_tf_in_region(regions.names,
 #'                  genome = "hg19",
 #'                  arrayType = "450k",
 #'                  classification = "subfamily")
@@ -21,7 +21,7 @@
 #' @export
 #' @importFrom sesameData sesameDataGet
 #' @importFrom GenomicRanges findOverlaps
-get_region_tf <- function(region,
+get_tf_in_region <- function(region,
                             genome = c("hg19","hg38"),
                             arrayType = c("450k","EPIC"),
                             classification = c("subfamily","family")) {

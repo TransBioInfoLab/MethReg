@@ -1,0 +1,21 @@
+test_that("interaction_model works", {
+    triplet <- data.frame("regionID" = paste0("region_",1:9),
+                          "TF" = paste0("ESNG",10),
+                          "target" = paste0("ESNG",1:9))
+    dnam <- runif(200) %>% matrix(10)
+    colnames(dnam) <- paste0("Sample_",1:20)
+    rownames(dnam) <- paste0("region_",1:10)
+    exp <- rexp(200) %>% matrix(10)
+    colnames(exp) <- paste0("Sample_",1:20)
+    rownames(exp) <- paste0("ESNG",1:10)
+    results <- interaction_model(triplet, dnam, exp)
+    expect_true("regionID" %in% colnames(results))
+    expect_true("TF" %in% colnames(results))
+    expect_true("target" %in% colnames(results))
+    expect_true("pval_met" %in% colnames(results))
+    expect_true("pval_rna.tf" %in% colnames(results))
+    expect_true("pval_met.rna.tf" %in% colnames(results))
+    expect_true("estimate_met" %in% colnames(results))
+    expect_true("estimate_rna.tf" %in% colnames(results))
+    expect_true("estimate_met.rna.tf" %in% colnames(results))
+})

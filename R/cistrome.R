@@ -8,7 +8,7 @@
 #' @import dbplyr
 #' @param tcga.study A TCGA study from the database
 #' (i.e. "ACC","BLCA", "BRCA_1", "BRCA_2", "CESC", "COAD_READ*")
-#' Please check function for a complete list: getCistromSudies()
+#' Please check function for a complete list: get_cistrome_studies()
 #' @return A dataframe with TF, target and correlation
 #' @examples
 #' \dontrun{
@@ -66,7 +66,7 @@ get_cistrome_dbconn <- function(){
 
 #' @importFrom knitr kable
 check_cistrome_study <- function(conn, study){
-    studies <- get_cistrome_sudies()
+    studies <- get_cistrome_studies()
     if(!study %in% studies){
         message("Available studies: ")
         print(knitr::kable(data.frame("Studies" = studies)))
@@ -75,7 +75,7 @@ check_cistrome_study <- function(conn, study){
 }
 
 #' @importFrom DBI dbListFields
-get_cistrome_sudies <- function(conn = NULL){
+get_cistrome_studies <- function(conn = NULL){
     if(!is.null(conn)) {
         studies <- dbListFields(conn, "cor_tf")
     } else {

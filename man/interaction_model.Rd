@@ -15,7 +15,7 @@ TF  (column name: TF),  and target gene  (column name: target),}
 \item{exp}{gene expression matrix (columns: samples same order as met, rows: genes)}
 }
 \value{
-A dataframe with Region, TF, Estimates and Pvalue from linear model
+A dataframe with Region, TF, Estimates and P-value from linear model
 }
 \description{
 Evaluate interaction of DNA methylation,
@@ -26,9 +26,20 @@ To consider covariates, RNA can also be the residuals.
 \deqn{log2(RNA target residuals) ~ log2(TF residual) + DNAm + log2(TF residual) * DNAm}
 }
 \examples{
+triplet <- data.frame("regionID" = paste0("region_",1:9),
+                      "TF" = paste0("ESNG",10),
+                      "target" = paste0("ESNG",1:9))
+dnam <- runif(200) \%>\% matrix(10)
+colnames(dnam) <- paste0("Sample_",1:20)
+rownames(dnam) <- paste0("region_",1:10)
+exp <- rexp(200) \%>\% matrix(10)
+colnames(exp) <- paste0("Sample_",1:20)
+rownames(exp) <- paste0("ESNG",1:10)
+results <- interaction_model(triplet, dnam, exp)
 \dontrun{
+# TODO create a more real example
  human.tfs <- get_human_tfs()
  TF.target <- get_tf_targets_cistrome("COAD_READ*")
- DNAm.target <- get_dnam_target_gene("hg38", method = "closest.gene")
+ DNAm.target <- get_region_target_gene("hg38", method = "closest.gene")
 }
 }

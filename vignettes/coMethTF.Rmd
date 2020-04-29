@@ -1,0 +1,49 @@
+---
+title: "coMethTF: functional annotation of DMRs identified in epigenome-wide association studies"
+output:
+  rmarkdown::html_document:
+    theme: lumen
+    toc: true
+    number_sections: true
+    df_print: paged
+    code_download: false
+    toc_float:
+      collapsed: yes
+    toc_depth: 3
+editor_options:
+  chunk_output_type: inline    
+vignette: >
+  %\VignetteIndexEntry{How to use MethTF}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+DNA methylation is a widely studied epigenetic modification. Recent epigenome-wide association studies (EWAS) have identified numerous alterations in DNA methylation (DNAm) levels that are involved in many diseases such as various cancers as well as neurodegenerative diseases such as Alzheimer’s disease. These changes between cases and control subjects can be either differentially methylated  at a single site (DMS) or in a contiguous region (DMR) of the genome. 
+
+To help understand the functional role of these DNAm changes, previous studies have performed integrative analysis of DNAm data with either gene expression or transcription factor binding data, but rarely both.  
+
+Transcription factors are proteins that facilitate the transcription of DNA into RNA. A number of recent studies have observed that the binding of transcription factor onto DNA can be affected by DNA methylation, and in turn, DNA methylation can also be added or removed by proteins associated with transcription factors (ref – PMID: 27479905;     27918535; 25233095). Using methylation-sensitive SELEX (systematic evoluation of ligands by exponential enrichment), Yin et al. (2017) classified 519 TFs into several categories – TFs whose binding strength increased, decreased, or not affected by DNAm, as well as those not containing CpGs in their binding motifs. 
+
+To determine whether TF regulatory activity is enhanced or reduced by DMS or DMRs in EWAS, the gold standard would be to perform ChIP-Seq experiment for all candidate transcription factors with binding sites close to the DMRs. However, information on ChIP-Seq experiment for disease relevant tissues are often not available, and because experimentally determining methylation at TFBS can be time and resource consuming, computationally approaches are often used to prioritize active TFs in DNAm studies. For example, LOLA (Locus Overlap Analysis) can be used to perform enrichment analysis to identify regulatory elements (e.g. TFBS) enriched with candidate genomic regions (e.g. DMRs).  Alternatively, instead of testing for enrichment of all the DMRs, Goldmine can be used to annotate individual DMR with transcription factors with binding sites that overlaps with the DMR. 
+
+Here we present `coMethTF`, which performs integrative analyses on all three key components in gene regulation, that is,  DNAm, gene expression as well as TFBS data, to provide functional annotations for DMS or DMRs. The results from coMethTF can be used to generate testable hypothesis on the synergistic interaction of DMRs and TF in gene regulation.  coMethTF is a computational tool that evaluates, prioritizes and annotates DNA methylation regions with high regulatory potential using matched DNAm and gene expression data alone, without any additional ChIP-seq data. MethTF can be used either to evaluate regulatory potentials of candidate regions or to search for  methylation coupled TF regulatory processes in the entire genome. 
+
+
+```{r setup}
+library(methTF)
+```
+
+
+# Session information
+```{R}
+devtools::session_info()
+```

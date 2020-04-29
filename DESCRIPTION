@@ -1,4 +1,4 @@
-Package: methTF
+Package: coMethTF
 Type: Package
 Title: Assessing regulatory potential of DNAm on gene transcription
 Version: 0.1.0

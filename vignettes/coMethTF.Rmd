@@ -18,6 +18,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<style> body {text-align: justify} </style>
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -37,11 +39,67 @@ To determine whether TF regulatory activity is enhanced or reduced by DMS or DMR
 
 Here we present `coMethTF`, which performs integrative analyses on all three key components in gene regulation, that is,  DNAm, gene expression as well as TFBS data, to provide functional annotations for DMS or DMRs. The results from coMethTF can be used to generate testable hypothesis on the synergistic interaction of DMRs and TF in gene regulation.  coMethTF is a computational tool that evaluates, prioritizes and annotates DNA methylation regions with high regulatory potential using matched DNAm and gene expression data alone, without any additional ChIP-seq data. MethTF can be used either to evaluate regulatory potentials of candidate regions or to search for  methylation coupled TF regulatory processes in the entire genome. 
 
+# Install 
 
-```{r setup}
-library(methTF)
+You can install the development version of the package from GitHub using the following code:
+
+```{r setup, eval = FALSE}
+devtools::install_github("TransBioInfoLab/coMethTF")
 ```
 
+# Load
+
+After the package is successfully installed you can load its functions with `library` command.
+
+```{r setup}
+library(coMethTF)
+```
+
+# Interaction model
+
+## Data
+
+```{R, message = FALSE}
+library(dplyr)
+```
+
+```{R}
+triplet <- data.frame("regionID" = paste0("region_",1:9),
+                       "TF" = paste0("ESNG",10),
+                       "target" = paste0("ESNG",1:9))
+dnam <- runif(200) %>% matrix(10)
+colnames(dnam) <- paste0("Sample_",1:20)
+rownames(dnam) <- paste0("region_",1:10)
+exp <- rexp(200) %>% matrix(10)
+colnames(exp) <- paste0("Sample_",1:20)
+rownames(exp) <- paste0("ESNG",1:10)
+
+head(triplet)
+dnam[1:5,1:5]
+exp[1:5,1:5]
+```
+
+
+## Perform interaction model
+
+```{R, message = FALSE, results = "hide"}
+results <- interaction_model(triplet, dnam, exp)
+```
+```{R}
+results
+```
+
+## Plot
+
+```{R, message = FALSE, results = "hide"}
+plots <- plot_interaction_model(results, dnam, exp)
+```
+
+```{R, fig.height = 9, fig.width = 9}
+plots[[1]]
+```
+
+# Use case
 
 # Session information
 ```{R}

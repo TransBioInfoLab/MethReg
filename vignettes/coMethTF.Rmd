@@ -1,5 +1,8 @@
 ---
 title: "coMethTF: functional annotation of DMRs identified in epigenome-wide association studies"
+author:
+  - Tiago Chedraoui Silva^[Miami University, txs902@miami.edu]
+  - Lily wang^[Miami University]
 output:
   rmarkdown::html_document:
     theme: lumen
@@ -54,7 +57,7 @@ After the package is successfully installed you can load its functions with `lib
 library(coMethTF)
 ```
 
-# Interaction model
+# Analysis: Target gene = DNA met + TF
 
 ## Data
 
@@ -62,24 +65,49 @@ library(coMethTF)
 library(dplyr)
 ```
 
+### DNA methylation
+
+The DNA methylation data should be a matrix with samples as columns and regions/probes 
+as rows. 
+
 ```{R}
-triplet <- data.frame("regionID" = paste0("region_",1:9),
-                       "TF" = paste0("ESNG",10),
-                       "target" = paste0("ESNG",1:9))
 dnam <- runif(200) %>% matrix(10)
 colnames(dnam) <- paste0("Sample_",1:20)
 rownames(dnam) <- paste0("region_",1:10)
+dnam[1:5,1:5]
+```
+
+### Gene expression
+
+The expected gene expression data is a matrix with samples in columns and 
+genes in the rows.
+
+```{R}
 exp <- rexp(200) %>% matrix(10)
 colnames(exp) <- paste0("Sample_",1:20)
 rownames(exp) <- paste0("ESNG",1:10)
-
-head(triplet)
-dnam[1:5,1:5]
 exp[1:5,1:5]
 ```
 
 
-## Perform interaction model
+### Triplet: TF, target gene, region
+
+The triple is a data frame with the following columns:
+
+* `target`: gene identifier within the row names of the gene expression matrix, 
+* `regionID`: region/cpg identifier row names of the DNA methylation matrix  
+* `TF`: gene identifier within the row names of the gene expression matrix
+
+```{R}
+triplet <- data.frame("regionID" = paste0("region_",1:9),
+                       "TF" = paste0("ESNG",10),
+                       "target" = paste0("ESNG",1:9))
+head(triplet)
+```
+
+
+
+## Evaluating DNA methylation and TF interaction
 
 The function `interaction_model` will evaluate the response of the target gene expression
 using as predictor the DNA methylation level and the TF expression: `log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`

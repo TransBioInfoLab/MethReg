@@ -17,17 +17,17 @@ bibliography: bibliography.bib
 editor_options:
   chunk_output_type: inline    
 vignette: >
-  %\VignetteIndexEntry{How to use MethTF}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{How to use MethTF}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
 ---
-
+  
 <style> body {text-align: justify} </style>
-
+  
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+collapse = TRUE,
+comment = "#>"
 )
 ```
 
@@ -51,9 +51,13 @@ devtools::install_github("TransBioInfoLab/coMethTF")
 
 ## Load
 
+```{r, eval = TRUE, include = FALSE}
+devtools::load_all(".")
+```
+
 After the package is successfully installed you can load its functions with `library` command.
 
-```{r setup}
+```{r setup, eval = FALSE}
 library(coMethTF)
 ```
 
@@ -71,10 +75,8 @@ The DNA methylation data should be a matrix with samples as columns and regions/
 as rows. 
 
 ```{R}
-dnam <- runif(200) %>% matrix(10)
-colnames(dnam) <- paste0("Sample_",1:20)
-rownames(dnam) <- paste0("region_",1:10)
-dnam[1:5,1:5]
+data("dna.met.chr21")
+dna.met.chr21[1:5,1:5]
 ```
 
 ### Gene expression
@@ -83,10 +85,8 @@ The expected gene expression data is a matrix with samples in columns and
 genes in the rows.
 
 ```{R}
-exp <- rexp(200) %>% matrix(10)
-colnames(exp) <- paste0("Sample_",1:20)
-rownames(exp) <- paste0("ESNG",1:10)
-exp[1:5,1:5]
+data("gene.exp.chr21")
+gene.exp.chr21[1:5,1:5]
 ```
 
 
@@ -99,9 +99,11 @@ The triple is a data frame with the following columns:
 * `TF`: gene identifier within the row names of the gene expression matrix
 
 ```{R}
-triplet <- data.frame("regionID" = paste0("region_",1:9),
-                       "TF" = paste0("ESNG",10),
-                       "target" = paste0("ESNG",1:9))
+triplet <- tibble::tibble(
+    "regionID" = rownames(dna.met.chr21)[1:10],
+    "TF" = rep(rownames(gene.exp.chr21)[1],10),
+    "target" = rownames(gene.exp.chr21)[2:11]
+)
 head(triplet)
 ```
 
@@ -113,7 +115,7 @@ The function `interaction_model` will evaluate the response of the target gene e
 using as predictor the DNA methylation level and the TF expression: `log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`
 
 ```{R, message = FALSE, results = "hide"}
-results <- interaction_model(triplet, dnam, exp)
+results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 ```
 
 The output of `interaction_model` function will be a data frame with the 
@@ -145,14 +147,12 @@ the DNA methylation matrix and the gene expression matrix.
 
 
 ```{R, message = FALSE, results = "hide"}
-plots <- plot_interaction_model(results, dnam, exp)
+plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21)
 ```
 
-```{R, fig.height = 9, fig.width = 9}
+```{R, fig.height = 9, fig.width = 12}
 plots[[1]]
 ```
-
-# Use case
 
 # Session information
 ```{R}

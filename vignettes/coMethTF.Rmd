@@ -29,6 +29,7 @@ knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>"
 )
+library(dplyr)
 ```
 
 # Introduction
@@ -61,13 +62,18 @@ After the package is successfully installed you can load its functions with `lib
 library(coMethTF)
 ```
 
-# Analysis: Target gene ~ DNA met + TF + TF * DNA met
+# Interaction analysis
 
 ## Data
 
-```{R, message = FALSE}
-library(dplyr)
-```
+To perform the interaction analysis there are 3 main required data:
+
+* DNA methylation matrix
+* Gene expression matrix
+* A data frame with the Triplet region, TF, and target gene
+
+The next sections will provide an example of DNA methylation and gene expression matrix 
+and how you can get the information required to create the triplet data frame.
 
 ### DNA methylation
 

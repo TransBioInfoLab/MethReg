@@ -78,6 +78,7 @@ as rows.
 data("dna.met.chr21")
 dna.met.chr21[1:5,1:5]
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21[1:5,1:5]
 ```
 
 ### Gene expression
@@ -101,7 +102,7 @@ the region to all the genes within a windown (default size = 500Kbp around the r
 # Get CpG information
 library(sesame)
 HM450.hg38.manifest <- sesameDataGet("HM450.hg38.manifest")
-probes.gr <- HM450.hg38.manifest[rownames(dna.met.chr21),]
+probes.gr <- make_granges_from_names(rownames(dna.met.chr21))
 class(probes.gr)
 
 # Map probes to nearest gene

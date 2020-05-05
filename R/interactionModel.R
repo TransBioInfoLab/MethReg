@@ -41,6 +41,12 @@ interaction_model <- function(triplet,
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
+    triplet <- triplet %>% dplyr::filter(target %in% rownames(exp) &
+                                             TF %in% rownames(exp) &
+                                             regionID %in% rownames(dnam))
+    if(nrow(triplet) == 0){
+        stop("We were not able to find the same rows from triple in the data, please check the input.")
+    }
     out <- plyr::adply(.data = triplet,.margins = 1,.fun = function(row.triplet){
 
         rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]

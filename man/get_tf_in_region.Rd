@@ -11,6 +11,16 @@ get_tf_in_region(
   classification = c("subfamily", "family")
 )
 }
+\arguments{
+\item{region}{Region to map. Either a Granges or a named vertor}
+
+\item{genome}{Human genome of reference "hg38" or "hg19"}
+
+\item{arrayType}{DNA methylation array "450k" or "EPIC"}
+
+\item{classification}{TF classification to be used.
+Either "subfamily" or "family".}
+}
 \value{
 A dataframe with region, a TF name and TF gene ensembl ID
 }
@@ -26,9 +36,15 @@ have similar binding motifs.
 \examples{
 \dontrun{
  regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
- get_tf_in_region(regions.names,
+ region.tf <- get_tf_in_region(regions.names,
                  genome = "hg19",
                  arrayType = "450k",
                  classification = "subfamily")
+
+ regions.gr <- make_granges_from_names(regions.names)
+ region.tf <- get_tf_in_region(regions.gr,
+                 genome = "hg38",
+                 arrayType = "450k",
+                 classification = "family")
 }
 }

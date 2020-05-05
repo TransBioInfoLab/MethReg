@@ -9,18 +9,29 @@
 #' @importFrom dplyr pull filter %>% tbl
 #' @importFrom plyr adply
 #' @import dbplyr
+#' @importFrom sesameData sesameDataGet
+#' @importFrom GenomicRanges findOverlaps
 #' @return A dataframe with region, a TF name and TF gene ensembl ID
 #' @examples
 #' \dontrun{
 #'  regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
-#'  get_tf_in_region(regions.names,
+#'  region.tf <- get_tf_in_region(regions.names,
 #'                  genome = "hg19",
 #'                  arrayType = "450k",
 #'                  classification = "subfamily")
+#'
+#'  regions.gr <- make_granges_from_names(regions.names)
+#'  region.tf <- get_tf_in_region(regions.gr,
+#'                  genome = "hg38",
+#'                  arrayType = "450k",
+#'                  classification = "family")
 #' }
 #' @export
-#' @importFrom sesameData sesameDataGet
-#' @importFrom GenomicRanges findOverlaps
+#' @param region Region to map. Either a Granges or a named vertor
+#' @param genome Human genome of reference "hg38" or "hg19"
+#' @param arrayType DNA methylation array "450k" or "EPIC"
+#' @param classification TF classification to be used.
+#' Either "subfamily" or "family".
 get_tf_in_region <- function(region,
                             genome = c("hg19","hg38"),
                             arrayType = c("450k","EPIC"),
@@ -41,23 +52,32 @@ get_tf_in_region <- function(region,
 
     if(is(region,"character") | is(region,"factor")){
         regions.gr <- make_granges_from_names(region)
-    } else  if(is(region,"GenomicRanges")){
-        stop("Region must be a list of character")
+        region.names <- region
+    } else if(is(region,"GenomicRanges")){
+        regions.gr <- region
+        region.names <- make_names_from_granges(regions.gr)
     }
 
+    # get pre-computed data
     motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",arrayType),package = "ELMER.data"))
     motifs.tfs <- get(data(list = paste0("TF.",classification),package = "ELMER.data"))
 
+    # Get probes regions for mapping the motifs
     probes.gr <- sesameDataGet(paste0(gsub("450K","HM450",arrayType),".",genome,".manifest"))
     probes.gr <- probes.gr[names(probes.gr) %in% rownames(motifs.probes)]
+
+    # Find which probes overlap with the regions
     hits <- findOverlaps(regions.gr,probes.gr) %>% as.data.frame()
+
+    # For each region overlapping get all probes overallping and their motifs
     df <- plyr::adply(unique(hits$queryHits),1, function(x){
         idx <- hits %>% filter(queryHits == x) %>% pull(subjectHits)
         probes <- names(probes.gr)[idx]
         motifs <- colnames(motifs.probes)[Matrix::colSums(motifs.probes[probes,,drop = FALSE]) > 0]
         tfs <- unlist(motifs.tfs[motifs]) %>% as.character() %>% unique()
-        tibble::tibble(region[x],tfs)
+        tibble::tibble(region.names[x],tfs)
     },.id = NULL,.progress = "time",.inform = TRUE)
+
     genome.info <- TCGAbiolinks::get.GRCh.bioMart(genome)
     df$TF_id <- genome.info$ensembl_gene_id[match(df$tfs,genome.info$external_gene_name)]
     colnames(df) <- c("regionID","TF_external_gene_name","TF_ensembl_gene_id")

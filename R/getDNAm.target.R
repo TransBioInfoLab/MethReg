@@ -8,7 +8,8 @@
 #' around the genomic region input.
 #' @param window.width Number of base pairs to extend the region (+-window.width/2). Default is 500kbp (+- 250kbp)
 #' @importFrom coMethDMR AnnotateResults
-#' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames
+#' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames distance
+#' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
 #' @importFrom ELMER getTSS
 #' @examples
@@ -90,7 +91,7 @@ get_region_target_gene <- function(
                                            "window.extended.width" = window.width,
                                            "Distance region-gene" = distance(regions.gr[queryHits(overlap)],
                                                                              geneAnnot[subjectHits(overlap)])),
-                                genes.overlapping)
+                                genes.overlapping)  %>% tibble::as_tibble()
     }
     return(out)
 }

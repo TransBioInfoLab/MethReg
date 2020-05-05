@@ -61,7 +61,7 @@ After the package is successfully installed you can load its functions with `lib
 library(coMethTF)
 ```
 
-# Analysis: Target gene = DNA met + TF
+# Analysis: Target gene ~ DNA met + TF + TF * DNA met
 
 ## Data
 
@@ -77,6 +77,7 @@ as rows.
 ```{R}
 data("dna.met.chr21")
 dna.met.chr21[1:5,1:5]
+dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 ```
 
 ### Gene expression
@@ -89,8 +90,50 @@ data("gene.exp.chr21")
 gene.exp.chr21[1:5,1:5]
 ```
 
+## Mapping region to target gene
 
-### Triplet: TF, target gene, region
+The function `get_region_target_gene` provides two methods to map a region to 
+a target gene. One that maps the region to the closest gene (`method = "closest.gene"`) and one that maps 
+the region to all the genes within a windown (default size = 500Kbp around the region) 
+ (`method = "window"`) .
+ 
+```{R}
+# Get CpG information
+library(sesame)
+HM450.hg38.manifest <- sesameDataGet("HM450.hg38.manifest")
+probes.gr <- HM450.hg38.manifest[rownames(dna.met.chr21),]
+class(probes.gr)
+
+# Map probes to nearest gene
+mapping.closest <- get_region_target_gene(probes.gr, genome = "hg38", method = "closest.gene")
+dim(mapping.closest)
+mapping.closest
+
+# Map probes to genes within 500kb window
+mapping.window <- get_region_target_gene(probes.gr, genome = "hg38", method = "window")
+dim(mapping.window)
+mapping.window
+```
+
+## Mapping region to TF
+
+
+The function `get_tf_in_region` maps the regions to TF using a precomputed dataset using
+HOCOMOCO motifs [@kulakovskiy2016hocomoco]. For each motif we scanned 500 bp around each EPIC and 
+HM450 arrays probes. Then for each motif found in a region we extract TF within the same Tf family or subfamily,
+using TFClass [@wingender2013tfclass], since they have similar binding motifs.
+
+```{R, results = "hide"}
+# we will only map the first 10 regions, since this function may take a while to compute
+region.tf <- get_tf_in_region(probes.gr[1:20], genome = "hg38", arrayType = "450k", classification = "subfamily")
+```
+
+```{R}
+head(region.tf)
+```
+
+
+## Triplet: TF, target gene, region
 
 The triple is a data frame with the following columns:
 
@@ -99,14 +142,14 @@ The triple is a data frame with the following columns:
 * `TF`: gene identifier within the row names of the gene expression matrix
 
 ```{R}
-triplet <- tibble::tibble(
-    "regionID" = rownames(dna.met.chr21)[1:10],
-    "TF" = rep(rownames(gene.exp.chr21)[1],10),
-    "target" = rownames(gene.exp.chr21)[2:11]
-)
+# Merging the results from the previous sections (region and target, and region and TF)
+triplet <- dplyr::inner_join(
+    mapping.closest[,c("regionID","ensembl_gene_id")],
+    region.tf[,c("regionID","TF_ensembl_gene_id")]
+    )
+colnames(triplet) <- c("regionID","target","TF")
 head(triplet)
 ```
-
 
 
 ## Evaluating DNA methylation and TF interaction

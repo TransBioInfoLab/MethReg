@@ -13,22 +13,13 @@
 #' and genes as rows represented by ensembl IDs ENSG00000239415)
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @examples
-#' triplet <- data.frame("regionID" = paste0("region_",1:9),
-#'                       "TF" = paste0("ESNG",10),
-#'                       "target" = paste0("ESNG",1:9))
-#' dnam <- runif(200) %>% matrix(10)
-#' colnames(dnam) <- paste0("Sample_",1:20)
-#' rownames(dnam) <- paste0("region_",1:10)
-#' exp <- rexp(200) %>% matrix(10)
-#' colnames(exp) <- paste0("Sample_",1:20)
-#' rownames(exp) <- paste0("ESNG",1:10)
-#' results <- interaction_model(triplet, dnam, exp)
-#' \dontrun{
-#' # TODO create a more real example
-#'  human.tfs <- get_human_tfs()
-#'  TF.target <- get_tf_targets_cistrome("COAD_READ*")
-#'  DNAm.target <- get_region_target_gene("hg38", method = "closest.gene")
-#' }
+#' data("dna.met.chr21")
+#' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+#' data("gene.exp.chr21")
+#' triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
+#'                       "TF" = rownames(gene.exp.chr21)[11:20],
+#'                       "target" = rownames(gene.exp.chr21)[1:10])
+#' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 #' @export
 interaction_model <- function(triplet,
                               dnam,

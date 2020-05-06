@@ -105,7 +105,6 @@ map_ensg_to_symbol <- function(ensembl.gene.id, genome = "hg38")
             break
         if (tries == 3L) stop("failed to get URL after 3 tries:", "\n  error: ", msg)
     }
-    print(colnames(gene.location))
     symbols <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]$external_gene_name
     return(symbols)
 }

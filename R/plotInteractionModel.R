@@ -14,17 +14,14 @@
 #' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @examples
-#' triplet <- data.frame("regionID" = paste0("region_",1:9),
-#'                       "TF" = paste0("ESNG",10),
-#'                       "target" = paste0("ESNG",1:9))
-#' dnam <- runif(200) %>% matrix(10)
-#' colnames(dnam) <- paste0("Sample_",1:20)
-#' rownames(dnam) <- paste0("region_",1:10)
-#' exp <- rexp(200) %>% matrix(10)
-#' colnames(exp) <- paste0("Sample_",1:20)
-#' rownames(exp) <- paste0("ESNG",1:10)
-#' results <- interaction_model(triplet, dnam, exp)
-#' plots <- plot_interaction_model(results, dnam, exp)
+#' data("dna.met.chr21")
+#' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+#' data("gene.exp.chr21")
+#' triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
+#'                       "TF" = rownames(gene.exp.chr21)[11:20],
+#'                       "target" = rownames(gene.exp.chr21)[1:10])
+#' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
+#' plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21)
 #' @export
 #' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme
 #' @importFrom ggplot2 xlab ylab geom_smooth
@@ -47,7 +44,7 @@ plot_interaction_model <-  function(triplet.results,
         met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
         rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-                TCGAbiolinks::get.GRCh.bioMart()
+        TCGAbiolinks::get.GRCh.bioMart()
         df <- data.frame(
             rna.target = rna.target %>% as.numeric,
             met = met %>% as.numeric,
@@ -93,6 +90,12 @@ plot_interaction_model <-  function(triplet.results,
         df$group[df$met > quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
         df$group[df$met < quantile_lower_cutoff] <- paste0("DNAm low quartile " , range1)
 
+        df$group <- factor(df$group,
+                           levels = c(paste0("DNAm low quartile " , range1),
+                                      paste0("DNAm high quartile ", range2)
+                           )
+        )
+
         tf.target.quantile.plot <- ggscatter(df[!is.na(df$group),],
                                              x = "rna.tf",
                                              y = "rna.target",
@@ -113,12 +116,19 @@ plot_interaction_model <-  function(triplet.results,
         df$groupTF <- NA
         df$groupTF[df$TF > quantile_upper_cutoff] <- paste0("TF high quartile ", range2)
         df$groupTF[df$TF < quantile_lower_cutoff] <- paste0("TF low quartile " , range1)
+        df$groupTF <- factor(df$groupTF,
+                             levels = c(
+                                 paste0("TF low quartile " , range1),
+                                 paste0("TF high quartile ", range2)
+                             )
+        )
 
-        tf.target.quantile.plot <- ggscatter(df[!is.na(df$group),],
-                                             x = "rna.tf",
-                                             y = "rna.target",
-                                             facet.by = "group",
-                                             size = 1
+        tf.target.quantile.plot <- ggscatter(
+            df[!is.na(df$group),],
+            x = "rna.tf",
+            y = "rna.target",
+            facet.by = "group",
+            size = 1
         ) + xlab(tf.lab)  +
             ylab(target.lab) +
             geom_smooth(method = MASS::rlm, se = FALSE)
@@ -136,7 +146,9 @@ plot_interaction_model <-  function(triplet.results,
         table.plot1 <- ggtexttable(
             row.triplet[,c("regionID",
                            "target",
-                           "TF")] %>%
+                           "target_symbol",
+                           "TF",
+                           "TF_symbol")] %>%
                 t() %>%
                 as_tibble(rownames = "Variable"),
             rows = NULL,

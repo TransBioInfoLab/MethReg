@@ -142,53 +142,102 @@ plot_interaction_model <-  function(triplet.results,
             row.triplet[,idx] <- format(row.triplet[,idx],digits = 3)
         }
 
-        base_size <- 9
-        table.plot1 <- ggtexttable(
-            row.triplet[,c("regionID",
-                           "target",
-                           "target_symbol",
-                           "TF",
-                           "TF_symbol")] %>%
-                t() %>%
-                as_tibble(rownames = "Variable"),
-            rows = NULL,
-            cols = NULL,
-            theme = ttheme("mOrange", base_size = base_size)
-        )
 
-        table.plot2a <- row.triplet[,grep("estimate",colnames(row.triplet),value = T),drop  = FALSE] %>%
-            t() %>%
-            as_tibble(rownames = "Variable")
-        colnames(table.plot2a)[2] <- "Estimate"
-        table.plot2a$Variable <- gsub("estimate_","", table.plot2a$Variable)
-        table.plot2b <- row.triplet[,grep("pval", colnames(row.triplet), value = T), drop  = FALSE] %>%
-            t() %>%
-            as_tibble(rownames = "Variable")
-        table.plot2b$Variable <- gsub("pval_","",table.plot2b$Variable)
-        colnames(table.plot2b)[2] <- "P-value"
-        table.plot2 <- merge(table.plot2a,table.plot2b, by = "Variable",sort = FALSE)
-
-        table.plot2 <- ggtexttable(table.plot2,
-                                   rows = NULL,
-                                   cols = c("DNAm vs Target","Estimate","P-Values"),
-                                   theme = ttheme("mOrange", base_size = base_size)
-        )
+        table.plots <- get_table_plot(row.triplet)
 
         # Arrange the plots on the same page
         plot.table <- ggarrange(
-            ggarrange(table.plot1,
-                      table.plot2,
+            ggarrange(table.plots$table.plot.metadata,
+                      table.plots$table.plot.lm.all,
+                      ncol = 2),
+            ggarrange(table.plots$table.plot.lm.dnam.low,
+                      table.plots$table.plot.lm.dnam.high,
                       ncol = 2),
             ggarrange(tf.target.plot,
                       dnam.target.plot,
                       dnam.tf.plot,
                       ncol = 3),
             tf.target.quantile.plot,
-            nrow = 3,
-            heights = c(1,2,2))
+            nrow = 4,
+            heights = c(1,1,2,2))
         plot.table
 
     }, .progress = "time")
+    attr(out,"split_type") <- NULL
+    attr(out,"split_labels") <- NULL
     names(out) <- paste0(triplet.results$regionID,"_TF_",triplet.results$TF,"_target_",triplet.results$target)
     out
+}
+
+get_table_plot <- function(row.triplet){
+
+    base_size <- 9
+    table.plot.metadata <- ggtexttable(
+        row.triplet[,c("regionID",
+                       "target",
+                       "target_symbol",
+                       "TF",
+                       "TF_symbol")] %>%
+            t() %>%
+            as_tibble(rownames = "Variable"),
+        rows = NULL,
+        cols = NULL,
+        theme = ttheme("mOrange", base_size = base_size)
+    )
+
+    # Get results for linear model with all samples
+    table.plot.lm.all <- get_table_plot_results(row.triplet, type = "all")
+
+    # Get results for linear model with DNAm high samples
+    table.plot.lm.dnam.high <- get_table_plot_results(row.triplet, type = "DNAmhigh")
+
+    # Get results for linear model with DNAm low samples
+    table.plot.lm.dnam.low <- get_table_plot_results(row.triplet, type = "DNAmlow")
+
+    table.plot.list <- list(
+        "table.plot.metadata" = table.plot.metadata,
+        "table.plot.lm.all" = table.plot.lm.all,
+        "table.plot.lm.dnam.low" = table.plot.lm.dnam.low,
+        "table.plot.lm.dnam.high" = table.plot.lm.dnam.high
+    )
+
+    return(table.plot.list)
+}
+
+get_table_plot_results <- function(row.triplet, type){
+
+    base_size <- 9
+    if(type == "all"){
+        pattern.estimate <- "^estimate"
+        pattern.pval <- "^pval"
+        title <- "DNAm vs Target"
+    } else if(type == "DNAmlow"){
+        pattern.estimate <- "^DNAmlow_estimate"
+        pattern.pval <- "^DNAmlow_pval"
+        title <- "DNAm high vs Target"
+    } else {
+        pattern.estimate <- "^DNAmhigh_estimate"
+        pattern.pval <- "^DNAmhigh_pval"
+        title <- "DNAm low vs Target"
+    }
+    table.plot.estimate <- row.triplet[,grep(pattern.estimate,colnames(row.triplet),value = T),drop  = FALSE] %>%
+        t() %>%
+        as_tibble(rownames = "Variable")
+    colnames(table.plot.estimate)[2] <- "Estimate"
+    table.plot.estimate$Variable <- gsub(paste0(pattern.estimate,"|_"),"", table.plot.estimate$Variable)
+
+    table.plot.pval <- row.triplet[,grep(pattern.pval, colnames(row.triplet), value = T), drop  = FALSE] %>%
+        t() %>%
+        as_tibble(rownames = "Variable")
+    table.plot.pval$Variable <- gsub(paste0(pattern.pval,"|_"),"",table.plot.pval$Variable)
+    colnames(table.plot.pval)[2] <- "P-value"
+
+    table.plot <- merge(table.plot.estimate,table.plot.pval, by = "Variable",sort = FALSE)
+
+    table.plot.lm.all <- ggtexttable(table.plot,
+                                     rows = NULL,
+                                     cols = c(title,"Estimate","P-Values"),
+                                     theme = ttheme("mOrange", base_size = base_size)
+    )
+
 }

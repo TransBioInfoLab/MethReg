@@ -86,7 +86,36 @@ interaction_model <- function(triplet,
             results.estimate <- summary(results)$coefficients[-1, 1, drop = F] %>% t %>% as.data.frame()
             colnames(results.estimate) <- paste0("estimate_", colnames(results.estimate))
 
-            out <- cbind(results.pval, results.estimate) %>% data.frame()
+            low.cutoff <- quantile(data$met)[2]
+            upper.cutoff <- quantile(data$met)[4]
+
+            data.low <- data %>% dplyr::filter(met <= low.cutoff)
+            data.high <- data %>% dplyr::filter(met >= upper.cutoff)
+            results.low <- lm (
+                rna.target ~ met + rna.tf + rna.tf * met,
+                data = data.low
+            )
+            results.high <- lm (
+                rna.target ~ met + rna.tf + rna.tf * met,
+                data = data.high
+            )
+
+            results.low.pval <- summary(results.low)$coefficients[-1,4,drop = F] %>% t %>% as.data.frame()
+            colnames(results.low.pval) <- stringr::str_c("DNAmlow_pval_", colnames(results.low.pval))
+
+            results.low.estimate <- summary(results.low)$coefficients[-1,1,drop = F] %>% t %>% as.data.frame()
+            colnames(results.low.estimate) <- stringr::str_c("DNAmlow_estimate_", colnames(results.low.estimate))
+
+            results.high.pval <- summary(results.high)$coefficients[-1,4,drop = F] %>% t %>% as.data.frame()
+            colnames(results.high.pval) <- stringr::str_c("DNAmhigh_pval_", colnames(results.high.pval))
+
+            results.high.estimate <- summary(results.high)$coefficients[-1,1,drop = F] %>% t %>% as.data.frame()
+            colnames(results.high.estimate) <- stringr::str_c("DNAmhigh_estimate_", colnames(results.high.estimate))
+
+            out <- cbind(results.pval, results.estimate,
+                         results.low.pval, results.low.estimate,
+                         results.high.pval, results.high.estimate
+                         ) %>% data.frame()
 
         }, .progress = "time")
 

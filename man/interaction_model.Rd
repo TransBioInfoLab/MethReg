@@ -12,7 +12,8 @@ TF  (column name: TF),  and target gene  (column name: target),}
 
 \item{dnam}{DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)}
 
-\item{exp}{gene expression matrix (columns: samples same order as met, rows: genes)}
+\item{exp}{gene expression matrix with samples as columns in the same order as met
+and genes as rows represented by ensembl IDs ENSG00000239415)}
 }
 \value{
 A dataframe with Region, TF, Estimates and P-value from linear model

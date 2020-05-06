@@ -47,21 +47,22 @@ plot_interaction_model <-  function(triplet.results,
         met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
         rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
+                TCGAbiolinks::get.GRCh.bioMart()
         df <- data.frame(
             rna.target = rna.target %>% as.numeric,
             met = met %>% as.numeric,
             rna.tf = rna.tf %>% as.numeric
         )
 
-        target.lab <- bquote(atop("Target" ~.(row.triplet$target %>% as.character())))
+        target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))
         region.lab <- "DNA methylation"
-        tf.lab <- bquote(atop("TF" ~.(row.triplet$TF %>% as.character())))
+        tf.lab <- bquote(atop("TF" ~.(row.triplet$TF_symbol %>% as.character())))
 
         tf.target.plot <- ggscatter(df,
                                     x = "rna.tf",
                                     y = "rna.target",
                                     size = 1
-        ) + xlab(tf.lab)  +
+        ) + xlab(tf.lab) +
             ylab(target.lab) +
             geom_smooth(method = MASS::rlm, se = FALSE)
 

@@ -40,7 +40,7 @@ Transcription factors (TFs) are proteins that facilitate the transcription of DN
 
 To determine whether TF regulatory activity is enhanced or reduced by differentially methylated regions (DMRs), the gold standard would be to perform ChIP-Seq experiment for all candidate transcription factors with binding sites close to the DMRs. However, information on ChIP-Seq experiment for disease relevant tissues are often not available, and because experimentally determining DNA methylation at TFBS can be time and resource consuming, computationally approaches are often used to prioritize active TFs in DNA methylation studies. 
 
-Here we present `coMethTF`, which performs integrative analyses on all three key components in gene regulation, that is,  DNA methylation, gene expression, and TFBS data, to provide functional annotations for DMRs. The results from coMethTF can be used to generate testable hypothesis on the synergistic interaction of DMRs and TF in gene regulation.  `coMethTF` is a computational tool that evaluates, prioritizes and annotates DNA methylation regions with high regulatory potential using matched DNA methylation and gene expression data, without any additional ChIP-seq data. `coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome. 
+Here we present `coMethTF`, which performs integrative analyses on all three key components in gene regulation, that is,  DNA methylation, gene expression, and TFBS data, to provide functional annotations for DMRs. The results from coMethTF can be used to generate testable hypothesis on the synergistic interaction of DMRs and TF in gene regulation. `coMethTF` is a computational tool that evaluates, prioritizes and annotates DNA methylation regions with high regulatory potential using matched DNA methylation and gene expression data, without any additional ChIP-seq data. `coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome. 
 
 ## Install 
 
@@ -202,6 +202,45 @@ plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21)
 
 ```{R, fig.height = 9, fig.width = 12}
 plots[[1]]
+```
+
+## Controlling confounding effects
+
+You can control for confounding effects using the residual data with the function
+`get_residuals`. This function will use metadata to adjust the data for 
+confounding effects as follows: features ~ covariate1 + covariate2 ... + covariateN.
+
+```{R, results = "hide"}
+data("gene.exp.chr21")
+metadata <- data.frame(
+     row.names = colnames(gene.exp.chr21),
+     sex = c(rep("Male",25),rep("Female",25)),
+     age = sample(50:90, 50, replace = TRUE)
+)
+gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21, metadata)
+```
+```{R}
+gene.exp.chr21.residuals[1:5,1:5]
+```
+
+```{R, results = "hide"}
+data("dna.met.chr21")
+dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21.residuals <- get_residuals(dna.met.chr21,metadata)
+```
+
+```{R}
+dna.met.chr21.residuals[1:5,1:5]
+```
+
+These residuals data can then be used with the `interaction_model` function.
+which will evaluate the response of the target gene expression
+using as predictor the DNA methylation level and the TF expression as follows: 
+`rna.target ~ met + rna.tf + rna.tf * met`.
+
+
+```{R, message = FALSE, results = "hide"}
+results <- interaction_model(triplet, dna.met.chr21.residuals, gene.exp.chr21.residuals)
 ```
 
 # Session information

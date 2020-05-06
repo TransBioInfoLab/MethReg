@@ -9,7 +9,8 @@
 #' @param triplet Dataframe with region (column name: regionID),
 #' TF  (column name: TF),  and target gene  (column name: target),
 #' @param dnam DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)
-#' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
+#' @param exp gene expression matrix with samples as columns in the same order as met
+#' and genes as rows represented by ensembl IDs ENSG00000239415)
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @examples
 #' triplet <- data.frame("regionID" = paste0("region_",1:9),
@@ -36,6 +37,11 @@ interaction_model <- function(triplet,
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
     if(missing(exp)) stop("Please set exp argument with gene expression matrix")
+
+    if(!all(grepl("ENSG", rownames(exp)))){
+        stop("exp must have the following row names as ENSEMBL IDs (i.e. ENSG00000239415)")
+    }
+
     if(missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
     if(!all(c("regionID","TF","target") %in% colnames(triplet))) {
         stop("triplet must have the following columns names: regionID, TF, target")
@@ -44,36 +50,54 @@ interaction_model <- function(triplet,
     triplet <- triplet %>% dplyr::filter(target %in% rownames(exp) &
                                              TF %in% rownames(exp) &
                                              regionID %in% rownames(dnam))
+
+    triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
+    triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
+
     if(nrow(triplet) == 0){
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
-    out <- plyr::adply(.data = triplet,.margins = 1,.fun = function(row.triplet){
 
-        rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
-        met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
-        rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
+    is.residuals <- any(exp < 0)
 
-        data <- data.frame(
-            rna.target = log2(rna.target + 1) %>% as.numeric,
-            met = met %>% as.numeric,
-            rna.tf = log2(rna.tf + 1) %>% as.numeric
-        )
+    out <- plyr::adply(
+        .data = triplet,
+        .margins = 1,
+        .fun = function(row.triplet){
+            rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
+            met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
+            rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-        # 2) fit linear model: target RNA ~ DNAm + RNA TF
-        results <- lm (
-            rna.target ~ met + rna.tf + rna.tf * met,
-            data = data
-        )
+            if(is.residuals){
+                # can have negative values
+                data <- data.frame(
+                    rna.target = rna.target %>% as.numeric,
+                    met = met %>% as.numeric,
+                    rna.tf = rna.tf %>% as.numeric
+                )
+            } else {
+                data <- data.frame(
+                    rna.target = log2(rna.target + 1) %>% as.numeric,
+                    met = met %>% as.numeric,
+                    rna.tf = log2(rna.tf + 1) %>% as.numeric
+                )
+            }
 
-        results.pval <- summary(results)$coefficients[-1, 4, drop = F] %>% t %>% as.data.frame()
-        colnames(results.pval) <- paste0("pval_", colnames(results.pval))
+            # 2) fit linear model: target RNA ~ DNAm + RNA TF
+            results <- lm (
+                rna.target ~ met + rna.tf + rna.tf * met,
+                data = data
+            )
 
-        results.estimate <- summary(results)$coefficients[-1, 1, drop = F] %>% t %>% as.data.frame()
-        colnames(results.estimate) <- paste0("estimate_", colnames(results.estimate))
+            results.pval <- summary(results)$coefficients[-1, 4, drop = F] %>% t %>% as.data.frame()
+            colnames(results.pval) <- paste0("pval_", colnames(results.pval))
 
-        out <- cbind(results.pval, results.estimate) %>% data.frame()
+            results.estimate <- summary(results)$coefficients[-1, 1, drop = F] %>% t %>% as.data.frame()
+            colnames(results.estimate) <- paste0("estimate_", colnames(results.estimate))
 
-    }, .progress = "time")
+            out <- cbind(results.pval, results.estimate) %>% data.frame()
+
+        }, .progress = "time")
 
     return(out)
 }

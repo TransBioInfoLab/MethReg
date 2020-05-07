@@ -7,15 +7,18 @@
 
 <!-- badges: end -->
 
-The goal of coMethTF is to …
+`coMethTF` can be used to generate testable hypothesis on the
+synergistic interaction of DMRs and TFs in gene regulation. `coMethTF`
+can be used either to evaluate regulatory potentials of candidate
+regions or to search for methylation coupled TF regulatory processes in
+the entire genome.
 
 ## Installation
 
-You can install the released version of coMethTF from
-[CRAN](https://CRAN.R-project.org) with:
+You can install the released version of coMethTF from GitHub with:
 
 ``` r
-install.packages("coMethTF")
+devtools::install_github("TransBioInfoLab/coMethTF")
 ```
 
 ## Example

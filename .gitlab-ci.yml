@@ -1,5 +1,9 @@
 image: rocker/tidyverse
 
+variables:
+  CRAN: "https://cran.rstudio.com"
+  BIOC: "https://bioconductor.org/packages/3.11/bioc"
+
 stages:
   - build
   - test
@@ -8,6 +12,7 @@ stages:
 building:
   stage: build
   script:
+    - R -e 'install.packages("BiocManager")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check()'
 

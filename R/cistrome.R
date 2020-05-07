@@ -5,7 +5,6 @@
 #' For more information: http://cistrome.org/CistromeCancer/
 #' @importFrom dplyr pull filter %>% tbl
 #' @importFrom plyr adply
-#' @import dbplyr
 #' @param tcga.study A TCGA study from the database
 #' (i.e. "ACC","BLCA", "BRCA_1", "BRCA_2", "CESC", "COAD_READ*")
 #' Please check function for a complete list: get_cistrome_studies()
@@ -91,10 +90,16 @@ check_cistrome_study <- function(conn, study){
     }
 }
 
-#' @importFrom DBI dbListFields
 get_cistrome_studies <- function(conn = NULL){
+
+
+    if (!requireNamespace("DBI", quietly = TRUE)) {
+        stop("DBI package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
     if(!is.null(conn)) {
-        studies <- dbListFields(conn, "cor_tf")
+        studies <- DBI::dbListFields(conn, "cor_tf")
     } else {
         studies <- c("ACC",
                      "BLCA",

@@ -12,10 +12,29 @@ Description: Analytical framework that systematically integrates DNAm with data 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
+Imports:
+    ELMER,
+    dplyr,
+    plyr,
+    GenomicRanges,
+    biomaRt,
+    ggplot2,
+    ggpubr,
+    tibble,
+    tidyr,
+    downloader,
+    S4Vectors,
+    sesameData,
+    stringr
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    dbplyr,
+    RSQLite,
+    parallel,
+    doParallel,
+    R.utils
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
 Depends: 

@@ -1,8 +1,8 @@
 ---
 title: "coMethTF: functional annotation of DMRs identified in epigenome-wide association studies"
 author:
-  - Tiago Chedraoui Silva^[Miami University, txs902@miami.edu]
-  - Lily wang^[Miami University]
+  - Tiago Chedraoui Silva^[University of Miami, txs902@miami.edu]
+  - Lily wang^[University of Miami, lily.wang@gmail.com]
 output:
   rmarkdown::html_document:
     theme: lumen
@@ -34,15 +34,15 @@ library(dplyr)
 
 # Introduction
 
-## Description
+Transcription factors (TFs) are proteins that facilitate the transcription of DNA into RNA. A number of recent studies have observed that the binding of TFs onto DNA can be affected by DNA methylation, and in turn, DNA methylation can also be added or removed by proteins associated with transcription factors [@bonder2017disease; @banovich2014methylation; @zhu2016transcription].
 
-Transcription factors (TFs) are proteins that facilitate the transcription of DNA into RNA. A number of recent studies have observed that the binding of transcription factor onto DNA can be affected by DNA methylation, and in turn, DNA methylation can also be added or removed by proteins associated with transcription factors [@bonder2017disease; @banovich2014methylation; @zhu2016transcription]. Using methylation-sensitive SELEX (systematic evolution of ligands by exponential enrichment), @yin2017impact classified 519 TFs into several categories – TFs whose binding strength increased, decreased, or not affected by DNA methylation, as well as those not containing CpGs in their binding motifs. 
+To provide functional annotations for differentially methylated regions (DMRs) and differentially methylated CpG sites (DMS),
+`coMethTF` performs integrative analyses using matched DNA methylation and gene expression along with Transcription Factor Binding Sites (TFBS) data. coMethTF evaluates, prioritizes and annotates DNA methylation regions (or sites) with high regulatory potential that works synergistically with TFs to regulate target gene expressions, without any additional ChIP-seq data. 
 
-To determine whether TF regulatory activity is enhanced or reduced by differentially methylated regions (DMRs), the gold standard would be to perform ChIP-Seq experiment for all candidate transcription factors with binding sites close to the DMRs. However, information on ChIP-Seq experiment for disease relevant tissues are often not available, and because experimentally determining DNA methylation at TFBS can be time and resource consuming, computationally approaches are often used to prioritize active TFs in DNA methylation studies. 
+The results from `coMethTF` can be used to generate testable hypothesis on the synergistic interaction of DMRs and TFs in gene regulation. 
+`coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome.
 
-Here we present `coMethTF`, which performs integrative analyses on all three key components in gene regulation, that is,  DNA methylation, gene expression, and TFBS data, to provide functional annotations for DMRs. The results from coMethTF can be used to generate testable hypothesis on the synergistic interaction of DMRs and TF in gene regulation. `coMethTF` is a computational tool that evaluates, prioritizes and annotates DNA methylation regions with high regulatory potential using matched DNA methylation and gene expression data, without any additional ChIP-seq data. `coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome. 
-
-## Install 
+# Installation 
 
 You can install the development version of the package from GitHub using the following code:
 
@@ -50,35 +50,28 @@ You can install the development version of the package from GitHub using the fol
 devtools::install_github("TransBioInfoLab/coMethTF")
 ```
 
-## Load
-
 ```{r, eval = TRUE, include = FALSE}
 devtools::load_all(".")
 ```
 
-After the package is successfully installed you can load its functions with `library` command.
+After the package is successfully installed you can load its functions with:
 
 ```{r setup, eval = FALSE}
 library(coMethTF)
 ```
 
-# Interaction analysis
+# Dataset
 
-## Data
+The input of `coMethTF` are DNA methylation and gene expression datasets measured on the same set of samples. Using additional information from the HOCOMOCO database [@kulakovskiy2016hocomoco], we will then create a data frame with information on the triplet: DMR (or CpG), TF and target gene. 
 
-To perform the interaction analysis there are 3 main required data:
+For illustration, we will use chromosome 21 data from 50 alzheimer samples.
 
-* DNA methylation matrix
-* Gene expression matrix
-* A data frame with the Triplet region, TF, and target gene
+## DNA methylation dataset
 
-The next sections will provide an example of DNA methylation and gene expression matrix 
-and how you can get the information required to create the triplet data frame.
 
-### DNA methylation
+The DNA methylation dataset is a matrix with methylation beta or M-values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals extracted from fitting linear regression instead (see Section 5 below). 
+The samples are in the columns and regions/probes are in the rows.   
 
-The DNA methylation data should be a matrix with samples as columns and regions/probes 
-as rows. 
 
 ```{R}
 data("dna.met.chr21")
@@ -87,22 +80,23 @@ dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21[1:5,1:5]
 ```
 
-### Gene expression
+## Gene expression dataset
 
-The expected gene expression data is a matrix with samples in columns and 
-genes in the rows.
+The gene expression dataset is a matrix with log2 transformed and normalized gene expression values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals from linear regression instead (see Section xx below).
+The samples are in the columns and the genes are in the rows. 
 
 ```{R}
 data("gene.exp.chr21")
 gene.exp.chr21[1:5,1:5]
 ```
 
-## Mapping region to target gene
+## Creating triplet dataset
+### Mapping DMR region (or CpG) to the target gene
 
-The function `get_region_target_gene` provides two methods to map a region to 
-a target gene. One that maps the region to the closest gene (`method = "closest.gene"`) and one that maps 
-the region to all the genes within a windown (default size = 500Kbp around the region) 
- (`method = "window"`) .
+The function `get_region_target_gene` provides two methods to link a DMR to 
+a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
+(2) mapping the region to all the genes within a window (default size = 500Kbp around the region) 
+ (`method = "window"`).
  
 ```{R}
 # Get CpG information
@@ -117,21 +111,32 @@ dim(mapping.closest)
 mapping.closest
 
 # Map probes to genes within 500kb window
-mapping.window <- get_region_target_gene(probes.gr, genome = "hg38", method = "window")
+mapping.window <- get_region_target_gene(probes.gr, genome = "hg38", method = "window" )
 dim(mapping.window)
 mapping.window
 ```
 
-## Mapping region to TF
+Some of the columns of the data frame output from `get_region_target_gene` 
+when the method is set to `"window"` are described below:
+
+* regionID: chromossome, start, end
+* regionID.extended: same as regionID, but start and end values of the regions will be 
+regionID start - window.width and  regionID end + window.width 
+* window.extended.width:  width of window around region used to find target genes
+* Distance.region.gene: distance from region to the gene TSS
+
+### Mapping region to TF
 
 
-The function `get_tf_in_region` maps the regions to TF using a precomputed dataset using
+The function `get_tf_in_region` maps the regions to TF using a precomputed dataset of 
 HOCOMOCO motifs [@kulakovskiy2016hocomoco]. For each motif we scanned 500 bp around each EPIC and 
 HM450 arrays probes. Then for each motif found in a region we extract TF within the same Tf family or subfamily,
 using TFClass [@wingender2013tfclass], since they have similar binding motifs.
 
+Therefore, a region is linked to a TF if any of the probes within it is mapped to the TF. In other words, we link the DNA methylation regions to TFs within 500 bp from the start or end of the region. 
+
 ```{R, results = "hide"}
-# we will only map the first 10 regions, since this function may take a while to compute
+# we will only map the first 20 regions, since this function may take a while to compute
 region.tf <- get_tf_in_region(probes.gr[1:20], genome = "hg38", arrayType = "450k", classification = "subfamily")
 ```
 
@@ -140,13 +145,13 @@ head(region.tf)
 ```
 
 
-## Triplet: TF, target gene, region
+### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
 
-The triple is a data frame with the following columns:
+The triplet is a data frame with the following columns:
 
-* `target`: gene identifier within the row names of the gene expression matrix, 
-* `regionID`: region/cpg identifier row names of the DNA methylation matrix  
-* `TF`: gene identifier within the row names of the gene expression matrix
+* `target`: gene identifier (obtained from row names of the gene expression matrix),
+* `regionID`: region/cpg identifier (obtained from row names of the DNA methylation matrix)
+* `TF`: gene identifier (obtained from the row names of the gene expression matrix)
 
 ```{R}
 # Merging the results from the previous sections (region and target, and region and TF)
@@ -158,11 +163,26 @@ colnames(triplet) <- c("regionID","target","TF")
 head(triplet)
 ```
 
+Note that this dataset include only regions with both nearby target genes (500K bp) and nearby TFs (500 bp). 
+There may also be multiple rows for a region, when multiple target gene and/or TFs are found close to it. 
 
-## Evaluating DNA methylation and TF interaction
+# Evaluating the regulatory potential of DMRs (or CpGs)
 
-The function `interaction_model` will evaluate the response of the target gene expression
-using as predictor the DNA methylation level and the TF expression: 
+Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby (Yin et al. 2013), target gene expression can often be influenced by the synergistic effects of both TF and DNA methylation. In other words, TF activities in gene regulation is affected by DNA methylation or vice versa. 
+We will assess the regulatory impact of DNA methylation on gene regulation via two approaches: 
+
+1. by fitting a model with TF by DNA methylation interaction using all samples.
+2. by fitting two separate linear models and then compare TF activities on gene regulation in samples with low DNA methylation vs. samples with high DNA methylation
+
+We will perform these analyses using the 3 datasets described above in Section 3:
+
+* DNA methylation matrix
+* Gene expression matrix
+* The triplet data frame with DNA methylation region, TF, and target gene
+
+## Analysis using model with methylation by TF interaction
+
+The function `interaction_model` will fit the following model to data:
 `log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`
 
 Also, it will fit a separate model to samples with  **DNA methylation in low quartile** 
@@ -173,22 +193,22 @@ and another model to samples with  **DNA methylation in high quartile**.
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 ```
 
-The output of `interaction_model` function will be a data frame with the 
-following informations:
+For models involving DMRs, we can first summarize methylation levels in multiple CpGs within the DMR using medians. 
 
-* variable `p-values`: p-value for the t-statistic of the hypothesis test that the corresponding coefficient is equal to zero or not. If the p-value > 0.05 the term is not significant given the other terms in the model.
-* variable `estimates`: coefficient estimate. If estimate > 0, the increase of the variable 
-will increase the output value (target gene expression). If estimate < 0, the increase of the variable 
-will decrease the target gene expression.
+The output of `interaction_model` function will be a data frame with the following variables:
+
+* `pval_<name>`: p-value for a tested variable (methylation or TF), given the other variables included in the model.
+* `estimate_<name>`: estimated effect for a variable. If estimate > 0, increasing values of the variable corresponds to increased outcome values (target gene expression). If estimate < 0, increasing values of the variable correspond to decreased target gene expression levels.
+
 
 The following columns are provided:
 
 * `pval_met`: p-value for DNA methylation variable
 * `pval_rna.tf` : p-value for TF expression
-* `pval_met.rna.tf`: : p-value for DNA methylation and TF interaction
+* `pval_met.rna.tf`: : p-value for DNA methylation by  TF interaction
 * `estimate_met`: estimate for DNA methylation variable
 * `estimate_rna.tf`: estimate  for TF expression
-* `estimate_met.rna.tf`: estimate for DNA methylation and TF interaction
+* `estimate_met.rna.tf`: estimate for DNA methylation by  TF interaction
 
 The results for the separated model fit to samples with **DNA methylation in low quartile** are provided within following columns:
 
@@ -222,11 +242,12 @@ results %>% dplyr::select(c(1,4,5,grep("DNAmlow",colnames(results))))
 results %>% dplyr::select(c(1,4,5,grep("DNAmhigh",colnames(results))))
 ```
 
-## Visualization of interaction
+## Visualization of data  
 
-The function `plot_interaction_model` will create a plot to visualize the data and results.
-It requires as input the data frame output from the function `interaction_model`, 
-the DNA methylation matrix and the gene expression matrix.
+The function `plot_interaction_model` will create figures to visualize the data, 
+in a way that corresponds to the linear model we considered above. 
+It requires the output from the function `interaction_model` (a dataframe), 
+the DNA methylation matrix and the gene expression matrix as input. 
 
 
 ```{R, message = FALSE, results = "hide"}
@@ -236,6 +257,19 @@ plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21)
 ```{R, fig.height = 14, fig.width = 12}
 plots[[1]]
 ```
+
+The first row of the figures shows pairwise associations between DNA methylation, 
+TF and target gene expression levels. 
+
+The second row of the figures show how much TF activity on target 
+gene expression levels vary by DNA methylation levels. When TF by methylation 
+interaction is significant (Section 4.1), we expect the association between TF 
+and target gene expression vary depending on whether DNA methylation is low or high. 
+
+In this example, when DNA methylation is low, more abundant TF corresponds to 
+decreased gene expression (a repressor TF). On the other hand, when DNA methylation 
+level is high, target gene expression is relatively independent of the amount of TF available. 
+One possibility is that DNA methylation might affect TF binding in this case. 
 
 
 If you want to highlight different group of samples, you can also use the metadata argument
@@ -252,11 +286,14 @@ plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21, metadata
 plots[[1]]
 ```
 
-## Controlling confounding effects
+# Controlling effects from confounding variables
 
-You can control for confounding effects using the residual data with the function
-`get_residuals`. This function will use metadata to adjust the data for 
-confounding effects as follows: features ~ covariate1 + covariate2 ... + covariateN.
+Both gene expressions and DNA methylation levels can be affected by age, sex, shifting in cell types, batch effects and other confounding variables.  In this section, we illustrate analysis workflow that reduces confounding effects, by first extracting the residual data with the function 
+`get_residuals`, before fitting the models discussed above in Section 4. 
+
+The `get_residuals` function will use gene expression (or DNA methylation data) and phenotype data as input. 
+To remove confounding effects in gene expression data, we use the `get_residuals` function which extract residuals after fitting the following model: 
+`features ~ covariate_{1} + covariate_{2} ... + covariate{N}`
 
 ```{R, results = "hide"}
 data("gene.exp.chr21")
@@ -281,9 +318,7 @@ dna.met.chr21.residuals <- get_residuals(dna.met.chr21,metadata)
 dna.met.chr21.residuals[1:5,1:5]
 ```
 
-These residuals data can then be used with the `interaction_model` function.
-which will evaluate the response of the target gene expression
-using as predictor the DNA methylation level and the TF expression as follows: 
+The `interaction_model` function can then be applied to these residuals data, as the following:  
 `rna.target ~ met + rna.tf + rna.tf * met`.
 
 

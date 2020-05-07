@@ -51,7 +51,7 @@ devtools::install_github("TransBioInfoLab/coMethTF")
 ```
 
 ```{r, eval = TRUE, include = FALSE}
-devtools::load_all(".")
+library(coMethTF)
 ```
 
 After the package is successfully installed you can load its functions with:

@@ -4,3 +4,7 @@
 ^\.gitlab-ci\.yml$
 ^doc$
 ^Meta$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^README\.Rmd$

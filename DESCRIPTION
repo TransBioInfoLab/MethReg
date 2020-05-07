@@ -2,7 +2,9 @@ Package: coMethTF
 Type: Package
 Title: Assessing regulatory potential of DNAm on gene transcription
 Version: 0.1.0
-Author: Tiago Chedraoui Silva 
+Authors@R: c(
+    person("Tiago", "Silva", email = "tiagochst@gmail.com", role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0003-1343-6850")))
 Maintainer: Tiago Chedraoui Silva <txs902@miami.edu>
 Description: Analytical framework that systematically integrates DNAm with data on multiple TFs, 
     their co-factors and gene expressions to accurately assess the 

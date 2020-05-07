@@ -108,3 +108,26 @@ map_ensg_to_symbol <- function(ensembl.gene.id, genome = "hg38")
     symbols <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]$external_gene_name
     return(symbols)
 }
+
+
+check_data <- function(dnam, exp, metadata){
+    if(ncol(dnam) != ncol(exp)){
+        stop("DNA methylation and gene expression do not has the same number of samples")
+    }
+
+    if(!all(colnames(dnam) == colnames(exp))){
+        stop("DNA methylation and gene expression do not has the column names")
+    }
+
+    if(!missing(metadata)){
+
+        if(nrow(metadata) != ncol(exp)){
+            stop("Metadata and data do not has the same number of samples")
+        }
+
+        if(all(rownames(metadata) != colnames(exp))){
+            stop("Metadata and data do not has the same number of samples")
+        }
+    }
+
+}

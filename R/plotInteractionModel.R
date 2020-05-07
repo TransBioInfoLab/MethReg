@@ -12,6 +12,8 @@
 #' p-vallues and estimates of interaction
 #' @param dnam DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)
 #' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
+#' @param metadata A data frame with samples as rownames and one columns that will be used to
+#' color the samples
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @examples
 #' data("dna.met.chr21")
@@ -22,13 +24,17 @@
 #'                       "target" = rownames(gene.exp.chr21)[1:10])
 #' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 #' plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21)
+#' # Adding color to samples
+#' metadata <- data.frame(row.names = colnames(dna.met.chr21),group = c(rep("Tumor",25),rep("Normal",25)))
+#' plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21,metadata)
 #' @export
 #' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme
 #' @importFrom ggplot2 xlab ylab geom_smooth
 #' @importFrom tibble as_tibble
 plot_interaction_model <-  function(triplet.results,
                                     dnam,
-                                    exp
+                                    exp,
+                                    metadata
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -38,131 +44,60 @@ plot_interaction_model <-  function(triplet.results,
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
-    out <- plyr::alply(.data = triplet.results, .margins = 1, .fun = function(row.triplet){
+    check_data(dnam, exp, metadata)
 
-        rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
-        met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
-        rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
+    out <- plyr::alply(
+        .data = triplet.results,
+        .margins = 1,
+        .fun = function(row.triplet,metadata){
 
-        TCGAbiolinks::get.GRCh.bioMart()
-        df <- data.frame(
-            rna.target = rna.target %>% as.numeric,
-            met = met %>% as.numeric,
-            rna.tf = rna.tf %>% as.numeric
-        )
+            rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
+            met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
+            rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-        target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))
-        region.lab <- "DNA methylation"
-        tf.lab <- bquote(atop("TF" ~.(row.triplet$TF_symbol %>% as.character())))
+            df <- data.frame(
+                rna.target = rna.target %>% as.numeric,
+                met = met %>% as.numeric,
+                rna.tf = rna.tf %>% as.numeric
+            )
 
-        tf.target.plot <- ggscatter(df,
-                                    x = "rna.tf",
-                                    y = "rna.target",
-                                    size = 1
-        ) + xlab(tf.lab) +
-            ylab(target.lab) +
-            geom_smooth(method = MASS::rlm, se = FALSE)
+            color <- NULL
+            if(!missing(metadata)){
+                df <- cbind(df,metadata)
+                color <- colnames(metadata)[1]
+            }
 
-        dnam.target.plot <- ggscatter(df,
-                                      x = "met",
-                                      y = "rna.target",
-                                      size = 1
-        ) + ylab(target.lab) +
-            xlab(region.lab) +
-            geom_smooth(method = MASS::rlm, se = FALSE)
+            plots <- get_plot_results(df,row.triplet,color)
 
-        dnam.tf.plot <- ggscatter(df,
-                                  x = "met",
-                                  y = "rna.tf",
-                                  size = 1
-        ) + ylab(tf.lab)  +
-            xlab(region.lab) +
-            geom_smooth(method = MASS::rlm, se = FALSE)
+            # Reformat p-values for better looking on the plots
+            for(idx in grep("pval|fdr|value",colnames(row.triplet))) {
+                row.triplet[,idx] <- format.pval(row.triplet[,idx],digits = 3)
+            }
+            for(idx in grep("estimate|median|minus",colnames(row.triplet))) {
+                row.triplet[,idx] <- format(row.triplet[,idx],digits = 3)
+            }
 
-        # quintile plots met
-        quant <-  quantile(df$met,na.rm = TRUE)
-        quantile_lower_cutoff <- quant[2]
-        quantile_upper_cutoff <- quant[4]
-        range1 <- paste0("[",paste(round(quant[1:2],digits = 3),collapse = ","),"]")
-        range2 <- paste0("[",paste(round(quant[4:5],digits = 3),collapse = ","),"]")
+            table.plots <- get_table_plot(row.triplet)
 
-        df$group <- NA
-        df$group[df$met > quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
-        df$group[df$met < quantile_lower_cutoff] <- paste0("DNAm low quartile " , range1)
+            # Arrange the plots on the same page
+            plot.table <- ggarrange(
+                ggarrange(table.plots$table.plot.metadata,
+                          table.plots$table.plot.lm.all,
+                          ncol = 2),
+                ggarrange(table.plots$table.plot.lm.dnam.low,
+                          table.plots$table.plot.lm.dnam.high,
+                          ncol = 2),
+                ggarrange(plots$tf.target,
+                          plots$dnam.target,
+                          plots$dnam.tf,
+                          ncol = 3),
+                plots$tf.target.quantile,
+                plots$dnam.target.quantile,
+                nrow = 5,
+                heights = c(1,1,2,2.5,2.5))
+            plot.table
 
-        df$group <- factor(df$group,
-                           levels = c(paste0("DNAm low quartile " , range1),
-                                      paste0("DNAm high quartile ", range2)
-                           )
-        )
-
-        tf.target.quantile.plot <- ggscatter(df[!is.na(df$group),],
-                                             x = "rna.tf",
-                                             y = "rna.target",
-                                             facet.by = "group",
-                                             size = 1
-        ) + xlab(tf.lab)  +
-            ylab(target.lab) +
-            geom_smooth(method = MASS::rlm, se = FALSE)
-
-
-        # quintile plots TF
-        quant <- quantile(df$rna.tf, na.rm = TRUE)
-        quantile_lower_cutoff <- quant[2]
-        quantile_upper_cutoff <- quant[4]
-        range1 <- paste0("[",paste(round(quant[1:2],digits = 3),collapse = ","),"]")
-        range2 <- paste0("[",paste(round(quant[4:5],digits = 3),collapse = ","),"]")
-
-        df$groupTF <- NA
-        df$groupTF[df$TF > quantile_upper_cutoff] <- paste0("TF high quartile ", range2)
-        df$groupTF[df$TF < quantile_lower_cutoff] <- paste0("TF low quartile " , range1)
-        df$groupTF <- factor(df$groupTF,
-                             levels = c(
-                                 paste0("TF low quartile " , range1),
-                                 paste0("TF high quartile ", range2)
-                             )
-        )
-
-        tf.target.quantile.plot <- ggscatter(
-            df[!is.na(df$group),],
-            x = "rna.tf",
-            y = "rna.target",
-            facet.by = "group",
-            size = 1
-        ) + xlab(tf.lab)  +
-            ylab(target.lab) +
-            geom_smooth(method = MASS::rlm, se = FALSE)
-
-
-        # Reformat p-values for better looking on the plots
-        for(idx in grep("pval|fdr|value",colnames(row.triplet))) {
-            row.triplet[,idx] <- format.pval(row.triplet[,idx],digits = 3)
-        }
-        for(idx in grep("estimate|median|minus",colnames(row.triplet))) {
-            row.triplet[,idx] <- format(row.triplet[,idx],digits = 3)
-        }
-
-
-        table.plots <- get_table_plot(row.triplet)
-
-        # Arrange the plots on the same page
-        plot.table <- ggarrange(
-            ggarrange(table.plots$table.plot.metadata,
-                      table.plots$table.plot.lm.all,
-                      ncol = 2),
-            ggarrange(table.plots$table.plot.lm.dnam.low,
-                      table.plots$table.plot.lm.dnam.high,
-                      ncol = 2),
-            ggarrange(tf.target.plot,
-                      dnam.target.plot,
-                      dnam.tf.plot,
-                      ncol = 3),
-            tf.target.quantile.plot,
-            nrow = 4,
-            heights = c(1,1,2,2))
-        plot.table
-
-    }, .progress = "time")
+        }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
     names(out) <- paste0(triplet.results$regionID,"_TF_",triplet.results$TF,"_target_",triplet.results$target)
@@ -202,6 +137,146 @@ get_table_plot <- function(row.triplet){
     )
 
     return(table.plot.list)
+}
+
+get_plot_results <- function(df,row.triplet,color){
+
+    target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))
+    region.lab <- "DNA methylation"
+    tf.lab <- bquote(atop("TF" ~.(row.triplet$TF_symbol %>% as.character())))
+
+    # quintile plots met
+    quant <-  quantile(df$met,na.rm = TRUE)
+    quantile_lower_cutoff <- quant[2]
+    quantile_upper_cutoff <- quant[4]
+    range1 <- paste0("[",paste(round(quant[1:2],digits = 3),collapse = ","),"]")
+    range2 <- paste0("[",paste(round(quant[4:5],digits = 3),collapse = ","),"]")
+
+    df$DNAm.group <- NA
+    df$DNAm.group[df$met > quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
+    df$DNAm.group[df$met < quantile_lower_cutoff] <- paste0("DNAm low quartile " , range1)
+
+    df$DNAm.group <- factor(df$DNAm.group,
+                            levels = c(paste0("DNAm low quartile " , range1),
+                                       paste0("DNAm high quartile ", range2)
+                            )
+    )
+
+    # quintile plots TF
+    quant <- quantile(df$rna.tf, na.rm = TRUE)
+    quantile_lower_cutoff <- quant[2]
+    quantile_upper_cutoff <- quant[4]
+    range1 <- paste0("[",paste(round(quant[1:2],digits = 3),collapse = ","),"]")
+    range2 <- paste0("[",paste(round(quant[4:5],digits = 3),collapse = ","),"]")
+
+    df$TF.group <- NA
+    df$TF.group[df$rna.tf > quantile_upper_cutoff] <- paste0("TF high quartile ", range2)
+    df$TF.group[df$rna.tf < quantile_lower_cutoff] <- paste0("TF low quartile ", range1)
+    df$TF.group <- factor(df$TF.group,
+                          levels = c(
+                              paste0("TF low quartile " , range1),
+                              paste0("TF high quartile ", range2)
+                          )
+    )
+
+
+    tf.target.plot <- get_plot_results_aux(
+        df,
+        x = "rna.tf",
+        y = "rna.target",
+        color = color,
+        xlab = tf.lab,
+        ylab = target.lab)
+
+    dnam.target.plot <- get_plot_results_aux(
+        df,
+        x = "met",
+        y = "rna.target",
+        color = color,
+        ylab = target.lab,
+        xlab = region.lab)
+
+
+    dnam.tf.plot <- get_plot_results_aux(
+        df,
+        x = "met",
+        y = "rna.tf",
+        color = color,
+        ylab = tf.lab,
+        xlab = region.lab)
+
+
+    tf.target.quantile.plot <- get_plot_results_aux(
+        df[!is.na(df$DNAm.group),],
+        x = "rna.tf",
+        xlab = tf.lab,
+        y = "rna.target",
+        ylab = target.lab,
+        facet.by = "DNAm.group",
+        color = color
+    )
+
+
+
+    dnam.target.quantile.plot <- get_plot_results_aux(
+        df[!is.na(df$TF.group),],
+        x = "met",
+        y = "rna.target",
+        facet.by = "TF.group",
+        color = color,
+        ylab = tf.lab,
+        xlab = target.lab)
+
+    return(list("dnam.target.quantile" = dnam.target.quantile.plot,
+                "tf.target.quantile" = tf.target.quantile.plot,
+                "dnam.tf" = dnam.tf.plot,
+                "dnam.target" = dnam.target.plot,
+                "tf.target" = tf.target.plot))
+}
+
+get_plot_results_aux <- function(df, x, y, color, xlab, ylab, facet.by){
+    if(missing(facet.by)){
+        if(!is.null(color)){
+            ggscatter(df,
+                      x = x,
+                      y = y,
+                      color = color,
+                      size = 1
+            ) + xlab(xlab) +
+                ylab(ylab) +
+                geom_smooth(method = MASS::rlm, se = FALSE)
+        } else {
+            ggscatter(df,
+                      x = x,
+                      y = y,
+                      size = 1
+            ) + xlab(xlab) +
+                ylab(ylab) +
+                geom_smooth(method = MASS::rlm, se = FALSE)
+        }
+    } else{
+        if(!is.null(color)){
+            ggscatter(df,
+                      x = x,
+                      y = y,
+                      facet.by = facet.by,
+                      color = color,
+                      size = 1
+            ) + xlab(xlab) +
+                ylab(ylab) +
+                geom_smooth(method = MASS::rlm, se = FALSE)
+        } else {
+            ggscatter(df,
+                      x = x,
+                      y = y,
+                      facet.by = facet.by,
+                      size = 1
+            ) + xlab(xlab) +
+                ylab(ylab) +
+                geom_smooth(method = MASS::rlm, se = FALSE)
+        }
+    }
+
 }
 
 get_table_plot_results <- function(row.triplet, type){

@@ -162,7 +162,12 @@ head(triplet)
 ## Evaluating DNA methylation and TF interaction
 
 The function `interaction_model` will evaluate the response of the target gene expression
-using as predictor the DNA methylation level and the TF expression: `log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`
+using as predictor the DNA methylation level and the TF expression: 
+`log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`
+
+Also, it will fit a separate model to samples with  **DNA methylation in low quartile** 
+and another model to samples with  **DNA methylation in high quartile**.
+
 
 ```{R, message = FALSE, results = "hide"}
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
@@ -185,8 +190,36 @@ The following columns are provided:
 * `estimate_rna.tf`: estimate  for TF expression
 * `estimate_met.rna.tf`: estimate for DNA methylation and TF interaction
 
+The results for the separated model fit to samples with **DNA methylation in low quartile** are provided within following columns:
+
+* `DNAmlow_pval_met`     
+* `DNAmlow_pval_rna.tf`
+* `DNAmlow_pval_met.rna.tf`      
+* `DNAmlow_estimate_met`         
+* `DNAmlow_estimate_rna.tf` 
+* `DNAmlow_estimate_met.rna.tf`  
+
+The results for the separated model fit to samples with  **DNA methylation in low quartile** are provided within following columns:
+
+* `DNAmhigh_pval_met`            
+* `DNAmhigh_pval_rna.tf`         
+* `DNAmhigh_pval_met.rna.tf`    
+* `DNAmhigh_estimate_met`        
+* `DNAmhigh_estimate_rna.tf`     
+* `DNAmhigh_estimate_met.rna.tf`
+
 ```{R}
-results
+dim(results)
+colnames(results)
+
+# Results for model with all samples
+results %>% dplyr::select(c(1,4,5,grep("DNAmlow|DNAmhigh",colnames(results),invert = TRUE)))
+
+# Results for DNA methylation in low quartile model
+results %>% dplyr::select(c(1,4,5,grep("DNAmlow",colnames(results))))
+
+# Results for DNA methylation in high quartile model
+results %>% dplyr::select(c(1,4,5,grep("DNAmhigh",colnames(results))))
 ```
 
 ## Visualization of interaction
@@ -200,7 +233,22 @@ the DNA methylation matrix and the gene expression matrix.
 plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21)
 ```
 
-```{R, fig.height = 9, fig.width = 12}
+```{R, fig.height = 14, fig.width = 12}
+plots[[1]]
+```
+
+
+If you want to highlight different group of samples, you can also use the metadata argument
+with a dataframe with rownames as samples (same order as the columns of the DNAm and gene expression),
+and a column highlighting the groups.
+
+
+```{R, message = FALSE, results = "hide"}
+metadata <- data.frame(row.names = colnames(dna.met.chr21),group = c(rep("Tumor",25),rep("Normal",25)))
+plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21, metadata)
+```
+
+```{R, fig.height = 14, fig.width = 12}
 plots[[1]]
 ```
 

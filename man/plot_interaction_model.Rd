@@ -4,7 +4,7 @@
 \alias{plot_interaction_model}
 \title{Plot interaction data}
 \usage{
-plot_interaction_model(triplet.results, dnam, exp)
+plot_interaction_model(triplet.results, dnam, exp, metadata)
 }
 \arguments{
 \item{triplet.results}{Output from function interaction_model
@@ -14,6 +14,9 @@ p-vallues and estimates of interaction}
 \item{dnam}{DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)}
 
 \item{exp}{gene expression matrix (columns: samples same order as met, rows: genes)}
+
+\item{metadata}{A data frame with samples as rownames and one columns that will be used to
+color the samples}
 }
 \value{
 A dataframe with Region, TF, Estimates and P-value from linear model
@@ -34,5 +37,6 @@ triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
                       "TF" = rownames(gene.exp.chr21)[11:20],
                       "target" = rownames(gene.exp.chr21)[1:10])
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
-plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21)
+metadata <- data.frame(row.names = colnames(dna.met.chr21),group = c(rep("Tumor",25),rep("Normal",25)))
+plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21,metadata)
 }

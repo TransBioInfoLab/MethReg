@@ -7,7 +7,6 @@
 #' genes within a window around the region ("window").
 #' around the genomic region input.
 #' @param window.width Number of base pairs to extend the region (+-window.width/2). Default is 500kbp (+- 250kbp)
-#' @importFrom coMethDMR AnnotateResults
 #' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames distance
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite

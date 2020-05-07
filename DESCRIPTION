@@ -22,19 +22,21 @@ Imports:
     ggpubr,
     tibble,
     tidyr,
-    downloader,
     S4Vectors,
     sesameData,
-    stringr
+    stringr,
+    readr,
+    knitr
 Suggests: 
-    knitr,
     rmarkdown,
     testthat (>= 2.1.0),
+    parallel,
+    downloader,
+    R.utils,
     dbplyr,
     RSQLite,
-    parallel,
-    doParallel,
-    R.utils
+    DBI,
+    doParallel
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
 Depends: 

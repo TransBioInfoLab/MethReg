@@ -51,10 +51,27 @@ get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
     return(results)
 }
 
-#' @importFrom  RSQLite dbConnect SQLite
-#' @importFrom  R.utils gunzip
-#' @importFrom downloader download
 get_cistrome_dbconn <- function(){
+    if (!requireNamespace("RSQLite", quietly = TRUE)) {
+        stop("RSQLite package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
+    if (!requireNamespace("DBI", quietly = TRUE)) {
+        stop("DBI package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
+    if (!requireNamespace("downloader", quietly = TRUE)) {
+        stop("download package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
+    if (!requireNamespace("R.utils", quietly = TRUE)) {
+        stop("R.utils package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
     file <- "cRegulome.db"
     if(!file.exists(file)){
         downloader::download("https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/9537385/cRegulome.db.gz","cRegulome.db.gz")
@@ -113,15 +130,24 @@ get_cistrome_studies <- function(conn = NULL){
 }
 
 #' @title register cores
-#' @importFrom parallel detectCores
-#' @importFrom doParallel registerDoParallel
 #' @param cores A interger which defines the number of cores to be used in parallel
 #' @noRd
 register_cores <- function(cores){
+
+    if (!requireNamespace("parallel", quietly = TRUE)) {
+        stop("parallel package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
+    if (!requireNamespace("doParallel", quietly = TRUE)) {
+        stop("doParallel package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
     parallel <- FALSE
     if (cores > 1){
-        if (cores > detectCores()) cores <- detectCores()
-        registerDoParallel(cores)
+        if (cores > parallel::detectCores()) cores <- parallel::detectCores()
+        doParallel::registerDoParallel(cores)
         parallel = TRUE
     }
     return(parallel)

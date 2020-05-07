@@ -1,4 +1,4 @@
-image: bioconductor/bioconductor_docker:RELEASE_3_11
+image: bioconductor/bioconductor_docker:latest
 
 variables:
   CRAN: "https://cran.rstudio.com"

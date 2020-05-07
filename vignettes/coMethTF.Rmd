@@ -292,7 +292,7 @@ results <- interaction_model(triplet, dna.met.chr21.residuals, gene.exp.chr21.re
 ```
 
 # Session information
-```{R}
+```{R,size = 'tiny'}
 devtools::session_info()
 ```
 

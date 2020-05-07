@@ -33,12 +33,15 @@ make_names_from_granges <- function(region){
 
 
 #' Change probes names to region names
-#' @description Given a GRanges returns region name such as chr22:18267969-18268249
+#' @description Given a DNA methylation matrix with probes as row names,
+#' map probes to genomic regions
+#' @param dnam A DNA methylation matrix
+#' @param genome Human genome of reference hg38 or hg19
+#' @param arrayType DNA methylation array type (450k or EPIC)
 #' @examples
-#'
 #' data(dna.met.chr21)
 #' dna.met.chr21.with.region.name <- map_probes_to_regions(dna.met.chr21)
-#' @noRd
+#' @export
 map_probes_to_regions <- function(dnam,
                                   genome = c("hg38","hg19"),
                                   arrayType = c("450k","EPIC")

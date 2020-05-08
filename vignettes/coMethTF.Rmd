@@ -161,6 +161,8 @@ region.tf <- get_tf_in_region(
     arrayType = "450k", 
     classification = "subfamily"
 )
+# only keep those within our example dataset
+region.tf <- region.tf %>% dplyr::filter(TF_ensembl_gene_id %in% rownames(gene.exp.chr21))
 ```
 
 ```{R}
@@ -214,7 +216,7 @@ and another model to samples with  **DNA methylation in high quartile**.
 
 ```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
-    triplet = triplet, 
+    triplet = triplet[1:2,], 
     dnam = dna.met.chr21,
     exp = gene.exp.chr21
 )
@@ -336,7 +338,7 @@ Both gene expressions and DNA methylation levels can be affected by age, sex, sh
 
 The `get_residuals` function will use gene expression (or DNA methylation data) and phenotype data as input. 
 To remove confounding effects in gene expression data, we use the `get_residuals` function which extract residuals after fitting the following model: 
-`features ~ covariate_{1} + covariate_{2} ... + covariate{N}`
+`features ~ covariate_{1} + covariate_{2} ... + covariate_{N}`
 
 ```{R residuals, results = "hide", eval = FALSE}
 data("gene.exp.chr21")

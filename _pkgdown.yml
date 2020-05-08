@@ -6,12 +6,12 @@ authors:
     href: https://tiagosilva.netlify.app/
 
 reference:
-  - title: Map regions and TFs
-    contents:
-    - get_tf_in_region
   - title: Map regions and target genes
     contents:
     - get_region_target_gene
+  - title: Map regions and TFs
+    contents:
+    - get_tf_in_region
   - title: Interaction model
     contents:
     - interaction_model

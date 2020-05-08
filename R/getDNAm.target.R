@@ -4,10 +4,10 @@
 #' (i.e. +/- 250kbp from start or end of the region)).
 #' @param regions.gr A Genomic Ranges objec GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How to map regions to genes: closest gene ("closest.gene)
+#' @param method How regions are mapped to genes: closest gene ("closest.gene); or
 #' genes within a window around the region ("window").
-#' around the genomic region input.
-#' @param window.width Number of base pairs to extend the region (+-window.width/2). Default is 500kbp (+- 250kbp)
+#' @param window.width When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
+#' Default is 500kbp (+- 250kbp, i.e. 250k bp from start or end of the region)
 #' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames distance
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
@@ -25,10 +25,10 @@
 #'      makeGRangesFromDataFrame
 #'
 #'  # map to closest gene
-#'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+#'  region.closest <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 #'
 #'  # map to all gene within region +- 250kbp
-#'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
+#'  region.window <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
 #' @export
 get_region_target_gene <- function(
     regions.gr,
@@ -97,16 +97,17 @@ get_region_target_gene <- function(
 }
 
 
-#' @title Evaluate correlation of region and gene
-#' @description Evaluate correlation of region and gene using spearman test
-#' @param links A dataframe with the following columns: region ID and gene ID
+#' @title Evaluate correlation of DNA methylation region and target gene expressions
+#' @description Evaluate correlation of the DNA methylation region and target gene expression
+#' using spearman correlation test
+#' @param links A dataframe with the following columns: regionID (DNA methylation) and  geneID (target gene)
 #' @param met DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 #' same order as gene expression.
 #' @param exp Gene expression matrix (rows are genes, columns are samples)
 #' Samples should be in the same order as the DNA methylation matrix.
 #' @param min.cor.pval Filter of significant correlations (default: 0.05)
 #' @param min.cor.estimate Filter of significant correlations (default: not applied)
-#' @param file.out A csv file name that if provied will be used to save the results.
+#' @param file.out If provided, name of a csv file which will be used to save the results.
 #' @importFrom plyr adply
 #' @importFrom tibble tibble
 #' @importFrom stats p.adjust cor.test
@@ -135,8 +136,13 @@ get_region_target_gene <- function(
 #'               nrow = length(links$geneID),
 #'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
 #'
-#' # Correalted DNAm and gene expression
+#' # Samples in met and exp datasets should be in the same order.
+#' identical (colnames (met), colnames(exp))
+#'
+#' # Correalted DNAm and gene expression, display only significant associations
 #' cor_region_dnam_target_gene(links = links, met = met, exp = exp)
+#'
+#' # display all associations
 #' cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)
 cor_region_dnam_target_gene <- function(
     links,

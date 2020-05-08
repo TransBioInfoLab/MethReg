@@ -16,11 +16,11 @@ get_region_target_gene(
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
-\item{method}{How to map regions to genes: closest gene ("closest.gene)
-genes within a window around the region ("window").
-around the genomic region input.}
+\item{method}{How regions are mapped to genes: closest gene ("closest.gene); or
+genes within a window around the region ("window").}
 
-\item{window.width}{Number of base pairs to extend the region (+-window.width/2). Default is 500kbp (+- 250kbp)}
+\item{window.width}{When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
+Default is 500kbp (+- 250kbp, i.e. 250k bp from start or end of the region)}
 }
 \description{
 To map a region to genes there are two options: 1) closest gene
@@ -40,8 +40,8 @@ regions.gr <- data.frame(
      makeGRangesFromDataFrame
 
  # map to closest gene
- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+ region.closest <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 
  # map to all gene within region +- 250kbp
- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
+ region.window <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
 }

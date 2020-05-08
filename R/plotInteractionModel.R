@@ -143,6 +143,7 @@ get_table_plot <- function(row.triplet){
 }
 
 #' @importFrom  stats quantile lm
+#' @importFrom MASS rlm
 get_plot_results <- function(df,row.triplet,color){
 
     target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))

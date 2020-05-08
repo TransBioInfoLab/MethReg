@@ -11,6 +11,7 @@
 #' @importFrom sesameData sesameDataGet
 #' @importFrom GenomicRanges findOverlaps
 #' @importFrom methods is
+#' @importFrom utils data
 #' @return A dataframe with region, a TF name and TF gene ensembl ID
 #' @examples
 #' \dontrun{
@@ -32,6 +33,7 @@
 #' @param arrayType DNA methylation array "450k" or "EPIC"
 #' @param classification TF classification to be used.
 #' Either "subfamily" or "family".
+#' @importFrom Matrix colSums
 get_tf_in_region <- function(region,
                             genome = c("hg19","hg38"),
                             arrayType = c("450k","EPIC"),

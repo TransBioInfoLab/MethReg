@@ -15,6 +15,7 @@
 #' )
 #' gene.exp.residuals <- get_residuals(gene.exp.chr21,metadata)
 #' @export
+#' @importFrom stats residuals na.exclude na.omit
 get_residuals <- function(data.matrix,
                           metadata
 ){

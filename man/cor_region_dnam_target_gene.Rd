@@ -14,6 +14,8 @@ cor_region_dnam_target_gene(
 )
 }
 \arguments{
+\item{links}{A dataframe with the following columns: region ID and gene ID}
+
 \item{met}{DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 same order as gene expression.}
 
@@ -25,8 +27,6 @@ Samples should be in the same order as the DNA methylation matrix.}
 \item{min.cor.estimate}{Filter of significant correlations (default: not applied)}
 
 \item{file.out}{A csv file name that if provied will be used to save the results.}
-
-\item{links.df}{A dataframe with the following columns: region ID and gene ID}
 }
 \description{
 Evaluate correlation of region and gene using spearman test

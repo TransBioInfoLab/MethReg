@@ -20,6 +20,7 @@ make_granges_from_names <- function(names){
 #' @description Given a GRanges returns region name such as chr22:18267969-18268249
 #' @importFrom stringr str_c
 #' @importFrom dplyr %>%
+#' @importFrom GenomicRanges start end seqnames
 #' @examples
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)
@@ -50,6 +51,7 @@ map_probes_to_regions <- function(dnam,
     genome <- match.arg(genome)
     arrayType <- match.arg(arrayType)
 
+    sesameDataCacheAll()
     probe.info <- sesameDataGet(
         str_c(ifelse(arrayType == "450k","HM450","EPIC"),".",
               genome,".manifest")

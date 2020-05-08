@@ -98,7 +98,7 @@ get_region_target_gene <- function(
 
 #' @title Evaluate correlation of region and gene
 #' @description Evaluate correlation of region and gene using spearman test
-#' @param links.df A dataframe with the following columns: region ID and gene ID
+#' @param links A dataframe with the following columns: region ID and gene ID
 #' @param met DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 #' same order as gene expression.
 #' @param exp Gene expression matrix (rows are genes, columns are samples)
@@ -108,6 +108,7 @@ get_region_target_gene <- function(
 #' @param file.out A csv file name that if provied will be used to save the results.
 #' @importFrom plyr adply
 #' @importFrom tibble tibble
+#' @importFrom stats p.adjust cor.test
 #' @export
 #' @examples
 #' library(dplyr)

@@ -4,14 +4,12 @@ author:
   - Tiago Chedraoui Silva^[University of Miami, txs902@miami.edu]
   - Lily wang^[University of Miami, lily.wang@gmail.com]
 output:
-  rmarkdown::html_document:
-    theme: lumen
+  prettydoc::html_pretty:
+    theme: leonids
     toc: true
     number_sections: true
     df_print: paged
     code_download: false
-    toc_float:
-      collapsed: yes
     toc_depth: 3
 bibliography: bibliography.bib    
 editor_options:
@@ -117,12 +115,21 @@ probes.gr <- make_granges_from_names(rownames(dna.met.chr21))
 class(probes.gr)
 
 # Map probes to nearest gene
-mapping.closest <- get_region_target_gene(probes.gr, genome = "hg38", method = "closest.gene")
+mapping.closest <- get_region_target_gene(
+    regions.gr = probes.gr, 
+    genome = "hg38", 
+    method = "closest.gene"
+)
 dim(mapping.closest)
 mapping.closest
 
 # Map probes to genes within 500kb window
-mapping.window <- get_region_target_gene(probes.gr, genome = "hg38", method = "window" )
+mapping.window <- get_region_target_gene(
+    regions.gr = probes.gr, 
+    genome = "hg38", 
+    method = "window"
+)
+
 dim(mapping.window)
 mapping.window
 ```
@@ -148,7 +155,12 @@ Therefore, a region is linked to a TF if any of the probes within it is mapped t
 
 ```{R, results = "hide"}
 # we will only map the first 20 regions, since this function may take a while to compute
-region.tf <- get_tf_in_region(probes.gr[1:20], genome = "hg38", arrayType = "450k", classification = "subfamily")
+region.tf <- get_tf_in_region(
+    region = probes.gr[1:20], 
+    genome = "hg38", 
+    arrayType = "450k", 
+    classification = "subfamily"
+)
 ```
 
 ```{R}
@@ -201,7 +213,11 @@ and another model to samples with  **DNA methylation in high quartile**.
 
 
 ```{R, message = FALSE, results = "hide"}
-results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
+results <- interaction_model(
+    triplet = triplet, 
+    dnam = dna.met.chr21,
+    exp = gene.exp.chr21
+)
 ```
 
 For models involving DMRs, we can first summarize methylation levels in multiple CpGs within the DMR using medians. 
@@ -244,7 +260,9 @@ dim(results)
 colnames(results)
 
 # Results for model with all samples
-results %>% dplyr::select(c(1,4,5,grep("DNAmlow|DNAmhigh",colnames(results),invert = TRUE)))
+results %>% dplyr::select(
+    c(1,4,5,grep("DNAmlow|DNAmhigh",colnames(results),invert = TRUE))
+    )
 
 # Results for DNA methylation in low quartile model
 results %>% dplyr::select(c(1,4,5,grep("DNAmlow",colnames(results))))
@@ -262,7 +280,11 @@ the DNA methylation matrix and the gene expression matrix as input.
 
 
 ```{R, message = FALSE, results = "hide"}
-plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21)
+plots <- plot_interaction_model(
+    triplet.results = results[1,], 
+    dnam = dna.met.chr21, 
+    exp = gene.exp.chr21
+    )
 ```
 
 ```{R, fig.height = 14, fig.width = 12}
@@ -289,8 +311,17 @@ and a column highlighting the groups.
 
 
 ```{R, message = FALSE, results = "hide"}
-metadata <- data.frame(row.names = colnames(dna.met.chr21),group = c(rep("Tumor",25),rep("Normal",25)))
-plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21, metadata)
+metadata <- data.frame(
+    row.names = colnames(dna.met.chr21),
+    group = c(rep("Tumor",25),rep("Normal",25))
+)
+
+plots <- plot_interaction_model(
+        triplet.results = results[1,], 
+        dnam = dna.met.chr21, 
+        exp = gene.exp.chr21,
+        metadata = metadata
+)
 ```
 
 
@@ -335,7 +366,11 @@ The `interaction_model` function can then be applied to these residuals data, as
 
 
 ```{R, message = FALSE, results = "hide", eval = FALSE}
-results <- interaction_model(triplet, dna.met.chr21.residuals, gene.exp.chr21.residuals)
+results <- interaction_model(
+    triplet = triplet, 
+    dnam = dna.met.chr21.residuals, 
+    exp = gene.exp.chr21.residuals
+)
 ```
 
 # Session information

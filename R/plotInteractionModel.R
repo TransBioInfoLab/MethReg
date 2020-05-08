@@ -43,7 +43,7 @@ plot_interaction_model <-  function(triplet.results,
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
     if(missing(exp)) stop("Please set exp argument with gene expression matrix")
     if(missing(triplet.results)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
-    if(!all(c("regionID","TF","target") %in% colnames(triplet))) {
+    if(!all(c("regionID","TF","target") %in% colnames(triplet.results))) {
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 

@@ -24,7 +24,8 @@ around the genomic region input.}
 }
 \description{
 To map a region to genes there are two options: 1) closest gene
-2) map to all genes within a window around the region (default 500kbp/+- 250kbp around the region)
+2) map to all genes within a window around the region (default window.width = 500kbp
+(i.e. +/- 250kbp from start or end of the region)).
 }
 \examples{
 library(GenomicRanges)

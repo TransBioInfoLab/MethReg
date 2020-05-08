@@ -21,6 +21,7 @@
 #'                       "target" = rownames(gene.exp.chr21)[1:10])
 #' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 #' @export
+#' @importFrom rlang .data
 interaction_model <- function(triplet,
                               dnam,
                               exp
@@ -38,9 +39,10 @@ interaction_model <- function(triplet,
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
-    triplet <- triplet %>% dplyr::filter(target %in% rownames(exp) &
-                                             TF %in% rownames(exp) &
-                                             regionID %in% rownames(dnam))
+    triplet <- triplet %>% dplyr::filter(
+        .data$target %in% rownames(exp) &
+            .data$TF %in% rownames(exp) &
+            .data$regionID %in% rownames(dnam))
 
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
@@ -115,7 +117,7 @@ interaction_model <- function(triplet,
             out <- cbind(results.pval, results.estimate,
                          results.low.pval, results.low.estimate,
                          results.high.pval, results.high.estimate
-                         ) %>% data.frame()
+            ) %>% data.frame()
 
         }, .progress = "time")
 

@@ -1,6 +1,7 @@
 #' @title Mapping regions to gene
 #' @description To map a region to genes there are two options: 1) closest gene
-#' 2) map to all genes within a window around the region (default 500kbp/+- 250kbp around the region)
+#' 2) map to all genes within a window around the region (default window.width = 500kbp
+#' (i.e. +/- 250kbp from start or end of the region)).
 #' @param regions.gr A Genomic Ranges objec GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How to map regions to genes: closest gene ("closest.gene)
@@ -164,8 +165,8 @@ cor_region_dnam_target_gene <- function(
                                                       met %>% as.numeric,
                                                       method = "spearman",
                                                       exact = FALSE)
-                                      return(tibble(met_exp_cor_pvalue = res$p.value,
-                                                    met_exp_cor_estimate = res$estimate))
+                                      return(tibble("met_exp_cor_pvalue" = res$p.value,
+                                                    "met_exp_cor_estimate" = res$estimate))
                                   },.progress = "time")
 
 

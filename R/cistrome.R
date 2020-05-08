@@ -9,6 +9,7 @@
 #' (i.e. "ACC","BLCA", "BRCA_1", "BRCA_2", "CESC", "COAD_READ*")
 #' Please check function for a complete list: get_cistrome_studies()
 #' @param minCor Cistrome minimum correlation between TF and target gene
+#' @importFrom rlang .data
 #' @return A dataframe with TF, target and correlation
 #' @examples
 #' \dontrun{
@@ -37,12 +38,12 @@ get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
                            .fun = function(x){
                                # get tf targets
                                tars <- dplyr::tbl(con, "targets_tf")  %>%
-                                   dplyr::filter(tf == x & study == tcga.study) %>%
+                                   dplyr::filter(.data$tf == x & .data$study == tcga.study) %>%
                                    dplyr::pull(2)
 
                                dplyr::tbl(con, "cor_tf") %>%
                                    dplyr::select(c("tf", "feature", tcga.study)) %>%
-                                   dplyr::filter(tf == x & feature %in% tars) %>%
+                                   dplyr::filter(.data$tf == x & .data$feature %in% tars) %>%
                                    as.data.frame
                            },.id = NULL, .progress = "time",.parallel = FALSE)
     results <- results %>% reshape2::melt()
@@ -51,7 +52,7 @@ get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
     results <- na.omit(results)
     message("Cistrome TF target # links: ", nrow(results))
     message("Applying minCor filter (minCor: ", minCor)
-    results <- results %>% filter(cor > minCor)
+    results <- results %>% dplyr::filter(.data$cor > minCor)
 
     message("Cistrome TF target with minCor # links: ", nrow(results))
     return(results)
@@ -81,7 +82,7 @@ get_cistrome_dbconn <- function(){
     file <- "cRegulome.db"
     if(!file.exists(file)){
         downloader::download("https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/9537385/cRegulome.db.gz","cRegulome.db.gz")
-        gunzip(paste0(file,".gz"), remove = FALSE)
+        gunzip::gunzip(paste0(file,".gz"), remove = FALSE)
     }
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file)
     return(con)

@@ -220,6 +220,10 @@ results <- interaction_model(
 )
 ```
 
+```{R, include = FALSE}
+gc()
+```
+
 For models involving DMRs, we can first summarize methylation levels in multiple CpGs within the DMR using medians. 
 
 The output of `interaction_model` function will be a data frame with the following variables:
@@ -291,6 +295,10 @@ plots <- plot_interaction_model(
 plots[[1]]
 ```
 
+```{R, include = FALSE}
+gc()
+```
+
 The first row of the figures shows pairwise associations between DNA methylation, 
 TF and target gene expression levels. 
 
@@ -327,6 +335,10 @@ plots <- plot_interaction_model(
 
 ```{R, fig.height = 14, fig.width = 12}
 plots[[1]]
+```
+
+```{R, include = FALSE}
+gc()
 ```
 
 # Controlling effects from confounding variables

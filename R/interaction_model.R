@@ -9,7 +9,7 @@
 #' @param triplet Dataframe with region (column name: regionID),
 #' TF  (column name: TF),  and target gene  (column name: target),
 #' @param dnam DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)
-#' @param exp gene expression matrix with samples as columns in the same order as met
+#' @param exp A log2 (gene expression + 1) matrix with samples as columns in the same order as met
 #' and genes as rows represented by ensembl IDs ENSG00000239415)
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @examples

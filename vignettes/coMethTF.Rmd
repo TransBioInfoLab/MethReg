@@ -7,7 +7,6 @@ output:
   prettydoc::html_pretty:
     theme: leonids
     toc: true
-    number_sections: true
     df_print: paged
     code_download: false
     toc_depth: 3
@@ -32,7 +31,7 @@ library(sesameData)
 sesameDataCacheAll()
 ```
 
-# Introduction
+# 1. Introduction
 
 Transcription factors (TFs) are proteins that facilitate the transcription of DNA into RNA. A number of recent studies have observed that the binding of TFs onto DNA can be affected by DNA methylation, and in turn, DNA methylation can also be added or removed by proteins associated with transcription factors [@bonder2017disease; @banovich2014methylation; @zhu2016transcription].
 
@@ -42,7 +41,7 @@ To provide functional annotations for differentially methylated regions (DMRs) a
 The results from `coMethTF` can be used to generate testable hypothesis on the synergistic interaction of DMRs and TFs in gene regulation. 
 `coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome.
 
-# Installation 
+# 2. Installation 
 
 You can install the development version of the package from GitHub using the following code:
 
@@ -60,13 +59,13 @@ After the package is successfully installed you can load its functions with:
 library(coMethTF)
 ```
 
-# Dataset
+# 3. Dataset
 
 The input of `coMethTF` are DNA methylation and gene expression datasets measured on the same set of samples. Using additional information from the HOCOMOCO database [@kulakovskiy2016hocomoco], we will then create a data frame with information on the triplet: DMR (or CpG), TF and target gene. 
 
 For illustration, we will use chromosome 21 data from 50 alzheimer samples.
 
-## DNA methylation dataset
+## 3.1 DNA methylation dataset
 
 
 The DNA methylation dataset is a matrix with methylation beta or M-values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals extracted from fitting linear regression instead (see Section 5 below). 
@@ -90,17 +89,17 @@ dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21[1:5,1:5]
 ```
 
-## Gene expression dataset
+## 3.2 Gene expression dataset
 
-The gene expression dataset is a matrix with log2 transformed and normalized gene expression values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals from linear regression instead (see Section xx below).
+The gene expression dataset is a matrix with log2 transformed and normalized gene expression values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals from linear regression instead (see Section 5 below).
 The samples are in the columns and the genes are in the rows. 
 
 ```{R}
-data("gene.exp.chr21",package = "coMethTF")
+data("gene.exp.chr21", package = "coMethTF")
 gene.exp.chr21[1:5,1:5]
 ```
 
-## Creating triplet dataset
+## 3.3 Creating triplet dataset
 ### Mapping DMR region (or CpG) to the target gene
 
 The function `get_region_target_gene` provides two methods to link a DMR to 
@@ -191,7 +190,7 @@ head(triplet)
 Note that this dataset include only regions with both nearby target genes (500K bp) and nearby TFs (500 bp). 
 There may also be multiple rows for a region, when multiple target gene and/or TFs are found close to it. 
 
-# Evaluating the regulatory potential of DMRs (or CpGs)
+# 4. Evaluating the regulatory potential of DMRs (or CpGs)
 
 Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby (Yin et al. 2013), target gene expression can often be influenced by the synergistic effects of both TF and DNA methylation. In other words, TF activities in gene regulation is affected by DNA methylation or vice versa. 
 We will assess the regulatory impact of DNA methylation on gene regulation via two approaches: 
@@ -205,7 +204,7 @@ We will perform these analyses using the 3 datasets described above in Section 3
 * Gene expression matrix
 * The triplet data frame with DNA methylation region, TF, and target gene
 
-## Analysis using model with methylation by TF interaction
+## 4.1 Analysis using model with methylation by TF interaction
 
 The function `interaction_model` will fit the following model to data:
 `log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`
@@ -276,7 +275,7 @@ results %>% dplyr::select(c(1,4,5,grep("DNAmlow",colnames(results))))
 results %>% dplyr::select(c(1,4,5,grep("DNAmhigh",colnames(results))))
 ```
 
-## Visualization of data  
+## 4.2 Visualization of data  
 
 The function `plot_interaction_model` will create figures to visualize the data, 
 in a way that corresponds to the linear model we considered above. 
@@ -317,7 +316,7 @@ and a column highlighting the groups.
 
 ```{R, message = FALSE, results = "hide"}
 data("clinical")
-metadata <- clinical[,c("sample_type")]
+metadata <- clinical[,c("sample_type"),drop = FALSE]
 
 plots <- plot_interaction_model(
         triplet.results = results[1,], 
@@ -332,7 +331,7 @@ plots <- plot_interaction_model(
 plots[[1]]
 ```
 
-# Controlling effects from confounding variables
+# 5. Controlling effects from confounding variables
 
 Both gene expressions and DNA methylation levels can be affected by age, sex, shifting in cell types, batch effects and other confounding variables.  In this section, we illustrate analysis workflow that reduces confounding effects, by first extracting the residual data with the function 
 `get_residuals`, before fitting the models discussed above in Section 4. 
@@ -374,9 +373,9 @@ results <- interaction_model(
 )
 ```
 
-# Session information
+# 5. Session information
 ```{R,size = 'tiny'}
 sessionInfo()
 ```
 
-# Bibliography
+# 6. Bibliography

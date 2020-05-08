@@ -12,6 +12,7 @@ stages:
 building:
   stage: build
   script:
+    - sudo apt-get install -y qpdf
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check()'
 

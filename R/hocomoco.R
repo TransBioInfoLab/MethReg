@@ -13,7 +13,7 @@
 #' @return A dataframe with region, a TF name and TF gene ensembl ID
 #' @examples
 #' \dontrun{
-#'  regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
+#'  regions.names <- c("chr1:60591-79592","chr4:40162197-43162198")
 #'  region.tf <- get_tf_in_region(regions.names,
 #'                  genome = "hg19",
 #'                  arrayType = "450k",
@@ -63,6 +63,8 @@ get_tf_in_region <- function(region,
 
     # Find which probes overlap with the regions
     hits <- findOverlaps(regions.gr,probes.gr) %>% as.data.frame()
+
+    if(nrow(hits) == 0) stop("No overlap found between regions and DNA methylation array found")
 
     # For each region overlapping get all probes overallping and their motifs
     df <- plyr::adply(unique(hits$queryHits),1, function(x){

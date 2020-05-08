@@ -35,7 +35,7 @@ have similar binding motifs.
 }
 \examples{
 \dontrun{
- regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
+ regions.names <- c("chr1:60591-79592","chr4:40162197-43162198")
  region.tf <- get_tf_in_region(regions.names,
                  genome = "hg19",
                  arrayType = "450k",

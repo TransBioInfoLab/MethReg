@@ -2,7 +2,7 @@
 % Please edit documentation in R/getDNAm.target.R
 \name{cor_region_dnam_target_gene}
 \alias{cor_region_dnam_target_gene}
-\title{Evaluate correlation of region and gene}
+\title{Evaluate correlation of DNA methylation region and target gene expressions}
 \usage{
 cor_region_dnam_target_gene(
   links,
@@ -14,7 +14,7 @@ cor_region_dnam_target_gene(
 )
 }
 \arguments{
-\item{links}{A dataframe with the following columns: region ID and gene ID}
+\item{links}{A dataframe with the following columns: regionID (DNA methylation) and  geneID (target gene)}
 
 \item{met}{DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 same order as gene expression.}
@@ -26,10 +26,11 @@ Samples should be in the same order as the DNA methylation matrix.}
 
 \item{min.cor.estimate}{Filter of significant correlations (default: not applied)}
 
-\item{file.out}{A csv file name that if provied will be used to save the results.}
+\item{file.out}{If provided, name of a csv file which will be used to save the results.}
 }
 \description{
-Evaluate correlation of region and gene using spearman test
+Evaluate correlation of the DNA methylation region and target gene expression
+using spearman correlation test
 }
 \examples{
 library(dplyr)
@@ -55,7 +56,12 @@ exp <- matrix(runif(length(links$regionID) * 4, 0, 10),
               nrow = length(links$geneID),
               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
 
-# Correalted DNAm and gene expression
+# Samples in met and exp datasets should be in the same order.
+identical (colnames (met), colnames(exp))
+
+# Correalted DNAm and gene expression, display only significant associations
 cor_region_dnam_target_gene(links = links, met = met, exp = exp)
+
+# display all associations
 cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)
 }

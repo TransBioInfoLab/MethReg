@@ -4,9 +4,7 @@
 \name{dna.met.chr21}
 \alias{dna.met.chr21}
 \title{A DNA methylation matrix for 50 samples (only chrmossome 21)}
-\format{
-A matrix: 50 samples
-}
+\format{A matrix: 50 samples}
 \description{
 A DNA methylation matrix for 50 samples (only chrmossome 21)
 }

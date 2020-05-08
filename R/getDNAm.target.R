@@ -98,15 +98,15 @@ get_region_target_gene <- function(
 
 #' @title Evaluate correlation of DNA methylation region and target gene expressions
 #' @description Evaluate correlation of the DNA methylation region and target gene expression
-#' using spearman correlation
-#' @param links A dataframe with the following columns: (DNA methylation) region ID  and (target) gene ID
+#' using spearman correlation test
+#' @param links A dataframe with the following columns: regionID (DNA methylation) and  geneID (target gene)
 #' @param met DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 #' same order as gene expression.
 #' @param exp Gene expression matrix (rows are genes, columns are samples)
 #' Samples should be in the same order as the DNA methylation matrix.
 #' @param min.cor.pval Filter of significant correlations (default: 0.05)
 #' @param min.cor.estimate Filter of significant correlations (default: not applied)
-#' @param file.out A csv file name that if provied will be used to save the results.
+#' @param file.out If provided, name of a csv file which will be used to save the results.
 #' @importFrom plyr adply
 #' @importFrom tibble tibble
 #' @importFrom stats p.adjust cor.test
@@ -135,8 +135,13 @@ get_region_target_gene <- function(
 #'               nrow = length(links$geneID),
 #'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
 #'
-#' # Correalted DNAm and gene expression
+#' # Samples in met and exp datasets should be in the same order.
+#' identical (colnames (met), colnames(exp))
+#'
+#' # Correalted DNAm and gene expression, display only significant associations
 #' cor_region_dnam_target_gene(links = links, met = met, exp = exp)
+#'
+#' # display all associations
 #' cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)
 cor_region_dnam_target_gene <- function(
     links,

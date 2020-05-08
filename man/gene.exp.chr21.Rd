@@ -4,9 +4,7 @@
 \name{gene.exp.chr21}
 \alias{gene.exp.chr21}
 \title{A gene expression matrix for 50 samples (only chrmossome 21)}
-\format{
-A matrix: 50 samples
-}
+\format{A matrix: 50 samples}
 \description{
 A gene expression matrix for 50 samples (only chrmossome 21)
 }

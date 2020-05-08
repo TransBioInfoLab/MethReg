@@ -214,14 +214,10 @@ and another model to samples with  **DNA methylation in high quartile**.
 
 ```{R, message = FALSE, results = "hide"}
 results <- interaction_model(
-    triplet = triplet, 
+    triplet = triplet[1:2,], 
     dnam = dna.met.chr21,
     exp = gene.exp.chr21
 )
-```
-
-```{R, include = FALSE}
-gc()
 ```
 
 For models involving DMRs, we can first summarize methylation levels in multiple CpGs within the DMR using medians. 
@@ -295,10 +291,6 @@ plots <- plot_interaction_model(
 plots[[1]]
 ```
 
-```{R, include = FALSE}
-gc()
-```
-
 The first row of the figures shows pairwise associations between DNA methylation, 
 TF and target gene expression levels. 
 
@@ -335,10 +327,6 @@ plots <- plot_interaction_model(
 
 ```{R, fig.height = 14, fig.width = 12}
 plots[[1]]
-```
-
-```{R, include = FALSE}
-gc()
 ```
 
 # Controlling effects from confounding variables
@@ -379,7 +367,7 @@ The `interaction_model` function can then be applied to these residuals data, as
 
 ```{R, message = FALSE, results = "hide", eval = FALSE}
 results <- interaction_model(
-    triplet = triplet, 
+    triplet = triplet[1:2,], 
     dnam = dna.met.chr21.residuals, 
     exp = gene.exp.chr21.residuals
 )

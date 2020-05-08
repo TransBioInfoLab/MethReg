@@ -23,7 +23,7 @@ where n is the index of the columns of the metadata provided
 \examples{
 data("gene.exp.chr21")
 metadata <- data.frame(
-    row.names = paste0("Sample",idx),
+    row.names = colnames(gene.exp.chr21),
     sex = c(rep("Male",25),rep("Female",25)),
     age = sample(50:90, 50, replace = TRUE)
 )

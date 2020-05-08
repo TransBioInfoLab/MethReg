@@ -1,4 +1,4 @@
 library(testthat)
-library(methTF)
+library(coMethTF)
 
-test_check("methTF")
+test_check("coMethTF")

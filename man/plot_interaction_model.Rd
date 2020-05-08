@@ -39,6 +39,9 @@ triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21)
 # Adding color to samples
-metadata <- data.frame(row.names = colnames(dna.met.chr21),group = c(rep("Tumor",25),rep("Normal",25)))
+metadata <- data.frame(
+               row.names = colnames(dna.met.chr21),
+               group = c(rep("Tumor",25),rep("Normal",25))
+)
 plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21,metadata)
 }

@@ -79,7 +79,14 @@ dna.met.chr21 <- get(data("dna.met.chr21"))
 
 ```{R}
 dna.met.chr21[1:5,1:5]
+```
+
+```{R}
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+```
+
+
+```{R}
 dna.met.chr21[1:5,1:5]
 ```
 

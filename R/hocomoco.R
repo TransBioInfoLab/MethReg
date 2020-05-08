@@ -55,8 +55,8 @@ get_tf_in_region <- function(region,
     }
 
     # get pre-computed data
-    motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",arrayType),package = "ELMER.data"))
-    motifs.tfs <- get(data(list = paste0("TF.",classification),package = "ELMER.data"))
+    motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",arrayType),package = "ELMER.data",envir = environment()))
+    motifs.tfs <- get(data(list = paste0("TF.",classification),package = "ELMER.data",envir = environment()))
 
     # Get probes regions for mapping the motifs
     probes.gr <- sesameDataGet(paste0(gsub("450K","HM450",arrayType),".",genome,".manifest"))

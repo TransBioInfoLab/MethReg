@@ -77,11 +77,12 @@ interaction_model <- function(triplet,
             results.estimate <- summary(results)$coefficients[-1, 1, drop = F] %>% t %>% as.data.frame()
             colnames(results.estimate) <- paste0("estimate_", colnames(results.estimate))
 
-            low.cutoff <- quantile(data$met)[2]
-            upper.cutoff <- quantile(data$met)[4]
+            low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
+            upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
 
             data.low <- data %>% dplyr::filter(met <= low.cutoff)
             data.high <- data %>% dplyr::filter(met >= upper.cutoff)
+
             results.low <- lm (
                 rna.target ~ met + rna.tf + rna.tf * met,
                 data = data.low

@@ -1,14 +1,11 @@
 test_that("interaction_model works", {
-    triplet <- data.frame("regionID" = paste0("region_",1:9),
-                          "TF" = paste0("ESNG",10),
-                          "target" = paste0("ESNG",1:9))
-    dnam <- runif(200) %>% matrix(10)
-    colnames(dnam) <- paste0("Sample_",1:20)
-    rownames(dnam) <- paste0("region_",1:10)
-    exp <- rexp(200) %>% matrix(10)
-    colnames(exp) <- paste0("Sample_",1:20)
-    rownames(exp) <- paste0("ESNG",1:10)
-    results <- interaction_model(triplet, dnam, exp)
+    data("dna.met.chr21")
+    dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+    data("gene.exp.chr21")
+    triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
+                          "TF" = rownames(gene.exp.chr21)[11:20],
+                          "target" = rownames(gene.exp.chr21)[1:10])
+    results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
     expect_true("regionID" %in% colnames(results))
     expect_true("TF" %in% colnames(results))
     expect_true("target" %in% colnames(results))

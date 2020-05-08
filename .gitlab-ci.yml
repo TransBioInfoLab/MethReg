@@ -15,6 +15,7 @@ building:
     - apt-get install -y qpdf
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check()'
+    - R -e 'pkgdown::build_site()'
 
 # To have the coverage percentage appear as a gitlab badge follow these
 # instructions:

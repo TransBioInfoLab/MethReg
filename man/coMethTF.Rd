@@ -3,10 +3,13 @@
 \docType{package}
 \name{coMethTF}
 \alias{coMethTF}
-\title{To provide functional annotations for differentially methylated regions (DMRs)
+\title{coMethTF: functional annotation of DMRs identified in epigenome-wide association studies}
+\description{
+To provide functional annotations for differentially methylated regions (DMRs)
 and differentially methylated CpG sites (DMS),`coMethTF` performs
 integrative analyses using matched DNA methylation and gene expression
 along with Transcription Factor Binding Sites (TFBS) data.
 coMethTF evaluates, prioritizes and annotates DNA methylation regions
 (or sites) with high regulatory potential that works synergistically with
-TFs to regulate target gene expressions, without any additional ChIP-seq data.}
+TFs to regulate target gene expressions, without any additional ChIP-seq data.
+}

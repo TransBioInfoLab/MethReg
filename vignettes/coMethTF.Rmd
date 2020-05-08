@@ -262,7 +262,7 @@ the DNA methylation matrix and the gene expression matrix as input.
 
 
 ```{R, message = FALSE, results = "hide"}
-plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21)
+plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21)
 ```
 
 ```{R, fig.height = 14, fig.width = 12}
@@ -290,7 +290,7 @@ and a column highlighting the groups.
 
 ```{R, message = FALSE, results = "hide"}
 metadata <- data.frame(row.names = colnames(dna.met.chr21),group = c(rep("Tumor",25),rep("Normal",25)))
-plots <- plot_interaction_model(results, dna.met.chr21, gene.exp.chr21, metadata)
+plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21, metadata)
 ```
 
 ```{R, fig.height = 14, fig.width = 12}

@@ -98,8 +98,8 @@ plot_interaction_model <-  function(triplet.results,
                 plots$dnam.target.quantile,
                 nrow = 5,
                 heights = c(1,1,2,2.5,2.5))
+            gc()
             plot.table
-
         }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL

@@ -12,8 +12,6 @@ stages:
 building:
   stage: build
   script:
-    - R -e 'install.packages("BiocManager")'
-    - R -e 'BiocManager::install(c("ELMER", "sesameData"))'
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check()'
 

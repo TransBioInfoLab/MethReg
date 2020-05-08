@@ -13,6 +13,7 @@ building:
   stage: build
   script:
     - apt-get install -y qpdf
+    - R -e 'install.packages("pkgdown")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check()'
     - R -e 'pkgdown::build_site()'

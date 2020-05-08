@@ -326,7 +326,7 @@ dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21.residuals <- get_residuals(dna.met.chr21,metadata)
 ```
 
-```{R}
+```{R, eval = FALSE}
 dna.met.chr21.residuals[1:5,1:5]
 ```
 

@@ -186,7 +186,7 @@ cor_region_dnam_target_gene <- function(
     correlation.df$met_exp_cor_fdr <- p.adjust(correlation.df$met_exp_cor_pvalue, method = "fdr")
 
     correlation.df <- correlation.df %>%
-        dplyr::filter(met_exp_cor_fdr <= min.cor.pval & abs(met_exp_cor_estimate) >= min.cor.estimate)
+        dplyr::filter(.data$met_exp_cor_fdr <= min.cor.pval & abs(.data$met_exp_cor_estimate) >= min.cor.estimate)
 
 
     if(!missing(file.out)) readr::write_tsv(x = correlation.df, path = file.out)

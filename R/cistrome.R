@@ -29,8 +29,8 @@ get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
 
     db <- dplyr::tbl(con, "targets_tf")
     study.tf <- db %>%
-        dplyr::filter(study == tcga.study) %>%
-        dplyr::pull(tf) %>% unique
+        dplyr::filter(.data$study == tcga.study) %>%
+        dplyr::pull(.data$tf) %>% unique
 
     # find the TF within database table
     results <- plyr::adply(study.tf,

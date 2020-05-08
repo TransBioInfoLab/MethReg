@@ -26,7 +26,9 @@ Imports:
     sesameData,
     stringr,
     readr,
-    knitr
+    knitr,
+    methods,
+    stats
 Suggests: 
     rmarkdown,
     testthat (>= 2.1.0),

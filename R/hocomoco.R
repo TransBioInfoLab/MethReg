@@ -10,6 +10,7 @@
 #' @importFrom plyr adply
 #' @importFrom sesameData sesameDataGet
 #' @importFrom GenomicRanges findOverlaps
+#' @importFrom methods is
 #' @return A dataframe with region, a TF name and TF gene ensembl ID
 #' @examples
 #' \dontrun{

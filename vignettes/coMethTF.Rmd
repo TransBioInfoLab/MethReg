@@ -100,8 +100,7 @@ a target gene, by (1) mapping the region to the closest gene (`method = "closest
  
 ```{R}
 # Get CpG information
-library(sesame)
-HM450.hg38.manifest <- sesameDataGet("HM450.hg38.manifest")
+HM450.hg38.manifest <- sesameData::sesameDataGet("HM450.hg38.manifest")
 probes.gr <- make_granges_from_names(rownames(dna.met.chr21))
 class(probes.gr)
 
@@ -328,7 +327,7 @@ results <- interaction_model(triplet, dna.met.chr21.residuals, gene.exp.chr21.re
 
 # Session information
 ```{R,size = 'tiny'}
-devtools::session_info()
+sessionInfo()
 ```
 
 # Bibliography

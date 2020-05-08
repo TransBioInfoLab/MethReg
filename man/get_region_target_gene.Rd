@@ -12,6 +12,8 @@ get_region_target_gene(
 )
 }
 \arguments{
+\item{regions.gr}{A Genomic Ranges objec GRanges}
+
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
 \item{method}{How to map regions to genes: closest gene ("closest.gene)
@@ -19,8 +21,6 @@ genes within a window around the region ("window").
 around the genomic region input.}
 
 \item{window.width}{Number of base pairs to extend the region (+-window.width/2). Default is 500kbp (+- 250kbp)}
-
-\item{regions}{A dataframe with chrom, start, end or a GRanges}
 }
 \description{
 To map a region to genes there are two options: 1) closest gene

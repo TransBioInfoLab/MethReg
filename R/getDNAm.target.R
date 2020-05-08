@@ -1,7 +1,7 @@
 #' @title Mapping regions to gene
 #' @description To map a region to genes there are two options: 1) closest gene
 #' 2) map to all genes within a window around the region (default 500kbp/+- 250kbp around the region)
-#' @param regions A dataframe with chrom, start, end or a GRanges
+#' @param regions.gr A Genomic Ranges objec GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How to map regions to genes: closest gene ("closest.gene)
 #' genes within a window around the region ("window").
@@ -110,6 +110,7 @@ get_region_target_gene <- function(
 #' @importFrom tibble tibble
 #' @export
 #' @examples
+#' library(dplyr)
 #' # Create example region
 #' regions.gr <- data.frame(
 #'                 chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),

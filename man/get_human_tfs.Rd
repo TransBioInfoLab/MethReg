@@ -4,7 +4,7 @@
 \alias{get_human_tfs}
 \title{Access human TF from Lambert et al 2018}
 \usage{
-get_human_tfs(tcga.study)
+get_human_tfs()
 }
 \value{
 A dataframe with Human TF

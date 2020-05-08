@@ -40,10 +40,6 @@ get_tf_in_region <- function(region,
         stop("ELMER.data is needed. Please install it.",
              call. = FALSE)
     }
-    if (!requireNamespace("TCGAbiolinks", quietly = TRUE)) {
-        stop("TCGAbiolinks is needed. Please install it.",
-             call. = FALSE)
-    }
 
     arrayType <- toupper(match.arg(arrayType))
     genome <- match.arg(genome)
@@ -77,8 +73,7 @@ get_tf_in_region <- function(region,
         tibble::tibble(region.names[x],tfs)
     },.id = NULL,.progress = "time",.inform = TRUE)
 
-    genome.info <- TCGAbiolinks::get.GRCh.bioMart(genome)
-    df$TF_id <- genome.info$ensembl_gene_id[match(df$tfs,genome.info$external_gene_name)]
+    df$TF_id <- map_symbol_to_ensg(df$tfs)
     colnames(df) <- c("regionID","TF_external_gene_name","TF_ensembl_gene_id")
     return(df)
 }

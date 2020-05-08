@@ -3,6 +3,7 @@
 #' object
 #' @importFrom tidyr separate
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
+#' @param names A region name as "chr22:18267969-18268249" or a vector of region names.
 #' @examples
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)
@@ -58,18 +59,36 @@ map_probes_to_regions <- function(dnam,
 }
 
 
-#' Change probes names to region names
 #' @param genome Human genome of reference. Options: hg38, hg19.
 #' @param ensembl.gene.id Gene ensembl ID. A character vectors
 #' @description Given a GRanges returns region name such as chr22:18267969-18268249
 #' @examples
-#'
 #' data(gene.exp.chr21)
 #' gene.symbols <- map_ensg_to_symbol(rownames(gene.exp.chr21))
 #' @noRd
 #' @importFrom biomaRt useEnsembl listDatasets getBM
 map_ensg_to_symbol <- function(ensembl.gene.id, genome = "hg38")
 {
+    gene.location <- get_gene_information(genome)
+    symbols <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]$external_gene_name
+    return(symbols)
+}
+
+#' @param genome Human genome of reference. Options: hg38, hg19.
+#' @param ensembl.gene.id Gene ensembl ID. A character vectors
+#' @description Given a GRanges returns region name such as chr22:18267969-18268249
+#' @examples
+#' gene.symbols <- map_symbol_to_ensg("TP63"s)
+#' @noRd
+#' @importFrom biomaRt useEnsembl listDatasets getBM
+map_symbol_to_ensg <- function(gene.symbol, genome = "hg38")
+{
+    gene.location <- get_gene_information(genome)
+    ensembl_gene_id <- gene.location[match(gene.symbol,gene.location$external_gene_name),]$ensembl_gene_id
+    return(ensembl_gene_id)
+}
+
+get_gene_information <- function(genome = "hg38"){
     tries <- 0L
     msg <- character()
     while (tries < 3L) {
@@ -95,8 +114,8 @@ map_ensg_to_symbol <- function(ensembl.gene.id, genome = "hg38")
             description <- db.datasets[db.datasets$dataset == "hsapiens_gene_ensembl", ]$description
             message(paste0("Downloading genome information (try:", tries, ") Using: ", description))
             gene.location <- getBM(attributes = attributes,
-                                   filters = c("ensembl_gene_id"),
-                                   values = list(ensembl.gene.id),
+                                   #filters = c("ensembl_gene_id"),
+                                   #values = list(ensembl.gene.id),
                                    mart = ensembl)
             gene.location
         }, error = function(e) {
@@ -108,8 +127,7 @@ map_ensg_to_symbol <- function(ensembl.gene.id, genome = "hg38")
             break
         if (tries == 3L) stop("failed to get URL after 3 tries:", "\n  error: ", msg)
     }
-    symbols <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]$external_gene_name
-    return(symbols)
+    return(gene.location)
 }
 
 

@@ -32,6 +32,7 @@ Samples should be in the same order as the DNA methylation matrix.}
 Evaluate correlation of region and gene using spearman test
 }
 \examples{
+library(dplyr)
 # Create example region
 regions.gr <- data.frame(
                 chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),

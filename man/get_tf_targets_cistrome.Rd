@@ -10,6 +10,8 @@ get_tf_targets_cistrome(tcga.study, minCor = 0.2)
 \item{tcga.study}{A TCGA study from the database
 (i.e. "ACC","BLCA", "BRCA_1", "BRCA_2", "CESC", "COAD_READ*")
 Please check function for a complete list: get_cistrome_studies()}
+
+\item{minCor}{Cistrome minimum correlation between TF and target gene}
 }
 \value{
 A dataframe with TF, target and correlation

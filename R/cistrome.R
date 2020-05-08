@@ -8,6 +8,7 @@
 #' @param tcga.study A TCGA study from the database
 #' (i.e. "ACC","BLCA", "BRCA_1", "BRCA_2", "CESC", "COAD_READ*")
 #' Please check function for a complete list: get_cistrome_studies()
+#' @param minCor Cistrome minimum correlation between TF and target gene
 #' @return A dataframe with TF, target and correlation
 #' @examples
 #' \dontrun{

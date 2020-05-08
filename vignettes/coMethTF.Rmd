@@ -212,9 +212,9 @@ Also, it will fit a separate model to samples with  **DNA methylation in low qua
 and another model to samples with  **DNA methylation in high quartile**.
 
 
-```{R, message = FALSE, results = "hide"}
+```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
-    triplet = triplet[1:2,], 
+    triplet = triplet, 
     dnam = dna.met.chr21,
     exp = gene.exp.chr21
 )
@@ -255,7 +255,7 @@ The results for the separated model fit to samples with  **DNA methylation in lo
 * `DNAmhigh_estimate_rna.tf`     
 * `DNAmhigh_estimate_met.rna.tf`
 
-```{R}
+```{R interaction_model_results}
 dim(results)
 colnames(results)
 
@@ -279,7 +279,7 @@ It requires the output from the function `interaction_model` (a dataframe),
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
-```{R, message = FALSE, results = "hide"}
+```{R plot_interaction_model, message = FALSE, results = "hide"}
 plots <- plot_interaction_model(
     triplet.results = results[1,], 
     dnam = dna.met.chr21, 

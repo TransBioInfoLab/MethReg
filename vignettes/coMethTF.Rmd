@@ -74,7 +74,7 @@ The samples are in the columns and regions/probes are in the rows.
 
 
 ```{R warning=FALSE}
-data("dna.met.chr21")
+data("dna.met.chr21",package = "coMethTF")
 dna.met.chr21[1:5,1:5]
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21[1:5,1:5]
@@ -86,7 +86,7 @@ The gene expression dataset is a matrix with log2 transformed and normalized gen
 The samples are in the columns and the genes are in the rows. 
 
 ```{R}
-data("gene.exp.chr21")
+data("gene.exp.chr21",package = "coMethTF")
 gene.exp.chr21[1:5,1:5]
 ```
 

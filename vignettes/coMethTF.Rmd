@@ -293,6 +293,7 @@ metadata <- data.frame(row.names = colnames(dna.met.chr21),group = c(rep("Tumor"
 plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21, metadata)
 ```
 
+
 ```{R, fig.height = 14, fig.width = 12}
 plots[[1]]
 ```
@@ -306,7 +307,7 @@ The `get_residuals` function will use gene expression (or DNA methylation data) 
 To remove confounding effects in gene expression data, we use the `get_residuals` function which extract residuals after fitting the following model: 
 `features ~ covariate_{1} + covariate_{2} ... + covariate{N}`
 
-```{R, results = "hide"}
+```{R residuals, results = "hide", eval = FALSE}
 data("gene.exp.chr21")
 metadata <- data.frame(
      row.names = colnames(gene.exp.chr21),
@@ -315,11 +316,11 @@ metadata <- data.frame(
 )
 gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21, metadata)
 ```
-```{R}
+```{R, eval = FALSE}
 gene.exp.chr21.residuals[1:5,1:5]
 ```
 
-```{R, results = "hide"}
+```{R, results = "hide", eval = FALSE}
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21.residuals <- get_residuals(dna.met.chr21,metadata)
@@ -333,7 +334,7 @@ The `interaction_model` function can then be applied to these residuals data, as
 `rna.target ~ met + rna.tf + rna.tf * met`.
 
 
-```{R, message = FALSE, results = "hide"}
+```{R, message = FALSE, results = "hide", eval = FALSE}
 results <- interaction_model(triplet, dna.met.chr21.residuals, gene.exp.chr21.residuals)
 ```
 

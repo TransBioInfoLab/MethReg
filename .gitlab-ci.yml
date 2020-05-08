@@ -16,7 +16,9 @@ building:
     - R -e 'install.packages("pkgdown")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check()'
-    - R -e 'pkgdown::build_site()'
+    - R -e 'pkgdown::init_site()'
+    - R -e 'pkgdown::build_reference()'
+    - R -e 'pkgdown::build_home()'
 
 # To have the coverage percentage appear as a gitlab badge follow these
 # instructions:

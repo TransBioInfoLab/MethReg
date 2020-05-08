@@ -314,12 +314,12 @@ with a dataframe with rownames as samples (same order as the columns of the DNAm
 and a column highlighting the groups.
 
 
-```{R, message = FALSE, results = "hide"}
+```{R, message = TRUE, results = "hide"}
 data("clinical")
 metadata <- clinical[,c("sample_type"),drop = FALSE]
 ```
 
-```{R, eval = FALSE}
+```{R, eval = TRUE}
 plots <- plot_interaction_model(
         triplet.results = results[1,,drop = FALSE], 
         dnam = dna.met.chr21, 
@@ -329,7 +329,7 @@ plots <- plot_interaction_model(
 ```
 
 
-```{R, fig.height = 14, fig.width = 12, eval = FALSE}
+```{R, fig.height = 14, fig.width = 12, eval = TRUE}
 plots[[1]]
 ```
 
@@ -342,24 +342,25 @@ The `get_residuals` function will use gene expression (or DNA methylation data) 
 To remove confounding effects in gene expression data, we use the `get_residuals` function which extract residuals after fitting the following model: 
 `features ~ covariate_{1} + covariate_{2} ... + covariate_{N}`
 
-```{R residuals, results = "hide", eval = FALSE}
+```{R residuals, results = "hide", eval = TRUE}
 data("gene.exp.chr21")
 data("clinical")
 metadata <- clinical[,c("sample_type","gender")]
 
-gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21[1:50,], metadata)
+gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21[1:250,], metadata)
 ```
-```{R, eval = FALSE}
+
+```{R, eval = TRUE}
 gene.exp.chr21.residuals[1:5,1:5]
 ```
 
-```{R, results = "hide", eval = FALSE}
+```{R, results = "hide", eval = TRUE}
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21.residuals <- get_residuals(dna.met.chr21[1:5,],metadata)
 ```
 
-```{R, eval = FALSE}
+```{R, eval = TRUE}
 dna.met.chr21.residuals[1:5,1:5]
 ```
 
@@ -367,9 +368,9 @@ The `interaction_model` function can then be applied to these residuals data, as
 `rna.target ~ met + rna.tf + rna.tf * met`.
 
 
-```{R, message = FALSE, results = "hide", eval = FALSE}
+```{R, message = FALSE, results = "hide", eval = TRUE}
 results <- interaction_model(
-    triplet = triplet[1:2,], 
+    triplet = triplet, 
     dnam = dna.met.chr21.residuals, 
     exp = gene.exp.chr21.residuals
 )

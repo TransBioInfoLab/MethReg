@@ -25,10 +25,16 @@
 #'      makeGRangesFromDataFrame
 #'
 #'  # map to closest gene
-#'  region.closest <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+#'  region.closest <- get_region_target_gene(
+#'                       regions.gr = regions.gr,
+#'                       genome = "hg19",
+#'                       method = "closest.gene")
 #'
 #'  # map to all gene within region +- 250kbp
-#'  region.window <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
+#'  region.window <- get_region_target_gene(
+#'                       regions.gr = regions.gr,
+#'                       genome = "hg19",
+#'                       method = "window")
 #' @export
 get_region_target_gene <- function(
     regions.gr,

@@ -78,6 +78,10 @@ get_cistrome_dbconn <- function(){
         stop("R.utils package is needed for this function to work. Please install it.",
              call. = FALSE)
     }
+    if (!requireNamespace("gunzip", quietly = TRUE)) {
+        stop("gunzip package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
 
     file <- "cRegulome.db"
     if(!file.exists(file)){

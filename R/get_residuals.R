@@ -8,12 +8,9 @@
 #' @return A residuals matrix with samples as columns and features (gene, probes)
 #' @examples
 #' data("gene.exp.chr21")
-#' metadata <- data.frame(
-#'     row.names = colnames(gene.exp.chr21),
-#'     sex = c(rep("Male",25),rep("Female",25)),
-#'     age = sample(50:90, 50, replace = TRUE)
-#' )
-#' gene.exp.residuals <- get_residuals(gene.exp.chr21,metadata)
+#' data("clinical")
+#' metadata <- clinical[,c( "gender", "sample_type")]
+#' gene.exp.residuals <- get_residuals(gene.exp.chr21[1:3,], metadata)
 #' @export
 #' @importFrom stats residuals na.exclude na.omit
 get_residuals <- function(data.matrix,
@@ -44,4 +41,3 @@ get_residuals <- function(data.matrix,
     colnames(resid) <- colnames(data.matrix)
     return(resid)
 }
-

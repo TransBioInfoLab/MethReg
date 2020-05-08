@@ -210,7 +210,10 @@ We will perform these analyses using the 3 datasets described above in Section 3
 The function `interaction_model` will fit the following model to data:
 `log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`
 
-Also, it will fit a separate model to samples with  **DNA methylation in low quartile** 
+It is important to notice the `log2(exp + 1)` transformation is expected to be performed 
+outside the function.
+
+Finally, it will also fit a separate model to samples with  **DNA methylation in low quartile** 
 and another model to samples with  **DNA methylation in high quartile**.
 
 
@@ -313,10 +316,8 @@ and a column highlighting the groups.
 
 
 ```{R, message = FALSE, results = "hide"}
-metadata <- data.frame(
-    row.names = colnames(dna.met.chr21),
-    group = c(rep("Tumor",25),rep("Normal",25))
-)
+data("clinical")
+metadata <- clinical[,c("sample_type")]
 
 plots <- plot_interaction_model(
         triplet.results = results[1,], 
@@ -342,11 +343,9 @@ To remove confounding effects in gene expression data, we use the `get_residuals
 
 ```{R residuals, results = "hide", eval = FALSE}
 data("gene.exp.chr21")
-metadata <- data.frame(
-     row.names = colnames(gene.exp.chr21),
-     sex = c(rep("Male",25),rep("Female",25)),
-     age = sample(50:90, 50, replace = TRUE)
-)
+data("clinical")
+metadata <- clinical[,c("sample_type","gender")]
+
 gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21, metadata)
 ```
 ```{R, eval = FALSE}

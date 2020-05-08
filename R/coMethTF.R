@@ -10,15 +10,23 @@
 #' @name coMethTF
 NULL
 
-
-#' A DNA methylation matrix for 50 samples (only chrmossome 21)
+#' TCGA-COAD clinical matrix for 38 samples
+#' Retrieved from GDC using TCGAbiolinks
 #' @docType data
-#' @name dna.met.chr21
-#' @format A matrix: 50 samples
+#' @name clinical
+#' @format A matrix: 38 samples
 NULL
 
-#' A gene expression matrix for 50 samples (only chrmossome 21)
+#' TCGA-COAD DNA methylation matrix for 38 samples (only chrmossome 21)
+#' Retrieved from GDC using TCGAbiolinks
+#' @docType data
+#' @name dna.met.chr21
+#' @format A matrix: 38 samples
+NULL
+
+#' TCGA-COAD gene expression matrix for 38 samples (only chrmossome 21)
+#' Retrieved from GDC using TCGAbiolinks
 #' @docType data
 #' @name gene.exp.chr21
-#' @format A matrix: 50 samples
+#' @format A matrix: 38 samples
 NULL

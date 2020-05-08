@@ -51,8 +51,6 @@ interaction_model <- function(triplet,
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
 
-    is.residuals <- any(exp < 0)
-
     out <- plyr::adply(
         .data = triplet,
         .margins = 1,
@@ -61,20 +59,11 @@ interaction_model <- function(triplet,
             met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
             rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-            if(is.residuals){
-                # can have negative values
-                data <- data.frame(
-                    rna.target = rna.target %>% as.numeric,
-                    met = met %>% as.numeric,
-                    rna.tf = rna.tf %>% as.numeric
-                )
-            } else {
-                data <- data.frame(
-                    rna.target = log2(rna.target + 1) %>% as.numeric,
-                    met = met %>% as.numeric,
-                    rna.tf = log2(rna.tf + 1) %>% as.numeric
-                )
-            }
+            data <- data.frame(
+                rna.target = rna.target %>% as.numeric,
+                met = met %>% as.numeric,
+                rna.tf = rna.tf %>% as.numeric
+            )
 
             # 2) fit linear model: target RNA ~ DNAm + RNA TF
             results <- lm (

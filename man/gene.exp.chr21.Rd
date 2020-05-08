@@ -3,10 +3,12 @@
 \docType{data}
 \name{gene.exp.chr21}
 \alias{gene.exp.chr21}
-\title{A gene expression matrix for 50 samples (only chrmossome 21)}
+\title{TCGA-COAD gene expression matrix for 38 samples (only chrmossome 21)
+Retrieved from GDC using TCGAbiolinks}
 \format{
-A matrix: 50 samples
+A matrix: 38 samples
 }
 \description{
-A gene expression matrix for 50 samples (only chrmossome 21)
+TCGA-COAD gene expression matrix for 38 samples (only chrmossome 21)
+Retrieved from GDC using TCGAbiolinks
 }

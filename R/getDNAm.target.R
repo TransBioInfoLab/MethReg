@@ -1,12 +1,13 @@
 #' @title Mapping regions to gene
 #' @description To map a region to genes there are two options: 1) closest gene
-#' 2) map to all genes within a window around the region (default 500kbp/+- 250kbp around the region)
+#' 2) map to all genes within a window around the region
+#' (default: window.width = 500kbp (i.e. 250k bp from start or end of the region))
 #' @param regions.gr A Genomic Ranges objec GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How to map regions to genes: closest gene ("closest.gene)
+#' @param method How regions are mapped to genes: closest gene ("closest.gene); or
 #' genes within a window around the region ("window").
-#' around the genomic region input.
-#' @param window.width Number of base pairs to extend the region (+-window.width/2). Default is 500kbp (+- 250kbp)
+#' @param window.width When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
+#' Default is 500kbp (+- 250kbp, i.e. 250k bp from start or end of the region)
 #' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames distance
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
@@ -24,10 +25,10 @@
 #'      makeGRangesFromDataFrame
 #'
 #'  # map to closest gene
-#'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+#'  region.closest <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 #'
 #'  # map to all gene within region +- 250kbp
-#'  get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
+#'  region.window <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "window")
 #' @export
 get_region_target_gene <- function(
     regions.gr,

@@ -48,7 +48,7 @@ pages:
         - testing
     script:
         - mkdir .public
-        - cp -r docs/* .public
+        - cp -r * .public
         - mv .public public
     artifacts:
         paths:

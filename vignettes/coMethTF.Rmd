@@ -30,6 +30,8 @@ collapse = TRUE,
 comment = "#>"
 )
 library(dplyr)
+library(sesameData)
+sesameDataCacheAll()
 ```
 
 # Introduction

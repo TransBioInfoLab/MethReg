@@ -8,7 +8,6 @@
 #' have similar binding motifs.
 #' @importFrom dplyr pull filter %>% tbl
 #' @importFrom plyr adply
-#' @import dbplyr
 #' @importFrom sesameData sesameDataGet
 #' @importFrom GenomicRanges findOverlaps
 #' @return A dataframe with region, a TF name and TF gene ensembl ID

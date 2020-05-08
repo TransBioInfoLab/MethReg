@@ -78,15 +78,10 @@ get_cistrome_dbconn <- function(){
         stop("R.utils package is needed for this function to work. Please install it.",
              call. = FALSE)
     }
-    if (!requireNamespace("gunzip", quietly = TRUE)) {
-        stop("gunzip package is needed for this function to work. Please install it.",
-             call. = FALSE)
-    }
-
     file <- "cRegulome.db"
     if(!file.exists(file)){
         downloader::download("https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/9537385/cRegulome.db.gz","cRegulome.db.gz")
-        gunzip::gunzip(paste0(file,".gz"), remove = FALSE)
+        R.utils::gunzip(paste0(file,".gz"), remove = FALSE)
     }
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file)
     return(con)

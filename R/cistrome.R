@@ -17,6 +17,12 @@
 #' }
 #' @export
 get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
+
+    if (!requireNamespace("reshape2", quietly = TRUE)) {
+        stop("reshape2 package is needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+
     con <- get_cistrome_dbconn()
     check_cistrome_study(con, tcga.study)
 

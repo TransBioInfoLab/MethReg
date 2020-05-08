@@ -59,7 +59,7 @@ get_region_target_gene <- function(
             regions.gr %>% end)
         out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
     } else {
-        geneAnnot <- ELMER:::get.GRCh(genome = genome,as.granges = TRUE)
+        geneAnnot <- get_gene_information(genome = genome,as.granges = TRUE)
         geneAnnot$entrezgene <- NULL
         geneAnnot <- unique(geneAnnot)
         regions.gr.extend <- regions.gr + (window.width/2)

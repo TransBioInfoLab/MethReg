@@ -40,7 +40,8 @@ Suggests:
     dbplyr,
     RSQLite,
     DBI,
-    doParallel
+    doParallel,
+    reshape2
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
 Depends: 

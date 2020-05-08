@@ -45,7 +45,8 @@ Suggests:
     DBI,
     doParallel,
     reshape2,
-    ELMER.data
+    ELMER.data,
+    prettydoc
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
 Depends: 

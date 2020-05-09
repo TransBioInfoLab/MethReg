@@ -2,15 +2,14 @@
 % Please edit documentation in R/interaction_model.R
 \name{interaction_model}
 \alias{interaction_model}
-\title{Calculate interaction linear model Target ~ TF + DNAm}
+\title{Fits linear model with interaction to triplet data (Target, TF, DNAm)}
 \usage{
 interaction_model(triplet, dnam, exp)
 }
 \arguments{
-\item{triplet}{Dataframe with region (column name: regionID),
-TF  (column name: TF),  and target gene  (column name: target),}
+\item{triplet}{Dataframe with columns for region (regionID), TF  (TF), and target gene  (target),}
 
-\item{dnam}{DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)}
+\item{dnam}{DNA methylation matrix  (columns: samples in the same order as met, rows: regions/probes)}
 
 \item{exp}{A log2 (gene expression + 1) matrix with samples as columns in the same order as met
 and genes as rows represented by ensembl IDs ENSG00000239415)}
@@ -19,12 +18,18 @@ and genes as rows represented by ensembl IDs ENSG00000239415)}
 A dataframe with Region, TF, Estimates and P-value from linear model
 }
 \description{
-Evaluate interaction of DNA methylation,
-TF expression with target gene interaction using a linear model
-\deqn{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+The model with interaction helps to identify DNAm changes that work synergistically with TFs in regulating
+target gene expression.
+}
+\details{
+This function fits linear model
+\code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
 
-To consider covariates, RNA can also be the residuals.
-\deqn{log2(RNA target residuals) ~ log2(TF residual) + DNAm + log2(TF residual) * DNAm}
+To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
+RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
+log2 transformation is needed when \code{interaction_model} is applied to residuals data.
+\code{RNA target residuals ~ TF residuals + DNAm residuals + TF residuals * DNAm residuals}
+#'
 }
 \examples{
 data("dna.met.chr21")

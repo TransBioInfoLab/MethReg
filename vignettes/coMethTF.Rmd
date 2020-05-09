@@ -1,10 +1,9 @@
 ---
-title: "coMethTF: functional annotation of DMRs identified in epigenome-wide association studies"
+title: "coMethTF: functional annotation of DMRs and DMS in epigenome-wide association studies"
 author:
   - Tiago Chedraoui Silva^[University of Miami, txs902@miami.edu]
   - Lily wang^[University of Miami, lily.wang@gmail.com]
 output:
-  rmarkdown::word_document:
   prettydoc::html_pretty:
     theme: leonids
     toc: true

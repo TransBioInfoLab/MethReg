@@ -46,7 +46,7 @@ get_tf_in_region <- function(region,
              call. = FALSE)
     }
 
-    arrayType <- toupper(match.arg(arrayType))
+    arrayType <- match.arg(arrayType)
     genome <- match.arg(genome)
     classification <- match.arg(classification)
 
@@ -64,7 +64,7 @@ get_tf_in_region <- function(region,
 
     # Get probes regions for mapping the motifs
 
-    probes.gr <- get_met_probes_info(genome,arrayType)
+    probes.gr <- get_met_probes_info(genome = genome,arrayType = arrayType)
     probes.gr <- probes.gr[names(probes.gr) %in% rownames(motifs.probes)]
 
     # Find which probes overlap with the regions

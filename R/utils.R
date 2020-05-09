@@ -52,13 +52,22 @@ map_probes_to_regions <- function(dnam,
     genome <- match.arg(genome)
     arrayType <- match.arg(arrayType)
 
+    probe.info <- get_met_probes_info(genome,arrayType)
+    rownames(dnam) <- make_names_from_granges(probe.info[rownames(dnam)])
+    return(dnam)
+}
+
+get_met_probes_info <- function(genome = c("hg38","hg19"),
+                                arrayType = c("450k","EPIC")
+){
+    genome <- match.arg(genome)
+    arrayType <- match.arg(arrayType)
+
     sesameDataCacheAll()
-    probe.info <- sesameDataGet(
+    sesameDataGet(
         str_c(ifelse(arrayType == "450k","HM450","EPIC"),".",
               genome,".manifest")
     )
-    rownames(dnam) <- make_names_from_granges(probe.info[rownames(dnam)])
-    return(dnam)
 }
 
 

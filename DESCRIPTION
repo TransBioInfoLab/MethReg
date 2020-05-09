@@ -1,6 +1,6 @@
 Package: coMethTF
 Type: Package
-Title: Assessing regulatory potential of DNAm on gene transcription
+Title: Assessing the regulatory potential of DNA methylation on gene transcription
 Version: 0.1.0
 Authors@R: c(
     person("Tiago", "Silva", email = "tiagochst@gmail.com", role = c("aut", "cre"),
@@ -8,9 +8,10 @@ Authors@R: c(
     person("Lily", "Wang", email = "lily.wang@gmail.com", role = c("aut"))
       )
 Maintainer: Tiago Chedraoui Silva <txs902@miami.edu>
-Description: Analytical framework that systematically integrates DNAm with data on multiple TFs, 
-    their co-factors and gene expressions to accurately assess the 
-    regulatory potential of DNAm on gene transcription.
+Description: coMethTF evaluates, annotates and prioritizes DNA methylation regions 
+(or sites) with high regulatory potential, which work synergistically with transcription
+facotrs to regulate target gene expressions, without any additional ChIP-seq data.
+
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

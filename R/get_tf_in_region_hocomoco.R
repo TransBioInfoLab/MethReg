@@ -59,7 +59,7 @@ get_tf_in_region <- function(region,
     }
 
     # get pre-computed data
-    motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",arrayType),package = "ELMER.data",envir = environment()))
+    motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",toupper(arrayType)),package = "ELMER.data",envir = environment()))
     motifs.tfs <- get(data(list = paste0("TF.",classification),package = "ELMER.data",envir = environment()))
 
     # Get probes regions for mapping the motifs

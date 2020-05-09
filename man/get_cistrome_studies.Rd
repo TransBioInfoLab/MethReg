@@ -9,3 +9,6 @@ get_cistrome_studies(conn = NULL)
 \description{
 Get list of cistrome studies
 }
+\examples{
+get_cistrome_studies()
+}

@@ -1,4 +1,4 @@
-#' @title Fits linear model with interaction to triplet data (Target, TF, DNAm)
+#' @title Fits a stratified linear model to triplet data (Target, TF, DNAm)
 #' @description The model with interaction helps to identify DNAm changes that work synergistically with TFs in regulating
 #' target gene expression.
 #' @param triplet Dataframe with columns for region (regionID), TF  (TF), and target gene  (target),
@@ -7,12 +7,12 @@
 #' and genes as rows represented by ensembl IDs ENSG00000239415)
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @details This function fits linear model
-#' \code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+#' \code{log2(RNA target) ~ log2(TF)}
 #'
 #' To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
-#' RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
+#' RNA residual values which have covariate effects removed, then fit interaction model. Note that no
 #' log2 transformation is needed when \code{interaction_model} is applied to residuals data.
-#' \code{RNA target residuals ~ TF residuals + DNAm residuals + TF residuals * DNAm residuals}
+#' \code{RNA target residuals ~ TF residuals}
 #' #'
 #' @examples
 #' data("dna.met.chr21")
@@ -24,7 +24,7 @@
 #' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 #' @export
 #' @importFrom rlang .data
-interaction_model <- function(triplet,
+stratified_model <- function(triplet,
                               dnam,
                               exp
 ){
@@ -67,19 +67,36 @@ interaction_model <- function(triplet,
                 rna.tf = rna.tf %>% as.numeric
             )
 
-            # 2) fit linear model: target RNA ~ DNAm + RNA TF
-            results <- lm (
-                rna.target ~ met + rna.tf + rna.tf * met,
-                data = data
+            low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
+            upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
+
+            data.low <- data %>% dplyr::filter(met <= low.cutoff)
+            data.high <- data %>% dplyr::filter(met >= upper.cutoff)
+
+            results.low <- lm (
+                rna.target ~ rna.tf,
+                data = data.low
+            )
+            results.high <- lm (
+                rna.target ~ rna.tf,
+                data = data.high
             )
 
-            results.pval <- summary(results)$coefficients[-1, 4, drop = F] %>% t %>% as.data.frame()
-            colnames(results.pval) <- paste0("pval_", colnames(results.pval))
+            results.low.pval <- summary(results.low)$coefficients[-1,4,drop = F] %>% t %>% as.data.frame()
+            colnames(results.low.pval) <- stringr::str_c("DNAmlow_pval_", colnames(results.low.pval))
 
-            results.estimate <- summary(results)$coefficients[-1, 1, drop = F] %>% t %>% as.data.frame()
-            colnames(results.estimate) <- paste0("estimate_", colnames(results.estimate))
+            results.low.estimate <- summary(results.low)$coefficients[-1,1,drop = F] %>% t %>% as.data.frame()
+            colnames(results.low.estimate) <- stringr::str_c("DNAmlow_estimate_", colnames(results.low.estimate))
 
-            out <- cbind(results.pval, results.estimate) %>% data.frame()
+            results.high.pval <- summary(results.high)$coefficients[-1,4,drop = F] %>% t %>% as.data.frame()
+            colnames(results.high.pval) <- stringr::str_c("DNAmhigh_pval_", colnames(results.high.pval))
+
+            results.high.estimate <- summary(results.high)$coefficients[-1,1,drop = F] %>% t %>% as.data.frame()
+            colnames(results.high.estimate) <- stringr::str_c("DNAmhigh_estimate_", colnames(results.high.estimate))
+
+            out <- cbind(results.low.pval, results.low.estimate,
+                         results.high.pval, results.high.estimate
+            ) %>% data.frame()
 
         }, .progress = "time")
 

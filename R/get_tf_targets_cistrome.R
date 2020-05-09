@@ -99,9 +99,9 @@ check_cistrome_study <- function(conn, study){
 }
 
 #' Get list of cistrome studies
-#' @export
-#' @example
+#' @examples
 #' get_cistrome_studies()
+#' @export
 get_cistrome_studies <- function(conn = NULL){
 
     if (!requireNamespace("DBI", quietly = TRUE)) {

@@ -1,5 +1,5 @@
 #' @title Access human TF from Lambert et al 2018
-#' @description Access human TF from Lambert et al 2018
+#' @description Access human TF from Lambert et al 2018 (PMID: 29425488)
 #' @importFrom readr read_csv
 #' @return A dataframe with Human TF
 #' @examples

@@ -6,7 +6,8 @@
 \title{TCGA-COAD clinical matrix for 38 samples
 Retrieved from GDC using TCGAbiolinks}
 \format{
-A matrix: 38 samples
+A matrix: 38 samples (rows) and variables (columns)
+patient, sample, gender and sample_type
 }
 \description{
 TCGA-COAD clinical matrix for 38 samples

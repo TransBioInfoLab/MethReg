@@ -16,11 +16,11 @@ get_region_target_gene(
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
-\item{method}{How regions are mapped to genes: closest gene ("closest.gene); or
+\item{method}{How regions are mapped to genes: closest gene ("closest.gene"); or
 genes within a window around the region ("window").}
 
 \item{window.width}{When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
-Default is 500kbp (+- 250kbp, i.e. 250k bp from start or end of the region)}
+Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 }
 \description{
 To map a region to genes there are two options: 1) closest gene

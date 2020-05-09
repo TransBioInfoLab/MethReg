@@ -9,9 +9,8 @@ Authors@R: c(
       )
 Maintainer: Tiago Chedraoui Silva <txs902@miami.edu>
 Description: coMethTF evaluates, annotates and prioritizes DNA methylation regions 
-(or sites) with high regulatory potential, which work synergistically with transcription
-facotrs to regulate target gene expressions, without any additional ChIP-seq data.
-
+  (or sites) with high regulatory potential, which work synergistically with transcription
+  factors to regulate target gene expressions, without any additional ChIP-seq data.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -51,4 +50,4 @@ Suggests:
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
 Depends: 
-    R (>= 2.10)
+    R (>= 3.6.0)

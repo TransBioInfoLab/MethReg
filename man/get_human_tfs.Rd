@@ -10,7 +10,7 @@ get_human_tfs()
 A dataframe with Human TF
 }
 \description{
-Access human TF from Lambert et al 2018
+Access human TF from Lambert et al 2018 (PMID: 29425488)
 }
 \examples{
 \dontrun{

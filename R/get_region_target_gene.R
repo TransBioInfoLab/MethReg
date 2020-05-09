@@ -4,10 +4,10 @@
 #' (i.e. +/- 250kbp from start or end of the region)).
 #' @param regions.gr A Genomic Ranges objec GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How regions are mapped to genes: closest gene ("closest.gene); or
+#' @param method How regions are mapped to genes: closest gene ("closest.gene"); or
 #' genes within a window around the region ("window").
 #' @param window.width When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
-#' Default is 500kbp (+- 250kbp, i.e. 250k bp from start or end of the region)
+#' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
 #' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames distance
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite

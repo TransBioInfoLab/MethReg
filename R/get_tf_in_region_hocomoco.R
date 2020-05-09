@@ -1,9 +1,11 @@
 #' @title Get human TF list for a region using HOCOMOCO prediction
-#' @description This function uses a pre-computed dataset for EPIC and HM450 Array that was created as follow:
-#' For each HOCOMOCO human TF, the motif was search around the probe (+-250bp), and a binary matrix was created, with 1
-#' if the motif was found, 0 if not. This function uses this pre-computed dataset to extend the probes to region, using the overlap probes
-#' overlapping the regions as follows: for each region, get the probes within it and a motif will be one if at least one of the
-#' overlapping probes has the motif (value 1 in the original dataset).
+#' @description Given a genomic region, this function obtains TFs that bind close to it (+-250bp).
+#' To this end, we used a pre-computed dataset for EPIC and HM450 Array that was created as follows:
+#' for each HOCOMOCO human TF, the motif was searched around the probe (+-250bp), and a binary matrix was created,
+#' with 1 if the motif was found, 0 if not.
+#' The function \code{get_tf_in_region} uses this pre-computed dataset to link regions to TFs:
+#' for each region, obtain the probes within it and a motif will be selected
+#' if at least one of the probes within the region has the motif (i.e. value 1 in the original dataset).
 #' Then for each TF motifs found within the region, we select the TFs within the same TF family/subfamily since they
 #' have similar binding motifs.
 #' @importFrom dplyr pull filter %>% tbl

@@ -15,10 +15,7 @@ building:
     - apt-get install -y qpdf
     - R -e 'install.packages("pkgdown")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
-    - R -e 'devtools::check()'
-    - R -e 'pkgdown::init_site()'
-    - R -e 'pkgdown::build_reference()'
-    - R -e 'pkgdown::build_home()'
+    - R -e 'devtools::check(args = c("--no-examples", "--no-tests"))'
 
 # To have the coverage percentage appear as a gitlab badge follow these
 # instructions:
@@ -47,9 +44,7 @@ pages:
     dependencies:
         - testing
     script:
-        - mkdir .public
-        - cp -r * .public
-        - mv .public public
+      - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:
             - public

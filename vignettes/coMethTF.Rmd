@@ -4,6 +4,7 @@ author:
   - Tiago Chedraoui Silva^[University of Miami, txs902@miami.edu]
   - Lily wang^[University of Miami, lily.wang@gmail.com]
 output:
+  rmarkdown::word_document:
   prettydoc::html_pretty:
     theme: leonids
     toc: true

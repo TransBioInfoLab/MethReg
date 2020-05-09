@@ -38,5 +38,5 @@ data("gene.exp.chr21")
 triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
                       "TF" = rownames(gene.exp.chr21)[11:20],
                       "target" = rownames(gene.exp.chr21)[1:10])
-results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
+results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21)
 }

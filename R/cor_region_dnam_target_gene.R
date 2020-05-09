@@ -1,0 +1,90 @@
+#' @title Evaluate correlation of DNA methylation region and target gene expressions
+#' @description Evaluate correlation of the DNA methylation region and target gene expression
+#' using spearman correlation test
+#' @param links A dataframe with the following columns: regionID (DNA methylation) and  geneID (target gene)
+#' @param met DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
+#' same order as gene expression.
+#' @param exp Gene expression matrix (rows are genes, columns are samples)
+#' Samples should be in the same order as the DNA methylation matrix.
+#' @param min.cor.pval Filter of significant correlations (default: 0.05)
+#' @param min.cor.estimate Filter of significant correlations (default: not applied)
+#' @param file.out If provided, name of a csv file which will be used to save the results.
+#' @importFrom plyr adply
+#' @importFrom tibble tibble
+#' @importFrom stats p.adjust cor.test
+#' @export
+#' @examples
+#' library(dplyr)
+#' # Create example region
+#' regions.gr <- data.frame(
+#'                 chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
+#'                 start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
+#'                 end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
+#'                 stringsAsFactors = FALSE)  %>%
+#'               GenomicRanges::makeGRangesFromDataFrame()
+#'
+#' # Map example region to closest gene
+#' map <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
+#' map <- tidyr::unite(map,col = "regionID",c("gene_chrom", "gene_start", "gene_end"))
+#' links <- tibble::tibble(regionID = map$regionID, geneID = map$ensembl_gene_id)
+#'
+#' # Create data example
+#' met <- matrix(runif(length(links$regionID) * 4, 0, 1),
+#'               nrow = length(links$regionID),
+#'               dimnames = list(c(links$regionID),c(paste0("S",c(1:4)))))
+#'
+#' exp <- matrix(runif(length(links$regionID) * 4, 0, 10),
+#'               nrow = length(links$geneID),
+#'               dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
+#'
+#' # Samples in met and exp datasets should be in the same order.
+#' identical (colnames (met), colnames(exp))
+#'
+#' # Correalted DNAm and gene expression, display only significant associations
+#' cor_region_dnam_target_gene(links = links, met = met, exp = exp)
+#'
+#' # display all associations
+#' cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)
+cor_region_dnam_target_gene <- function(
+    links,
+    met,
+    exp,
+    min.cor.pval = 0.05,
+    min.cor.estimate = 0.0,
+    file.out
+){
+
+    if(is.null(exp)) stop("Please set exp matrix")
+    if(is.null(met)) stop("Please set met matrix")
+    if(ncol(met) != ncol(exp)) stop("exp and met does not have the same size")
+    if(!all(c("geneID","regionID") %in% colnames(links))) stop("links object must have geneID and regionID columns")
+
+    links <- links[links$geneID %in% rownames(exp),]
+    links <- links[links$regionID %in% rownames(met),]
+    if(nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
+
+    correlation.df <- plyr::adply(.data = links,
+                                  .margins = 1,
+                                  .fun = function(link){
+                                      exp <- log2(exp[link$geneID,] + 1)
+                                      met <- met[rownames(met) == link$regionID,]
+                                      res <- cor.test(exp %>% as.numeric,
+                                                      met %>% as.numeric,
+                                                      method = "spearman",
+                                                      exact = FALSE)
+                                      return(tibble("met_exp_cor_pvalue" = res$p.value,
+                                                    "met_exp_cor_estimate" = res$estimate))
+                                  },.progress = "time")
+
+
+    correlation.df <- na.omit(correlation.df)
+    correlation.df$met_exp_cor_fdr <- p.adjust(correlation.df$met_exp_cor_pvalue, method = "fdr")
+
+    correlation.df <- correlation.df %>%
+        dplyr::filter(.data$met_exp_cor_fdr <= min.cor.pval & abs(.data$met_exp_cor_estimate) >= min.cor.estimate)
+
+
+    if(!missing(file.out)) readr::write_tsv(x = correlation.df, path = file.out)
+
+    return(correlation.df)
+}

@@ -1,17 +1,19 @@
-#' @title Calculate interaction linear model Target ~ TF + DNAm
-#' @description Evaluate interaction of DNA methylation,
-#' TF expression with target gene interaction using a linear model
-#' \deqn{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
-#'
-#' To consider covariates, RNA can also be the residuals.
-#' \deqn{log2(RNA target residuals) ~ log2(TF residual) + DNAm + log2(TF residual) * DNAm}
-#'
-#' @param triplet Dataframe with region (column name: regionID),
-#' TF  (column name: TF),  and target gene  (column name: target),
-#' @param dnam DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)
+#' @title Fits linear model with interaction to triplet data (Target, TF, DNAm)
+#' @description The model with interaction helps to identify DNAm changes that work synergistically with TFs in regulating
+#' target gene expression.
+#' @param triplet Dataframe with columns for region (regionID), TF  (TF), and target gene  (target),
+#' @param dnam DNA methylation matrix  (columns: samples in the same order as met, rows: regions/probes)
 #' @param exp A log2 (gene expression + 1) matrix with samples as columns in the same order as met
 #' and genes as rows represented by ensembl IDs ENSG00000239415)
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
+#' @details This function fits linear model
+#' \code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+#'
+#' To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
+#' RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
+#' log2 transformation is needed when \code{interaction_model} is applied to residuals data.
+#' \code{RNA target residuals ~ TF residuals + DNAm residuals + TF residuals * DNAm residuals}
+#' #'
 #' @examples
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)

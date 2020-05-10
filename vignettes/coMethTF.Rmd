@@ -237,7 +237,7 @@ The output of `interaction_model` function will be a data frame with the followi
 * `estimate_<name>`: estimated effect for a variable. If estimate > 0, increasing values of the variable corresponds to increased outcome values (target gene expression). If estimate < 0, increasing values of the variable correspond to decreased target gene expression levels.
 
 
-The following columns are provided:
+The following columns are provided for the full model:
 
 * `pval_met`: p-value for DNA methylation variable
 * `pval_rna.tf` : p-value for TF expression
@@ -255,10 +255,25 @@ colnames(results)
 # Results for full model (with all samples)
 results %>% dplyr::select(
     c(1,4,5,grep("quant",colnames(results),invert = TRUE))
-    )
+    ) %>% head
+```
 
+
+The following columns are provided for the quartile model:
+
+* `quant_pval_metGrp`: p-value for DNA methylation variable
+* `quant_pval_rna.tf` : p-value for TF expression
+* `quant_pval_metGrp:rna.tf`: : p-value for DNA methylation by  TF interaction
+* `quant_estimates_metGrp`: estimate for DNA methylation variable
+* `quant_estimates_rna.tf`: estimate  for TF expression
+* `quant_estimates_metGrp:rna.tf`: estimate for DNA methylation by  TF interaction
+
+
+```{R}
 # Results for quartile model
-results %>% dplyr::select(c(1,4,5,grep("quant",colnames(results))))
+results %>% dplyr::select(
+  c(1,4,5,grep("quant",colnames(results)))
+  ) %>% head
 ```
 
 ## 4.2 Visualization of data  

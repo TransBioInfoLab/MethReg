@@ -3,7 +3,7 @@ title: "coMethTF: functional annotation of DMRs and DMS in epigenome-wide associ
 author:
   - Tiago Chedraoui Silva^[University of Miami, txs902@miami.edu]
   - Lily wang^[University of Miami, lily.wang@gmail.com]
-output:
+output: 
   prettydoc::html_pretty:
     theme: leonids
     toc: true
@@ -206,19 +206,24 @@ We will perform these analyses using the 3 datasets described above in Section 3
 
 ## 4.1 Analysis using model with methylation by TF interaction
 
-The function `interaction_model` will fit the following model to data:
-`log2(rna.target + 1) ~ met + log2(rna.tf + 1) + log2(rna.tf + 1) * met`
+The function `interaction_model` will fit the following models to data:
 
-It is important to notice the `log2(exp + 1)` transformation is expected to be performed 
-outside the function.
+1. by considering DNAm as a continuous variable:
+$$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
 
-Finally, it will also fit a separate model to samples with  **DNA methylation in low quartile** 
-and another model to samples with  **DNA methylation in high quartile**.
+2. by considering DNAm as a binary variable - we defined a binary group for
+ DNA methylation values (high = 1, low = 0). That is, samples with the highest
+ DNAm levels (top 25 percent) has high = 1, samples with lowest
+ DNAm levels (bottom 25 pecent) has high = 0. Note that in this
+ implementation, only samples wih DNAm values in the first and last quartiles
+ are considered.
+$$log_2(RNA target) \sim log_2(TF) + \text{DNAm Quantile Group} + log_2(TF) * \text{DNAm Quantile Group}$$
+ 
 
 
 ```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
-    triplet = triplet[1:2,], 
+    triplet = triplet, 
     dnam = dna.met.chr21,
     exp = gene.exp.chr21
 )
@@ -241,23 +246,7 @@ The following columns are provided:
 * `estimate_rna.tf`: estimate  for TF expression
 * `estimate_met.rna.tf`: estimate for DNA methylation by  TF interaction
 
-The results for the separated model fit to samples with **DNA methylation in low quartile** are provided within following columns:
 
-* `DNAmlow_pval_met`     
-* `DNAmlow_pval_rna.tf`
-* `DNAmlow_pval_met.rna.tf`      
-* `DNAmlow_estimate_met`         
-* `DNAmlow_estimate_rna.tf` 
-* `DNAmlow_estimate_met.rna.tf`  
-
-The results for the separated model fit to samples with  **DNA methylation in low quartile** are provided within following columns:
-
-* `DNAmhigh_pval_met`            
-* `DNAmhigh_pval_rna.tf`         
-* `DNAmhigh_pval_met.rna.tf`    
-* `DNAmhigh_estimate_met`        
-* `DNAmhigh_estimate_rna.tf`     
-* `DNAmhigh_estimate_met.rna.tf`
 
 ```{R interaction_model_results}
 dim(results)

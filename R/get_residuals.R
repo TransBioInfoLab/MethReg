@@ -24,6 +24,10 @@ get_residuals <- function(data.matrix,
         stop("data.matrix columns names should be the same as metadata row names")
     }
 
+    if(any(is.na(metadata))){
+        message("There are NA's within the metadata, residuals for those samples will be NA.")
+    }
+
     cov_char <- stringr::str_c(colnames(metadata), collapse = " + ")
     form <- stringr::str_c("val ~ ", cov_char)
     message("Formula used: ", form)

@@ -1,19 +1,23 @@
-#' @title Fits a stratified linear model to triplet data (Target, TF, DNAm)
-#' @description The model with interaction helps to identify DNAm changes that work synergistically with TFs in regulating
-#' target gene expression.
-#' @param triplet Dataframe with columns for region (regionID), TF  (TF), and target gene  (target),
-#' @param dnam DNA methylation matrix  (columns: samples in the same order as met, rows: regions/probes)
-#' @param exp A log2 (gene expression + 1) matrix with samples as columns in the same order as met
-#' and genes as rows represented by ensembl IDs ENSG00000239415)
+#' @title Fits linear model to triplet data (Target, TF, DNAm) separately for
+#' samples with DNAm high or low groups.
+#' @description Should be used only for triplet data with significant
+#'  \code{TF*DNAm} interaction from fitting models in \code{interaction_model}.
+#' These models can be used to examine how TF activities differ in
+#' samples with high DNAm or low DNAm values.
+#' @param triplet Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)
+#' @param dnam DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
+#' @param exp A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
+#' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @details This function fits linear model
 #' \code{log2(RNA target) ~ log2(TF)}
 #'
+#' to samples with higest DNAm values (top 25 percent) and lowest DNAm values (bottom 25 percent), separately
+#'
 #' To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 #' RNA residual values which have covariate effects removed, then fit interaction model. Note that no
 #' log2 transformation is needed when \code{interaction_model} is applied to residuals data.
-#' \code{RNA target residuals ~ TF residuals}
-#' #'
+#'
 #' @examples
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)

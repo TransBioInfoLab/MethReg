@@ -16,7 +16,7 @@ rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 }
 \value{
 A dataframe with Region, TF, Estimates and P-values, after fitting robust linear
-models using two approaches(see Details below).
+models using two approaches(see Details above).
 
 Approch 1 (considering DNAm values as a continuous variable) generates \code{pval_met, pval_rna.tf, pval_met.rna.tf
 and estimates_met, estimates_rna.tf, estimates_met.rna.tf}. Approach 2 (considering DNAm values as a binary variable)

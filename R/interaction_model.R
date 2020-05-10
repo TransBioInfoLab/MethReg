@@ -50,6 +50,7 @@
 #' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 #' @export
 #' @importFrom rlang .data
+#' @importFrom MASS rlm psi.bisquare
 interaction_model <- function(triplet,
                               dnam,
                               exp
@@ -67,6 +68,10 @@ interaction_model <- function(triplet,
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
+    # remove triplet with RNA expression equal to 0 for more than 25% of the samples
+    genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
+    exp <- exp[genes.keep,]
+
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
             .data$TF %in% rownames(exp) &
@@ -79,6 +84,7 @@ interaction_model <- function(triplet,
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
 
+
     out <- plyr::adply(
         .data = triplet,
         .margins = 1,
@@ -87,83 +93,72 @@ interaction_model <- function(triplet,
             met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
             rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-            df <- data.frame(
+            data <- data.frame(
                 rna.target = rna.target %>% as.numeric,
                 met = met %>% as.numeric,
                 rna.tf = rna.tf %>% as.numeric
             )
 
-            # filter rows with excessive zeros
-            prop.zeros <- sum(rna.target == 0)/length(rna.target)
+            # 2) fit linear model: target RNA ~ DNAm + RNA TF
+            results <- MASS::rlm(
+                rna.target ~ met + rna.tf + rna.tf * met,
+                data = data
+            )
 
-            # fit linear models: target RNA ~ met + TF + met*TF
-            # use met as continous variable
-            if (prop.zeros < 0.25){
-
-                rlm.bisquare <- data.frame (
-                    coef (
-                        summary(
-                            MASS::rlm ( rna.target ~ met + rna.tf + met * rna.tf,
-                                  data = df,
-                                  psi = psi.bisquare, maxit = 100)
-                        )
-                    )
-                )
-                df.value <- nrow(df) - 4
-                rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = df.value) )
-
-                #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
-                results <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
-                colnames(results) <- paste0("pval_",colnames(results))
-                estimates <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
-                colnames(estimates) <- paste0("estimates_",colnames(estimates))
-
-                # fit linear models: target RNA ~ met + TF + met*TF
-                # use met as binary variable
-
-                quant.met <-  quantile(df$met, na.rm = TRUE)
-                quant.tf <-  quantile(df$rna.tf,na.rm = TRUE)
-                quant.diff <- data.frame("met.q4_minus_q1" = quant.met[4] - quant.met[2],
-                                         "tf.q4_minus_q1" = quant.tf[4] - quant.tf[2])
+            rlm.bisquare <- rlm (
+                rna.target ~ met + rna.tf + rna.tf * met,
+                data = data,
+                psi = MASS::psi.bisquare,
+                maxit = 100) %>% summary %>% coef %>% data.frame
 
 
-                # Keep samples in low andf high quintile
-                df2 <- df[df$met < quant.met[2] | df$met > quant.met[4],]
-                # Low quintile group is 0, high is 1
-                # df2$metGrp <- NA
-                df2$metGrp <- ifelse(df2$met <= quant.met[2],0,1)
+            degrees.freedom.value <- nrow(data) - 4
+            rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
 
-                rlm.bisquare.quant <- data.frame (
-                    coef (
-                        summary(
-                            MASS::rlm ( rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
-                                  data = df2,
-                                  psi = psi.bisquare, maxit = 100)
-                        )
-                    )
-                )
-                df.value <- nrow(df2) - 4
-                rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value), df = df.value) )
-                results.quant <- rlm.bisquare.quant[-1,4,drop = F] %>%
-                    t %>%
-                    as.data.frame()
-                colnames(results.quant) <- paste0("quant_pval_",colnames(results.quant))
-                estimates.quant <- rlm.bisquare.quant[-1,1,drop = F] %>%
-                    t %>%
-                    as.data.frame()
-                colnames(estimates.quant) <- paste0("quant_estimates_",colnames(estimates.quant))
+            #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
+            all.pval <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
+            colnames(all.pval) <- paste0("pval_",colnames(all.pval))
 
-                out <- data.frame(cbind(results,
-                                 estimates,
-                                 quant.diff,
-                                 results.quant,
-                                 estimates.quant
-                                 ),
-                           row.names = NULL,stringsAsFactors = FALSE)
+            all.estimate <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
+            colnames(all.estimate) <- paste0("estimates_",colnames(all.estimate))
 
-                out
-        }
-            }, .progress = "time")
+
+            quant.met <-  quantile(data$met,na.rm = TRUE)
+            quant.diff <- data.frame("met.q4_minus_q1" = quant.met[4] - quant.met[2])
+
+            low.cutoff <- quant.met[2]
+            upper.cutoff <- quant.met[4]
+
+            data.high.low <- data %>% dplyr::filter(met <= low.cutoff | met >= upper.cutoff)
+            data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff,0,1)
+
+            rlm.bisquare.quant <-   rlm (
+                rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
+                data = data.high.low,
+                psi = MASS::psi.bisquare,
+                maxit = 100) %>% summary %>% coef %>% data.frame
+
+            degrees.freedom.value <- nrow(data.high.low) - 4
+            rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value), df = degrees.freedom.value) )
+
+            quant.pval <- rlm.bisquare.quant[-1,4,drop = F] %>%
+                t %>%
+                as.data.frame()
+            colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
+
+            quant.estimate <- rlm.bisquare.quant[-1,1,drop = F] %>%
+                t %>%
+                as.data.frame()
+            colnames(quant.estimate) <- paste0("quant_estimates_",colnames(quant.estimate))
+
+            out <- cbind(all.pval,
+                         all.estimate,
+                         quant.diff,
+                         quant.pval, quant.estimate
+            ) %>% data.frame()
+            out
+
+        }, .progress = "time")
 
     return(out)
 }

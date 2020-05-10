@@ -10,7 +10,8 @@ get_residuals(data.matrix, metadata)
 \item{data.matrix}{A matrix with samples as columns and features (gene, probes)
 as rows.}
 
-\item{metadata}{A data frame with samples as rows and columns the covariates}
+\item{metadata}{A data frame with samples as rows and columns the covariates.
+Observation: No NA values are allowed, otherwise residual of the sample will be NA.}
 }
 \value{
 A residuals matrix with samples as columns and features (gene, probes)

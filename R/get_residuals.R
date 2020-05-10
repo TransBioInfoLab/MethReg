@@ -4,7 +4,8 @@
 #' where n is the index of the columns of the metadata provided
 #' @param data.matrix A matrix with samples as columns and features (gene, probes)
 #' as rows.
-#' @param metadata A data frame with samples as rows and columns the covariates
+#' @param metadata A data frame with samples as rows and columns the covariates.
+#' Observation: No NA values are allowed, otherwise residual of the sample will be NA.
 #' @return A residuals matrix with samples as columns and features (gene, probes)
 #' @examples
 #' data("gene.exp.chr21")

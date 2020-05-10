@@ -252,16 +252,13 @@ The following columns are provided:
 dim(results)
 colnames(results)
 
-# Results for model with all samples
+# Results for full model (with all samples)
 results %>% dplyr::select(
-    c(1,4,5,grep("DNAmlow|DNAmhigh",colnames(results),invert = TRUE))
+    c(1,4,5,grep("quant",colnames(results),invert = TRUE))
     )
 
-# Results for DNA methylation in low quartile model
-results %>% dplyr::select(c(1,4,5,grep("DNAmlow",colnames(results))))
-
-# Results for DNA methylation in high quartile model
-results %>% dplyr::select(c(1,4,5,grep("DNAmhigh",colnames(results))))
+# Results for quartile model
+results %>% dplyr::select(c(1,4,5,grep("quant",colnames(results))))
 ```
 
 ## 4.2 Visualization of data  

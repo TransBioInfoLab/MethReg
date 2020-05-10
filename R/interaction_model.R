@@ -1,19 +1,45 @@
-#' @title Fits linear model with interaction to triplet data (Target, TF, DNAm)
-#' @description The model with interaction helps to identify DNAm changes that work synergistically with TFs in regulating
+#' @title Fits robust linear models with interaction to triplet data (Target, TF, DNAm)
+#' @description Identify DNA methylation (DNAm) changes that work synergistically with TFs in regulating
 #' target gene expression.
-#' @param triplet Dataframe with columns for region (regionID), TF  (TF), and target gene  (target),
-#' @param dnam DNA methylation matrix  (columns: samples in the same order as met, rows: regions/probes)
-#' @param exp A log2 (gene expression + 1) matrix with samples as columns in the same order as met
-#' and genes as rows represented by ensembl IDs ENSG00000239415)
-#' @return A dataframe with Region, TF, Estimates and P-value from linear model
-#' @details This function fits linear model
+#' @param triplet Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)
+#' @param dnam DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
+#' @param exp A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
+#' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
+#' @return A dataframe with Region, TF, Estimates and P-values, after fitting robust linear
+#' models using two approaches(see Details above).
+#'
+#' Approch 1 (considering DNAm values as a continuous variable) generates \code{pval_met, pval_rna.tf, pval_met.rna.tf
+#' and estimates_met, estimates_rna.tf, estimates_met.rna.tf}. Approach 2 (considering DNAm values as a binary variable)
+#' generates \code{quant_pval_metGrp, quant_pval_rna.tf, quant_pval_metGrp.rna.tf,
+#' quant_estimates_metGrp, quant_estimates_rna.tf, quant_estimates_metGrp.rna.tf}
+#'
+#'
+#'
+#'
+#' @details This function fits robust linear model
+#'
 #' \code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+#'
+#' The robust linear model, implemented using \code{rlm} function from \code{MASS},
+#' gives outlier gene expression values reduced weight. We used \code{"psi.bisqure"}
+#' option in function \code{rlm} (bisquare weighting,
+#' https://stats.idre.ucla.edu/r/dae/robust-regression/).
+#'
+#' The above linear model were fit to triplet data frame in two ways:
+#'
+#' (1) by considering DNAm as a continuous variable
+#'
+#' (2) by considering DNAm as a binary variable - we defined a binary group for
+#' DNA methylation values (high = 1, low = 0). That is, samples with the highest
+#' DNAm levels (top 25 percent) has high = 1, samples with lowest
+#' DNAm levels (bottom 25 pecent) has high = 0. Note that in this
+#' implementation, only samples wih DNAm values in the first and last quartiles
+#' are considered.
 #'
 #' To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 #' RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
 #' log2 transformation is needed when \code{interaction_model} is applied to residuals data.
-#' \code{RNA target residuals ~ TF residuals + DNAm residuals + TF residuals * DNAm residuals}
-#' #'
+#'
 #' @examples
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
@@ -61,58 +87,83 @@ interaction_model <- function(triplet,
             met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
             rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-            data <- data.frame(
+            df <- data.frame(
                 rna.target = rna.target %>% as.numeric,
                 met = met %>% as.numeric,
                 rna.tf = rna.tf %>% as.numeric
             )
 
-            # 2) fit linear model: target RNA ~ DNAm + RNA TF
-            results <- lm (
-                rna.target ~ met + rna.tf + rna.tf * met,
-                data = data
-            )
+            # filter rows with excessive zeros
+            prop.zeros <- sum(rna.target == 0)/length(rna.target)
 
-            results.pval <- summary(results)$coefficients[-1, 4, drop = F] %>% t %>% as.data.frame()
-            colnames(results.pval) <- paste0("pval_", colnames(results.pval))
+            # fit linear models: target RNA ~ met + TF + met*TF
+            # use met as continous variable
+            if (prop.zeros < 0.25){
 
-            results.estimate <- summary(results)$coefficients[-1, 1, drop = F] %>% t %>% as.data.frame()
-            colnames(results.estimate) <- paste0("estimate_", colnames(results.estimate))
+                rlm.bisquare <- data.frame (
+                    coef (
+                        summary(
+                            MASS::rlm ( rna.target ~ met + rna.tf + met * rna.tf,
+                                  data = df,
+                                  psi = psi.bisquare, maxit = 100)
+                        )
+                    )
+                )
+                df.value <- nrow(df) - 4
+                rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = df.value) )
 
-            low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
-            upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
+                #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
+                results <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
+                colnames(results) <- paste0("pval_",colnames(results))
+                estimates <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
+                colnames(estimates) <- paste0("estimates_",colnames(estimates))
 
-            data.low <- data %>% dplyr::filter(met <= low.cutoff)
-            data.high <- data %>% dplyr::filter(met >= upper.cutoff)
+                # fit linear models: target RNA ~ met + TF + met*TF
+                # use met as binary variable
 
-            results.low <- lm (
-                rna.target ~ rna.tf,
-                data = data.low
-            )
-            results.high <- lm (
-                rna.target ~ rna.tf,
-                data = data.high
-            )
+                quant.met <-  quantile(df$met, na.rm = TRUE)
+                quant.tf <-  quantile(df$rna.tf,na.rm = TRUE)
+                quant.diff <- data.frame("met.q4_minus_q1" = quant.met[4] - quant.met[2],
+                                         "tf.q4_minus_q1" = quant.tf[4] - quant.tf[2])
 
-            results.low.pval <- summary(results.low)$coefficients[-1,4,drop = F] %>% t %>% as.data.frame()
-            colnames(results.low.pval) <- stringr::str_c("DNAmlow_pval_", colnames(results.low.pval))
 
-            results.low.estimate <- summary(results.low)$coefficients[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(results.low.estimate) <- stringr::str_c("DNAmlow_estimate_", colnames(results.low.estimate))
+                # Keep samples in low andf high quintile
+                df2 <- df[df$met < quant.met[2] | df$met > quant.met[4],]
+                # Low quintile group is 0, high is 1
+                # df2$metGrp <- NA
+                df2$metGrp <- ifelse(df2$met <= quant.met[2],0,1)
 
-            results.high.pval <- summary(results.high)$coefficients[-1,4,drop = F] %>% t %>% as.data.frame()
-            colnames(results.high.pval) <- stringr::str_c("DNAmhigh_pval_", colnames(results.high.pval))
+                rlm.bisquare.quant <- data.frame (
+                    coef (
+                        summary(
+                            MASS::rlm ( rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
+                                  data = df2,
+                                  psi = psi.bisquare, maxit = 100)
+                        )
+                    )
+                )
+                df.value <- nrow(df2) - 4
+                rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value), df = df.value) )
+                results.quant <- rlm.bisquare.quant[-1,4,drop = F] %>%
+                    t %>%
+                    as.data.frame()
+                colnames(results.quant) <- paste0("quant_pval_",colnames(results.quant))
+                estimates.quant <- rlm.bisquare.quant[-1,1,drop = F] %>%
+                    t %>%
+                    as.data.frame()
+                colnames(estimates.quant) <- paste0("quant_estimates_",colnames(estimates.quant))
 
-            results.high.estimate <- summary(results.high)$coefficients[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(results.high.estimate) <- stringr::str_c("DNAmhigh_estimate_", colnames(results.high.estimate))
+                out <- data.frame(cbind(results,
+                                 estimates,
+                                 quant.diff,
+                                 results.quant,
+                                 estimates.quant
+                                 ),
+                           row.names = NULL,stringsAsFactors = FALSE)
 
-            out <- cbind(results.pval, results.estimate,
-                         results.low.pval, results.low.estimate,
-                         results.high.pval, results.high.estimate
-            ) %>% data.frame()
-            out
-
-        }, .progress = "time")
+                out
+        }
+            }, .progress = "time")
 
     return(out)
 }

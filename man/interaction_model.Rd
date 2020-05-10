@@ -2,34 +2,55 @@
 % Please edit documentation in R/interaction_model.R
 \name{interaction_model}
 \alias{interaction_model}
-\title{Fits linear model with interaction to triplet data (Target, TF, DNAm)}
+\title{Fits robust linear models with interaction to triplet data (Target, TF, DNAm)}
 \usage{
 interaction_model(triplet, dnam, exp)
 }
 \arguments{
-\item{triplet}{Dataframe with columns for region (regionID), TF  (TF), and target gene  (target),}
+\item{triplet}{Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)}
 
-\item{dnam}{DNA methylation matrix  (columns: samples in the same order as met, rows: regions/probes)}
+\item{dnam}{DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)}
 
-\item{exp}{A log2 (gene expression + 1) matrix with samples as columns in the same order as met
-and genes as rows represented by ensembl IDs ENSG00000239415)}
+\item{exp}{A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
+rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 }
 \value{
-A dataframe with Region, TF, Estimates and P-value from linear model
+A dataframe with Region, TF, Estimates and P-values, after fitting robust linear
+models using two approaches(see Details below).
+
+Approch 1 (considering DNAm values as a continuous variable) generates \code{pval_met, pval_rna.tf, pval_met.rna.tf
+and estimates_met, estimates_rna.tf, estimates_met.rna.tf}. Approach 2 (considering DNAm values as a binary variable)
+generates \code{quant_pval_metGrp, quant_pval_rna.tf, quant_pval_metGrp.rna.tf,
+quant_estimates_metGrp, quant_estimates_rna.tf, quant_estimates_metGrp.rna.tf}
 }
 \description{
-The model with interaction helps to identify DNAm changes that work synergistically with TFs in regulating
+Identify DNA methylation (DNAm) changes that work synergistically with TFs in regulating
 target gene expression.
 }
 \details{
-This function fits linear model
+This function fits robust linear model
+
 \code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+
+The robust linear model, implemented using \code{rlm} function from \code{MASS},
+gives outlier gene expression values reduced weight. We used \code{"psi.bisqure"}
+option in function \code{rlm} (bisquare weighting,
+https://stats.idre.ucla.edu/r/dae/robust-regression/).
+
+The above linear model were fit to triplet data frame in two ways:
+
+(1) by considering DNAm as a continuous variable
+
+(2) by considering DNAm as a binary variable - we defined a binary group for
+DNA methylation values (high = 1, low = 0). That is, samples with the highest
+DNAm levels (top 25 percent) has high = 1, samples with lowest
+DNAm levels (bottom 25 pecent) has high = 0. Note that in this
+implementation, only samples wih DNAm values in the first and last quartiles
+are considered.
 
 To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
 log2 transformation is needed when \code{interaction_model} is applied to residuals data.
-\code{RNA target residuals ~ TF residuals + DNAm residuals + TF residuals * DNAm residuals}
-#'
 }
 \examples{
 data("dna.met.chr21")

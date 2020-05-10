@@ -107,8 +107,7 @@ get_gene_information <- function(genome = "hg38", as.granges = FALSE){
         gene.location <- tryCatch({
             host <- ifelse(genome == "hg19", "grch37.ensembl.org",
                            "www.ensembl.org")
-            mirror <- list(NULL, "useast", "uswest", "asia")[[tries +
-                                                                  1]]
+            mirror <- list(NULL, "useast", "uswest", "asia")[[tries + 1]]
             ensembl <- tryCatch({
                 message(ifelse(is.null(mirror),
                                paste0("Accessing ",
@@ -121,8 +120,14 @@ get_gene_information <- function(genome = "hg38", as.granges = FALSE){
                 message(e)
                 return(NULL)
             })
-            attributes <- c("ensembl_gene_id","external_gene_name",
-                            "chromosome_name","strand","end_position","start_position")
+            attributes <- c(
+                "ensembl_gene_id",
+                "external_gene_name",
+                "chromosome_name",
+                "strand",
+                "end_position",
+                "start_position"
+            )
             db.datasets <- listDatasets(ensembl)
             description <- db.datasets[db.datasets$dataset == "hsapiens_gene_ensembl", ]$description
             message(paste0("Downloading genome information (try:", tries, ") Using: ", description))

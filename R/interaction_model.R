@@ -155,9 +155,8 @@ interaction_model <- function(triplet,
                          all.estimate,
                          quant.diff,
                          quant.pval, quant.estimate
-            ) %>% data.frame()
+            )
             out
-
         }, .progress = "time")
 
     return(out)

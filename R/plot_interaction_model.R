@@ -52,7 +52,7 @@ plot_interaction_model <-  function(triplet.results,
         .fun = function(row.triplet,metadata){
 
             rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
-            met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
+            met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), , drop = FALSE]
             rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
             df <- data.frame(
@@ -83,18 +83,16 @@ plot_interaction_model <-  function(triplet.results,
             plot.table <- ggarrange(
                 ggarrange(table.plots$table.plot.metadata,
                           table.plots$table.plot.lm.all,
-                          ncol = 2),
-                ggarrange(table.plots$table.plot.lm.dnam.low,
-                          table.plots$table.plot.lm.dnam.high,
-                          ncol = 2),
+                          table.plots$table.plot.lm.quant,
+                          ncol = 3),
                 ggarrange(plots$tf.target,
                           plots$dnam.target,
                           plots$dnam.tf,
                           ncol = 3),
                 plots$tf.target.quantile,
                 plots$dnam.target.quantile,
-                nrow = 5,
-                heights = c(1,1,2,2.5,2.5))
+                nrow = 4,
+                heights = c(2,2,2.5,2.5))
             plot.table
         }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
@@ -106,14 +104,26 @@ plot_interaction_model <-  function(triplet.results,
 get_table_plot <- function(row.triplet){
 
     base_size <- 9
+    tab <- row.triplet %>%
+        dplyr::select(
+            c("regionID",
+              "target",
+              "target_symbol",
+              "TF",
+              "TF_symbol",
+              "met.q4_minus_q1")
+        ) %>% t() %>% as_tibble(rownames = "Variable")
+
+    tab$Variable <- c(
+        "Region ID",
+        "Target gene ID",
+        "Target gene Symbol",
+        "TF gene ID",
+        "TF gene Symbol",
+        "Diff. DNAm (q4 - q1)"
+    )
     table.plot.metadata <- ggtexttable(
-        row.triplet[,c("regionID",
-                       "target",
-                       "target_symbol",
-                       "TF",
-                       "TF_symbol")] %>%
-            t() %>%
-            as_tibble(rownames = "Variable"),
+        tab,
         rows = NULL,
         cols = NULL,
         theme = ttheme("mOrange", base_size = base_size)
@@ -123,16 +133,12 @@ get_table_plot <- function(row.triplet){
     table.plot.lm.all <- get_table_plot_results(row.triplet, type = "all")
 
     # Get results for linear model with DNAm high samples
-    table.plot.lm.dnam.high <- get_table_plot_results(row.triplet, type = "DNAmhigh")
-
-    # Get results for linear model with DNAm low samples
-    table.plot.lm.dnam.low <- get_table_plot_results(row.triplet, type = "DNAmlow")
+    table.plot.lm.quant <- get_table_plot_results(row.triplet, type = "quantile")
 
     table.plot.list <- list(
         "table.plot.metadata" = table.plot.metadata,
         "table.plot.lm.all" = table.plot.lm.all,
-        "table.plot.lm.dnam.low" = table.plot.lm.dnam.low,
-        "table.plot.lm.dnam.high" = table.plot.lm.dnam.high
+        "table.plot.lm.quantile" = table.plot.lm.quant
     )
 
     return(table.plot.list)
@@ -284,17 +290,13 @@ get_table_plot_results <- function(row.triplet, type){
 
     base_size <- 9
     if(type == "all"){
-        pattern.estimate <- "^estimate"
+        pattern.estimate <- "^estimates"
         pattern.pval <- "^pval"
-        title <- "DNAm vs Target"
-    } else if(type == "DNAmlow"){
-        pattern.estimate <- "^DNAmlow_estimate"
-        pattern.pval <- "^DNAmlow_pval"
-        title <- "DNAm high vs Target"
-    } else {
-        pattern.estimate <- "^DNAmhigh_estimate"
-        pattern.pval <- "^DNAmhigh_pval"
-        title <- "DNAm low vs Target"
+        title <- "Target ~ TF + DNAm +\n TF * DNAm"
+    } else if(type == "quantile"){
+        pattern.estimate <- "^quant_estimates"
+        pattern.pval <- "^quant_pval"
+        title <- "Target ~ TF + \nDNAm Quant. Group +\n TF * DNAm Quant. Group"
     }
     table.plot.estimate <- row.triplet[,grep(pattern.estimate,colnames(row.triplet),value = T),drop  = FALSE] %>%
         t() %>%

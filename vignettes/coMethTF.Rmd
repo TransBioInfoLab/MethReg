@@ -67,7 +67,7 @@ For illustration, we will use chromosome 21 data from 50 alzheimer samples.
 
 ## 3.1 DNA methylation dataset
 
-The DNA methylation dataset is a matrix with methylation beta or M-values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals extracted from fitting linear regression instead (see Section 5 below). 
+The DNA methylation dataset is a matrix with methylation beta or M-values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals extracted from fitting linear regression instead (see **Section 5** below). 
 The samples are in the columns and regions/probes are in the rows.   
 
 ### 3.1.1 Individual CpGs data
@@ -95,7 +95,7 @@ Differentially Methylated Regions (DMRs) associated with phenotypes such as tumo
 
 ## 3.2 Gene expression dataset
 
-The gene expression dataset is a matrix with log2 transformed and normalized gene expression values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals from linear regression instead (see Section 5 below).
+The gene expression dataset is a matrix with log2 transformed and normalized gene expression values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals from linear regression instead (see **Section 5** below).
 The samples are in the columns and the genes are in the rows. 
 
 ```{R}
@@ -108,8 +108,7 @@ gene.exp.chr21[1:5,1:5]
 
 The function `get_region_target_gene` provides two methods to link a DMR to 
 a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
-(2) mapping the region to all the genes within a window (default size = 500Kbp around the region) 
- (`method = "window"`).
+(2) mapping the region to all the genes within a window (default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
  
 ```{R}
 # Get CpG information
@@ -142,12 +141,11 @@ when the method is set to `"window"` are described below:
 
 * regionID: chromossome, start, end
 * regionID.extended: same as regionID, but start and end values of the regions will be 
-regionID start - window.width and  regionID end + window.width 
+regionID start - window.width/2 and  regionID end + window.width/2 
 * window.extended.width:  width of window around region used to find target genes
-* Distance.region.gene: distance from region to the gene TSS
+* Distance.region.gene: distance from region to target gene TSS
 
 ### Mapping region to TF
-
 
 The function `get_tf_in_region` maps the regions to TF using a precomputed dataset of 
 HOCOMOCO motifs [@kulakovskiy2016hocomoco]. For each motif we scanned 500 bp around each EPIC and 
@@ -199,8 +197,8 @@ There may also be multiple rows for a region, when multiple target gene and/or T
 Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby (Yin et al. 2013), target gene expression can often be influenced by the synergistic effects of both TF and DNA methylation. In other words, TF activities in gene regulation is affected by DNA methylation or vice versa. 
 We will assess the regulatory impact of DNA methylation on gene regulation via two approaches: 
 
-1. by fitting a model with TF by DNA methylation interaction using all samples.
-2. by fitting two separate linear models and then compare TF activities on gene regulation in samples with low DNA methylation vs. samples with high DNA methylation
+1. by considering DNAm values as a continuous variable - we fit a model with TF by DNA methylation interaction using all samples.
+2. by considering DNAm values as a binary variable - we define a binary group for DNA methylation values (high = 1, low = 0). That is, samples with the highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0. Note that in this implementation, only samples wih DNAm values in the first and last quartiles are considered.
 
 We will perform these analyses using the 3 datasets described above in Section 3:
 
@@ -221,10 +219,8 @@ $$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
  DNAm levels (bottom 25 pecent) has high = 0. Note that in this
  implementation, only samples wih DNAm values in the first and last quartiles
  are considered.
-$$log_2(RNA target) \sim log_2(TF) + \text{DNAm Quantile Group} + log_2(TF) * \text{DNAm Quantile Group}$$
+$$log_2(RNA target) \sim log_2(TF) + \text{DNAm Quartile Group} + log_2(TF) * \text{DNAm Quartile Group}$$
  
-
-
 ```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
     triplet = triplet, 
@@ -247,8 +243,6 @@ The following columns are provided for the full model:
 * `estimate_met`: estimate for DNA methylation variable
 * `estimate_rna.tf`: estimate  for TF expression
 * `estimate_met.rna.tf`: estimate for DNA methylation by  TF interaction
-
-
 
 ```{R interaction_model_results}
 dim(results)

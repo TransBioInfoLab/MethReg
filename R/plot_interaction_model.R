@@ -160,8 +160,8 @@ get_plot_results <- function(df,row.triplet,color){
     range2 <- paste0("[",paste(round(quant[4:5],digits = 3),collapse = ","),"]")
 
     df$DNAm.group <- NA
-    df$DNAm.group[df$met > quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
-    df$DNAm.group[df$met < quantile_lower_cutoff] <- paste0("DNAm low quartile " , range1)
+    df$DNAm.group[df$met >= quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
+    df$DNAm.group[df$met <= quantile_lower_cutoff] <- paste0("DNAm low quartile " , range1)
 
     df$DNAm.group <- factor(df$DNAm.group,
                             levels = c(paste0("DNAm low quartile " , range1),
@@ -177,8 +177,8 @@ get_plot_results <- function(df,row.triplet,color){
     range2 <- paste0("[",paste(round(quant[4:5],digits = 3),collapse = ","),"]")
 
     df$TF.group <- NA
-    df$TF.group[df$rna.tf > quantile_upper_cutoff] <- paste0("TF high quartile ", range2)
-    df$TF.group[df$rna.tf < quantile_lower_cutoff] <- paste0("TF low quartile ", range1)
+    df$TF.group[df$rna.tf >= quantile_upper_cutoff] <- paste0("TF high quartile ", range2)
+    df$TF.group[df$rna.tf <= quantile_lower_cutoff] <- paste0("TF low quartile ", range1)
     df$TF.group <- factor(df$TF.group,
                           levels = c(
                               paste0("TF low quartile " , range1),

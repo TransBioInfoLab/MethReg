@@ -100,7 +100,8 @@ map_symbol_to_ensg <- function(gene.symbol, genome = "hg38")
     return(ensembl_gene_id)
 }
 
-get_gene_information <- function(genome = "hg38", as.granges = FALSE){
+
+get_gene_information_biomart <- function(genome = "hg38"){
     tries <- 0L
     msg <- character()
     while (tries < 3L) {
@@ -132,8 +133,8 @@ get_gene_information <- function(genome = "hg38", as.granges = FALSE){
             description <- db.datasets[db.datasets$dataset == "hsapiens_gene_ensembl", ]$description
             message(paste0("Downloading genome information (try:", tries, ") Using: ", description))
             gene.location <- getBM(attributes = attributes,
-                                   #filters = c("ensembl_gene_id"),
-                                   #values = list(ensembl.gene.id),
+                                   filters = "chromosome_name",
+                                   values = c(1:22,"X","Y"),
                                    mart = ensembl)
             gene.location
         }, error = function(e) {
@@ -143,6 +144,15 @@ get_gene_information <- function(genome = "hg38", as.granges = FALSE){
         })
         if (!is.null(gene.location)) break
         if (tries == 3L) stop("failed to get URL after 3 tries:", "\n  error: ", msg)
+    }
+}
+
+
+get_gene_information <- function(genome = "hg38", as.granges = FALSE){
+    if(genome == "hg19"){
+        gene.location <- get(data(Human_genes__GRCh37_p13,package = "ELMER.data",envir = environment()))
+    } else {
+        gene.location <- get(data(Human_genes__GRCh38_p12,package = "ELMER.data",envir = environment()))
     }
 
     if (as.granges) {

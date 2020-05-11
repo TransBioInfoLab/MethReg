@@ -1,10 +1,9 @@
 ---
 title: "Getting co-methylated clusters and summarizing regions using medians"
-author: "Tiago Chedroaui Silva"
-date: "5/11/2020"
 author:
   - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902@miami.edu]
   - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg@gmail.com]
+date: "5/11/2020"
 output: 
   prettydoc::html_pretty:
     theme: leonids

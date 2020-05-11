@@ -1,0 +1,108 @@
+---
+title: "Getting co-methylated clusters and summarizing regions using medians"
+author: "Tiago Chedroaui Silva"
+date: "5/11/2020"
+author:
+  - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902@miami.edu]
+  - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg@gmail.com]
+output: 
+  prettydoc::html_pretty:
+    theme: leonids
+    toc: true
+    df_print: paged
+    code_download: false
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Getting co-methylated clusters and summarizing regions using medians
+
+
+```{r, eval = TRUE, include = TRUE, message=FALSE}
+library(coMethDMR)
+```
+
+## Predefined genomic regions with closely located CpG probes 
+
+```{R cluster.probes}
+probes.cluster <- coMethDMR::getPredefinedCluster(arrayType = "450k", clusterType = "regions")
+probes.cluster
+```
+
+
+## Find co-methylated contiguous regions
+
+The goal in this step is to find co-methylated and contiguous regions.
+```{R cometh, eval = TRUE}
+data("dna.met.chr21")
+# just keep the used probes
+dna.met.chr21 <- dna.met.chr21[rownames(dna.met.chr21) %in% unique(unlist(probes.cluster)),]
+```
+
+```{R,eval = FALSE}
+coMeth_ls <- CoMethAllRegions(
+    dnam = dna.met.chr21,
+    betaToM = TRUE,
+    method = "spearman",
+    minPairwiseCorr = 0.2,
+    CpGs_ls = probes.cluster,
+    arrayType = "450k",
+    returnAllCpGs = FALSE,
+    output = "CpGs",
+    nCores_int = 8)
+```
+
+```{R, include = FALSE}
+data("coMeth_ls")
+```
+
+```{R}
+message("Number of co-methylated cluster: ",length(coMeth_ls))
+head(coMeth_ls)
+```
+
+## Median methylation of co-methylated regions
+
+```{R}
+median.df.tumor <- plyr::ldply(
+    coMeth_ls[!duplicated(names(coMeth_ls))],
+    function(probes){
+        matrixStats::colMedians(dna.met.chr21[probes,])
+        }, .progress = "time",.parallel = FALSE)
+rownames(median.df.tumor) <- median.df.tumor$.id
+median.df.tumor$.id <- NULL
+colnames(median.df.tumor) <- colnames(dna.met.chr21)
+```
+
+### Mapping DMR region (or CpG) to the target gene
+
+The function `get_region_target_gene` provides two methods to link a DMR to 
+a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
+(2) mapping the region to all the genes within a window (default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
+ 
+```{R}
+probes.gr <- make_granges_from_names(rownames(median.df.tumor))
+class(probes.gr)
+
+# Map probes to nearest gene
+mapping.closest <- get_region_target_gene(
+    regions.gr = probes.gr, 
+    genome = "hg38", 
+    method = "closest.gene"
+)
+dim(mapping.closest)
+mapping.closest
+
+# Map probes to genes within 500kb window
+mapping.window <- get_region_target_gene(
+    regions.gr = probes.gr, 
+    genome = "hg38", 
+    method = "window"
+)
+
+dim(mapping.window)
+mapping.window
+```

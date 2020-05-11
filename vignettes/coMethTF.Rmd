@@ -63,7 +63,7 @@ library(coMethTF)
 
 The input of `coMethTF` are DNA methylation and gene expression datasets measured on the same set of samples. Using additional information from the HOCOMOCO database [@kulakovskiy2016hocomoco], we will then create a data frame with information on the triplet: DMR (or CpG), TF and target gene. 
 
-For illustration, we will use chromosome 21 data from 50 alzheimer samples.
+For illustration, we will use chromosome 21 data from 38 TCGA-COAD samples.
 
 ## 3.1 DNA methylation dataset
 
@@ -195,12 +195,8 @@ There may also be multiple rows for a region, when multiple target gene and/or T
 # 4. Evaluating the regulatory potential of DMRs (or CpGs)
 
 Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby (Yin et al. 2013), target gene expression can often be influenced by the synergistic effects of both TF and DNA methylation. In other words, TF activities in gene regulation is affected by DNA methylation or vice versa. 
-We will assess the regulatory impact of DNA methylation on gene regulation via two approaches: 
 
-1. by considering DNAm values as a continuous variable - we fit a model with TF by DNA methylation interaction using all samples.
-2. by considering DNAm values as a binary variable - we define a binary group for DNA methylation values (high = 1, low = 0). That is, samples with the highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0. Note that in this implementation, only samples wih DNAm values in the first and last quartiles are considered.
-
-We will perform these analyses using the 3 datasets described above in Section 3:
+We will perform analyses using the 3 datasets described above in Section 3:
 
 * DNA methylation matrix
 * Gene expression matrix
@@ -208,17 +204,13 @@ We will perform these analyses using the 3 datasets described above in Section 3
 
 ## 4.1 Analysis using model with methylation by TF interaction
 
-The function `interaction_model` will fit the following models to data:
+The function `interaction_model` assess the regulatory impact of DNA methylation on TF regulation of target genes via two approaches: 
 
-1. by considering DNAm as a continuous variable:
+**Model 1** (considering DNAm values as a continuous variable) - we fit a model with TF by DNA methylation interaction using all samples.
+
 $$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
+**Model 2** (considering DNAm values as a binary variable) - we define a binary group for DNA methylation values (high = 1, low = 0). That is, samples with the highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0. Note that in this implementation, only samples wih DNAm values in the first and last quartiles are considered.
 
-2. by considering DNAm as a binary variable - we defined a binary group for
- DNA methylation values (high = 1, low = 0). That is, samples with the highest
- DNAm levels (top 25 percent) has high = 1, samples with lowest
- DNAm levels (bottom 25 pecent) has high = 0. Note that in this
- implementation, only samples wih DNAm values in the first and last quartiles
- are considered.
 $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Quartile Group} + log_2(TF) * \text{DNAm Quartile Group}$$
  
 ```{R interaction_model, message = FALSE, results = "hide"}
@@ -235,7 +227,7 @@ The output of `interaction_model` function will be a data frame with the followi
 * `estimate_<name>`: estimated effect for a variable. If estimate > 0, increasing values of the variable corresponds to increased outcome values (target gene expression). If estimate < 0, increasing values of the variable correspond to decreased target gene expression levels.
 
 
-The following columns are provided for the full model:
+The following columns are provided for the results of fitting **Model 1** to triplet data:
 
 * `pval_met`: p-value for DNA methylation variable
 * `pval_rna.tf` : p-value for TF expression
@@ -255,7 +247,7 @@ results %>% dplyr::select(
 ```
 
 
-The following columns are provided for the quartile model:
+The following columns are provided for the results of fitting **Model 2** (quartile model) to triplet data:
 
 * `quant_pval_metGrp`: p-value for DNA methylation variable
 * `quant_pval_rna.tf` : p-value for TF expression
@@ -270,6 +262,14 @@ The following columns are provided for the quartile model:
 results %>% dplyr::select(
   c(1,4,5,grep("quant",colnames(results)))
   ) %>% head
+```
+
+To select significant DNAm by TF intereaction from both models, 
+```{r, include=FALSE, eval=FALSE}
+
+results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
+
+
 ```
 
 ## 4.2 Visualization of data  

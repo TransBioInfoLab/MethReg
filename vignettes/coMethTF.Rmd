@@ -2,7 +2,7 @@
 title: "coMethTF: functional annotation of DMRs and DMS in epigenome-wide association studies"
 author:
   - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902@miami.edu]
-  - Lily wang^[University of Miami Miller School of Medicine, lily.wangg@gmail.com]
+  - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg@gmail.com]
 output: 
   prettydoc::html_pretty:
     theme: leonids
@@ -14,7 +14,7 @@ bibliography: bibliography.bib
 editor_options:
   chunk_output_type: inline    
 vignette: >
-    %\VignetteIndexEntry{How to use MethTF}
+    %\VignetteIndexEntry{coMethTF: functional annotation of DMRs and DMS in epigenome-wide association studies}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -209,6 +209,7 @@ The function `interaction_model` assess the regulatory impact of DNA methylation
 **Model 1** (considering DNAm values as a continuous variable) - we fit a model with TF by DNA methylation interaction using all samples.
 
 $$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
+
 **Model 2** (considering DNAm values as a binary variable) - we define a binary group for DNA methylation values (high = 1, low = 0). That is, samples with the highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0. Note that in this implementation, only samples wih DNAm values in the first and last quartiles are considered.
 
 $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Quartile Group} + log_2(TF) * \text{DNAm Quartile Group}$$
@@ -269,6 +270,7 @@ To select significant DNAm by TF intereaction from both models,
 results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
 ```
 
+
 ## 4.2 Visualization of data  
 
 The function `plot_interaction_model` will create figures to visualize the data, 
@@ -313,7 +315,7 @@ data("clinical")
 metadata <- clinical[,c("sample_type"),drop = FALSE]
 ```
 
-```{R, eval = TRUE}
+```{R, eval = TRUE, results = "hide"}
 plots <- plot_interaction_model(
         triplet.results = results[1,,drop = FALSE], 
         dnam = dna.met.chr21, 
@@ -326,6 +328,27 @@ plots <- plot_interaction_model(
 ```{R, fig.height = 14, fig.width = 12, eval = TRUE}
 plots[[1]]
 ```
+
+
+
+## 4.3 Analysis using stratified model with methylation by TF interaction
+
+To expand **Model 2** analysis, the function `stratified_model` 
+will fit two separate models (shown below) to only the 
+samples in highest DNAm levels (top 25 percent) then to only
+the samples in lowest DNAm levels (bottom 25 percent).
+
+$$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
+
+```{R interaction_model, message = FALSE, results = "hide"}
+results <- stratified_model(
+    triplet = triplet, 
+    dnam = dna.met.chr21,
+    exp = gene.exp.chr21
+)
+results %>% head
+```
+
 
 # 5. Controlling effects from confounding variables
 

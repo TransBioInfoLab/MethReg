@@ -123,7 +123,7 @@ interaction_model <- function(triplet,
             colnames(all.pval) <- paste0("pval_",colnames(all.pval))
 
             all.estimate <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(all.estimate) <- paste0("estimates_",colnames(all.estimate))
+            colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
 
 
             quant.met <-  quantile(data$met,na.rm = TRUE)
@@ -152,7 +152,7 @@ interaction_model <- function(triplet,
             quant.estimate <- rlm.bisquare.quant[-1,1,drop = F] %>%
                 t %>%
                 as.data.frame()
-            colnames(quant.estimate) <- paste0("quant_estimates_",colnames(quant.estimate))
+            colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
 
             out <- cbind(all.pval,
                          all.estimate,

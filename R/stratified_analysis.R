@@ -88,7 +88,6 @@ stratified_model <- function(triplet,
                 psi = MASS::psi.bisquare,
                 maxit = 100) %>% summary %>% coef %>% data.frame
 
-
             degrees.freedom.value <- nrow(data.low) - 2
             results.low$pval <- 2 * (1 - pt( abs(results.low$t.value), df = degrees.freedom.value) )
 
@@ -96,7 +95,7 @@ stratified_model <- function(triplet,
             colnames(results.low.pval) <- paste0("DNAmlow_pval_",colnames(results.low.pval))
 
             results.low.estimate <- results.low[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(results.low.estimate) <- paste0("DNAmlow_pval_estimates_",colnames(results.low.estimate))
+            colnames(results.low.estimate) <- paste0("DNAmlow_estimate_",colnames(results.low.estimate))
 
             results.high <- MASS::rlm(
                 rna.target ~ rna.tf,

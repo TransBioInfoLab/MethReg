@@ -290,11 +290,11 @@ get_table_plot_results <- function(row.triplet, type){
 
     base_size <- 9
     if(type == "all"){
-        pattern.estimate <- "^estimates"
+        pattern.estimate <- "^estimate"
         pattern.pval <- "^pval"
         title <- "Target ~ TF + DNAm +\n TF * DNAm"
     } else if(type == "quantile"){
-        pattern.estimate <- "^quant_estimates"
+        pattern.estimate <- "^quant_estimate"
         pattern.pval <- "^quant_pval"
         title <- "Target ~ TF + \nDNAm Quant. Group +\n TF * DNAm Quant. Group"
     }

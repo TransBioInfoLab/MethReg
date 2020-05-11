@@ -266,10 +266,7 @@ results %>% dplyr::select(
 
 To select significant DNAm by TF intereaction from both models, 
 ```{r, include=FALSE, eval=FALSE}
-
 results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
-
-
 ```
 
 ## 4.2 Visualization of data  

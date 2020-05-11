@@ -39,14 +39,18 @@ https://stats.idre.ucla.edu/r/dae/robust-regression/).
 
 The above linear model were fit to triplet data frame in two ways:
 
-(1) by considering DNAm as a continuous variable
+Model 1 : by considering DNAm as a continuous variable
 
-(2) by considering DNAm as a binary variable - we defined a binary group for
+Model 2:  by considering DNAm as a binary variable - we defined a binary group for
 DNA methylation values (high = 1, low = 0). That is, samples with the highest
 DNAm levels (top 25 percent) has high = 1, samples with lowest
 DNAm levels (bottom 25 pecent) has high = 0. Note that in this
 implementation, only samples wih DNAm values in the first and last quartiles
 are considered.
+
+Note that only genes with at least 75 percent of non-zero values will be evaluated.
+
+We can identify significant DNAm by TF interactions by selecting those that are significant in both models.
 
 To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
@@ -60,4 +64,8 @@ triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
                       "TF" = rownames(gene.exp.chr21)[11:20],
                       "target" = rownames(gene.exp.chr21)[1:10])
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
+
+# select those that are significant in both models
+# results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
+
 }

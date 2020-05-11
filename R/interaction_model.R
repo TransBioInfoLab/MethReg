@@ -36,6 +36,8 @@
 #' implementation, only samples wih DNAm values in the first and last quartiles
 #' are considered.
 #'
+#' Note that only genes with at least 75 percent of non-zero values will be evaluated.
+#'
 #' We can identify significant DNAm by TF interactions by selecting those that are significant in both models.
 #'
 #' To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain

@@ -89,7 +89,7 @@ stratified_model <- function(triplet,
                 maxit = 100) %>% summary %>% coef %>% data.frame
 
 
-            degrees.freedom.value <- nrow(data.low) - 4
+            degrees.freedom.value <- nrow(data.low) - 2
             results.low$pval <- 2 * (1 - pt( abs(results.low$t.value), df = degrees.freedom.value) )
 
             results.low.pval <- results.low[-1,4,drop = F] %>% t %>% as.data.frame()
@@ -104,7 +104,7 @@ stratified_model <- function(triplet,
                 psi = MASS::psi.bisquare,
                 maxit = 100) %>% summary %>% coef %>% data.frame
 
-            degrees.freedom.value <- nrow(data.high) - 4
+            degrees.freedom.value <- nrow(data.high) - 2
             results.high$pval <- 2 * (1 - pt( abs(results.high$t.value), df = degrees.freedom.value) )
 
             results.high.pval <- results.high[-1,4,drop = F] %>% t %>% as.data.frame()

@@ -1,8 +1,8 @@
 ---
 title: "coMethTF: functional annotation of DMRs and DMS in epigenome-wide association studies"
 author:
-  - Tiago Chedraoui Silva^[University of Miami, txs902@miami.edu]
-  - Lily wang^[University of Miami, lily.wang@gmail.com]
+  - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902@miami.edu]
+  - Lily wang^[University of Miami Miller School of Medicine, lily.wangg@gmail.com]
 output: 
   prettydoc::html_pretty:
     theme: leonids
@@ -67,10 +67,10 @@ For illustration, we will use chromosome 21 data from 50 alzheimer samples.
 
 ## 3.1 DNA methylation dataset
 
-
 The DNA methylation dataset is a matrix with methylation beta or M-values. If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix can also contain residuals extracted from fitting linear regression instead (see Section 5 below). 
 The samples are in the columns and regions/probes are in the rows.   
 
+### 3.1.1 Individual CpGs data
 
 ```{R warning=FALSE}
 dna.met.chr21 <- get(data("dna.met.chr21"))
@@ -88,6 +88,10 @@ dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 ```{R}
 dna.met.chr21[1:5,1:5]
 ```
+
+### 3.1.2 DMRs data
+Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage can be obtained from R packages such as \code{coMethDMR}, \code{comb-p}, \code{DMRcate} and many others. The methylation levels in multiple CpGs within the DMRs need to be summarized (e.g. using medians or Principal component analysis), then the analysis for DMR will proceed in the same way as those for CpGs, which we will illustrate next.  
+
 
 ## 3.2 Gene expression dataset
 
@@ -228,8 +232,6 @@ results <- interaction_model(
     exp = gene.exp.chr21
 )
 ```
-
-For models involving DMRs, we can first summarize methylation levels in multiple CpGs within the DMR using medians. 
 
 The output of `interaction_model` function will be a data frame with the following variables:
 

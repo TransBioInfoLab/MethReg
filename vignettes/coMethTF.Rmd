@@ -315,7 +315,7 @@ data("clinical")
 metadata <- clinical[,c("sample_type"),drop = FALSE]
 ```
 
-```{R, eval = TRUE, results = "hide"}
+```{R, eval = TRUE, results = "hide", message = FALSE}
 plots <- plot_interaction_model(
         triplet.results = results[1,,drop = FALSE], 
         dnam = dna.met.chr21, 
@@ -340,7 +340,7 @@ the samples in lowest DNAm levels (bottom 25 percent).
 
 $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 
-```{R interaction_model, message = FALSE, results = "hide"}
+```{R stratified_model, message = FALSE, results = "hide"}
 results <- stratified_model(
     triplet = triplet, 
     dnam = dna.met.chr21,

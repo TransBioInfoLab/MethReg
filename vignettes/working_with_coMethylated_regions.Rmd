@@ -11,6 +11,13 @@ output:
     df_print: paged
     code_download: false
     toc_depth: 3
+editor_options:
+  chunk_output_type: inline    
+vignette: >
+    %\VignetteIndexEntry{Getting co-methylated clusters and summarizing regions using medians}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+    
 ---
 
 ```{r setup, include=FALSE}

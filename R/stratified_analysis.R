@@ -45,6 +45,10 @@ stratified_model <- function(triplet,
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
+    # remove triplet with RNA expression equal to 0 for more than 25% of the samples
+    genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
+    exp <- exp[genes.keep,]
+
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
             .data$TF %in% rownames(exp) &
@@ -53,9 +57,6 @@ stratified_model <- function(triplet,
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
 
-    # remove triplet with RNA expression equal to 0 for more than 25% of the samples
-    genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
-    exp <- exp[genes.keep,]
 
     if(nrow(triplet) == 0){
         stop("We were not able to find the same rows from triple in the data, please check the input.")

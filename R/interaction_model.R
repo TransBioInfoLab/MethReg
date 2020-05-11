@@ -108,11 +108,6 @@ interaction_model <- function(triplet,
             )
 
             # 2) fit linear model: target RNA ~ DNAm + RNA TF
-            results <- MASS::rlm(
-                rna.target ~ met + rna.tf + rna.tf * met,
-                data = data
-            )
-
             rlm.bisquare <- rlm (
                 rna.target ~ met + rna.tf + rna.tf * met,
                 data = data,

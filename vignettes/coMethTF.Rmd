@@ -349,8 +349,12 @@ results <- stratified_model(
 results %>% head
 ```
 
+# 5. Results interpretation
 
-# 5. Controlling effects from confounding variables
+![Possible scenarios](scenarios.png)
+
+
+# 6. Controlling effects from confounding variables
 
 Both gene expressions and DNA methylation levels can be affected by age, sex, shifting in cell types, batch effects and other confounding variables.  In this section, we illustrate analysis workflow that reduces confounding effects, by first extracting the residual data with the function 
 `get_residuals`, before fitting the models discussed above in Section 4. 
@@ -393,9 +397,9 @@ results <- interaction_model(
 )
 ```
 
-# 5. Session information
+# 7. Session information
 ```{R,size = 'tiny'}
 sessionInfo()
 ```
 
-# 6. Bibliography
+# 8. Bibliography

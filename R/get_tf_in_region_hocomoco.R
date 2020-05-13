@@ -178,11 +178,11 @@ get_tf_in_region2 <- function(region,
         .margins = 1,
         function(colum.name){
             colum <- motifs.probes[,colum.name,drop = TRUE]
-            regions <- rownames(colum)[which(colum > 0)]
+            regions <- names(colum)[which(colum > 0)]
             tfs <- unlist(motifs.tfs[colum.name]) %>% as.character() %>% unique()
             expand.grid(regions,tfs)
         }, .progress = "time",.parallel = parallel)
-    motifs.probes.df <-
+    motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
     colnames(motifs.probes.df) <- c("motif","TF_external_gene_name")
 
     message("Preparing output")

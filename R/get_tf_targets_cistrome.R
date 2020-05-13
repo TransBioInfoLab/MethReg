@@ -21,10 +21,7 @@
 #' @export
 get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
 
-    if (!requireNamespace("reshape2", quietly = TRUE)) {
-        stop("reshape2 package is needed for this function to work. Please install it.",
-             call. = FALSE)
-    }
+    check_package("reshape2")
 
     con <- get_cistrome_dbconn()
     check_cistrome_study(con, tcga.study)
@@ -105,10 +102,7 @@ check_cistrome_study <- function(conn, study){
 #' @export
 get_cistrome_studies <- function(conn = NULL){
 
-    if (!requireNamespace("DBI", quietly = TRUE)) {
-        stop("DBI package is needed for this function to work. Please install it.",
-             call. = FALSE)
-    }
+    check_package("DBI")
 
     if(!is.null(conn)) {
         studies <- DBI::dbListFields(conn, "cor_tf")
@@ -144,28 +138,4 @@ get_cistrome_studies <- function(conn = NULL){
                      "UVM"
         )}
     studies
-}
-
-#' @title register cores
-#' @param cores A interger which defines the number of cores to be used in parallel
-#' @noRd
-register_cores <- function(cores){
-
-    if (!requireNamespace("parallel", quietly = TRUE)) {
-        stop("parallel package is needed for this function to work. Please install it.",
-             call. = FALSE)
-    }
-
-    if (!requireNamespace("doParallel", quietly = TRUE)) {
-        stop("doParallel package is needed for this function to work. Please install it.",
-             call. = FALSE)
-    }
-
-    parallel <- FALSE
-    if (cores > 1){
-        if (cores > parallel::detectCores()) cores <- parallel::detectCores()
-        doParallel::registerDoParallel(cores)
-        parallel = TRUE
-    }
-    return(parallel)
 }

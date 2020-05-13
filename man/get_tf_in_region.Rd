@@ -8,7 +8,8 @@ get_tf_in_region(
   region,
   genome = c("hg19", "hg38"),
   arrayType = c("450k", "EPIC"),
-  classification = c("subfamily", "family")
+  classification = c("subfamily", "family"),
+  cores = 1
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ get_tf_in_region(
 
 \item{classification}{TF classification to be used.
 Either "subfamily" or "family".}
+
+\item{cores}{Number of cores to be used. Default 1.}
 }
 \value{
 A dataframe with region, a TF name and TF gene ensembl ID

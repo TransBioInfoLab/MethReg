@@ -35,16 +35,15 @@
 #' @param arrayType DNA methylation array "450k" or "EPIC"
 #' @param classification TF classification to be used.
 #' Either "subfamily" or "family".
+#' @param cores Number of cores to be used. Default 1.
 #' @importFrom Matrix colSums
 get_tf_in_region <- function(region,
                             genome = c("hg19","hg38"),
                             arrayType = c("450k","EPIC"),
-                            classification = c("subfamily","family")) {
+                            classification = c("subfamily","family"),
+                            cores = 1) {
 
-    if (!requireNamespace("ELMER.data", quietly = TRUE)) {
-        stop("ELMER.data is needed. Please install it.",
-             call. = FALSE)
-    }
+    check_package("ELMER.data")
 
     arrayType <- match.arg(arrayType)
     genome <- match.arg(genome)
@@ -59,11 +58,11 @@ get_tf_in_region <- function(region,
     }
 
     # get pre-computed data
+    message("Loading pre-computed data...")
     motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",toupper(arrayType)),package = "ELMER.data",envir = environment()))
     motifs.tfs <- get(data(list = paste0("TF.",classification),package = "ELMER.data",envir = environment()))
 
     # Get probes regions for mapping the motifs
-
     probes.gr <- get_met_probes_info(genome = genome,arrayType = arrayType)
     probes.gr <- probes.gr[names(probes.gr) %in% rownames(motifs.probes)]
 
@@ -72,6 +71,10 @@ get_tf_in_region <- function(region,
 
     if(nrow(hits) == 0) stop("No overlap found between regions and DNA methylation array found")
 
+    message("Mapping regions to HOCOMOCO TFBS, then to TF groups...")
+
+    parallel <- register_cores(cores)
+
     # For each region overlapping get all probes overallping and their motifs
     df <- plyr::adply(unique(hits$queryHits),1, function(x){
         idx <- hits %>% filter(queryHits == x) %>% pull(subjectHits)
@@ -79,7 +82,7 @@ get_tf_in_region <- function(region,
         motifs <- colnames(motifs.probes)[Matrix::colSums(motifs.probes[probes,,drop = FALSE]) > 0]
         tfs <- unlist(motifs.tfs[motifs]) %>% as.character() %>% unique()
         tibble::tibble(region.names[x],tfs)
-    },.id = NULL,.progress = "time",.inform = TRUE)
+    },.id = NULL,.progress = "time",.inform = TRUE,.parallel = .arallel)
 
     df$TF_id <- map_symbol_to_ensg(df$tfs)
     colnames(df) <- c("regionID","TF_external_gene_name","TF_ensembl_gene_id")

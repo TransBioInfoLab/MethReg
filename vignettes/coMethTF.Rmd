@@ -361,7 +361,7 @@ The R package [coMethDMR](https://github.com/TransBioInfoLab/coMethDMR)
 can be used to accurate identify co-methylated methylated regions [@gomez2019comethdmr].
 The sections below will show how to use this package with the example dataset. 
 
-```{r, eval = TRUE, include = TRUE, message=FALSE}
+```{r, eval = FALSE, include = TRUE, message=FALSE}
 library(coMethDMR)
 library(coMethTF)
 library(dplyr)
@@ -369,8 +369,16 @@ library(dplyr)
 
 ## Predefined genomic regions with closely located CpG probes 
 
-```{R cluster.probes}
+```{R cluster.probes, eval = FALSE}
 probes.cluster <- coMethDMR::getPredefinedCluster(arrayType = "450k", clusterType = "regions")
+```
+
+```{R, include = FALSE}
+data("probes.cluster")
+```
+
+
+```{R}
 message("Number of clusters: ",length(probes.cluster))
 probes.cluster %>% head
 ```
@@ -426,35 +434,6 @@ dim(median.df.tumor)
 head(median.df.tumor)
 ```
 
-## Mapping DMR region (or CpG) to the target gene
-
-As shown previously, the function `get_region_target_gene` provides two methods to link a DMR to 
-a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
-(2) mapping the region to all the genes within a window (default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
- 
-```{R}
-probes.gr <- make_granges_from_names(rownames(median.df.tumor))
-class(probes.gr)
-
-# Map probes to nearest gene
-mapping.closest <- get_region_target_gene(
-    regions.gr = probes.gr, 
-    genome = "hg38", 
-    method = "closest.gene"
-)
-dim(mapping.closest)
-mapping.closest
-
-# Map probes to genes within 500kb window
-mapping.window <- get_region_target_gene(
-    regions.gr = probes.gr, 
-    genome = "hg38", 
-    method = "window"
-)
-
-dim(mapping.window)
-mapping.window
-```
 
 # 7. Controlling effects from confounding variables
 

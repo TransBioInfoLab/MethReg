@@ -354,7 +354,109 @@ results %>% head
 ![Possible scenarios](scenarios.png)
 
 
-# 6. Controlling effects from confounding variables
+
+# 6. Getting co-methylated clusters and summarizing regions using medians
+
+The R package [coMethDMR](https://github.com/TransBioInfoLab/coMethDMR) 
+can be used to accurate identify co-methylated methylated regions [@gomez2019comethdmr].
+The sections below will show how to use this package with the example dataset. 
+
+```{r, eval = TRUE, include = TRUE, message=FALSE}
+library(coMethDMR)
+library(coMethTF)
+library(dplyr)
+```
+
+## Predefined genomic regions with closely located CpG probes 
+
+```{R cluster.probes}
+probes.cluster <- coMethDMR::getPredefinedCluster(arrayType = "450k", clusterType = "regions")
+message("Number of clusters: ",length(probes.cluster))
+probes.cluster %>% head
+```
+
+
+## Find co-methylated contiguous regions
+
+The goal in this step is to find co-methylated and contiguous regions.
+```{R cometh, eval = TRUE}
+data("dna.met.chr21")
+# just keep the used probes
+dna.met.chr21 <- dna.met.chr21[rownames(dna.met.chr21) %in% unique(unlist(probes.cluster)),]
+```
+
+```{R,eval = FALSE}
+coMeth_ls <- CoMethAllRegions(
+    dnam = dna.met.chr21,
+    betaToM = TRUE,
+    method = "spearman",
+    minPairwiseCorr = 0.2,
+    CpGs_ls = probes.cluster,
+    arrayType = "450k",
+    returnAllCpGs = FALSE,
+    output = "CpGs",
+    nCores_int = 8)
+```
+
+```{R, include = FALSE}
+data("coMeth_ls")
+```
+
+```{R}
+message("Number of co-methylated cluster: ",length(coMeth_ls))
+coMeth_ls %>% head
+```
+
+## Median methylation of co-methylated regions
+
+```{R, results = "hide"}
+median.df.tumor <- plyr::ldply(
+    coMeth_ls[!duplicated(names(coMeth_ls))],
+    function(probes){
+        matrixStats::colMedians(dna.met.chr21[probes,])
+        }, .progress = "time",.parallel = FALSE
+)
+```
+
+```{R}
+rownames(median.df.tumor) <- median.df.tumor$.id
+median.df.tumor$.id <- NULL
+colnames(median.df.tumor) <- colnames(dna.met.chr21)
+dim(median.df.tumor)
+head(median.df.tumor)
+```
+
+## Mapping DMR region (or CpG) to the target gene
+
+As shown previously, the function `get_region_target_gene` provides two methods to link a DMR to 
+a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
+(2) mapping the region to all the genes within a window (default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
+ 
+```{R}
+probes.gr <- make_granges_from_names(rownames(median.df.tumor))
+class(probes.gr)
+
+# Map probes to nearest gene
+mapping.closest <- get_region_target_gene(
+    regions.gr = probes.gr, 
+    genome = "hg38", 
+    method = "closest.gene"
+)
+dim(mapping.closest)
+mapping.closest
+
+# Map probes to genes within 500kb window
+mapping.window <- get_region_target_gene(
+    regions.gr = probes.gr, 
+    genome = "hg38", 
+    method = "window"
+)
+
+dim(mapping.window)
+mapping.window
+```
+
+# 7. Controlling effects from confounding variables
 
 Both gene expressions and DNA methylation levels can be affected by age, sex, shifting in cell types, batch effects and other confounding variables.  In this section, we illustrate analysis workflow that reduces confounding effects, by first extracting the residual data with the function 
 `get_residuals`, before fitting the models discussed above in Section 4. 
@@ -397,9 +499,9 @@ results <- interaction_model(
 )
 ```
 
-# 7. Session information
+# 8. Session information
 ```{R,size = 'tiny'}
 sessionInfo()
 ```
 
-# 8. Bibliography
+# 9. Bibliography

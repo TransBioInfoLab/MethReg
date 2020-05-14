@@ -74,7 +74,7 @@ cor_region_dnam_target_gene <- function(
                             exact = FALSE)
             return(tibble("met_exp_cor_pvalue" = res$p.value,
                           "met_exp_cor_estimate" = res$estimate))
-        },.progress = "time", parallel)
+        },.progress = "time",.parallel = parallel)
 
 
     correlation.df <- na.omit(correlation.df)

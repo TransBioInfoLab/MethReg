@@ -145,6 +145,7 @@ regionID start - window.width/2 and  regionID end + window.width/2
 * window.extended.width:  width of window around region used to find target genes
 * Distance.region.gene: distance from region to target gene TSS
 
+
 ### Mapping region to TF
 
 The function `get_tf_in_region` maps the regions to TF using a precomputed dataset of 
@@ -182,7 +183,7 @@ The triplet is a data frame with the following columns:
 ```{R}
 # Merging the results from the previous sections (region and target, and region and TF)
 triplet <- dplyr::inner_join(
-    mapping.closest[,c("regionID","ensembl_gene_id")],
+    mapping.closest[,c("regionID","target")],
     region.tf[,c("regionID","TF_ensembl_gene_id")]
     )
 colnames(triplet) <- c("regionID","target","TF")

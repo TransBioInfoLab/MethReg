@@ -35,7 +35,7 @@
 #' @param arrayType DNA methylation array "450k" or "EPIC"
 #' @param classification TF classification to be used.
 #' Either "subfamily" or "family".
-#' @param cores Number of cores to be used. Default 1.
+#' @param cores Number of CPU cores to be used. Default 1.
 #' @importFrom Matrix colSums
 get_tf_in_region <- function(region,
                               genome = c("hg19","hg38"),

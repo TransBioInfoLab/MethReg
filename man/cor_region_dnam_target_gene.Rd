@@ -2,7 +2,7 @@
 % Please edit documentation in R/cor_region_dnam_target_gene.R
 \name{cor_region_dnam_target_gene}
 \alias{cor_region_dnam_target_gene}
-\title{Evaluate correlation of DNA methylation region and target gene expressions}
+\title{Evaluate correlation of DNA methylation region and target gene expression}
 \usage{
 cor_region_dnam_target_gene(
   links,
@@ -10,16 +10,17 @@ cor_region_dnam_target_gene(
   exp,
   min.cor.pval = 0.05,
   min.cor.estimate = 0,
-  file.out
+  file.out,
+  cores = 1
 )
 }
 \arguments{
-\item{links}{A dataframe with the following columns: regionID (DNA methylation) and  geneID (target gene)}
+\item{links}{A dataframe with the following columns: regionID (DNA methylation) and target (target gene)}
 
 \item{met}{DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 same order as gene expression.}
 
-\item{exp}{Gene expression matrix (rows are genes, columns are samples)
+\item{exp}{Gene expression matrix (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
 Samples should be in the same order as the DNA methylation matrix.}
 
 \item{min.cor.pval}{Filter of significant correlations (default: 0.05)}
@@ -27,6 +28,8 @@ Samples should be in the same order as the DNA methylation matrix.}
 \item{min.cor.estimate}{Filter of significant correlations (default: not applied)}
 
 \item{file.out}{If provided, name of a csv file which will be used to save the results.}
+
+\item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \description{
 Evaluate correlation of the DNA methylation region and target gene expression
@@ -34,34 +37,24 @@ using spearman correlation test
 }
 \examples{
 library(dplyr)
-# Create example region
-regions.gr <- data.frame(
-                chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
-                start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
-                end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
-                stringsAsFactors = FALSE)  \%>\%
-              GenomicRanges::makeGRangesFromDataFrame()
+data("dna.met.chr21")
+dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+regions.gr <- make_granges_from_names(rownames(dna.met.chr21))
+data("gene.exp.chr21")
 
 # Map example region to closest gene
-map <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
-map <- tidyr::unite(map,col = "regionID",c("gene_chrom", "gene_start", "gene_end"))
-links <- tibble::tibble(regionID = map$regionID, geneID = map$ensembl_gene_id)
-
-# Create data example
-met <- matrix(runif(length(links$regionID) * 4, 0, 1),
-              nrow = length(links$regionID),
-              dimnames = list(c(links$regionID),c(paste0("S",c(1:4)))))
-
-exp <- matrix(runif(length(links$regionID) * 4, 0, 10),
-              nrow = length(links$geneID),
-              dimnames = list(c(links$geneID),c(paste0("S",c(1:4)))))
+links <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method = "closest.gene")
 
 # Samples in met and exp datasets should be in the same order.
-identical (colnames (met), colnames(exp))
+identical (colnames (dna.met.chr21), colnames(gene.exp.chr21))
 
 # Correalted DNAm and gene expression, display only significant associations
-cor_region_dnam_target_gene(links = links, met = met, exp = exp)
+results <- cor_region_dnam_target_gene(links = links, met = dna.met.chr21, exp = gene.exp.chr21)
 
 # display all associations
-cor_region_dnam_target_gene(links = links, met = met, exp = exp, min.cor.pval = 1)
+results.all <- cor_region_dnam_target_gene(
+   links = links,
+   met = dna.met.chr21,
+   exp = gene.exp.chr21,
+   min.cor.pval = 1)
 }

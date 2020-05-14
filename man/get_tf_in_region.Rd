@@ -22,7 +22,7 @@ get_tf_in_region(
 \item{classification}{TF classification to be used.
 Either "subfamily" or "family".}
 
-\item{cores}{Number of cores to be used. Default 1.}
+\item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \value{
 A dataframe with region, a TF name and TF gene ensembl ID

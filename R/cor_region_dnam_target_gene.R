@@ -56,9 +56,16 @@ cor_region_dnam_target_gene <- function(
     genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
     exp <- exp[genes.keep,]
 
+    regions.keep <- (rowSums(is.na(met)) < ncol(met)) %>% which %>% names
+    met <- met[regions.keep,]
+
     links <- links[links$target %in% rownames(exp),]
     links <- links[links$regionID %in% rownames(met),]
     if(nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
+
+    # reducing object sizes in case we will make it parallel
+    exp <- exp[rownames(exp) %in% links$target,]
+    met <- met[rownames(met) %in% links$regionID,]
 
     parallel <- register_cores(cores)
 
@@ -66,6 +73,7 @@ cor_region_dnam_target_gene <- function(
         .data = links,
         .margins = 1,
         .fun = function(link){
+            tryCatch({
             exp <- exp[link$target,]
             met <- met[rownames(met) == link$regionID,]
             res <- cor.test(exp %>% as.numeric,
@@ -74,7 +82,11 @@ cor_region_dnam_target_gene <- function(
                             exact = FALSE)
             return(tibble("met_exp_cor_pvalue" = res$p.value,
                           "met_exp_cor_estimate" = res$estimate))
-        },.progress = "time",.parallel = parallel)
+            },error = function(e){
+                return(tibble("met_exp_cor_pvalue" = NA,
+                              "met_exp_cor_estimate" = NA))
+            })
+        },.progress = "time",.parallel = parallel,.inform = TRUE)
 
 
     correlation.df <- na.omit(correlation.df)

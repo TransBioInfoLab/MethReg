@@ -3,7 +3,7 @@
 #' using spearman correlation test.  Obs: Genes with RNA expression equal to 0 for more than 25% of the samples
 #' will not be evaluated.
 #' @param links A dataframe with the following columns: regionID (DNA methylation) and target (target gene)
-#' @param met DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
+#' @param dnam DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 #' same order as gene expression.
 #' @param exp Gene expression matrix (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
 #' Samples should be in the same order as the DNA methylation matrix.
@@ -30,17 +30,21 @@
 #' identical (colnames (dna.met.chr21), colnames(gene.exp.chr21))
 #'
 #' # Correalted DNAm and gene expression, display only significant associations
-#' results <- cor_region_dnam_target_gene(links = links, met = dna.met.chr21, exp = gene.exp.chr21)
+#' results <- cor_region_dnam_target_gene(
+#'   links = links,
+#'   dnam = dna.met.chr21,
+#'   exp = gene.exp.chr21
+#' )
 #'
 #' # display all associations
 #' results.all <- cor_region_dnam_target_gene(
 #'    links = links,
-#'    met = dna.met.chr21,
+#'    dnam = dna.met.chr21,
 #'    exp = gene.exp.chr21,
 #'    min.cor.pval = 1)
 cor_region_dnam_target_gene <- function(
     links,
-    met,
+    dnam,
     exp,
     min.cor.pval = 0.05,
     min.cor.estimate = 0.0,
@@ -49,25 +53,25 @@ cor_region_dnam_target_gene <- function(
 ){
 
     if(is.null(exp)) stop("Please set exp matrix")
-    if(is.null(met)) stop("Please set met matrix")
-    if(ncol(met) != ncol(exp)) stop("exp and met does not have the same size")
+    if(is.null(dnam)) stop("Please set dnam matrix")
+    if(ncol(dnam) != ncol(exp)) stop("exp and dnam does not have the same size")
     if(!all(c("target","regionID") %in% colnames(links))) stop("links object must have target and regionID columns")
 
     # remove links with RNA expression equal to 0 for more than 25% of the samples
-    message("Removing genes  with RNA expression equal to 0 for more than 25% of the samples")
+    message("Removing genes with RNA expression equal to 0 for more than 25% of the samples")
     genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
     exp <- exp[genes.keep,]
 
-    regions.keep <- (rowSums(is.na(met)) < ncol(met)) %>% which %>% names
-    met <- met[regions.keep,]
+    regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
+    dnam <- dnam[regions.keep,]
 
     links <- links[links$target %in% rownames(exp),]
-    links <- links[links$regionID %in% rownames(met),]
+    links <- links[links$regionID %in% rownames(dnam),]
     if(nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
 
     # reducing object sizes in case we will make it parallel
     exp <- exp[rownames(exp) %in% links$target,]
-    met <- met[rownames(met) %in% links$regionID,]
+    dnam <- dnam[rownames(dnam) %in% links$regionID,]
 
     parallel <- register_cores(cores)
 
@@ -77,9 +81,9 @@ cor_region_dnam_target_gene <- function(
         .fun = function(link){
             tryCatch({
             exp <- exp[link$target,]
-            met <- met[rownames(met) == link$regionID,]
+            dnam <- dnam[rownames(dnam) == link$regionID,]
             res <- cor.test(exp %>% as.numeric,
-                            met %>% as.numeric,
+                            dnam %>% as.numeric,
                             method = "spearman",
                             exact = FALSE)
             return(tibble("met_exp_cor_pvalue" = res$p.value,

@@ -6,7 +6,7 @@
 \usage{
 cor_region_dnam_target_gene(
   links,
-  met,
+  dnam,
   exp,
   min.cor.pval = 0.05,
   min.cor.estimate = 0,
@@ -17,7 +17,7 @@ cor_region_dnam_target_gene(
 \arguments{
 \item{links}{A dataframe with the following columns: regionID (DNA methylation) and target (target gene)}
 
-\item{met}{DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
+\item{dnam}{DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 same order as gene expression.}
 
 \item{exp}{Gene expression matrix (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
@@ -50,12 +50,16 @@ links <- get_region_target_gene(regions.gr = regions.gr, genome = "hg19", method
 identical (colnames (dna.met.chr21), colnames(gene.exp.chr21))
 
 # Correalted DNAm and gene expression, display only significant associations
-results <- cor_region_dnam_target_gene(links = links, met = dna.met.chr21, exp = gene.exp.chr21)
+results <- cor_region_dnam_target_gene(
+  links = links,
+  dnam = dna.met.chr21,
+  exp = gene.exp.chr21
+)
 
 # display all associations
 results.all <- cor_region_dnam_target_gene(
    links = links,
-   met = dna.met.chr21,
+   dnam = dna.met.chr21,
    exp = gene.exp.chr21,
    min.cor.pval = 1)
 }

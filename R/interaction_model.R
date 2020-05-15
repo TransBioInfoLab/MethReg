@@ -5,6 +5,7 @@
 #' @param dnam DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
 #' @param exp A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
+#' @param cores Number of CPU cores to be used. Default 1.
 #' @return A dataframe with Region, TF, Estimates and P-values, after fitting robust linear
 #' models using two approaches(see Details above).
 #'
@@ -12,9 +13,6 @@
 #' and estimates_met, estimates_rna.tf, estimates_met.rna.tf}. Approach 2 (considering DNAm values as a binary variable)
 #' generates \code{quant_pval_metGrp, quant_pval_rna.tf, quant_pval_metGrp.rna.tf,
 #' quant_estimates_metGrp, quant_estimates_rna.tf, quant_estimates_metGrp.rna.tf}
-#'
-#'
-#'
 #'
 #' @details This function fits robust linear model
 #'
@@ -59,9 +57,11 @@
 #' @export
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare
-interaction_model <- function(triplet,
-                              dnam,
-                              exp
+interaction_model <- function(
+    triplet,
+    dnam,
+    exp,
+    cores = 1
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -80,6 +80,9 @@ interaction_model <- function(triplet,
     genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
     exp <- exp[genes.keep,]
 
+    regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
+    dnam <- dnam[regions.keep,]
+
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
             .data$TF %in% rownames(exp) &
@@ -92,6 +95,7 @@ interaction_model <- function(triplet,
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
 
+    parallel <- register_cores(cores)
 
     out <- plyr::adply(
         .data = triplet,
@@ -160,7 +164,7 @@ interaction_model <- function(triplet,
                          quant.pval, quant.estimate
             )
             out
-        }, .progress = "time")
+        }, .progress = "time", .parallel = parallel, .inform = TRUE)
 
     return(out)
 }

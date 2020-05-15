@@ -83,7 +83,7 @@ get_tf_in_region <- function(region,
             expand.grid(regions,tfs)
         }, .progress = "time",.parallel = parallel)
     motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
-    colnames(motifs.probes.df) <- c("motif","TF_external_gene_name")
+    colnames(motifs.probes.df) <- c("regionID","TF_external_gene_name")
 
     message("Preparing output")
     # Merge results of region and motif to motif TF

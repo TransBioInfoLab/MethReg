@@ -1,6 +1,7 @@
 #' @title Evaluate correlation of DNA methylation region and target gene expression
-#' @description Evaluate correlation of the DNA methylation region and target gene expression
-#' using spearman correlation test
+#' @description This function evaluate the correlation of the DNA methylation region and target gene expression
+#' using spearman correlation test.  Obs: Genes with RNA expression equal to 0 for more than 25% of the samples
+#' will not be evaluated.
 #' @param links A dataframe with the following columns: regionID (DNA methylation) and target (target gene)
 #' @param met DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
 #' same order as gene expression.
@@ -52,7 +53,8 @@ cor_region_dnam_target_gene <- function(
     if(ncol(met) != ncol(exp)) stop("exp and met does not have the same size")
     if(!all(c("target","regionID") %in% colnames(links))) stop("links object must have target and regionID columns")
 
-    # remove triplet with RNA expression equal to 0 for more than 25% of the samples
+    # remove links with RNA expression equal to 0 for more than 25% of the samples
+    message("Removing genes  with RNA expression equal to 0 for more than 25% of the samples")
     genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
     exp <- exp[genes.keep,]
 

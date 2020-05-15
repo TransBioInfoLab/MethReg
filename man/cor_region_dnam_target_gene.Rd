@@ -32,8 +32,9 @@ Samples should be in the same order as the DNA methylation matrix.}
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \description{
-Evaluate correlation of the DNA methylation region and target gene expression
-using spearman correlation test
+This function evaluate the correlation of the DNA methylation region and target gene expression
+using spearman correlation test.  Obs: Genes with RNA expression equal to 0 for more than 25% of the samples
+will not be evaluated.
 }
 \examples{
 library(dplyr)

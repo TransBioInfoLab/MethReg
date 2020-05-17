@@ -276,8 +276,23 @@ To select significant DNAm by TF intereaction from both models,
 results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
 ```
 
+## 4.2 Stratified analysis by high and low DNA methylation levels
 
-## 4.2 Visualization of data  
+For significant triplets that are identified above, we can further assess how gene regulation by TF changes when DNAm is high or low. To this end, the function `stratified_model` fits two separate models (see below) to only the 
+samples in highest DNAm levels (top 25 percent), and then to only the samples in lowest DNAm levels (bottom 25 percent), separately.
+
+$$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
+
+```{R stratified_model, message = FALSE, results = "hide"}
+results <- stratified_model(
+    triplet = triplet, 
+    dnam = dna.met.chr21,
+    exp = gene.exp.chr21
+)
+results %>% head
+```
+
+## 4.3 Visualization of data  
 
 The function `plot_interaction_model` will create figures to visualize the data, 
 in a way that corresponds to the linear model we considered above. 
@@ -285,7 +300,7 @@ It requires the output from the function `interaction_model` (a dataframe),
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
-```{R plot_interaction_model, message = FALSE, results = "hide"}
+```{R, plot_interaction_model, message = FALSE, results = "hide"}
 plots <- plot_interaction_model(
     triplet.results = results[1,], 
     dnam = dna.met.chr21, 
@@ -336,36 +351,16 @@ plots[[1]]
 ```
 
 
-
-## 4.3 Analysis using stratified model with methylation by TF interaction
-
-To expand **Model 2** analysis, the function `stratified_model` 
-will fit two separate models (shown below) to only the 
-samples in highest DNAm levels (top 25 percent) then to only
-the samples in lowest DNAm levels (bottom 25 percent).
-
-$$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
-
-```{R stratified_model, message = FALSE, results = "hide"}
-results <- stratified_model(
-    triplet = triplet, 
-    dnam = dna.met.chr21,
-    exp = gene.exp.chr21
-)
-results %>% head
-```
-
 # 5. Results interpretation
 
-![Possible scenarios](scenarios.png)
+Shown below are some expected results from fitting Models 1 & 2 described in **Section 4.1** above, depending on TF binding preferences. Please note that there can be more possible scenarios than those listed here, therefore, careful evaluation of the statistical models and visualizations of data as described in **Section 4** is needed to gain a good understanding of the multi-omics data. 
 
-
+![Illustration - Possible scenarios](scenarios.png)
 
 # 6. Identifying co-methylated clusters and summarizing regions using medians for DMRs
 
-The R package [coMethDMR](https://github.com/TransBioInfoLab/coMethDMR) 
-can be used to accurate identify co-methylated methylated regions [@gomez2019comethdmr].
-The sections below will show how to use this package with the example dataset. 
+Given regions for DMRs, the R package [coMethDMR](https://github.com/TransBioInfoLab/coMethDMR) 
+can be used to identify co-methylated regions [@gomez2019comethdmr]. We can then summarize methylation levels from multiple CpGs within each region using median. 
 
 ```{r, eval = FALSE, include = TRUE, message=FALSE}
 library(coMethDMR)
@@ -373,7 +368,7 @@ library(coMethTF)
 library(dplyr)
 ```
 
-## Predefined genomic regions with closely located CpG probes 
+For illustration, we will use probe clusters in predefined genomic regions from the `coMethDMR` R package here. 
 
 ```{R cluster.probes, eval = FALSE}
 probes.cluster <- coMethDMR::getPredefinedCluster(arrayType = "450k", clusterType = "regions")
@@ -383,16 +378,26 @@ probes.cluster <- coMethDMR::getPredefinedCluster(arrayType = "450k", clusterTyp
 data("probes.cluster")
 ```
 
-
 ```{R}
 message("Number of clusters: ",length(probes.cluster))
 probes.cluster %>% head
 ```
 
+For real data analyis, please replace `probes.cluster` with probes in DMRs identified in epigenomewide association study. The  `coMethDMR::GetCpGsInAllRegion` function can be used to extract probes within the DMRs.  
 
-## Find co-methylated contiguous regions
 
-The goal in this step is to find co-methylated and contiguous regions.
+To find co-methylated regions within the DMRs, first we need to extract probes within the DMRs.  
+```{r, eval = FALSE}
+probes.cluster <- coMethDMR::GetCpGsInAllRegion(
+    regionName_char = c("chr21:37432493-37432782",
+                        "chr21:18884682-18885210", 
+                        "chr21:27107799-27107982",),
+      arrayType = "450k"
+    )
+```
+
+
+Next we find co-methylated regions within the DMRs.
 ```{R cometh, eval = TRUE}
 data("dna.met.chr21")
 # just keep the used probes
@@ -421,7 +426,7 @@ message("Number of co-methylated cluster: ",length(coMeth_ls))
 coMeth_ls %>% head
 ```
 
-## Median methylation of co-methylated regions
+Finally, we compute median methylation of co-methylated regions. 
 
 ```{R, results = "hide"}
 median.df.tumor <- plyr::ldply(
@@ -440,6 +445,7 @@ dim(median.df.tumor)
 head(median.df.tumor)
 ```
 
+The analysis described in **Section 3.3** and **Section 4** can then be performed for DMRs using `median.df.tumor`, in the same way as those for dataset `dna.met.chr21`. 
 
 # 7. Controlling effects from confounding variables
 

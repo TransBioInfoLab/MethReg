@@ -151,7 +151,7 @@ regionID start - window.width/2 and  regionID end + window.width/2
 
 ### Mapping region to TF
 
-HOCOMOCO is a database of transcription factor binding sites (TFBS) motifs derived from in vivo ChIP-seq datasets [@kulakovskiy2016hocomoco]. The function `get_tf_in_region` maps the regions to TF using a precomputed dataset of HOCOMOCO motifs . For each motif we scanned 500 bp around (i.e. +-250bp) each EPIC and HM450 arrays probes. Then for each motif found in a region we extract TF within the same Tf family or subfamily, using TFClass [@wingender2013tfclass], since they have similar binding motifs.
+HOCOMOCO is a database of transcription factor binding sites (TFBS) motifs derived from _in vivo_ ChIP-seq datasets [@kulakovskiy2016hocomoco]. The function `get_tf_in_region` maps the regions to TF using a precomputed dataset of HOCOMOCO motifs . For each motif we scanned 500 bp around (i.e. +-250bp) each EPIC and HM450 arrays probes. Then for each motif found in a region we extract TF within the same Tf family or subfamily, using TFClass [@wingender2013tfclass], since they have similar binding motifs.
 
 Therefore, a region is linked to a TF if any of the probes within it is mapped to the TF. In other words, we link the DNA methylation regions to TFs within 250 bp from the start or end of the region. 
 

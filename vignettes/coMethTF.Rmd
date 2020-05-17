@@ -1,5 +1,5 @@
 ---
-title: "coMethTF: functional annotation of DMRs and DMS in epigenome-wide association studies"
+title: "coMethTF: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies"
 author:
   - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902@miami.edu]
   - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg@gmail.com]
@@ -35,11 +35,9 @@ sesameDataCacheAll()
 
 Transcription factors (TFs) are proteins that facilitate the transcription of DNA into RNA. A number of recent studies have observed that the binding of TFs onto DNA can be affected by DNA methylation, and in turn, DNA methylation can also be added or removed by proteins associated with transcription factors [@bonder2017disease; @banovich2014methylation; @zhu2016transcription].
 
-To provide functional annotations for differentially methylated regions (DMRs) and differentially methylated CpG sites (DMS),
-`coMethTF` performs integrative analyses using matched DNA methylation and gene expression along with Transcription Factor Binding Sites (TFBS) data. coMethTF evaluates, prioritizes and annotates DNA methylation regions (or sites) with high regulatory potential that works synergistically with TFs to regulate target gene expressions, without any additional ChIP-seq data. 
+To provide functional annotations for differentially methylated regions (DMRs) and differentially methylated CpG sites (DMS),`coMethTF` performs integrative analyses using matched DNA methylation and gene expression along with Transcription Factor Binding Sites (TFBS) data. coMethTF evaluates, prioritizes and annotates DNA methylation regions (or sites) with high regulatory potential that works synergistically with TFs to regulate target gene expressions, without any additional ChIP-seq data. 
 
-The results from `coMethTF` can be used to generate testable hypothesis on the synergistic interaction of DMRs and TFs in gene regulation. 
-`coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome.
+The results from `coMethTF` can be used to generate testable hypothesis on the synergistic collaboration of DNA methylation changes and TFs in gene regulation. `coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome.
 
 # 2. Installation 
 
@@ -93,7 +91,7 @@ dna.met.chr21[1:5,1:5]
 ```
 
 ### 3.1.2 DMRs data
-Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage can be obtained from R packages such as \code{coMethDMR}, \code{comb-p}, \code{DMRcate} and many others. The methylation levels in multiple CpGs within the DMRs need to be summarized (e.g. using medians), then the analysis for DMR will proceed in the same way as those for CpGs. See **Section 6** "Identifying co-methylated clusters and summarizing regions using medians for DMRs" below for details.   
+Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage can be obtained from R packages such as \code{coMethDMR}, \code{comb-p}, \code{DMRcate} and many others. The methylation levels in multiple CpGs within the DMRs need to be summarized (e.g. using medians), then the analysis for DMR will proceed in the same way as those for CpGs. See **Section 6** "Identifying co-methylated clusters and summarizing regions using medians for DMRs" below for more details.   
 
 
 ## 3.2 Gene expression dataset
@@ -112,6 +110,8 @@ gene.exp.chr21[1:5,1:5]
 The function `get_region_target_gene` provides two methods to link a DMR to 
 a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
 (2) mapping the region to all the genes within a window (default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
+
+For promoter analysis, we recommend setting xx. For analysis of distal regions, we recommend xx. Note that the distal analysis will be more time and resource consuming. 
  
 ```{R}
 # Get CpG information
@@ -152,11 +152,11 @@ regionID start - window.width/2 and  regionID end + window.width/2
 ### Mapping region to TF
 
 The function `get_tf_in_region` maps the regions to TF using a precomputed dataset of 
-HOCOMOCO motifs [@kulakovskiy2016hocomoco]. For each motif we scanned 500 bp around each EPIC and 
+HOCOMOCO motifs [@kulakovskiy2016hocomoco]. For each motif we scanned 500 bp around (i.e. +-250bp) each EPIC and 
 HM450 arrays probes. Then for each motif found in a region we extract TF within the same Tf family or subfamily,
 using TFClass [@wingender2013tfclass], since they have similar binding motifs.
 
-Therefore, a region is linked to a TF if any of the probes within it is mapped to the TF. In other words, we link the DNA methylation regions to TFs within 500 bp from the start or end of the region. 
+Therefore, a region is linked to a TF if any of the probes within it is mapped to the TF. In other words, we link the DNA methylation regions to TFs within 250 bp from the start or end of the region. 
 
 ```{R, results = "hide"}
 # we will only map the first 20 regions, since this function may take a while to compute
@@ -200,7 +200,7 @@ There may also be multiple rows for a region, when multiple target gene and/or T
 
 Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby (Yin et al. 2013), target gene expression can often be influenced by the synergistic effects of both TF and DNA methylation. In other words, TF activities in gene regulation is affected by DNA methylation or vice versa. 
 
-We will perform analyses using the 3 datasets described above in Section 3:
+Our goal then is to highlight DNA methylation regions (or CpGs) where these synergistic DNAm and TF collaborations occur. We will perform analyses using the 3 datasets described above in Section 3:
 
 * DNA methylation matrix
 * Gene expression matrix
@@ -214,9 +214,11 @@ The function `interaction_model` assess the regulatory impact of DNA methylation
 
 $$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
 
-**Model 2** (considering DNAm values as a binary variable) - we define a binary group for DNA methylation values (high = 1, low = 0). That is, samples with the highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0. Note that in this implementation, only samples wih DNAm values in the first and last quartiles are considered.
+**Model 2** (considering DNAm values as a binary variable) - we define a binary variable `DNAm Group` for DNA methylation values (high = 1, low = 0). That is, samples with the highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0.  
 
-$$log_2(RNA target) \sim log_2(TF) + \text{DNAm Quartile Group} + log_2(TF) * \text{DNAm Quartile Group}$$
+Note that in this implementation, only samples wih DNAm values in the first and last quartiles are considered.
+
+$$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm Group}$$
  
 ```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
@@ -228,8 +230,8 @@ results <- interaction_model(
 
 The output of `interaction_model` function will be a data frame with the following variables:
 
-* `pval_<name>`: p-value for a tested variable (methylation or TF), given the other variables included in the model.
-* `estimate_<name>`: estimated effect for a variable. If estimate > 0, increasing values of the variable corresponds to increased outcome values (target gene expression). If estimate < 0, increasing values of the variable correspond to decreased target gene expression levels.
+* `pval_<variable>`: p-value for a tested variable (methylation or TF), given the other variables included in the model.
+* `estimate_<variable>`: estimated effect for a variable. If estimate > 0, increasing values of the variable corresponds to increased outcome values (target gene expression). If estimate < 0, increasing values of the variable correspond to decreased target gene expression levels.
 
 
 The following columns are provided for the results of fitting **Model 1** to triplet data:

@@ -9,7 +9,7 @@
 #'
 #' @param triplet.results Output from function interaction_model
 #' with Region ID, TF  (column name: TF),  and target gene  (column name: target),
-#' p-vallues and estimates of interaction
+#' p-values and estimates of interaction
 #' @param dnam DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)
 #' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
 #' @param metadata A data frame with samples as rownames and one columns that will be used to
@@ -297,6 +297,14 @@ get_table_plot_results <- function(row.triplet, type){
         pattern.estimate <- "^quant_estimate"
         pattern.pval <- "^quant_pval"
         title <- "Target ~ TF + \nDNAm Quant. Group +\n TF * DNAm Quant. Group"
+    } else if(type == "DNAmlow"){
+        pattern.estimate <- "^DNAmlow_estimate"
+        pattern.pval <- "^DNAmlow_pval"
+        title <- "Target ~ TF\nDNAm low samples"
+    } else if(type == "DNAmhigh"){
+        pattern.estimate <- "^DNAmhigh_estimate"
+        pattern.pval <- "^DNAmhigh_pval"
+        title <- "Target ~ TF\nDNAm high samples"
     }
     table.plot.estimate <- row.triplet[,grep(pattern.estimate,colnames(row.triplet),value = T),drop  = FALSE] %>%
         t() %>%
@@ -317,5 +325,5 @@ get_table_plot_results <- function(row.triplet, type){
                                      cols = c(title,"Estimate","P-Values"),
                                      theme = ttheme("mOrange", base_size = base_size)
     )
-
+    table.plot.lm.all
 }

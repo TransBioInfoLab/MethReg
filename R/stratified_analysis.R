@@ -12,7 +12,7 @@
 #' @details This function fits linear model
 #' \code{log2(RNA target) ~ log2(TF)}
 #'
-#' to samples with higest DNAm values (top 25 percent) and lowest DNAm values (bottom 25 percent), separately
+#' to samples with higest DNAm values (top 25 percent) and lowest DNAm values (bottom 25 percent), separately.
 #'
 #' To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 #' RNA residual values which have covariate effects removed, then fit interaction model. Note that no

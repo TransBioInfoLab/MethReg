@@ -46,7 +46,7 @@ stratified_model <- function(triplet,
     }
 
     # remove triplet with RNA expression equal to 0 for more than 25% of the samples
-    genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
+    genes.keep <- (rowSums(exp == 0)/ncol(exp) < 0.25) %>% which %>% names
     exp <- exp[genes.keep,]
 
     triplet <- triplet %>% dplyr::filter(

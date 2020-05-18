@@ -77,9 +77,11 @@ interaction_model <- function(
     }
 
     # remove triplet with RNA expression equal to 0 for more than 25% of the samples
-    genes.keep <- (rowSums(exp == 0) < 0.25) %>% which %>% names
+    message("Removing triplet with RNA expression equal to 0 for more than 25% of the samples")
+    genes.keep <- (rowSums(exp == 0)/ncol(exp) < 0.25) %>% which %>% names
     exp <- exp[genes.keep,]
 
+    message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
     dnam <- dnam[regions.keep,]
 
@@ -88,12 +90,13 @@ interaction_model <- function(
             .data$TF %in% rownames(exp) &
             .data$regionID %in% rownames(dnam))
 
-    triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
-    triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
-
     if(nrow(triplet) == 0){
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
+
+    triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
+    triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
+
 
     parallel <- register_cores(cores)
 

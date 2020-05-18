@@ -231,8 +231,8 @@ get_plot_results <- function(df,row.triplet,color){
         y = "rna.target",
         facet.by = "TF.group",
         color = color,
-        ylab = tf.lab,
-        xlab = target.lab)
+        ylab = target.lab,
+        xlab = region.lab)
 
     return(list("dnam.target.quantile" = dnam.target.quantile.plot,
                 "tf.target.quantile" = tf.target.quantile.plot,

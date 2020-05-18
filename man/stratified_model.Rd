@@ -5,7 +5,7 @@
 \title{Fits linear model to triplet data (Target, TF, DNAm) separately for
 samples with DNAm high or low groups.}
 \usage{
-stratified_model(triplet, dnam, exp)
+stratified_model(triplet, dnam, exp, cores = 1)
 }
 \arguments{
 \item{triplet}{Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)}
@@ -14,6 +14,8 @@ stratified_model(triplet, dnam, exp)
 
 \item{exp}{A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
+
+\item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \value{
 A dataframe with Region, TF, Estimates and P-value from linear model

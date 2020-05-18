@@ -8,6 +8,7 @@
 #' @param dnam DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
 #' @param exp A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
+#' @param cores Number of CPU cores to be used. Default 1.
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @details This function fits linear model
 #' \code{log2(RNA target) ~ log2(TF)}
@@ -28,9 +29,11 @@
 #' results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21)
 #' @export
 #' @importFrom rlang .data
-stratified_model <- function(triplet,
-                              dnam,
-                              exp
+stratified_model <- function(
+    triplet,
+    dnam,
+    exp,
+    cores = 1
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -67,6 +70,8 @@ stratified_model <- function(triplet,
     if(nrow(triplet) == 0){
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
+
+    parallel <- register_cores(cores)
 
     out <- plyr::adply(
         .data = triplet,
@@ -118,13 +123,14 @@ stratified_model <- function(triplet,
             results.high.estimate <- results.high[-1,1,drop = F] %>% t %>% as.data.frame()
             colnames(results.high.estimate) <- paste0("DNAmhigh_estimate_",colnames(results.high.estimate))
 
-            out <- cbind(results.low.pval,
-                         results.low.estimate,
-                         results.high.pval,
-                         results.high.estimate
+            out <- cbind(
+                results.low.pval,
+                results.low.estimate,
+                results.high.pval,
+                results.high.estimate
             ) %>% data.frame()
 
-        }, .progress = "time")
+        }, .progress = "time", .parallel = parallel)
 
     return(out)
 }

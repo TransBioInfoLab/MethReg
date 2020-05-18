@@ -67,6 +67,9 @@ interaction_model <- function(
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
     if(missing(exp)) stop("Please set exp argument with gene expression matrix")
 
+    check_data(dnam, exp)
+
+
     if(!all(grepl("ENSG", rownames(exp)))){
         stop("exp must have the following row names as ENSEMBL IDs (i.e. ENSG00000239415)")
     }

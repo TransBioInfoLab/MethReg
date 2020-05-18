@@ -524,7 +524,8 @@ The `get_residuals` function will use gene expression (or DNA methylation data)
 and phenotype data as input. 
 To remove confounding effects in gene expression data, we use the `get_residuals` 
 function which extract residuals after fitting the following model: 
-`features ~ covariate_{1} + covariate_{2} ... + covariate_{N}`
+$$features \sim covariate_{1} + covariate_{2} ... + covariate_{N}$$
+
 
 ```{R residuals, results = "hide", eval = TRUE}
 data("gene.exp.chr21")

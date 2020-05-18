@@ -110,7 +110,7 @@ stratified_model <- function(triplet,
             colnames(results.high.pval) <- paste0("DNAmhigh_pval_",colnames(results.high.pval))
 
             results.high.estimate <- results.high[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(results.high.estimate) <- paste0("DNAmhigh_pval_estimates_",colnames(results.high.estimate))
+            colnames(results.high.estimate) <- paste0("DNAmhigh_estimate_",colnames(results.high.estimate))
 
             out <- cbind(results.low.pval,
                          results.low.estimate,

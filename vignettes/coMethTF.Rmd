@@ -22,10 +22,7 @@ vignette: >
 <style> body {text-align: justify} </style>
   
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
-collapse = TRUE,
-comment = "#>"
-)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(dplyr)
 library(sesameData)
 sesameDataCacheAll()
@@ -191,9 +188,9 @@ Therefore, a region is linked to a TF if any of the probes within it is mapped t
 In other words, we link the DNA methylation regions to TFs within 250 bp from the start or end of the region. 
 
 ```{R, results = "hide"}
-# we will only map the first 20 regions, since this function may take a while to compute
+# we will only map the first 200 regions, since this function may take a while to compute
 region.tf <- get_tf_in_region(
-    region = probes.gr[1:20], 
+    region = probes.gr[1:200], 
     genome = "hg38", 
     arrayType = "450k", 
     classification = "subfamily"
@@ -313,9 +310,15 @@ results %>% dplyr::select(
   ) %>% head
 ```
 
-To select significant DNAm by TF intereaction from both models, 
-```{r, include=FALSE, eval=FALSE}
-results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
+To select significant DNAm by TF intereaction from both models, you can subset the results
+using the p-value from each linear model.
+
+```{r, include = FALSE, eval = FALSE}
+results,sig <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
+```
+
+```{R}
+head(results)
 ```
 
 ## 4.2 Stratified analysis by high and low DNA methylation levels

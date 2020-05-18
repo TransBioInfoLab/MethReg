@@ -66,6 +66,6 @@ filter_genes_by_quantile_mean_fold_change <- function(exp, fold.change = 1.5, co
     tab$Status[which(tab$Status == TRUE)] <- "Genes above threshold"
     print(tab)
 
-    diff.genes <- c(diff.genes %>% filter(diff_fold_change > 0.2) %>% pull(X1) %>% as.character())
+    diff.genes <- c(diff.genes %>% filter(diff_fold_change > fold.change) %>% pull(X1) %>% as.character())
     exp[diff.genes,]
 }

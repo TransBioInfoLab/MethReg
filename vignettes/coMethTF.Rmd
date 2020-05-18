@@ -136,8 +136,10 @@ a target gene, by (1) mapping the region to the closest gene (`method = "closest
 (2) mapping the region to all the genes within a window 
 (default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
 
-For promoter analysis, we recommend setting xx. For analysis of distal regions, 
-we recommend xx. Note that the distal analysis will be more time and resource consuming. 
+For promoter analysis, we recommend setting `method = "closest.gene"`.
+For analysis of distal regions, 
+we recommend setting  `method = "window"`. 
+Note that the distal analysis will be more time and resource consuming. 
  
 ```{R}
 # Get CpG information

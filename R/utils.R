@@ -218,4 +218,3 @@ register_cores <- function(cores){
     }
     return(parallel)
 }
-

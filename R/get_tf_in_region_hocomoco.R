@@ -38,10 +38,10 @@
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @importFrom Matrix colSums
 get_tf_in_region <- function(region,
-                              genome = c("hg19","hg38"),
-                              arrayType = c("450k","EPIC"),
-                              classification = c("subfamily","family"),
-                              cores = 1) {
+                             genome = c("hg19","hg38"),
+                             arrayType = c("450k","EPIC"),
+                             classification = c("subfamily","family"),
+                             cores = 1) {
 
     check_package("ELMER.data")
 

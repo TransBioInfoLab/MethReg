@@ -49,13 +49,21 @@ get_region_target_gene <- function(
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
 
     if(method == "closest.gene"){
+
+        # Get transcripts information
         tssAnnot <- ELMER::getTSS(genome = genome)
 
         neargenes <- tssAnnot[nearest(regions.gr,tssAnnot)] %>% as.data.frame()
-        distance.region.tss <- values(distanceToNearest(regions.gr,tssAnnot))$distance
 
-        neargenes <- cbind(neargenes[,c("seqnames","start","end","external_gene_name","ensembl_gene_id")],
-                           distance.region.tss)
+        distance.region.tss <- values(distanceToNearest(regions.gr, tssAnnot))$distance
+
+        neargenes <- cbind(
+            neargenes[,c("seqnames",
+                         "start",
+                         "end",
+                         "external_gene_name",
+                         "ensembl_gene_id")],
+            distance.region.tss)
 
         colnames(neargenes)[1:3] <- c("gene_chrom","gene_start","gene_end")
         colnames(neargenes)[4] <- "target_gene_name"
@@ -73,7 +81,7 @@ get_region_target_gene <- function(
         ) %>% tibble::as_tibble()
 
     } else {
-        geneAnnot <- get_gene_information(genome = genome,as.granges = TRUE)
+        geneAnnot <- get_gene_information(genome = genome, as.granges = TRUE)
         geneAnnot$entrezgene <- NULL
         geneAnnot <- unique(geneAnnot)
         regions.gr.extend <- regions.gr + (window.width/2)

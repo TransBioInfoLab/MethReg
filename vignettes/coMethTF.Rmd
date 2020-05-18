@@ -314,11 +314,11 @@ To select significant DNAm by TF intereaction from both models, you can subset t
 using the p-value from each linear model.
 
 ```{r, include = FALSE, eval = FALSE}
-results.sig <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
+results.sig <- results %>% dplyr::filter(`pval_met:rna.tf` < 0.05 & `quant_pval_metGrp:rna.tf` < 0.05)
 ```
 
 ```{R}
-head(results)
+head(results.sig)
 ```
 
 ## 4.2 Stratified analysis by high and low DNA methylation levels
@@ -453,7 +453,7 @@ To find co-methylated regions within the DMRs, first we need to extract probes w
 probes.cluster <- coMethDMR::GetCpGsInAllRegion(
     regionName_char = c("chr21:37432493-37432782",
                         "chr21:18884682-18885210", 
-                        "chr21:27107799-27107982",),
+                        "chr21:27107799-27107982"),
       arrayType = "450k"
     )
 ```

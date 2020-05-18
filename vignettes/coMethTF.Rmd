@@ -350,7 +350,7 @@ the DNA methylation matrix and the gene expression matrix as input.
 
 ```{R, plot_stratified_model, message = FALSE, results = "hide", eval = TRUE}
 plots <- plot_stratified_model(
-    triplet.results = results[1,], 
+    triplet.results = results.stratified.model[1,], 
     dnam = dna.met.chr21, 
     exp = gene.exp.chr21
     )
@@ -386,7 +386,7 @@ metadata <- clinical[,c("sample_type"),drop = FALSE]
 
 ```{R, eval = TRUE, results = "hide", message = FALSE}
 plots <- plot_stratified_model(
-        triplet.results = results[1,,drop = FALSE], 
+        triplet.results = results.stratified.model[1,,drop = FALSE], 
         dnam = dna.met.chr21, 
         exp = gene.exp.chr21,
         metadata = metadata

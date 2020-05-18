@@ -60,13 +60,18 @@ get_region_target_gene <- function(
         colnames(neargenes)[1:3] <- c("gene_chrom","gene_start","gene_end")
         colnames(neargenes)[4] <- "target_gene_name"
         colnames(neargenes)[5] <- "target"
+
         regionID <- paste0(
             regions.gr %>% seqnames %>% as.character(),
             ":",
             regions.gr %>% start,
             "-",
             regions.gr %>% end)
-        out <- cbind(regionID, neargenes) %>% tibble::as_tibble()
+        out <- dplyr::bind_cols(
+            data.frame("regionID" = regionID, stringsAsFactors = FALSE),
+            neargenes
+        ) %>% tibble::as_tibble()
+
     } else {
         geneAnnot <- get_gene_information(genome = genome,as.granges = TRUE)
         geneAnnot$entrezgene <- NULL
@@ -97,11 +102,12 @@ get_region_target_gene <- function(
         colnames(genes.overlapping)[grep("ensembl_gene_id",colnames(genes.overlapping))] <- "target"
 
         out <- dplyr::bind_cols(
-            data.frame("regionID" = regionID),
-            data.frame("regionID.extended" = regionID.extended,
+            data.frame("regionID" = regionID,stringsAsFactors = FALSE),
+            data.frame("regionID.extended" = regionID.extended %>% as.character(),
                        "window.extended.width" = window.width,
                        "Distance region-gene" = distance(regions.gr[queryHits(overlap)],
-                                                         geneAnnot[subjectHits(overlap)])),
+                                                         geneAnnot[subjectHits(overlap)]),
+                       stringsAsFactors = FALSE),
             genes.overlapping)  %>% tibble::as_tibble()
     }
     return(out)

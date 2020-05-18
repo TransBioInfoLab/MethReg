@@ -314,7 +314,7 @@ To select significant DNAm by TF intereaction from both models, you can subset t
 using the p-value from each linear model.
 
 ```{r, include = FALSE, eval = FALSE}
-results,sig <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
+results.sig <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
 ```
 
 ```{R}
@@ -348,7 +348,7 @@ It requires the output from the function `interaction_model` (a dataframe),
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
-```{R, plot_interaction_model, message = FALSE, results = "hide"}
+```{R, plot_interaction_model, message = FALSE, results = "hide", eval = FALSE}
 plots <- plot_interaction_model(
     triplet.results = results[1,], 
     dnam = dna.met.chr21, 
@@ -356,7 +356,7 @@ plots <- plot_interaction_model(
     )
 ```
 
-```{R, fig.height = 14, fig.width = 12}
+```{R, fig.height = 14, fig.width = 12, eval = FALSE}
 plots[[1]]
 ```
 
@@ -384,7 +384,7 @@ data("clinical")
 metadata <- clinical[,c("sample_type"),drop = FALSE]
 ```
 
-```{R, eval = TRUE, results = "hide", message = FALSE}
+```{R, eval = FALSE, results = "hide", message = FALSE}
 plots <- plot_interaction_model(
         triplet.results = results[1,,drop = FALSE], 
         dnam = dna.met.chr21, 
@@ -394,7 +394,7 @@ plots <- plot_interaction_model(
 ```
 
 
-```{R, fig.height = 14, fig.width = 12, eval = TRUE}
+```{R, fig.height = 14, fig.width = 12, eval = FALSE}
 plots[[1]]
 ```
 
@@ -416,7 +416,7 @@ Given regions for DMRs, the R package [coMethDMR](https://github.com/TransBioInf
 can be used to identify co-methylated regions [@gomez2019comethdmr]. 
 To install it, please use the following command:
 
-```{R}
+```{R, eval = FALSE}
 devtools::install_github("TransBioInfoLab/coMethDMR")
 ```
 

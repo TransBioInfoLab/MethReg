@@ -69,3 +69,14 @@ filter_genes_by_quantile_mean_fold_change <- function(exp, fold.change = 1.5, co
     diff.genes <- c(diff.genes %>% filter(diff_fold_change > fold.change) %>% pull(X1) %>% as.character())
     exp[diff.genes,]
 }
+
+
+#' @title Remove genes with gene expression 0 in more than 25% of the samples
+#' @param exp Gene expression matrix
+#' @param max.samples.percentage Max percentage of samples with gene expression as 0.
+#' @noRd
+filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
+    genes.keep <- (rowSums(exp == 0) / ncol(exp) <= max.samples.percentage) %>% which %>% names
+    message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
+    exp[genes.keep,]
+}

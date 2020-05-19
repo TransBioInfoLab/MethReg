@@ -59,8 +59,7 @@ cor_region_dnam_target_gene <- function(
 
     # remove links with RNA expression equal to 0 for more than 25% of the samples
     message("Removing genes with RNA expression equal to 0 for more than 25% of the samples")
-    genes.keep <- (rowSums(exp == 0) / ncol(exp) < 0.25) %>% which %>% names
-    exp <- exp[genes.keep,]
+    exp <- filter_genes_zero_expression(exp, 0.25)
 
     regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
     dnam <- dnam[regions.keep,]

@@ -67,7 +67,7 @@ plot_interaction_model <-  function(triplet.results,
                 color <- colnames(metadata)[1]
             }
 
-            plots <- get_plot_results(df,row.triplet,color)
+            plots <- get_plot_results(df, row.triplet, color)
 
             # Reformat p-values for better looking on the plots
             for(idx in grep("pval|fdr|value",colnames(row.triplet))) {

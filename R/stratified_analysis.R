@@ -122,15 +122,42 @@ stratified_model <- function(
             results.high.estimate <- results.high[-1,1,drop = F] %>% t %>% as.data.frame()
             colnames(results.high.estimate) <- paste0("DNAmhigh_estimate_",colnames(results.high.estimate))
 
+            class <- getClassification(results.low.estimate, results.high.estimate)
+
             out <- cbind(
                 results.low.pval,
                 results.low.estimate,
                 results.high.pval,
-                results.high.estimate
+                results.high.estimate,
+                class$TF,
+                class$DNAm
             ) %>% data.frame()
 
         }, .progress = "time", .parallel = parallel)
 
     return(out)
+}
+
+getClassification <- function(low.estimate, high.estimate){
+
+    estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
+    print(estimate.vector)
+    slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]
+    TFclass <- ifelse(slope_estimate > 0, "Activator", "Repressor")
+
+    if(TFclass == "Repressor") {
+        if(low.estimate < high.estimate) {
+            DNAmClass <- "M-minus"
+        } else {
+            DNAmClass <- "M-plus"
+        }
+    } else {
+        if(low.estimate < high.estimate) {
+            DNAmClass <- "M-plus"
+        } else {
+            DNAmClass <- "M-minus"
+        }
+    }
+    return(list("DNAm" = DNAmClass,"TF" = TFclass))
 }
 

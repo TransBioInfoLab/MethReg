@@ -171,6 +171,15 @@ get_gene_information <- function(genome = "hg38", as.granges = FALSE){
 
 
 check_data <- function(dnam, exp, metadata){
+
+    if(!is(dnam,"matrix")) {
+        stop("DNA methylation should be a matrix object")
+    }
+
+    if(!is(exp,"matrix")) {
+        stop("Gene expression data should be a matrix object")
+    }
+
     if(ncol(dnam) != ncol(exp)){
         stop("DNA methylation and gene expression do not has the same number of samples")
     }

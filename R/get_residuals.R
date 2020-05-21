@@ -14,8 +14,9 @@
 #' gene.exp.residuals <- get_residuals(gene.exp.chr21[1:3,], metadata)
 #' @export
 #' @importFrom stats residuals na.exclude na.omit
-get_residuals <- function(data.matrix,
-                          metadata
+get_residuals <- function(
+    data.matrix,
+    metadata
 ){
 
     if(missing(data.matrix)) stop("Please data.matrix dnam argument with a matrix")
@@ -44,5 +45,5 @@ get_residuals <- function(data.matrix,
         }, .progress = "time",.inform = TRUE,.id = NULL)
     rownames(resid) <- rownames(data.matrix)
     colnames(resid) <- colnames(data.matrix)
-    return(resid)
+    return(resid %>% as.matrix())
 }

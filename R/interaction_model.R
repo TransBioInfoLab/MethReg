@@ -218,8 +218,8 @@ interaction_model <- function(
                                         "Zero-inflated Count Data Regression",
                                         "Robust Fitting of Linear Models")
                          ),
-                         "Percente 0 target genes (All samples)" = paste0(pct.zeros.in.samples," %"),
-                         "Percente 0 target genes (Quantiles)" = paste0(pct.zeros.in.quant.samples," %")
+                         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
+                         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
             )
             out
         }, .progress = "time", .parallel = parallel, .inform = TRUE)

@@ -116,25 +116,6 @@ interaction_model <- function(
                 rna.tf = rna.tf %>% as.numeric
             )
 
-            # 2) fit linear model: target RNA ~ DNAm + RNA TF
-            rlm.bisquare <- rlm (
-                rna.target ~ met + rna.tf + rna.tf * met,
-                data = data,
-                psi = MASS::psi.bisquare,
-                maxit = 100) %>% summary %>% coef %>% data.frame
-
-
-            degrees.freedom.value <- nrow(data) - 4
-            rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
-
-            #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
-            all.pval <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
-            colnames(all.pval) <- paste0("pval_",colnames(all.pval))
-
-            all.estimate <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
-
-
             quant.met <-  quantile(data$met,na.rm = TRUE)
             quant.diff <- data.frame("met.q4_minus_q1" = quant.met[4] - quant.met[2])
 
@@ -144,29 +125,99 @@ interaction_model <- function(
             data.high.low <- data %>% dplyr::filter(met <= low.cutoff | met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff,0,1)
 
-            rlm.bisquare.quant <-   rlm (
-                rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
-                data = data.high.low,
-                psi = MASS::psi.bisquare,
-                maxit = 100) %>% summary %>% coef %>% data.frame
 
-            degrees.freedom.value <- nrow(data.high.low) - 4
-            rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value), df = degrees.freedom.value) )
+            if(0 %in% c(data$rna.target)){
 
-            quant.pval <- rlm.bisquare.quant[-1,4,drop = F] %>%
-                t %>%
-                as.data.frame()
-            colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
+                zinb <- pscl::zeroinfl(
+                    trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
+                    data = data,
+                    dist = "negbin",
+                    EM = FALSE) %>% summary %>% coef
+                zinb <- zinb$count %>% data.frame
 
-            quant.estimate <- rlm.bisquare.quant[-1,1,drop = F] %>%
-                t %>%
-                as.data.frame()
-            colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
+                all.pval <- zinb[c(-1,-5),4,drop = F] %>% t %>% as.data.frame()
+                colnames(all.pval) <- paste0("pval_",colnames(all.pval))
 
+                all.estimate <- zinb[c(-1,-5),1,drop = F] %>% t %>% as.data.frame()
+                colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
+
+            } else {
+                # 2) fit linear model: target RNA ~ DNAm + RNA TF
+                rlm.bisquare <- rlm (
+                    rna.target ~ met + rna.tf + rna.tf * met,
+                    data = data,
+                    psi = MASS::psi.bisquare,
+                    maxit = 100) %>% summary %>% coef %>% data.frame
+
+                degrees.freedom.value <- nrow(data) - 4
+                rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
+
+                #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
+                all.pval <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
+                colnames(all.pval) <- paste0("pval_",colnames(all.pval))
+
+                all.estimate <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
+                colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
+
+            }
+
+            if(0 %in% c(data.high.low$rna.target)){
+                print(data.high.low)
+                zinb.quant <- pscl::zeroinfl(
+                    trunc(rna.target) ~ metGrp + rna.tf + metGrp * rna.tf | 1,
+                    data = data.high.low,
+                    dist = "negbin",
+                    EM = FALSE) %>% summary %>% coef
+                zinb.quant <- zinb.quant$count %>% data.frame
+                print(zinb)
+                quant.pval <- zinb.quant[c(-1,-5),4,drop = F] %>%
+                    t %>%
+                    as.data.frame()
+                colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
+
+                quant.estimate <- zinb.quant[c(-1,-5),1,drop = F] %>%
+                    t %>%
+                    as.data.frame()
+                colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
+            } else {
+
+                rlm.bisquare.quant <-   rlm (
+                    rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
+                    data = data.high.low,
+                    psi = MASS::psi.bisquare,
+                    maxit = 100) %>% summary %>% coef %>% data.frame
+
+                degrees.freedom.value <- nrow(data.high.low) - 4
+                rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value), df = degrees.freedom.value) )
+
+                quant.pval <- rlm.bisquare.quant[-1,4,drop = F] %>%
+                    t %>%
+                    as.data.frame()
+                colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
+
+                quant.estimate <- rlm.bisquare.quant[-1,1,drop = F] %>%
+                    t %>%
+                    as.data.frame()
+                colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
+
+            }
             out <- cbind(all.pval,
                          all.estimate,
+                         data.frame(
+                             "Model interaction" =
+                                 ifelse(0 %in% c(data$rna.target),
+                                        "Zero-inflated Count Data Regression",
+                                        "Robust Fitting of Linear Models")
+                         ),
                          quant.diff,
-                         quant.pval, quant.estimate
+                         quant.pval,
+                         quant.estimate,
+                         data.frame(
+                             "Model quantile" =
+                                 ifelse(0 %in% c(data.high.low$rna.target),
+                                        "Zero-inflated Count Data Regression",
+                                        "Robust Fitting of Linear Models")
+                         )
             )
             out
         }, .progress = "time", .parallel = parallel, .inform = TRUE)

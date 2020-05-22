@@ -80,8 +80,8 @@ interaction_model <- function(
     }
 
     # remove triplet with RNA expression equal to 0 for more than 25% of the samples
-    message("Removing triplet with RNA expression equal to 0 for more than 25% of the samples")
-    exp <- filter_genes_zero_expression(exp, max.samples.percentage = 0.25)
+    # message("Removing triplet with RNA expression equal to 0 for more than 25% of the samples")
+    # exp <- filter_genes_zero_expression(exp, max.samples.percentage = 0.25)
 
     message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
@@ -125,8 +125,8 @@ interaction_model <- function(
             data.high.low <- data %>% dplyr::filter(met <= low.cutoff | met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff,0,1)
 
-
-            if(0 %in% c(data$rna.target)){
+            pct.zeros.in.samples <- sum(data$rna.target == 0)/ nrow(data)
+            if(pct.zeros.in.samples > 0.25){
 
                 zinb <- pscl::zeroinfl(
                     trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
@@ -161,15 +161,15 @@ interaction_model <- function(
 
             }
 
-            if(0 %in% c(data.high.low$rna.target)){
-                print(data.high.low)
+            pct.zeros.in.quant.samples <- sum(data.high.low$rna.target == 0)/ nrow(data.high.low)
+
+            if(pct.zeros.in.quant.samples > 0.25){
                 zinb.quant <- pscl::zeroinfl(
                     trunc(rna.target) ~ metGrp + rna.tf + metGrp * rna.tf | 1,
                     data = data.high.low,
                     dist = "negbin",
                     EM = FALSE) %>% summary %>% coef
                 zinb.quant <- zinb.quant$count %>% data.frame
-                print(zinb)
                 quant.pval <- zinb.quant[c(-1,-5),4,drop = F] %>%
                     t %>%
                     as.data.frame()
@@ -181,7 +181,7 @@ interaction_model <- function(
                 colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
             } else {
 
-                rlm.bisquare.quant <-   rlm (
+                rlm.bisquare.quant <- rlm (
                     rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
                     data = data.high.low,
                     psi = MASS::psi.bisquare,
@@ -205,7 +205,7 @@ interaction_model <- function(
                          all.estimate,
                          data.frame(
                              "Model interaction" =
-                                 ifelse(0 %in% c(data$rna.target),
+                                 ifelse(pct.zeros.in.samples > 0.25,
                                         "Zero-inflated Count Data Regression",
                                         "Robust Fitting of Linear Models")
                          ),
@@ -214,10 +214,12 @@ interaction_model <- function(
                          quant.estimate,
                          data.frame(
                              "Model quantile" =
-                                 ifelse(0 %in% c(data.high.low$rna.target),
+                                 ifelse(pct.zeros.in.quant.samples > 0.25,
                                         "Zero-inflated Count Data Regression",
                                         "Robust Fitting of Linear Models")
-                         )
+                         ),
+                         "Percente 0 target genes (All samples)" = paste0(pct.zeros.in.samples," %"),
+                         "Percente 0 target genes (Quantiles)" = paste0(pct.zeros.in.quant.samples," %")
             )
             out
         }, .progress = "time", .parallel = parallel, .inform = TRUE)

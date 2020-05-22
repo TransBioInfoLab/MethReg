@@ -315,7 +315,7 @@ results %>% dplyr::select(
 To select significant DNAm by TF intereaction from both models, you can subset the results
 using the p-value from each linear model.
 
-```{r, include = FALSE, eval = FALSE}
+```{r, include = FALSE, eval = TRUE}
 results.sig <- results %>% dplyr::filter(`pval_met:rna.tf` < 0.05 & `quant_pval_metGrp:rna.tf` < 0.05)
 ```
 
@@ -339,6 +339,9 @@ results.stratified.model <- stratified_model(
     dnam = dna.met.chr21,
     exp = gene.exp.chr21
 )
+```
+
+```{R}
 results.stratified.model %>% head
 ```
 
@@ -375,11 +378,9 @@ decreased gene expression (a repressor TF). On the other hand, when DNA methylat
 level is high, target gene expression is relatively independent of the amount of TF available. 
 One possibility is that DNA methylation might affect TF binding in this case. 
 
-
 If you want to highlight different group of samples, you can also use the metadata argument
 with a dataframe with rownames as samples (same order as the columns of the 
 DNAm and gene expression), and a column highlighting the groups.
-
 
 ```{R, message = TRUE, results = "hide"}
 data("clinical")
@@ -399,7 +400,6 @@ plots <- plot_stratified_model(
 ```{R, fig.height = 14, fig.width = 12, eval = FALSE}
 plots[[1]]
 ```
-
 
 # 5. Results interpretation
 
@@ -532,7 +532,7 @@ data("gene.exp.chr21")
 data("clinical")
 metadata <- clinical[,c("sample_type","gender")]
 
-gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21[1:250,], metadata)
+gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21[1:250,], metadata) %>% as.matrix()
 ```
 
 ```{R, eval = TRUE}
@@ -542,7 +542,7 @@ gene.exp.chr21.residuals[1:5,1:5]
 ```{R, results = "hide", eval = TRUE}
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
-dna.met.chr21.residuals <- get_residuals(dna.met.chr21[1:5,],metadata)
+dna.met.chr21.residuals <- get_residuals(dna.met.chr21[1:5,],metadata) %>% as.matrix()
 ```
 
 ```{R, eval = TRUE}

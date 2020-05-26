@@ -141,7 +141,6 @@ stratified_model <- function(
 getClassification <- function(low.estimate, high.estimate){
 
     estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
-    print(estimate.vector)
     slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]
     TFclass <- ifelse(slope_estimate > 0, "Activator", "Repressor")
 

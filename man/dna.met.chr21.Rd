@@ -5,10 +5,8 @@
 \alias{dna.met.chr21}
 \title{TCGA-COAD DNA methylation matrix for 38 samples (only chrmossome 21)
 Retrieved from GDC using TCGAbiolinks}
-\format{
-A matrix with 38 samples, includes CpG IDs in the rows and
-TCGA sample identifiers in the columns
-}
+\format{A matrix with 38 samples, includes CpG IDs in the rows and
+TCGA sample identifiers in the columns}
 \description{
 TCGA-COAD DNA methylation matrix for 38 samples (only chrmossome 21)
 Retrieved from GDC using TCGAbiolinks

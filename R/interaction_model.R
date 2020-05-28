@@ -1,42 +1,56 @@
-#' @title Fits robust linear models with interaction to triplet data (Target, TF, DNAm)
+#' @title Fits linear models with interaction to triplet data (Target, TF, DNAm)
 #' @description Identify DNA methylation (DNAm) changes that work synergistically with TFs in regulating
-#' target gene expression.
+#' target gene expression, by fitting robust linear model or zero inflated negative binomial model to triplet data.
 #' @param triplet Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)
 #' @param dnam DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
-#' @param exp A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
+#' @param exp A log2 (gene expression count + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
-#' @return A dataframe with Region, TF, Estimates and P-values, after fitting robust linear
-#' models using two approaches(see Details above).
+#' @return A dataframe with Region, TF, target, TF_symbo, target_symbol, estimates and P-values,
+#' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
-#' Approch 1 (considering DNAm values as a continuous variable) generates \code{pval_met, pval_rna.tf, pval_met.rna.tf
-#' and estimates_met, estimates_rna.tf, estimates_met.rna.tf}. Approach 2 (considering DNAm values as a binary variable)
+#' Model 1 (considering DNAm values as a continuous variable) generates \code{pval_met, pval_rna.tf, pval_met.rna.tf
+#' and estimates_met, estimates_rna.tf, estimates_met.rna.tf}.
+#' Model 2 (considering DNAm values as a binary variable)
 #' generates \code{quant_pval_metGrp, quant_pval_rna.tf, quant_pval_metGrp.rna.tf,
 #' quant_estimates_metGrp, quant_estimates_rna.tf, quant_estimates_metGrp.rna.tf}
 #'
-#' @details This function fits robust linear model
+#' \code{Model.interaction} indicates which model (robust linear model or zero inflated model)
+#' was used to fit Model 1, and \code{Model.quantile} indicates which model was used to fit Model 2.
+#'
+#'@details This function fits the linear model
 #'
 #' \code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
 #'
-#' The robust linear model, implemented using \code{rlm} function from \code{MASS},
-#' gives outlier gene expression values reduced weight. We used \code{"psi.bisqure"}
-#' option in function \code{rlm} (bisquare weighting,
-#' https://stats.idre.ucla.edu/r/dae/robust-regression/).
+#' to triplet data in two ways:
 #'
-#' The above linear model were fit to triplet data frame in two ways:
+#' Model 1 : by considering \code{DNAm} as a continuous variable
 #'
-#' Model 1 : by considering DNAm as a continuous variable
-#'
-#' Model 2:  by considering DNAm as a binary variable - we defined a binary group for
+#' Model 2:  by considering \code{DNAm} as a binary variable - we defined a binary group for
 #' DNA methylation values (high = 1, low = 0). That is, samples with the highest
 #' DNAm levels (top 25 percent) has high = 1, samples with lowest
 #' DNAm levels (bottom 25 pecent) has high = 0. Note that in this
 #' implementation, only samples wih DNAm values in the first and last quartiles
 #' are considered.
 #'
-#' Note that only genes with at least 75 percent of non-zero values will be evaluated.
+#' We can then identify significant DNAm by TF interactions by selecting those that are significant in both
+#' Model 1 and Model 2.
 #'
-#' We can identify significant DNAm by TF interactions by selecting those that are significant in both models.
+#' There are two implementations of these models, depending on whether there are an excessive
+#' percent (i.e. > 25 pct) of samples with zero counts in RNAseq data:
+#'
+#' \itemize{
+#' \item When percent of zeros in RNAseq data is less than
+#' 25 pct, robust linear models are implemented using \code{rlm} function from \code{MASS} package. This
+#' gives outlier gene expression values reduced weight. We used \code{"psi.bisqure"}
+#' option in function \code{rlm} (bisquare weighting,
+#' https://stats.idre.ucla.edu/r/dae/robust-regression/).
+#'
+#' \item When percent of zeros in RNAseq data is more than 25 pct, zero inflated negative binomial models
+#' are implemented using \code{zeroinfl} function from \code{pscl} package. This assumes there are
+#' two processes that generated zeros (1) one where the counts are always zero
+#' (2) another where the count follows a negative binomial distribution.
+#' }
 #'
 #' To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 #' RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
@@ -206,8 +220,8 @@ interaction_model <- function(
                          data.frame(
                              "Model interaction" =
                                  ifelse(pct.zeros.in.samples > 0.25,
-                                        "Zero-inflated Count Data Regression",
-                                        "Robust Fitting of Linear Models")
+                                        "Zero-inflated Negative Binomial Model",
+                                        "Robust Linear Model")
                          ),
                          quant.diff,
                          quant.pval,
@@ -215,8 +229,8 @@ interaction_model <- function(
                          data.frame(
                              "Model quantile" =
                                  ifelse(pct.zeros.in.quant.samples > 0.25,
-                                        "Zero-inflated Count Data Regression",
-                                        "Robust Fitting of Linear Models")
+                                        "Zero-inflated Negative Binomial Model",
+                                        "Robust Linear Model")
                          ),
                          "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
                          "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")

@@ -156,7 +156,12 @@ stratified_model_aux <- function(data, prefix = ""){
 
     return(
         list("estimate" = results.estimate,
-             "pval" = results.pval)
+             "pval" = results.pval,
+             "Model" = ifelse(pct.zeros.samples > 0.25,
+                              "Zero-inflated Negative Binomial Model",
+                              "Robust Linear Model"),
+             "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100,digits = 2)," %")
+        )
     )
 }
 

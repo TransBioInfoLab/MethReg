@@ -4,7 +4,7 @@
 \alias{get_promoter_avg}
 \title{Access human TF from Lambert et al 2018}
 \usage{
-get_promoter_avg(dnam, genome, arrayType)
+get_promoter_avg(dnam, genome, arrayType, cores = 1)
 }
 \value{
 A list with a data frame of the new regions and merged ones,

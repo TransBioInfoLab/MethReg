@@ -50,8 +50,8 @@ stratified_model <- function(
 
     # remove triplet with RNA expression equal to 0 for more than 25% of the samples
     # remove triplet with RNA expression equal to 0 for more than 25% of the samples
-    message("Removing triplet with RNA expression equal to 0 for more than 25% of the samples")
-    exp <- filter_genes_zero_expression(exp,max.samples.percentage = 0.25)
+    # message("Removing triplet with RNA expression equal to 0 for more than 25% of the samples")
+    exp <- filter_genes_zero_expression(exp,max.samples.percentage = 0)
 
     message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
@@ -92,35 +92,14 @@ stratified_model <- function(
             data.low <- data %>% dplyr::filter(met <= low.cutoff)
             data.high <- data %>% dplyr::filter(met >= upper.cutoff)
 
-            results.low <- MASS::rlm(
-                rna.target ~ rna.tf,
-                data = data.low,
-                psi = MASS::psi.bisquare,
-                maxit = 100) %>% summary %>% coef %>% data.frame
 
-            degrees.freedom.value <- nrow(data.low) - 2
-            results.low$pval <- 2 * (1 - pt( abs(results.low$t.value), df = degrees.freedom.value) )
+            results.low <- stratified_model_aux(data.low,"DNAmlow")
+            results.low.pval <- results.low$pval
+            results.low.estimate <- results.low$estimate
 
-            results.low.pval <- results.low[-1,4,drop = F] %>% t %>% as.data.frame()
-            colnames(results.low.pval) <- paste0("DNAmlow_pval_",colnames(results.low.pval))
-
-            results.low.estimate <- results.low[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(results.low.estimate) <- paste0("DNAmlow_estimate_",colnames(results.low.estimate))
-
-            results.high <- MASS::rlm(
-                rna.target ~ rna.tf,
-                data = data.high,
-                psi = MASS::psi.bisquare,
-                maxit = 100) %>% summary %>% coef %>% data.frame
-
-            degrees.freedom.value <- nrow(data.high) - 2
-            results.high$pval <- 2 * (1 - pt( abs(results.high$t.value), df = degrees.freedom.value) )
-
-            results.high.pval <- results.high[-1,4,drop = F] %>% t %>% as.data.frame()
-            colnames(results.high.pval) <- paste0("DNAmhigh_pval_",colnames(results.high.pval))
-
-            results.high.estimate <- results.high[-1,1,drop = F] %>% t %>% as.data.frame()
-            colnames(results.high.estimate) <- paste0("DNAmhigh_estimate_",colnames(results.high.estimate))
+            results.high <- stratified_model_aux(data.high,"DNAmhigh")
+            results.high.pval <- results.high$pval
+            results.high.estimate <- results.high$pval
 
             class <- getClassification(results.low.estimate, results.high.estimate)
 
@@ -136,6 +115,49 @@ stratified_model <- function(
         }, .progress = "time", .parallel = parallel)
 
     return(out)
+}
+
+stratified_model_aux <- function(data, prefix = ""){
+    pct.zeros.samples <- sum(data$rna.target == 0) / nrow(data)
+
+    if (pct.zeros.samples > 0.25) {
+        print(data)
+        results <- pscl::zeroinfl(
+            trunc(rna.target) ~ rna.tf | 1,
+            data = data,
+            dist = "negbin",
+            EM = FALSE) %>% summary %>% coef
+        results <- results$count %>% data.frame
+        results.pval <- results[c(-1,-5),4,drop = F] %>%
+            t %>%
+            as.data.frame()
+        colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
+
+        results.estimate <- results[c(-1,-5),1,drop = F] %>%
+            t %>%
+            as.data.frame()
+        colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
+    } else {
+        results <- MASS::rlm(
+            rna.target ~ rna.tf,
+            data = data,
+            psi = MASS::psi.bisquare,
+            maxit = 100) %>% summary %>% coef %>% data.frame
+
+        degrees.freedom.value <- nrow(data) - 2
+        results$pval <- 2 * (1 - pt( abs(results$t.value), df = degrees.freedom.value) )
+
+        results.pval <- results[-1,4,drop = F] %>% t %>% as.data.frame()
+        colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
+
+        results.estimate <- results[-1,1,drop = F] %>% t %>% as.data.frame()
+        colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
+    }
+
+    return(
+        list("estimate" = results.estimate,
+             "pval" = results.pval)
+    )
 }
 
 getClassification <- function(low.estimate, high.estimate){

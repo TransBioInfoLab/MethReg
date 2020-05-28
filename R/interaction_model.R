@@ -81,7 +81,7 @@ interaction_model <- function(
 
     # remove triplet with RNA expression equal to 0 for more than 25% of the samples
     # message("Removing triplet with RNA expression equal to 0 for more than 25% of the samples")
-    # exp <- filter_genes_zero_expression(exp, max.samples.percentage = 0.25)
+    exp <- filter_genes_zero_expression(exp, max.samples.percentage = 0)
 
     message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names

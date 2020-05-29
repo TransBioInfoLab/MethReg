@@ -4,7 +4,7 @@
 #' (i.e. +/- 250kbp from start or end of the region)).
 #' @param regions.gr A Genomic Ranges objec GRanges
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How regions are mapped to genes: closest gene ("closest.gene"); or
+#' @param method How regions are mapped to genes: closest gene promoter ("closest.gene"); or
 #' genes within a window around the region ("window").
 #' @param window.width When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
@@ -50,12 +50,24 @@ get_region_target_gene <- function(
 
     if(method == "closest.gene"){
 
-        # Get transcripts information
-        tssAnnot <- ELMER::getTSS(genome = genome)
+        # Get gene information
+        tssAnnot <-   get_gene_information(genome = genome,as.granges = TRUE) %>%
+            promoters(upstream = 2000, downstream = 2000) # get gene promoter
 
-        neargenes <- tssAnnot[nearest(regions.gr,tssAnnot)] %>% as.data.frame()
+        # overlap region and promoter
+        neargenes <- tssAnnot[
+            subjectHits(
+                nearest(regions.gr,tssAnnot, ignore.strand = TRUE,select = "all"))
+            ] %>%
+            as.data.frame()
 
-        distance.region.tss <- values(distanceToNearest(regions.gr, tssAnnot))$distance
+        distance.region.tss <- values(
+            distanceToNearest(
+                regions.gr,
+                tssAnnot,
+                ignore.strand = TRUE,
+                select = "all")
+        )$distance
 
         neargenes <- cbind(
             neargenes[,c("seqnames",
@@ -69,12 +81,7 @@ get_region_target_gene <- function(
         colnames(neargenes)[4] <- "target_gene_name"
         colnames(neargenes)[5] <- "target"
 
-        regionID <- paste0(
-            regions.gr %>% seqnames %>% as.character(),
-            ":",
-            regions.gr %>% start,
-            "-",
-            regions.gr %>% end)
+        regionID <- paste0(neargenes$gene_chrom,":",neargenes$gene_start,"-",neargenes$gene_end)
         out <- dplyr::bind_cols(
             data.frame("regionID" = regionID, stringsAsFactors = FALSE),
             neargenes

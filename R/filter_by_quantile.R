@@ -1,8 +1,9 @@
-#' @title Filter regions with high DNA methylation variance
-#' @description For each region, compares the mean DNA methylation of samples in high (Q4) vs. low (Q1)
-#' and requires difference to be above a certain threshold.
+#' @title Select regions with variations in DNA methylation levels above a threshold
+#' @description For each region, compares the mean DNA methylation (DNAm) levels in samples with
+#' high DNAm  (Q4) vs. low DNAm (Q1)
+#' and requires the difference to be above a threshold.
 #' @param dnam DNA methylation matrix
-#' @param diff.mean.th Diff. mean Threshold between samples in Q4 and Q1
+#' @param diff.mean.th Threshold for difference in mean DNAm levels for samples in Q4 and Q1
 #' @param cores Number of CPU cores to be used in the analysis. Default: 1
 #' @export
 #' @examples
@@ -34,11 +35,12 @@ filter_regions_by_mean_quantile_difference <- function(dnam, diff.mean.th = 0.2,
 }
 
 
-#' @title Filter regions with high DNA methylation variance
-#' @description For each region, compares the mean DNA methylation of samples in high (Q4) vs. low (Q1)
-#' and requires difference to be above a certain threshold.
-#' @param dnam DNA methylation matrix
-#' @param fold.change Mean fold change threshold between samples in Q4 and Q1. Default 1.5
+#' @title Select genes with variations above a threshold
+#' @description For each gene, compares the mean gene expression levels in samples in high expression (Q4)
+#' vs. samples with low gene expression (Q1), and requires the fold change to be above a certain threshold.
+#' @param exp Gene expression matrix
+#' @param fold.change Threshold for fold change of mean gene expresison levels in samples with high
+#' (Q4) and low (Q1) gene expression levels. Defaults to 1.5.
 #' @param cores Number of CPU cores to be used in the analysis. Default: 1
 #' @export
 #' @examples
@@ -71,9 +73,9 @@ filter_genes_by_quantile_mean_fold_change <- function(exp, fold.change = 1.5, co
 }
 
 
-#' @title Remove genes with gene expression 0 in more than 25% of the samples
+#' @title Remove genes with gene expression level equal to 0 in a substantial percentage of the samples
 #' @param exp Gene expression matrix
-#' @param max.samples.percentage Max percentage of samples with gene expression as 0.
+#' @param max.samples.percentage Max percentage of samples with gene expression as 0, for genes to be selected.
 #' @noRd
 filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
     genes.keep <- (rowSums(exp == 0) / ncol(exp) <= max.samples.percentage) %>% which %>% names

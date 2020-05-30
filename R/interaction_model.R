@@ -6,17 +6,18 @@
 #' @param exp A log2 (gene expression count + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
-#' @return A dataframe with Region, TF, target, TF_symbo, target_symbol, estimates and P-values,
+#' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
-#' Model 1 (considering DNAm values as a continuous variable) generates \code{pval_met, pval_rna.tf, pval_met.rna.tf
-#' and estimates_met, estimates_rna.tf, estimates_met.rna.tf}.
+#' Model 1 (considering DNAm values as a continuous variable) generates \code{pval_met}, \code{pval_rna.tf},
+#' \code{pval_met.rna.tf} and \code{estimates_met}, \code{estimates_rna.tf}, \code{estimates_met.rna.tf}.
 #' Model 2 (considering DNAm values as a binary variable)
-#' generates \code{quant_pval_metGrp, quant_pval_rna.tf, quant_pval_metGrp.rna.tf,
-#' quant_estimates_metGrp, quant_estimates_rna.tf, quant_estimates_metGrp.rna.tf}
+#' generates \code{quant_pval_metGrp}, \code{quant_pval_rna.tf}, \code{quant_pval_metGrp.rna.tf},
+#' \code{quant_estimates_metGrp}, \code{quant_estimates_rna.tf}, \code{quant_estimates_metGrp.rna.tf}
 #'
 #' \code{Model.interaction} indicates which model (robust linear model or zero inflated model)
-#' was used to fit Model 1, and \code{Model.quantile} indicates which model was used to fit Model 2.
+#' was used to fit Model 1, and \code{Model.quantile} indicates which model(robust linear model or zero
+#' inflated model) was used to fit Model 2.
 #'
 #'@details This function fits the linear model
 #'
@@ -37,16 +38,16 @@
 #' Model 1 and Model 2.
 #'
 #' There are two implementations of these models, depending on whether there are an excessive
-#' percent (i.e. > 25 pct) of samples with zero counts in RNAseq data:
+#' amount (i.e. more than 25 percent) of samples with zero counts in RNAseq data:
 #'
 #' \itemize{
 #' \item When percent of zeros in RNAseq data is less than
-#' 25 pct, robust linear models are implemented using \code{rlm} function from \code{MASS} package. This
+#' 25 percent, robust linear models are implemented using \code{rlm} function from \code{MASS} package. This
 #' gives outlier gene expression values reduced weight. We used \code{"psi.bisqure"}
 #' option in function \code{rlm} (bisquare weighting,
 #' https://stats.idre.ucla.edu/r/dae/robust-regression/).
 #'
-#' \item When percent of zeros in RNAseq data is more than 25 pct, zero inflated negative binomial models
+#' \item When percent of zeros in RNAseq data is more than 25 percent, zero inflated negative binomial models
 #' are implemented using \code{zeroinfl} function from \code{pscl} package. This assumes there are
 #' two processes that generated zeros (1) one where the counts are always zero
 #' (2) another where the count follows a negative binomial distribution.

@@ -5,10 +5,8 @@
 \alias{gene.exp.chr21}
 \title{TCGA-COAD gene expression matrix for 38 samples (only chrmossome 21)
 Retrieved from GDC using TCGAbiolinks}
-\format{
-A matrix with 38 samples, includes Ensembl IDs in the rows and
-TCGA sample identifiers in the columns
-}
+\format{A matrix with 38 samples, includes Ensembl IDs in the rows and
+TCGA sample identifiers in the columns}
 \description{
 TCGA-COAD gene expression matrix for 38 samples (only chrmossome 21)
 Retrieved from GDC using TCGAbiolinks

@@ -80,7 +80,7 @@ stratified_model <- function(
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
-    message("Removing triplet with RNA expression equal to 0 for all samples")
+    message("Removing genes with RNA expression equal to 0 for all samples from triplets")
     exp <- filter_genes_zero_expression_all_samples(exp)
 
     message("Removing triplet with no DNA methylation information for more than 25% of the samples")

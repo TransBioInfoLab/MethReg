@@ -89,8 +89,9 @@ stratified_model <- function(
 
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
-            .data$TF %in% rownames(exp) &
-            .data$regionID %in% rownames(dnam))
+        .data$TF %in% rownames(exp) &
+        .data$regionID %in% rownames(dnam)
+    )
 
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
@@ -132,7 +133,6 @@ stratified_model <- function(
             results.high.estimate <- results.high$estimate
 
             classification <- getClassification(results.low.estimate, results.high.estimate)
-
             out <- cbind(
                 results.low.pval,
                 results.low.estimate,
@@ -141,8 +141,8 @@ stratified_model <- function(
                 "TF.affinity" = classification$TF.affinity,
                 "TF.role" = classification$TF.role
             ) %>% as.data.frame()
-
-        }, .progress = "time", .parallel = parallel)
+            out
+        }, .progress = "time", .parallel = parallel, .inform = TRUE)
 
     return(out)
 }
@@ -151,19 +151,19 @@ stratified_model_aux <- function(data, prefix = ""){
     pct.zeros.samples <- sum(data$rna.target == 0) / nrow(data)
 
     if (pct.zeros.samples > 0.25) {
-        print(data)
         results <- pscl::zeroinfl(
             trunc(rna.target) ~ rna.tf | 1,
             data = data,
             dist = "negbin",
             EM = FALSE) %>% summary %>% coef
         results <- results$count %>% data.frame
-        results.pval <- results[c(-1,-5),4,drop = F] %>%
+
+        results.pval <- results[c(-1,-3),4,drop = F] %>%
             t %>%
             as.data.frame()
         colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
 
-        results.estimate <- results[c(-1,-5),1,drop = F] %>%
+        results.estimate <- results[c(-1,-3),1,drop = F] %>%
             t %>%
             as.data.frame()
         colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
@@ -190,7 +190,7 @@ stratified_model_aux <- function(data, prefix = ""){
              "Model" = ifelse(pct.zeros.samples > 0.25,
                               "Zero-inflated Negative Binomial Model",
                               "Robust Linear Model"),
-             "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100,digits = 2)," %")
+             "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
         )
     )
 }

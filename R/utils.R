@@ -148,6 +148,7 @@ get_gene_information_biomart <- function(genome = "hg38"){
 }
 
 
+#' @export
 get_gene_information <- function(genome = "hg38", as.granges = FALSE){
     if(genome == "hg19"){
         gene.location <- get(data(Human_genes__GRCh37_p13,package = "ELMER.data",envir = environment()))

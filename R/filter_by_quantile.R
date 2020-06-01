@@ -82,3 +82,19 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
     message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
     exp[genes.keep,]
 }
+
+
+#' @title Remove genes with gene expression level equal to 0 in a substantial percentage of the samples
+#' @param exp Gene expression matrix
+#' @param max.samples.percentage Max percentage of samples with gene expression as 0, for genes to be selected.
+#' @noRd
+#' @examples
+#' data("gene.exp.chr21")
+#' gene.exp.chr21.filtered <- filter_genes_zero_expression_all_samples(gene.exp.chr21)
+filter_genes_zero_expression_all_samples <- function(exp){
+    genes.keep <- rownames(exp)[rowSums(exp == 0) < ncol(exp)]
+    if(length(genes.keep) < nrow(exp)){
+        message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
+    }
+    exp <- exp[genes.keep,]
+}

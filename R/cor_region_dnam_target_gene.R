@@ -58,8 +58,8 @@ cor_region_dnam_target_gene <- function(
     if(!all(c("target","regionID") %in% colnames(links))) stop("links object must have target and regionID columns")
 
     # remove links with RNA expression equal to 0 for more than 25% of the samples
-    message("Removing genes with RNA expression equal to 0 for more than 25% of the samples")
-    exp <- filter_genes_zero_expression(exp, 0.25)
+    message("Removing genes with RNA expression equal to 0 for all samples")
+    exp <- filter_genes_zero_expression_all_samples(exp)
 
     regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
     dnam <- dnam[regions.keep,]

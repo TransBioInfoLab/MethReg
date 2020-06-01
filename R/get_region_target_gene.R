@@ -62,8 +62,6 @@ get_region_target_gene <- function(
         # overlap region and promoter
         neargenes <- gene.info[subjectHits(hits)] %>% as.data.frame()
 
-
-
         distance.region.tss <- values(
             distanceToNearest(
                 regions.gr,

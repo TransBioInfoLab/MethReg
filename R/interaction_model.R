@@ -156,12 +156,18 @@ interaction_model <- function(
                 colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
 
             } else {
+
+                tryCatch({
+                    message("rlm")
                 # 2) fit linear model: target RNA ~ DNAm + RNA TF
                 rlm.bisquare <- rlm (
                     rna.target ~ met + rna.tf + rna.tf * met,
                     data = data,
                     psi = MASS::psi.bisquare,
                     maxit = 100) %>% summary %>% coef %>% data.frame
+                }, error = function(e){
+                    return(NA)
+                })
 
                 degrees.freedom.value <- nrow(data) - 4
                 rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
@@ -195,11 +201,32 @@ interaction_model <- function(
                 colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
             } else {
 
-                rlm.bisquare.quant <- rlm (
+                rlm.bisquare.quant <- tryCatch({
+                    rlm (
                     rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
                     data = data.high.low,
                     psi = MASS::psi.bisquare,
                     maxit = 100) %>% summary %>% coef %>% data.frame
+                }, error = function(e){
+                    message(e)
+                    return(NULL)
+                })
+                if(is.null(rlm.bisquare.quant)){
+
+                    return(cbind("Model.interaction" = NA,
+                                 "met.q4_minus_q1" = NA,
+                                 "quant_pval_metGrp" = NA,
+                                 "quant_pval_rna.tf" = NA,
+                                 "quant_pval_metGrp:rna.tf" = NA,
+                                 "quant_estimate_metGrp" = NA,
+                                 "quant_estimate_rna.tf" = NA,
+                                 "quant_estimate_metGrp:rna.tf" = NA,
+                                 "Model.quantile" = NA,
+                                 "% 0 target genes (All samples)" = NA,
+                                 "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame)
+
+                    return(rep(NA,9) %>% t %>% data.frame)
+                }
 
                 degrees.freedom.value <- nrow(data.high.low) - 4
                 rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value), df = degrees.freedom.value) )
@@ -236,8 +263,12 @@ interaction_model <- function(
                          "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
             )
             out
-        }, .progress = "time", .parallel = parallel, .inform = TRUE)
+        },
+        .progress = "time",
+        .parallel = parallel,
+        .inform = FALSE,
+        .paropts = list(.errorhandling = 'pass'))
 
-    return(out)
+    return(out %>% na.omit())
 }
 

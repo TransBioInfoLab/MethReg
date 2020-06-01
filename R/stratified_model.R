@@ -48,10 +48,8 @@ stratified_model <- function(
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
-    # remove triplet with RNA expression equal to 0 for more than 25% of the samples
-    # remove triplet with RNA expression equal to 0 for more than 25% of the samples
-    # message("Removing triplet with RNA expression equal to 0 for more than 25% of the samples")
-    exp <- filter_genes_zero_expression(exp,max.samples.percentage = 0)
+    message("Removing triplet with RNA expression equal to 0 for all samples")
+    exp <- filter_genes_zero_expression(exp, max.samples.percentage = 0)
 
     message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
@@ -99,18 +97,18 @@ stratified_model <- function(
 
             results.high <- stratified_model_aux(data.high,"DNAmhigh")
             results.high.pval <- results.high$pval
-            results.high.estimate <- results.high$pval
+            results.high.estimate <- results.high$estimate
 
-            class <- getClassification(results.low.estimate, results.high.estimate)
+            classification <- getClassification(results.low.estimate, results.high.estimate)
 
             out <- cbind(
                 results.low.pval,
                 results.low.estimate,
                 results.high.pval,
                 results.high.estimate,
-                class$TF,
-                class$DNAm
-            ) %>% data.frame()
+                "TF.affinity" = classification$TF.affinity,
+                "TF.role" = classification$TF.role
+            ) %>% as.data.frame()
 
         }, .progress = "time", .parallel = parallel)
 
@@ -169,21 +167,21 @@ getClassification <- function(low.estimate, high.estimate){
 
     estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
     slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]
-    TFclass <- ifelse(slope_estimate > 0, "Activator", "Repressor")
+    TF.role <- ifelse(slope_estimate > 0, "Activator", "Repressor")
 
-    if(TFclass == "Repressor") {
+    if(TF.role == "Repressor") {
         if(low.estimate < high.estimate) {
-            DNAmClass <- "M-minus"
+            TF.affinity <- "M-minus"
         } else {
-            DNAmClass <- "M-plus"
+            TF.affinity <- "M-plus"
         }
     } else {
         if(low.estimate < high.estimate) {
-            DNAmClass <- "M-plus"
+            TF.affinity <- "M-plus"
         } else {
-            DNAmClass <- "M-minus"
+            TF.affinity <- "M-minus"
         }
     }
-    return(list("DNAm" = DNAmClass,"TF" = TFclass))
+    return(list("TF.affinity" = TF.affinity,"TF.role" = TF.role))
 }
 

@@ -12,6 +12,7 @@
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
 #' @importFrom ELMER getTSS
+#' @importFrom dplyr select
 #' @examples
 #' library(GenomicRanges)
 #' library(dplyr)
@@ -51,24 +52,27 @@ get_region_target_gene <- function(
     if(method == "closest.gene"){
 
         # Get gene information
-        tssAnnot <-   get_gene_information(genome = genome,as.granges = TRUE) %>%
-            promoters(upstream = 2000, downstream = 2000) # get gene promoter
+        gene.info <-   get_gene_information(genome = genome, as.granges = TRUE)
 
+        # get gene promoter
+        gene.promoters <-  gene.info %>% promoters(upstream = 2000, downstream = 2000)
+
+
+        hits <- nearest(regions.gr, gene.promoters, ignore.strand = TRUE,select = "all")
         # overlap region and promoter
-        neargenes <- tssAnnot[
-            subjectHits(
-                nearest(regions.gr,tssAnnot, ignore.strand = TRUE,select = "all"))
-            ] %>%
-            as.data.frame()
+        neargenes <- gene.info[subjectHits(hits)] %>% as.data.frame()
+
+
 
         distance.region.tss <- values(
             distanceToNearest(
                 regions.gr,
-                tssAnnot,
+                gene.promoters,
                 ignore.strand = TRUE,
                 select = "all")
         )$distance
 
+        regions.gr <- regions.gr[queryHits(hits)]
         neargenes <- cbind(
             neargenes[,c("seqnames",
                          "start",
@@ -81,7 +85,8 @@ get_region_target_gene <- function(
         colnames(neargenes)[4] <- "target_gene_name"
         colnames(neargenes)[5] <- "target"
 
-        regionID <- paste0(neargenes$gene_chrom,":",neargenes$gene_start,"-",neargenes$gene_end)
+        regionID <- regions.gr %>% as.data.frame %>% dplyr::select(1:3)
+        regionID <- paste0(regionID[[1]],":",regionID[[2]],"-",regionID[[3]])
         out <- dplyr::bind_cols(
             data.frame("regionID" = regionID, stringsAsFactors = FALSE),
             neargenes

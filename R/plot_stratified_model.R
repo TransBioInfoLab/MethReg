@@ -110,8 +110,8 @@ get_table_stratified_plot <- function(row.triplet){
               "target_symbol",
               "TF",
               "TF_symbol",
-              "class.TF",
-              "class.DNAm")
+              "TF.role",
+              "TF.affinity")
         ) %>% t() %>% as_tibble(rownames = "Variable")
 
     tab$Variable <- c(
@@ -120,8 +120,8 @@ get_table_stratified_plot <- function(row.triplet){
         "Target gene Symbol",
         "TF gene ID",
         "TF gene Symbol",
-        "Class TF",
-        "Class DNAm"
+        "TF role",
+        "TF affinity"
     )
     table.plot.metadata <- ggtexttable(
         tab,

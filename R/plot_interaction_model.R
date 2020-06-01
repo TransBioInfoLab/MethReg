@@ -306,6 +306,7 @@ get_table_plot_results <- function(row.triplet, type){
         pattern.pval <- "^DNAmhigh_pval"
         title <- "Target ~ TF\nDNAm high samples"
     }
+
     table.plot.estimate <- row.triplet[,grep(pattern.estimate,colnames(row.triplet),value = T),drop  = FALSE] %>%
         t() %>%
         as_tibble(rownames = "Variable")
@@ -318,12 +319,19 @@ get_table_plot_results <- function(row.triplet, type){
     table.plot.pval$Variable <- gsub(paste0(pattern.pval,"|_"),"",table.plot.pval$Variable)
     colnames(table.plot.pval)[2] <- "P-value"
 
-    table.plot <- merge(table.plot.estimate,table.plot.pval, by = "Variable",sort = FALSE)
-
-    table.plot.lm.all <- ggtexttable(table.plot,
-                                     rows = NULL,
-                                     cols = c(title,"Estimate","P-Values"),
-                                     theme = ttheme("mOrange", base_size = base_size)
+    table.plot <- merge(
+        table.plot.estimate,
+        table.plot.pval,
+        by = "Variable",
+        sort = FALSE
     )
+
+    table.plot.lm.all <- ggtexttable(
+        table.plot,
+        rows = NULL,
+        cols = c(title,"Estimate","P-Values"),
+        theme = ttheme("mOrange", base_size = base_size)
+    )
+
     table.plot.lm.all
 }

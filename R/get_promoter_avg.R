@@ -78,7 +78,7 @@ get_promoter_avg <- function(
 }
 
 
-#' @importFrom GenomicRanges promoters strand
+#' @importFrom GenomicRanges promoters strand strand<-
 get_promoter_regions <- function(
     genome,
     upstream = 2000,

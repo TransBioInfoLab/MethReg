@@ -7,6 +7,7 @@
 #' same order as gene expression.
 #' @param exp Gene expression matrix (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
 #' Samples should be in the same order as the DNA methylation matrix.
+#' @param filter.results Filter results using min.cor.pval and min.cor.estimate thresholds
 #' @param min.cor.pval Filter of significant correlations (default: 0.05)
 #' @param min.cor.estimate Filter of significant correlations (default: not applied)
 #' @param file.out If provided, name of a csv file which will be used to save the results.
@@ -46,6 +47,7 @@ cor_region_dnam_target_gene <- function(
     links,
     dnam,
     exp,
+    filter.results = TRUE,
     min.cor.pval = 0.05,
     min.cor.estimate = 0.0,
     file.out,
@@ -97,8 +99,10 @@ cor_region_dnam_target_gene <- function(
     correlation.df <- na.omit(correlation.df)
     correlation.df$met_exp_cor_fdr <- p.adjust(correlation.df$met_exp_cor_pvalue, method = "fdr")
 
-    correlation.df <- correlation.df %>%
-        dplyr::filter(.data$met_exp_cor_fdr <= min.cor.pval & abs(.data$met_exp_cor_estimate) >= min.cor.estimate)
+    if(filter.results){
+        correlation.df <- correlation.df %>%
+            dplyr::filter(.data$met_exp_cor_fdr <= min.cor.pval & abs(.data$met_exp_cor_estimate) >= min.cor.estimate)
+    }
 
     if(!missing(file.out)) readr::write_tsv(x = correlation.df, path = file.out)
 

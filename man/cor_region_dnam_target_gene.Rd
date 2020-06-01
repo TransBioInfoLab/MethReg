@@ -8,6 +8,7 @@ cor_region_dnam_target_gene(
   links,
   dnam,
   exp,
+  filter.results = TRUE,
   min.cor.pval = 0.05,
   min.cor.estimate = 0,
   file.out,
@@ -22,6 +23,8 @@ same order as gene expression.}
 
 \item{exp}{Gene expression matrix (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
 Samples should be in the same order as the DNA methylation matrix.}
+
+\item{filter.results}{Filter results using min.cor.pval and min.cor.estimate thresholds}
 
 \item{min.cor.pval}{Filter of significant correlations (default: 0.05)}
 

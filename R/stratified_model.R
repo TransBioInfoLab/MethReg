@@ -60,6 +60,7 @@
 #'                       "target" = rownames(gene.exp.chr21)[1:10])
 #' results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21)
 #' @export
+#' @importFrom tibble tibble
 #' @importFrom rlang .data
 stratified_model <- function(
     triplet,
@@ -133,15 +134,15 @@ stratified_model <- function(
             results.high.estimate <- results.high$estimate
 
             classification <- getClassification(results.low.estimate, results.high.estimate)
-            out <- cbind(
-                results.low.pval,
-                results.low.estimate,
-                results.high.pval,
-                results.high.estimate,
+
+            tibble::tibble(
+                "DNAmlow_pval_rna.tf" = results.low.pval %>% as.numeric(),
+                "DNAmlow_estimate_rna.tf" = results.low.estimate %>% as.numeric(),
+                "DNAmhigh_pval_rna.tf" = results.high.pval %>% as.numeric(),
+                "DNAmhigh_estimate_rna.tf" = results.high.estimate  %>% as.numeric(),
                 "TF.affinity" = classification$TF.affinity,
                 "TF.role" = classification$TF.role
-            ) %>% as.data.frame()
-            out
+            )
         }, .progress = "time", .parallel = parallel, .inform = TRUE)
 
     return(out)
@@ -210,10 +211,13 @@ stratified_model_aux <- function(data, prefix = ""){
 
 getClassification <- function(low.estimate, high.estimate){
 
-    if(is.na(low.estimate) | is.na(high.estimate))
-        return(list("TF.affinity" = NA,"TF.role" = NA))
 
     estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
+
+    if(any(is.na(estimate.vector))){
+        return(list("TF.affinity" = NA,"TF.role" = NA))
+    }
+
     slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]
     TF.role <- ifelse(slope_estimate > 0, "Activator", "Repressor")
 

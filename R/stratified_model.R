@@ -158,12 +158,12 @@ stratified_model_aux <- function(data, prefix = ""){
             EM = FALSE) %>% summary %>% coef
         results <- results$count %>% data.frame
 
-        results.pval <- results[c(-1,-3),4,drop = F] %>%
+        results.pval <- results["rna.tf",4,drop = F] %>%
             t %>%
             as.data.frame()
         colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
 
-        results.estimate <- results[c(-1,-3),1,drop = F] %>%
+        results.estimate <- results["rna.tf",1,drop = F] %>%
             t %>%
             as.data.frame()
         colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))

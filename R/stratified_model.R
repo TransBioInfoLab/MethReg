@@ -158,22 +158,35 @@ stratified_model_aux <- function(data, prefix = ""){
             EM = FALSE) %>% summary %>% coef
         results <- results$count %>% data.frame
 
-        results.pval <- results["rna.tf",4,drop = F] %>%
+        results.pval <- results["rna.tf","Pr...z..",drop = F] %>%
             t %>%
             as.data.frame()
         colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
 
-        results.estimate <- results["rna.tf",1,drop = F] %>%
+        results.estimate <- results["rna.tf","Estimate",drop = F] %>%
             t %>%
             as.data.frame()
         colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
     } else {
-        results <- MASS::rlm(
-            rna.target ~ rna.tf,
-            data = data,
-            psi = MASS::psi.bisquare,
-            maxit = 100) %>% summary %>% coef %>% data.frame
-
+        results <- tryCatch({
+            rMASS::rlm(
+                rna.target ~ rna.tf,
+                data = data,
+                psi = MASS::psi.bisquare,
+                maxit = 100) %>% summary %>% coef %>% data.frame
+        }, error = function(e){
+            #message("Binary model: ", e)
+            return(NULL)
+        })
+        if(is.null(results)){
+            return(
+                list("estimate" = NA,
+                     "pval" = NA,
+                     "Model" = "Robust Linear Model",
+                     "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
+                )
+            )
+        }
         degrees.freedom.value <- nrow(data) - 2
         results$pval <- 2 * (1 - pt( abs(results$t.value), df = degrees.freedom.value) )
 
@@ -196,6 +209,9 @@ stratified_model_aux <- function(data, prefix = ""){
 }
 
 getClassification <- function(low.estimate, high.estimate){
+
+    if(is.na(low.estimate) | is.na(high.estimate))
+        return(list("TF.affinity" = NA,"TF.role" = NA))
 
     estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
     slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]

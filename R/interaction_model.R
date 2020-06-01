@@ -157,17 +157,34 @@ interaction_model <- function(
 
             } else {
 
-                tryCatch({
-                    message("rlm")
-                # 2) fit linear model: target RNA ~ DNAm + RNA TF
-                rlm.bisquare <- rlm (
-                    rna.target ~ met + rna.tf + rna.tf * met,
-                    data = data,
-                    psi = MASS::psi.bisquare,
-                    maxit = 100) %>% summary %>% coef %>% data.frame
+                rlm.bisquare <- tryCatch({
+                    # 2) fit linear model: target RNA ~ DNAm + RNA TF
+                    rlm (
+                        rna.target ~ met + rna.tf + rna.tf * met,
+                        data = data,
+                        psi = MASS::psi.bisquare,
+                        maxit = 100) %>% summary %>% coef %>% data.frame
                 }, error = function(e){
-                    return(NA)
+                    # message("Continuous model: ", e)
+                    return(NULL)
                 })
+
+                if(is.null(rlm.bisquare)){
+                    return(
+                        cbind("Model.interaction" = NA,
+                              "met.q4_minus_q1" = NA,
+                              "quant_pval_metGrp" = NA,
+                              "quant_pval_rna.tf" = NA,
+                              "quant_pval_metGrp:rna.tf" = NA,
+                              "quant_estimate_metGrp" = NA,
+                              "quant_estimate_rna.tf" = NA,
+                              "quant_estimate_metGrp:rna.tf" = NA,
+                              "Model.quantile" = NA,
+                              "% 0 target genes (All samples)" = NA,
+                              "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
+                    )
+                }
+
 
                 degrees.freedom.value <- nrow(data) - 4
                 rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
@@ -203,16 +220,15 @@ interaction_model <- function(
 
                 rlm.bisquare.quant <- tryCatch({
                     rlm (
-                    rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
-                    data = data.high.low,
-                    psi = MASS::psi.bisquare,
-                    maxit = 100) %>% summary %>% coef %>% data.frame
+                        rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
+                        data = data.high.low,
+                        psi = MASS::psi.bisquare,
+                        maxit = 100) %>% summary %>% coef %>% data.frame
                 }, error = function(e){
-                    message(e)
+                    #message("Binary model: ", e)
                     return(NULL)
                 })
                 if(is.null(rlm.bisquare.quant)){
-
                     return(cbind("Model.interaction" = NA,
                                  "met.q4_minus_q1" = NA,
                                  "quant_pval_metGrp" = NA,
@@ -223,9 +239,8 @@ interaction_model <- function(
                                  "quant_estimate_metGrp:rna.tf" = NA,
                                  "Model.quantile" = NA,
                                  "% 0 target genes (All samples)" = NA,
-                                 "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame)
-
-                    return(rep(NA,9) %>% t %>% data.frame)
+                                 "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
+                    )
                 }
 
                 degrees.freedom.value <- nrow(data.high.low) - 4

@@ -1,10 +1,10 @@
-#' @title Mapping regions to gene
-#' @description To map a region to genes there are two options: 1) closest gene
+#' @title Obtain target genes that are close to input regions
+#' @description To map genes to a region there are two options: 1) closest gene
 #' 2) map to all genes within a window around the region (default window.width = 500kbp
 #' (i.e. +/- 250kbp from start or end of the region)).
-#' @param regions.gr A Genomic Ranges objec GRanges
+#' @param regions.gr A Genomic Ranges object (GRanges)
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How regions are mapped to genes: closest gene promoter ("closest.gene"); or
+#' @param method How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
 #' genes within a window around the region ("window").
 #' @param window.width When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)

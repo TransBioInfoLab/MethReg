@@ -1,5 +1,5 @@
-#' @title Access human TF from Lambert et al 2018
-#' @description For each probe within the same promoter region,
+#' @title Summarize promoter methylation beta values by mean or median.
+#' @description For multiple probes mapped to the same promoter region,
 #' take the mean or median beta-values
 #' @return A list with a data frame of the new regions and merged ones,
 #' and the calculated mean/median beta-value matrix

@@ -33,7 +33,7 @@ Samples should be in the same order as the DNA methylation matrix.}
 }
 \description{
 This function evaluate the correlation of the DNA methylation region and target gene expression
-using spearman correlation test.  Obs: Genes with RNA expression equal to 0 for more than 25% of the samples
+using spearman rank correlation test.  Note that genes with RNA expression equal to 0 for more than 25% of the samples
 will not be evaluated.
 }
 \examples{

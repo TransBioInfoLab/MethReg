@@ -2,8 +2,9 @@
 % Please edit documentation in R/stratified_model.R
 \name{stratified_model}
 \alias{stratified_model}
-\title{Fits linear model to triplet data (Target, TF, DNAm) separately for
-samples with DNAm high or low groups.}
+\title{Fits linear models to triplet data (Target, TF, DNAm) for
+samples with high DNAm or low DNAm separately, and annotates TF (activator/repressor,
+methyl-plus/methyl-minus).}
 \usage{
 stratified_model(triplet, dnam, exp, cores = 1)
 }
@@ -18,23 +19,52 @@ rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \value{
-A dataframe with Region, TF, Estimates and P-value from linear model
+A dataframe with \code{Region, TF, target, TF_symbol target_symbol}, results for
+fitting linear models to samples with low methylation (\code{DNAmlow_pval_rna.tf},
+\code{DNAmlow_estimate_rna.tf}), or samples with high methylation (\code{DNAmhigh_pval_rna.tf},
+\code{DNAmhigh_pval_rna.tf.1}), annotations for TF (\code{class.TF}) and (\code{class.TF.DNAm}).
 }
 \description{
-Should be used only for triplet data with significant
- \code{TF*DNAm} interaction from fitting models in \code{interaction_model}.
-These models can be used to examine how TF activities differ in
-samples with high DNAm or low DNAm values.
+Should be used after fitting \code{interaction_model}, and only
+for triplet data with significant \code{TF*DNAm} interaction. This analysis
+examines in more details on how TF activities differ in samples with high DNAm or low DNAm values.
 }
 \details{
 This function fits linear model
 \code{log2(RNA target) ~ log2(TF)}
 
-to samples with higest DNAm values (top 25 percent) and lowest DNAm values (bottom 25 percent), separately.
+to samples with higest DNAm values (top 25 percent) or lowest DNAm values (bottom 25 percent), separately.
+
+There are two implementations of these models, depending on whether there are an excessive
+amount (i.e. more than 25 percent) of samples with zero counts in RNAseq data:
+
+\itemize{
+\item When percent of zeros in RNAseq data is less than
+25 percent, robust linear models are implemented using \code{rlm} function from \code{MASS} package. This
+gives outlier gene expression values reduced weight. We used \code{"psi.bisqure"}
+option in function \code{rlm} (bisquare weighting,
+https://stats.idre.ucla.edu/r/dae/robust-regression/).
+
+\item When percent of zeros in RNAseq data is more than 25 percent, zero inflated negative binomial models
+are implemented using \code{zeroinfl} function from \code{pscl} package. This assumes there are
+two processes that generated zeros (1) one where the counts are always zero
+(2) another where the count follows a negative binomial distribution.
+}
 
 To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 RNA residual values which have covariate effects removed, then fit interaction model. Note that no
 log2 transformation is needed when \code{interaction_model} is applied to residuals data.
+
+This function also provides annotations for TFs. A TF is annotated as \code{activator} if
+increasing amount of TF (higher TF gene expression) corresponds to increased target gene expression. A TF
+is annotated as \code{repressor} if increasing amount of TF (higher TF gene expression) corresponds to
+decrease in target gene expression.
+
+In addition, a TF is annotated as \code{M-plus} (methyl-plus) if more TF regulation on gene transcription
+is observed in samples with high DNAm. That is, DNAm enhances TF regulation on target gene expression.
+On the other hand, a TF is annotated as \code{M-minus} (methyl-minus) if more TF regulation on gene
+transcription is observed in samples with low DNAm. That is, DNAm reduces TF regulation
+on target gene expression.
 }
 \examples{
 data("dna.met.chr21")

@@ -6,7 +6,7 @@
 \title{coMethTF: functional annotation of DMRs identified in epigenome-wide association studies}
 \description{
 To provide functional annotations for differentially methylated regions (DMRs)
-and differentially methylated CpG sites (DMS),`coMethTF` performs
+and differentially methylated CpG sites (DMS), \code{coMethTF} performs
 integrative analyses using matched DNA methylation and gene expression
 along with Transcription Factor Binding Sites (TFBS) data.
 coMethTF evaluates, prioritizes and annotates DNA methylation regions

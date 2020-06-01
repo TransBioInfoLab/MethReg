@@ -2,20 +2,21 @@
 % Please edit documentation in R/filter_by_quantile.R
 \name{filter_genes_by_quantile_mean_fold_change}
 \alias{filter_genes_by_quantile_mean_fold_change}
-\title{Filter regions with high DNA methylation variance}
+\title{Select genes with variations above a threshold}
 \usage{
 filter_genes_by_quantile_mean_fold_change(exp, fold.change = 1.5, cores = 1)
 }
 \arguments{
-\item{fold.change}{Mean fold change threshold between samples in Q4 and Q1. Default 1.5}
+\item{exp}{Gene expression matrix}
+
+\item{fold.change}{Threshold for fold change of mean gene expresison levels in samples with high
+(Q4) and low (Q1) gene expression levels. Defaults to 1.5.}
 
 \item{cores}{Number of CPU cores to be used in the analysis. Default: 1}
-
-\item{dnam}{DNA methylation matrix}
 }
 \description{
-For each region, compares the mean DNA methylation of samples in high (Q4) vs. low (Q1)
-and requires difference to be above a certain threshold.
+For each gene, compares the mean gene expression levels in samples in high expression (Q4)
+vs. samples with low gene expression (Q1), and requires the fold change to be above a certain threshold.
 }
 \examples{
 data("gene.exp.chr21")

@@ -64,7 +64,8 @@ get_tf_in_region <- function(region,
     motifs.probes <- map_motif_probes_to_regions(motifs.probes = motifs.probes,
                                                  genome = genome,
                                                  arrayType = arrayType,
-                                                 regions.gr = regions.gr)
+                                                 regions.gr = regions.gr,
+                                                 cores)
 
     message("Mapping regions to HOCOMOCO TFBS. This may take a while...")
     parallel <- register_cores(cores)
@@ -98,7 +99,8 @@ get_tf_in_region <- function(region,
 map_motif_probes_to_regions <- function(motifs.probes,
                                         genome,
                                         arrayType,
-                                        regions.gr){
+                                        regions.gr,
+                                        cores){
 
     # Get probes regions for mapping the motifs
     probes.gr <- get_met_probes_info(genome = genome,arrayType = arrayType)
@@ -120,14 +122,24 @@ map_motif_probes_to_regions <- function(motifs.probes,
         rownames(motif.matrix) <- make_names_from_granges(regions.gr[unique.hits$queryHits])
     }
 
+
+    parallel <- register_cores(cores)
     # Do we have regions overlapping with multiple probes ?
     if(length(region.with.more.than.one.probe) > 0){
         non.unique.hits <- hits[hits$queryHits %in% region.with.more.than.one.probe,]
-        non.unique.motifs <- plyr::adply(unique(non.unique.hits$queryHits),1, function(x){
-            idx <- hits %>% filter(queryHits == x) %>% pull(subjectHits)
-            probes <- names(probes.gr)[idx]
-            Matrix::colSums(motifs.probes[probes,,drop = FALSE])
-        },.id = NULL,.progress = "time",.inform = TRUE)
+        non.unique.motifs <- plyr::adply(
+            .data = unique(non.unique.hits$queryHits),
+            .margins = 1,
+            .fun = function(x){
+                idx <- hits %>% filter(queryHits == x) %>% pull(subjectHits)
+                probes <- names(probes.gr)[idx]
+                Matrix::colSums(motifs.probes[probes,,drop = FALSE])
+            },
+            .id = NULL,
+            .progress = "time",
+            .inform = TRUE,
+            .parallel = parallel
+        )
 
         rownames(non.unique.motifs) <- make_names_from_granges(regions.gr[unique(non.unique.hits$queryHits)])
 
@@ -138,7 +150,7 @@ map_motif_probes_to_regions <- function(motifs.probes,
         }
     }
 
-    if(is(motifs.probes,"ngCMatrix")){
+    if(is(motifs.probes, "ngCMatrix")){
         motif.matrix <-  motif.matrix %>% as.matrix() %>% as.data.frame()
     }
 

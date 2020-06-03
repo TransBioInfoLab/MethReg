@@ -17,7 +17,7 @@ get_promoter_avg <- function(
     # We will start by defining the promoter regions
     message("o Get promoter regions for ", genome)
     promoter.gr <- get_promoter_regions(genome)
-    message("oo Number of promoter regions: ", length(promoter.gr))
+    message("oo Number of promoter regions in ", genome, ": ", length(promoter.gr))
 
     # For each promoter region we will then
     # take the mean DNA methylation beta-values of all

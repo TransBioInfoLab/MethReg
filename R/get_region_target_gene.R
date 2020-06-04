@@ -52,23 +52,16 @@ get_region_target_gene <- function(
     if(method == "closest.gene"){
 
         # Get gene information
-        gene.info <-   get_gene_information(genome = genome, as.granges = TRUE)
+        gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
 
         # get gene promoter
         gene.promoters <-  gene.info %>% promoters(upstream = 2000, downstream = 2000)
 
 
-        hits <- nearest(regions.gr, gene.promoters, ignore.strand = TRUE,select = "all")
+        hits <- nearest(regions.gr, gene.promoters, ignore.strand = FALSE, select = "all")
+
         # overlap region and promoter
         neargenes <- gene.info[subjectHits(hits)] %>% as.data.frame()
-
-        distance.region.tss <- values(
-            distanceToNearest(
-                regions.gr,
-                gene.promoters,
-                ignore.strand = TRUE,
-                select = "all")
-        )$distance
 
         regions.gr <- regions.gr[queryHits(hits)]
         neargenes <- cbind(
@@ -76,8 +69,7 @@ get_region_target_gene <- function(
                          "start",
                          "end",
                          "external_gene_name",
-                         "ensembl_gene_id")],
-            distance.region.tss)
+                         "ensembl_gene_id")])
 
         colnames(neargenes)[1:3] <- c("gene_chrom","gene_start","gene_end")
         colnames(neargenes)[4] <- "target_gene_name"

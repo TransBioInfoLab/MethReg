@@ -1,9 +1,13 @@
 #' @title Summarize promoter methylation beta values by mean or median.
-#' @description For multiple probes mapped to the same promoter region,
-#' take the mean or median beta-values
+#' @description
+#' First, identify gene promoter regions (+-2Kkb around TSS). In case, promoters
+#' overlap they will be merged.
+#' Then, for each promoter region calculate the mean DNA methylation of probes
+#' overlapping the region.
 #' @return A list with a data frame of the new regions and merged ones,
 #' and the calculated mean/median beta-value matrix
 #' @export
+#' @importFrom GenomicRanges reduce
 #' @examples
 #' data("dna.met.chr21")
 #' promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
@@ -16,7 +20,7 @@ get_promoter_avg <- function(
 
     # We will start by defining the promoter regions
     message("o Get promoter regions for ", genome)
-    promoter.gr <- get_promoter_regions(genome)
+    promoter.gr <- get_promoter_regions(genome) %>% reduce
     message("oo Number of promoter regions in ", genome, ": ", length(promoter.gr))
 
     # For each promoter region we will then

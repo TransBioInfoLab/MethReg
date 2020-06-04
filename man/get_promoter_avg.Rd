@@ -11,8 +11,10 @@ A list with a data frame of the new regions and merged ones,
 and the calculated mean/median beta-value matrix
 }
 \description{
-For multiple probes mapped to the same promoter region,
-take the mean or median beta-values
+First, identify gene promoter regions (+-2Kkb around TSS). In case, promoters
+overlap they will be merged.
+Then, for each promoter region calculate the mean DNA methylation of probes
+overlapping the region.
 }
 \examples{
 data("dna.met.chr21")

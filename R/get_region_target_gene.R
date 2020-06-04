@@ -55,10 +55,10 @@ get_region_target_gene <- function(
         gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
 
         # get gene promoter
-        gene.promoters <-  gene.info %>% promoters(upstream = 2000, downstream = 2000)
+        gene.promoters <-  gene.info %>%
+            promoters(upstream = 2000, downstream = 2000)
 
-
-        hits <- nearest(regions.gr, gene.promoters, ignore.strand = FALSE, select = "all")
+        hits <- findOverlaps(regions.gr, gene.promoters, ignore.strand = FALSE, select = "all")
 
         # overlap region and promoter
         neargenes <- gene.info[subjectHits(hits)] %>% as.data.frame()

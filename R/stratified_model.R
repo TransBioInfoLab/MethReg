@@ -148,6 +148,8 @@ stratified_model <- function(
     return(out)
 }
 
+
+#' @importFrom MASS rlm psi.bisquare
 stratified_model_aux <- function(data, prefix = ""){
     pct.zeros.samples <- sum(data$rna.target == 0) / nrow(data)
 
@@ -170,13 +172,12 @@ stratified_model_aux <- function(data, prefix = ""){
         colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
     } else {
         results <- tryCatch({
-            rMASS::rlm(
-                rna.target ~ rna.tf,
+            rlm(rna.target ~ rna.tf,
                 data = data,
-                psi = MASS::psi.bisquare,
+                psi = psi.bisquare,
                 maxit = 100) %>% summary %>% coef %>% data.frame
         }, error = function(e){
-            #message("Binary model: ", e)
+            message("Binary model: ", e)
             return(NULL)
         })
         if(is.null(results)){

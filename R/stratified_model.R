@@ -177,7 +177,7 @@ stratified_model_aux <- function(data, prefix = ""){
                 psi = psi.bisquare,
                 maxit = 100) %>% summary %>% coef %>% data.frame
         }, error = function(e){
-            message("Binary model: ", e)
+            # message("Binary model: ", e)
             return(NULL)
         })
         if(is.null(results)){

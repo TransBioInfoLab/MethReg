@@ -28,7 +28,7 @@
 #' metadata <- clinical[,"sample_type",drop = FALSE]
 #' plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21,metadata)
 #' @export
-#' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme
+#' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme stat_cor
 #' @importFrom ggplot2 xlab ylab geom_smooth
 #' @importFrom tibble as_tibble
 plot_interaction_model <-  function(triplet.results,
@@ -251,7 +251,8 @@ get_plot_results_aux <- function(df, x, y, color, xlab, ylab, facet.by){
                       size = 1
             ) + xlab(xlab) +
                 ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE)
+                geom_smooth(method = MASS::rlm, se = FALSE) +
+                stat_cor(method = "spearman",color = "blue")
         } else {
             ggscatter(df,
                       x = x,
@@ -259,7 +260,8 @@ get_plot_results_aux <- function(df, x, y, color, xlab, ylab, facet.by){
                       size = 1
             ) + xlab(xlab) +
                 ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE)
+                geom_smooth(method = MASS::rlm, se = FALSE)  +
+                stat_cor(method = "spearman",color = "blue")
         }
     } else{
         if(!is.null(color)){
@@ -271,7 +273,8 @@ get_plot_results_aux <- function(df, x, y, color, xlab, ylab, facet.by){
                       size = 1
             ) + xlab(xlab) +
                 ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE)
+                geom_smooth(method = MASS::rlm, se = FALSE) +
+                stat_cor(method = "spearman",color = "blue")
         } else {
             ggscatter(df,
                       x = x,
@@ -280,7 +283,8 @@ get_plot_results_aux <- function(df, x, y, color, xlab, ylab, facet.by){
                       size = 1
             ) + xlab(xlab) +
                 ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE)
+                geom_smooth(method = MASS::rlm, se = FALSE) +
+                stat_cor(method = "spearman",color = "blue")
         }
     }
 

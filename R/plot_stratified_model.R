@@ -68,10 +68,14 @@ plot_stratified_model <-  function(triplet.results,
 
             # Reformat p-values for better looking on the plots
             for(idx in grep("pval|fdr|value",colnames(row.triplet))) {
-                row.triplet[,idx] <- format.pval(row.triplet[,idx],digits = 3)
+                row.triplet[,idx] <- format.pval(
+                    row.triplet[,idx]  %>% as.data.frame(),
+                    digits = 3)
             }
             for(idx in grep("estimate|median|minus",colnames(row.triplet))) {
-                row.triplet[,idx] <- format(row.triplet[,idx],digits = 3)
+                row.triplet[,idx] <- format(
+                    row.triplet[,idx]  %>% as.data.frame(),
+                    digits = 3)
             }
 
             table.plots <- get_table_stratified_plot(row.triplet)

@@ -1,13 +1,21 @@
 #' @title Get human TF list for a region using HOCOMOCO prediction
 #' @description Given a genomic region, this function obtains TFs that bind close to it (+-250bp).
 #' To this end, we used a pre-computed dataset for EPIC and HM450 Array that was created as follows:
-#' for each HOCOMOCO human TF, the motif was searched around the probe (+-250bp), and a binary matrix was created,
+#' each HOCOMOCO human TF moitf was searched around the probe (+-250bp), and a binary matrix was created,
 #' with 1 if the motif was found, 0 if not.
 #' The function \code{get_tf_in_region} uses this pre-computed dataset to link regions to TFs:
 #' for each region, obtain the probes within it and a motif will be selected
 #' if at least one of the probes within the region has the motif (i.e. value 1 in the original dataset).
-#' Then for each TF motifs found within the region, we select the TFs within the same TF family/subfamily since they
-#' have similar binding motifs.
+#'
+#' Then for each TF motifs found within the region, we can select:
+#' (1) only TF motif
+#' (2) All TFs withing the same family as the TF motif
+#' (3) All TFs withing the same subfamily as the TF motif
+#'
+#' For example, if the motif is for the TF FOXA1, the option (1),
+#' will return only FOXA1, option two will provide FOXA1, FOXA2, FOXA3, since they
+#' are classified into the same subfamily group by the TFClass database, and
+#' option (3) will provide FOX family members.
 #' @importFrom dplyr pull filter %>% tbl
 #' @importFrom plyr adply
 #' @importFrom sesameData sesameDataGet
@@ -22,7 +30,11 @@
 #'                  genome = "hg19",
 #'                  arrayType = "450k",
 #'                  classification = "subfamily")
-#'
+#'  regions.names <- c("chr1:60591-79592","chr4:40162197-43162198")
+#'  region.tf <- get_tf_in_region(regions.names,
+#'                  genome = "hg19",
+#'                  arrayType = "450k",
+#'                  classification = "motif")
 #'  regions.gr <- make_granges_from_names(regions.names)
 #'  region.tf <- get_tf_in_region(regions.gr,
 #'                  genome = "hg38",
@@ -37,11 +49,13 @@
 #' Either "subfamily" or "family".
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @importFrom Matrix colSums
-get_tf_in_region <- function(region,
-                             genome = c("hg19","hg38"),
-                             arrayType = c("450k","EPIC"),
-                             classification = c("subfamily","family"),
-                             cores = 1) {
+get_tf_in_region <- function(
+    region,
+    genome = c("hg19","hg38"),
+    arrayType = c("450k","EPIC"),
+    classification = c("motif","subfamily","family"),
+    cores = 1)
+{
 
     check_package("ELMER.data")
 
@@ -59,19 +73,35 @@ get_tf_in_region <- function(region,
 
     # get pre-computed data
     message("Loading pre-computed probes TFBS data")
-    motifs.probes <- get(data(list = paste0("Probes.motif.",genome,".",toupper(arrayType)),package = "ELMER.data",envir = environment()))
+    motifs.probes <- get(
+        data(list = paste0("Probes.motif.",genome,".",toupper(arrayType)),
+             package = "ELMER.data",
+             envir = environment()
+        )
+    )
+
     message("Transforming probes TFBS data to regions TFBS data")
-    motifs.probes <- map_motif_probes_to_regions(motifs.probes = motifs.probes,
-                                                 genome = genome,
-                                                 arrayType = arrayType,
-                                                 regions.gr = regions.gr,
-                                                 cores)
+    motifs.probes <- map_motif_probes_to_regions(
+        motifs.probes = motifs.probes,
+        genome = genome,
+        arrayType = arrayType,
+        regions.gr = regions.gr,
+        cores
+    )
 
     message("Mapping regions to HOCOMOCO TFBS. This may take a while...")
     parallel <- register_cores(cores)
 
     message("Mapping regions to TFs")
-    motifs.tfs <- get(data(list = paste0("TF.",classification),package = "ELMER.data",envir = environment()))
+    if(classification %in% c("family","subfamily")){
+        motifs.tfs <- get(
+            data(
+                list = paste0("TF.",classification),
+                package = "ELMER.data",
+                envir = environment()
+            )
+        )
+    }
 
     # For each region/probe get the TFBS in region as a data.frame
     motifs.probes.df <- plyr::alply(
@@ -80,7 +110,12 @@ get_tf_in_region <- function(region,
         function(colum.name){
             colum <- motifs.probes[,colum.name,drop = FALSE]
             regions <- rownames(colum)[which(colum %>% pull > 0)];
-            tfs <- unlist(motifs.tfs[colum.name]) %>% as.character() %>% unique()
+
+            if(classification %in% c("family","subfamily")){
+                tfs <- unlist(motifs.tfs[colum.name]) %>% as.character() %>% unique()
+            } else {
+                tfs <- gsub("_HUMAN.H11MO.[0-9].[A-Z]","",colum.name)
+            }
             expand.grid(regions,tfs)
         }, .progress = "time",.parallel = parallel)
     motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
@@ -91,7 +126,8 @@ get_tf_in_region <- function(region,
 
     motifs.probes.df$TF_ensembl_gene_id <- map_symbol_to_ensg(motifs.probes.df$TF_external_gene_name)
     motifs.probes.df <- motifs.probes.df %>% na.omit
-    motifs.probes.df %>% unique
+    return(motifs.probes.df %>% unique)
+
 }
 
 # Since motifs.probes is not region based, we need to

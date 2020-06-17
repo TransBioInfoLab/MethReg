@@ -22,12 +22,11 @@ test_that("interaction_model handles 0 cases", {
     dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
     data("gene.exp.chr21")
     triplet <- data.frame(
-        "regionID" = rownames(dna.met.chr21)[1:2],
-        "TF" = rownames(gene.exp.chr21)[11:12],
-        "target" = rownames(gene.exp.chr21)[1:2]
+        "regionID" = rownames(dna.met.chr21)[1],
+        "TF" = rownames(gene.exp.chr21)[11],
+        "target" = rownames(gene.exp.chr21)[1]
     )
     gene.exp.chr21[1,-1] <- 0 # at least one of the two groups will have only 0 values
     results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
-    expect_true(is.na(results$TF.affinity))
-    expect_true(is.na(results$TF.role))
+    expect_true(nrow(restuls) == 0)
 })

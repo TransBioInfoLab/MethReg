@@ -136,7 +136,7 @@ map_motif_probes_to_regions <- function(motifs.probes,
                                         genome,
                                         arrayType,
                                         regions.gr,
-                                        cores){
+                                        cores = 1){
 
     # Get probes regions for mapping the motifs
     probes.gr <- get_met_probes_info(genome = genome,arrayType = arrayType)

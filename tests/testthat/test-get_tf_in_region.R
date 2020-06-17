@@ -14,10 +14,11 @@ test_that("Mapping motifs only to regions overlapping single probes", {
     regions.gr <- regions.gr[!regions.gr$MASK_general]
     regions.gr <- regions.gr[1:3]
 
-    motif.mapped <- map_motif_probes_to_regions(motifs.probes,
-                                                genome,
-                                                arrayType,
-                                                regions.gr)
+    motif.mapped <- map_motif_probes_to_regions(
+        motifs.probes,
+        genome,
+        arrayType,
+        regions.gr)
     expect_equal(nrow(motif.mapped),3)
     expect_true(all(make_names_from_granges(regions.gr) %in% rownames(motif.mapped)))
     expect_equal(motifs.probes[names(regions.gr)[1],colnames(motif.mapped)]  %>% as.logical(),

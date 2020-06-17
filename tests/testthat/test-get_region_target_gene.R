@@ -1,4 +1,4 @@
-test_that("make_granges_from_names works", {
+test_that("get_region_target_gene works", {
      regions.gr <- data.frame(
                    chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
                    start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
@@ -18,9 +18,9 @@ test_that("make_granges_from_names works", {
                            genome = "hg19",
                            method = "window")
 
-      testthat::is_true("target" %in% colnames(region.window))
-      testthat::is_true("target" %in% colnames(region.closest))
-      testthat::is_true("regionID" %in% colnames(region.window))
-      testthat::is_true("regionID" %in% colnames(region.closest))
+      expect_true("target" %in% colnames(region.window))
+      expect_true("target" %in% colnames(region.closest))
+      expect_true("regionID" %in% colnames(region.window))
+      expect_true("regionID" %in% colnames(region.closest))
 
 })

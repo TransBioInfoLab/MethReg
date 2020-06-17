@@ -108,22 +108,14 @@ stratified_model <- function(
         .data = triplet,
         .margins = 1,
         .fun = function(row.triplet){
-            rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
-            met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
-            rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-            data <- data.frame(
-                rna.target = rna.target %>% as.numeric,
-                met = met %>% as.numeric,
-                rna.tf = rna.tf %>% as.numeric
-            )
+            data <- make_df_from_triple(exp, dnam, row.triplet)
 
             low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
             upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
 
-            data.low <- data %>% dplyr::filter(met <= low.cutoff)
-            data.high <- data %>% dplyr::filter(met >= upper.cutoff)
-
+            data.low <- data %>% dplyr::filter(.data$met <= low.cutoff)
+            data.high <- data %>% dplyr::filter(.data$met >= upper.cutoff)
 
             results.low <- stratified_model_aux(data.low,"DNAmlow")
             results.low.pval <- results.low$pval

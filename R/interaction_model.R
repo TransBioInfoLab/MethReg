@@ -84,12 +84,12 @@ interaction_model <- function(
 
     check_data(dnam, exp)
 
-
     if(!all(grepl("ENSG", rownames(exp)))){
         stop("exp must have the following row names as ENSEMBL IDs (i.e. ENSG00000239415)")
     }
 
     if(missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
+
     if(!all(c("regionID","TF","target") %in% colnames(triplet))) {
         stop("triplet must have the following columns names: regionID, TF, target")
     }
@@ -113,22 +113,14 @@ interaction_model <- function(
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
 
-
     parallel <- register_cores(cores)
 
     out <- plyr::adply(
         .data = triplet,
         .margins = 1,
         .fun = function(row.triplet){
-            rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
-            met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
-            rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
-            data <- data.frame(
-                rna.target = rna.target %>% as.numeric,
-                met = met %>% as.numeric,
-                rna.tf = rna.tf %>% as.numeric
-            )
+            data <- make_df_from_triple(exp, dnam, row.triplet)
 
             quant.met <-  quantile(data$met,na.rm = TRUE)
             quant.diff <- data.frame("met.q4_minus_q1" = quant.met[4] - quant.met[2])
@@ -136,148 +128,32 @@ interaction_model <- function(
             low.cutoff <- quant.met[2]
             upper.cutoff <- quant.met[4]
 
-            data.high.low <- data %>% dplyr::filter(met <= low.cutoff | met >= upper.cutoff)
-            data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff,0,1)
+            data.high.low <- data %>% dplyr::filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
+            data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
 
-            pct.zeros.in.samples <- sum(data$rna.target == 0)/ nrow(data)
+            pct.zeros.in.samples <- sum(data$rna.target == 0) / nrow(data)
+
             if(pct.zeros.in.samples > 0.25){
-
-                zinb <- pscl::zeroinfl(
-                    trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
-                    data = data,
-                    dist = "negbin",
-                    EM = FALSE) %>% summary %>% coef
-                zinb <- zinb$count %>% data.frame
-
-                all.pval <- zinb[c(-1,-5),4,drop = F] %>% t %>% as.data.frame()
-                colnames(all.pval) <- paste0("pval_",colnames(all.pval))
-
-                all.estimate <- zinb[c(-1,-5),1,drop = F] %>% t %>% as.data.frame()
-                colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
-
+                itx.all <- interaction_model_zeroinfl(data)
             } else {
-
-                rlm.bisquare <- tryCatch({
-                    # 2) fit linear model: target RNA ~ DNAm + RNA TF
-                    rlm (
-                        rna.target ~ met + rna.tf + rna.tf * met,
-                        data = data,
-                        psi = MASS::psi.bisquare,
-                        maxit = 100) %>% summary %>% coef %>% data.frame
-                }, error = function(e){
-                    # message("Continuous model: ", e)
-                    return(NULL)
-                })
-
-                if(is.null(rlm.bisquare)){
-                    return(
-                        cbind("Model.interaction" = NA,
-                              "met.q4_minus_q1" = NA,
-                              "quant_pval_metGrp" = NA,
-                              "quant_pval_rna.tf" = NA,
-                              "quant_pval_metGrp:rna.tf" = NA,
-                              "quant_estimate_metGrp" = NA,
-                              "quant_estimate_rna.tf" = NA,
-                              "quant_estimate_metGrp:rna.tf" = NA,
-                              "Model.quantile" = NA,
-                              "% 0 target genes (All samples)" = NA,
-                              "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
-                    )
-                }
-
-
-                degrees.freedom.value <- nrow(data) - 4
-                rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
-
-                #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
-                all.pval <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
-                colnames(all.pval) <- paste0("pval_",colnames(all.pval))
-
-                all.estimate <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
-                colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
-
+                itx.all <- interaction_model_rlm(data)
             }
 
-            pct.zeros.in.quant.samples <- sum(data.high.low$rna.target == 0)/ nrow(data.high.low)
-
+            # Quantile model: we will use data.high.low (Q4 and Q1 only)
+            pct.zeros.in.quant.samples <- sum(data.high.low$rna.target == 0) / nrow(data.high.low)
             if(pct.zeros.in.quant.samples > 0.25){
-                zinb.quant <- pscl::zeroinfl(
-                    trunc(rna.target) ~ metGrp + rna.tf + metGrp * rna.tf | 1,
-                    data = data.high.low,
-                    dist = "negbin",
-                    EM = FALSE) %>% summary %>% coef
-                zinb.quant <- zinb.quant$count %>% data.frame
-                quant.pval <- zinb.quant[c(-1,-5),4,drop = F] %>%
-                    t %>%
-                    as.data.frame()
-                colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
-
-                quant.estimate <- zinb.quant[c(-1,-5),1,drop = F] %>%
-                    t %>%
-                    as.data.frame()
-                colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
+                itx.quant <- interaction_model_quant_zeroinfl(data.high.low)
             } else {
-
-                rlm.bisquare.quant <- tryCatch({
-                    rlm (
-                        rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
-                        data = data.high.low,
-                        psi = MASS::psi.bisquare,
-                        maxit = 100) %>% summary %>% coef %>% data.frame
-                }, error = function(e){
-                    #message("Binary model: ", e)
-                    return(NULL)
-                })
-                if(is.null(rlm.bisquare.quant)){
-                    return(cbind("Model.interaction" = NA,
-                                 "met.q4_minus_q1" = NA,
-                                 "quant_pval_metGrp" = NA,
-                                 "quant_pval_rna.tf" = NA,
-                                 "quant_pval_metGrp:rna.tf" = NA,
-                                 "quant_estimate_metGrp" = NA,
-                                 "quant_estimate_rna.tf" = NA,
-                                 "quant_estimate_metGrp:rna.tf" = NA,
-                                 "Model.quantile" = NA,
-                                 "% 0 target genes (All samples)" = NA,
-                                 "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
-                    )
-                }
-
-                degrees.freedom.value <- nrow(data.high.low) - 4
-                rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value), df = degrees.freedom.value) )
-
-                quant.pval <- rlm.bisquare.quant[-1,4,drop = F] %>%
-                    t %>%
-                    as.data.frame()
-                colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
-
-                quant.estimate <- rlm.bisquare.quant[-1,1,drop = F] %>%
-                    t %>%
-                    as.data.frame()
-                colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
-
+                itx.quant <- interaction_model_quant_rlm(data.high.low)
             }
-            out <- cbind(all.pval,
-                         all.estimate,
-                         data.frame(
-                             "Model interaction" =
-                                 ifelse(pct.zeros.in.samples > 0.25,
-                                        "Zero-inflated Negative Binomial Model",
-                                        "Robust Linear Model")
-                         ),
-                         quant.diff,
-                         quant.pval,
-                         quant.estimate,
-                         data.frame(
-                             "Model quantile" =
-                                 ifelse(pct.zeros.in.quant.samples > 0.25,
-                                        "Zero-inflated Negative Binomial Model",
-                                        "Robust Linear Model")
-                         ),
-                         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
-                         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
+
+            interaction_model_output(
+                itx.all,
+                pct.zeros.in.samples,
+                quant.diff,
+                itx.quant,
+                pct.zeros.in.quant.samples
             )
-            out
         },
         .progress = "time",
         .parallel = parallel,
@@ -285,5 +161,192 @@ interaction_model <- function(
         .paropts = list(.errorhandling = 'pass'))
 
     return(out %>% na.omit())
+}
+
+#' Fast linear model
+#' @examples
+#' df <- data.frame(
+#'   "rna.target" = runif(300, min = 0, max = 4),
+#'   "rna.tf" = runif(300, min = 0, max = 4),
+#'   "met" = runif(300, min = 0, max = 1)
+#' )
+#' @noRd
+#' @importFrom speedglm speedlm.fit
+interaction_model_aux_fast <- function(data){
+
+    # Faster implementation of linear model
+    # Idea is fit fast version of lm to all triplets,
+    # select significant triplets with pval.intxn < 0.05
+    results <- speedlm(
+        rna.target ~ met + rna.tf + rna.tf * met,
+        data = data
+    ) %>% summary %>% coef
+
+    results.pval <- results[-1,4,drop = F] %>% t %>% as.data.frame()
+    colnames(results.pval) <- paste0("pval_",colnames(results.pval))
+
+    return(
+        list("pval" = results.pval)
+    )
+}
+
+interaction_model_no_results <- function(){
+    cbind(
+        "Model.interaction" = NA,
+        "met.q4_minus_q1" = NA,
+        "quant_pval_metGrp" = NA,
+        "quant_pval_rna.tf" = NA,
+        "quant_pval_metGrp:rna.tf" = NA,
+        "quant_estimate_metGrp" = NA,
+        "quant_estimate_rna.tf" = NA,
+        "quant_estimate_metGrp:rna.tf" = NA,
+        "Model.quantile" = NA,
+        "% 0 target genes (All samples)" = NA,
+        "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
+}
+
+make_df_from_triple <- function(exp, dnam, row.triplet){
+    rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
+    met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
+    rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
+
+    data <- data.frame(
+        rna.target = rna.target %>% as.numeric,
+        met = met %>% as.numeric,
+        rna.tf = rna.tf %>% as.numeric
+    )
+    data
+}
+
+interaction_model_output <- function(itx.all,
+                                     pct.zeros.in.samples,
+                                     quant.diff,
+                                     itx.quant,
+                                     pct.zeros.in.quant.samples){
+    cbind(
+        itx.all,
+        data.frame(
+            "Model interaction" =
+                ifelse(pct.zeros.in.samples > 0.25,
+                       "Zero-inflated Negative Binomial Model",
+                       "Robust Linear Model")
+        ),
+        quant.diff,
+        itx.quant,
+        data.frame(
+            "Model quantile" =
+                ifelse(pct.zeros.in.quant.samples > 0.25,
+                       "Zero-inflated Negative Binomial Model",
+                       "Robust Linear Model")
+        ),
+        "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
+        "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
+    )
+}
+
+
+interaction_model_rlm <- function(data){
+    rlm.bisquare <- tryCatch({
+        # 2) fit linear model: target RNA ~ DNAm + RNA TF
+        rlm (
+            rna.target ~ met + rna.tf + rna.tf * met,
+            data = data,
+            psi = MASS::psi.bisquare,
+            maxit = 100) %>% summary %>% coef %>% data.frame
+    }, error = function(e){
+        # message("Continuous model: ", e)
+        return(NULL)
+    })
+
+    # if(is.null(rlm.bisquare)) return(interaction_model_no_results())
+    if(is.null(rlm.bisquare)) return(NULL)
+
+    degrees.freedom.value <- nrow(data) - 4
+    rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
+
+    #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
+    all.pval <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
+    colnames(all.pval) <- paste0("pval_",colnames(all.pval))
+
+    all.estimate <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
+    colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
+    return(cbind(all.pval, all.estimate))
+}
+
+interaction_model_zeroinfl <- function(data){
+    zinb <- pscl::zeroinfl(
+        trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
+        data = data,
+        dist = "negbin",
+        EM = FALSE) %>% summary %>% coef
+    zinb <- zinb$count %>% data.frame
+
+    all.pval <- zinb[c(-1,-5),4,drop = F] %>% t %>% as.data.frame()
+    colnames(all.pval) <- paste0("pval_",colnames(all.pval))
+
+    all.estimate <- zinb[c(-1,-5),1,drop = F] %>% t %>% as.data.frame()
+    colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
+    return(cbind(all.pval, all.estimate))
+}
+
+interaction_model_quant_zeroinfl <- function(data){
+    zinb.quant <- tryCatch({
+        pscl::zeroinfl(
+            trunc(rna.target) ~ metGrp + rna.tf + metGrp * rna.tf | 1,
+            data = data,
+            dist = "negbin",
+            EM = FALSE) %>% summary %>% coef
+    }, error = function(e){
+        # message("Continuous model: ", e)
+        return(NULL)
+    })
+    if(is.null(zinb.quant)) return(interaction_model_no_results())
+
+    zinb.quant <- zinb.quant$count %>% data.frame
+    quant.pval <- zinb.quant[c(-1,-5),4,drop = F] %>%
+        t %>%
+        as.data.frame()
+    colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
+
+    quant.estimate <- zinb.quant[c(-1,-5),1,drop = F] %>%
+        t %>%
+        as.data.frame()
+    colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
+
+    return(cbind(quant.pval, quant.estimate))
+}
+
+
+
+interaction_model_quant_rlm <- function(data){
+    rlm.bisquare.quant <- tryCatch({
+        rlm (
+            rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
+            data = data,
+            psi = MASS::psi.bisquare,
+            maxit = 100) %>% summary %>% coef %>% data.frame
+    }, error = function(e){
+        #message("Binary model: ", e)
+        return(NULL)
+    })
+
+    if(is.null(rlm.bisquare.quant)) return(NULL)
+
+    # if(is.null(rlm.bisquare.quant)) return(interaction_model_no_results())
+
+    degrees.freedom.value <- nrow(data) - 4
+    rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value),
+                                            df = degrees.freedom.value) )
+
+    quant.pval <- rlm.bisquare.quant[-1,4,drop = F] %>%
+        t %>%
+        as.data.frame()
+    colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
+
+    quant.estimate <- rlm.bisquare.quant[-1,1,drop = F] %>%
+        t %>%
+        as.data.frame()
+    colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
+    return(cbind(quant.pval, quant.estimate))
 }
 

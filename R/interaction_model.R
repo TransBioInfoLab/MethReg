@@ -115,7 +115,7 @@ interaction_model <- function(
 
     parallel <- register_cores(cores)
 
-    out <- plyr::adply(
+    plyr::adply(
         .data = triplet,
         .margins = 1,
         .fun = function(row.triplet){
@@ -147,6 +147,7 @@ interaction_model <- function(
                 itx.quant <- interaction_model_quant_rlm(data.high.low)
             }
 
+            # Create output
             interaction_model_output(
                 itx.all,
                 pct.zeros.in.samples,
@@ -159,8 +160,6 @@ interaction_model <- function(
         .parallel = parallel,
         .inform = FALSE,
         .paropts = list(.errorhandling = 'pass'))
-
-    return(out %>% na.omit())
 }
 
 #' Fast linear model
@@ -192,17 +191,17 @@ interaction_model_aux_fast <- function(data){
 
 interaction_model_no_results <- function(){
     cbind(
-        "Model.interaction" = NA,
-        "met.q4_minus_q1" = NA,
+        #"Model.interaction" = NA,
+        #"met.q4_minus_q1" = NA,
         "quant_pval_metGrp" = NA,
         "quant_pval_rna.tf" = NA,
         "quant_pval_metGrp:rna.tf" = NA,
         "quant_estimate_metGrp" = NA,
         "quant_estimate_rna.tf" = NA,
-        "quant_estimate_metGrp:rna.tf" = NA,
-        "Model.quantile" = NA,
-        "% 0 target genes (All samples)" = NA,
-        "% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
+        "quant_estimate_metGrp:rna.tf" = NA)
+    #"Model.quantile" = NA,
+    #"% 0 target genes (All samples)" = NA,
+    #"% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
 }
 
 make_df_from_triple <- function(exp, dnam, row.triplet){
@@ -223,6 +222,9 @@ interaction_model_output <- function(itx.all,
                                      quant.diff,
                                      itx.quant,
                                      pct.zeros.in.quant.samples){
+    if(is.null(itx.quant)) itx.quant <- interaction_model_no_results()
+    if(is.null(itx.all)) itx.all <- data.frame(rep(NA,6) %>% t)
+
     cbind(
         itx.all,
         data.frame(

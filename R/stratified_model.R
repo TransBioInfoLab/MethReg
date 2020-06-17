@@ -181,11 +181,19 @@ stratified_model_aux <- function(data, prefix = ""){
     pct.zeros.samples <- sum(data$rna.target == 0) / nrow(data)
 
     if (pct.zeros.samples > 0.25) {
-        results <- pscl::zeroinfl(
+        results <-  tryCatch({
+            pscl::zeroinfl(
             trunc(rna.target) ~ rna.tf | 1,
             data = data,
             dist = "negbin",
             EM = FALSE) %>% summary %>% coef
+        }, error = function(e){
+            # message("Binary model: ", e)
+            return(NULL)
+        })
+
+        if(is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
+
         results <- results$count %>% data.frame
 
         results.pval <- results["rna.tf","Pr...z..",drop = F] %>%
@@ -207,15 +215,9 @@ stratified_model_aux <- function(data, prefix = ""){
             # message("Binary model: ", e)
             return(NULL)
         })
-        if(is.null(results)){
-            return(
-                list("estimate" = NA,
-                     "pval" = NA,
-                     "Model" = "Robust Linear Model",
-                     "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
-                )
-            )
-        }
+
+        if(is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
+
         degrees.freedom.value <- nrow(data) - 2
         results$pval <- 2 * (1 - pt( abs(results$t.value), df = degrees.freedom.value) )
 
@@ -235,6 +237,14 @@ stratified_model_aux <- function(data, prefix = ""){
              "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
         )
     )
+}
+stratified_model_aux_no_results <- function(pct.zeros.samples){
+    list("estimate" = NA,
+         "pval" = NA,
+         "Model" = "Robust Linear Model",
+         "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
+    )
+
 }
 
 getClassification <- function(low.estimate, high.estimate){

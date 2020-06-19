@@ -8,7 +8,7 @@ get_tf_in_region(
   region,
   genome = c("hg19", "hg38"),
   arrayType = c("450k", "EPIC"),
-  classification = c("subfamily", "family"),
+  classification = c("motif", "subfamily", "family"),
   cores = 1
 )
 }
@@ -30,13 +30,21 @@ A dataframe with region, a TF name and TF gene ensembl ID
 \description{
 Given a genomic region, this function obtains TFs that bind close to it (+-250bp).
 To this end, we used a pre-computed dataset for EPIC and HM450 Array that was created as follows:
-for each HOCOMOCO human TF, the motif was searched around the probe (+-250bp), and a binary matrix was created,
+each HOCOMOCO human TF moitf was searched around the probe (+-250bp), and a binary matrix was created,
 with 1 if the motif was found, 0 if not.
 The function \code{get_tf_in_region} uses this pre-computed dataset to link regions to TFs:
 for each region, obtain the probes within it and a motif will be selected
 if at least one of the probes within the region has the motif (i.e. value 1 in the original dataset).
-Then for each TF motifs found within the region, we select the TFs within the same TF family/subfamily since they
-have similar binding motifs.
+
+Then for each TF motifs found within the region, we can select:
+(1) only TF motif
+(2) All TFs withing the same family as the TF motif
+(3) All TFs withing the same subfamily as the TF motif
+
+For example, if the motif is for the TF FOXA1, the option (1),
+will return only FOXA1, option two will provide FOXA1, FOXA2, FOXA3, since they
+are classified into the same subfamily group by the TFClass database, and
+option (3) will provide FOX family members.
 }
 \examples{
 \dontrun{
@@ -45,7 +53,11 @@ have similar binding motifs.
                  genome = "hg19",
                  arrayType = "450k",
                  classification = "subfamily")
-
+ regions.names <- c("chr1:60591-79592","chr4:40162197-43162198")
+ region.tf <- get_tf_in_region(regions.names,
+                 genome = "hg19",
+                 arrayType = "450k",
+                 classification = "motif")
  regions.gr <- make_granges_from_names(regions.names)
  region.tf <- get_tf_in_region(regions.gr,
                  genome = "hg38",

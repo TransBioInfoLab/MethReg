@@ -59,6 +59,18 @@ get_residuals <- function(
         message("There are NA's within the metadata, residuals for those samples will be NA.")
     }
 
+
+
+    if(!missing(metadata.genes)) {
+
+        if(ncol(metadata.genes) != ncol(data.matrix)){
+            stop("metadata.genes and data.matrix should have the number of columns")
+        }
+
+        if(!all(colnames(metadata.genes) == colnames(data.matrix))){
+            stop("metadata.genes columns names should be the same as data.matrix columns names")
+        }
+    }
     parallel <- register_cores(cores)
 
     cov_char <- stringr::str_c(colnames(metadata.samples), collapse = " + ")

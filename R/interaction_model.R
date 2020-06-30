@@ -131,7 +131,7 @@ interaction_model <- function(
             data.high.low <- data %>% dplyr::filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
 
-            pct.zeros.in.samples <- sum(data$rna.target == 0) / nrow(data)
+            pct.zeros.in.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
 
             if(pct.zeros.in.samples > 0.25){
                 itx.all <- interaction_model_zeroinfl(data)
@@ -140,7 +140,7 @@ interaction_model <- function(
             }
 
             # Quantile model: we will use data.high.low (Q4 and Q1 only)
-            pct.zeros.in.quant.samples <- sum(data.high.low$rna.target == 0) / nrow(data.high.low)
+            pct.zeros.in.quant.samples <- sum(data.high.low$rna.target == 0,na.rm = TRUE) / nrow(data.high.low)
             if(pct.zeros.in.quant.samples > 0.25){
                 itx.quant <- interaction_model_quant_zeroinfl(data.high.low)
             } else {

@@ -92,8 +92,8 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
 #' data("gene.exp.chr21")
 #' gene.exp.chr21.filtered <- filter_genes_zero_expression_all_samples(gene.exp.chr21)
 filter_genes_zero_expression_all_samples <- function(exp){
-    genes.keep <- rownames(exp)[rowSums(exp == 0) < ncol(exp)]
-    if(length(genes.keep) < nrow(exp)){
+    genes.keep <- rownames(exp)[rowSums(exp == 0, na.rm = TRUE) < ncol(exp)] %>% na.omit()
+    if(length(genes.keep) < nrow(exp) & length(genes.keep) > 0){
         message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
     }
     exp <- exp[genes.keep,]

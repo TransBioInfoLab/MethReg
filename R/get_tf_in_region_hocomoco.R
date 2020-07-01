@@ -290,7 +290,11 @@ get_tf_in_region <- function(
         }, .progress = "time",.parallel = parallel)
     motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
     colnames(motifs.probes.df) <- c("regionID","TF_external_gene_name")
-    motifs.probes.df
+
+    motifs.probes.df$TF <- map_symbol_to_ensg(motifs.probes.df$TF_external_gene_name)
+    motifs.probes.df <- motifs.probes.df %>% na.omit
+    return(motifs.probes.df %>% unique)
+
 }
 
 

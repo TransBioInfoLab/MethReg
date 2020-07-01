@@ -256,7 +256,7 @@ get_tf_in_region <- function(
     opts <- list()
     opts[["species"]] <- 9606 # homo sapies
     # opts[["all_versions"]] <- TRUE
-    PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2018, opts)
+    PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2018::JASPAR2018, opts)
     motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
     names(PFMatrixList) <- motifs.names
     PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]

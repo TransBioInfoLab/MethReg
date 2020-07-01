@@ -40,19 +40,30 @@ make_names_from_granges <- function(region){
 #' @param dnam A DNA methylation matrix
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
+#' @param rm.masked.probes Remove masked probes ? Default: TRUE
 #' @examples
 #' data(dna.met.chr21)
 #' dna.met.chr21.with.region.name <- map_probes_to_regions(dna.met.chr21)
 #' @export
 #' @importFrom sesameData sesameDataCacheAll sesameDataGet
-map_probes_to_regions <- function(dnam,
-                                  genome = c("hg38","hg19"),
-                                  arrayType = c("450k","EPIC")
+map_probes_to_regions <- function(
+    dnam,
+    genome = c("hg38","hg19"),
+    arrayType = c("450k","EPIC"),
+    rm.masked.probes = TRUE
 ){
     genome <- match.arg(genome)
     arrayType <- match.arg(arrayType)
 
-    probe.info <- get_met_probes_info(genome,arrayType)
+    probe.info <- get_met_probes_info(genome, arrayType)
+
+    if(rm.masked.probes){
+        # Remove probes that should be masked
+        probe.info <- probe.info[!probe.info$MASK_general,]
+        # Keep non-masked probes
+        dnam <- dnam[rownames(dnam) %in% names(probe.info),]
+    }
+
     rownames(dnam) <- make_names_from_granges(probe.info[rownames(dnam)])
     return(dnam)
 }
@@ -132,10 +143,12 @@ get_gene_information_biomart <- function(genome = "hg38"){
             db.datasets <- listDatasets(ensembl)
             description <- db.datasets[db.datasets$dataset == "hsapiens_gene_ensembl", ]$description
             message(paste0("Downloading genome information (try:", tries, ") Using: ", description))
-            gene.location <- getBM(attributes = attributes,
-                                   filters = "chromosome_name",
-                                   values = c(1:22,"X","Y"),
-                                   mart = ensembl)
+            gene.location <- getBM(
+                attributes = attributes,
+                filters = "chromosome_name",
+                values = c(1:22,"X","Y"),
+                mart = ensembl
+            )
             gene.location
         }, error = function(e) {
             msg <<- conditionMessage(e)

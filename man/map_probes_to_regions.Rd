@@ -7,7 +7,8 @@
 map_probes_to_regions(
   dnam,
   genome = c("hg38", "hg19"),
-  arrayType = c("450k", "EPIC")
+  arrayType = c("450k", "EPIC"),
+  rm.masked.probes = TRUE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ map_probes_to_regions(
 \item{genome}{Human genome of reference hg38 or hg19}
 
 \item{arrayType}{DNA methylation array type (450k or EPIC)}
+
+\item{rm.masked.probes}{Remove masked probes ? Default: TRUE}
 }
 \description{
 Given a DNA methylation matrix with probes as row names,

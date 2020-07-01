@@ -131,7 +131,7 @@ stratified_model <- function(
                 "DNAmlow_pval_rna.tf" = results.low.pval %>% as.numeric(),
                 "DNAmlow_estimate_rna.tf" = results.low.estimate %>% as.numeric(),
                 "DNAmhigh_pval_rna.tf" = results.high.pval %>% as.numeric(),
-                "DNAmhigh_estimate_rna.tf" = results.high.estimate  %>% as.numeric(),
+                "DNAmhigh_estimate_rna.tf" = results.high.estimate %>% as.numeric(),
                 "TF.affinity" = classification$TF.affinity,
                 "TF.role" = classification$TF.role
             )
@@ -170,7 +170,7 @@ stratified_model_aux_fast <- function(data, prefix = ""){
 
 #' @importFrom MASS rlm psi.bisquare
 stratified_model_aux <- function(data, prefix = ""){
-    pct.zeros.samples <- sum(data$rna.target == 0,na.rm = TRUE) / nrow(data)
+    pct.zeros.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
 
     if (pct.zeros.samples > 0.25) {
         results <-  tryCatch({
@@ -197,12 +197,16 @@ stratified_model_aux <- function(data, prefix = ""){
             t %>%
             as.data.frame()
         colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
+
     } else {
+
         results <- tryCatch({
+
             rlm(rna.target ~ rna.tf,
                 data = data,
                 psi = psi.bisquare,
                 maxit = 100) %>% summary %>% coef %>% data.frame
+
         }, error = function(e){
             # message("Binary model: ", e)
             return(NULL)
@@ -251,12 +255,15 @@ getClassification <- function(low.estimate, high.estimate){
     TF.role <- ifelse(slope_estimate > 0, "Activator", "Repressor")
 
     if(TF.role == "Repressor") {
+
         if(low.estimate < high.estimate) {
             TF.affinity <- "M-minus"
         } else {
             TF.affinity <- "M-plus"
         }
+
     } else {
+
         if(low.estimate < high.estimate) {
             TF.affinity <- "M-plus"
         } else {

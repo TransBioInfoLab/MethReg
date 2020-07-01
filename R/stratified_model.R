@@ -170,7 +170,7 @@ stratified_model_aux_fast <- function(data, prefix = ""){
 
 #' @importFrom MASS rlm psi.bisquare
 stratified_model_aux <- function(data, prefix = ""){
-    pct.zeros.samples <- sum(data$rna.target == 0) / nrow(data)
+    pct.zeros.samples <- sum(data$rna.target == 0,na.rm = TRUE) / nrow(data)
 
     if (pct.zeros.samples > 0.25) {
         results <-  tryCatch({

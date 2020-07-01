@@ -2,66 +2,48 @@
 % Please edit documentation in R/get_tf_in_region_hocomoco.R
 \name{get_tf_in_region}
 \alias{get_tf_in_region}
-\title{Get human TF list for a region using HOCOMOCO prediction}
+\title{Get human TF list for a region using JASPAR 2018 database and motifmatchr}
 \usage{
 get_tf_in_region(
-  region,
+  region.gr,
+  window.size = 0,
   genome = c("hg19", "hg38"),
-  arrayType = c("450k", "EPIC"),
-  classification = c("motif", "subfamily", "family"),
+  p.cutoff = 1e-08,
   cores = 1
 )
 }
 \arguments{
-\item{region}{Region to map. Either a Granges or a named vertor}
+\item{window.size}{Integer value to extend the regions. For example, a value of 50 will
+extend 50 bp upstream and 50 downstream the region. Default is no increase}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
-\item{arrayType}{DNA methylation array "450k" or "EPIC"}
-
-\item{classification}{TF classification to be used.
-Either "subfamily" or "family".}
+\item{p.cutoff}{Motifmatcher p.cutoff. Default 1e-8.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
-}
-\value{
-A dataframe with region, a TF name and TF gene ensembl ID
+
+\item{region}{A GRanges object with the DNA methylation regions to be scanned for the motifs}
 }
 \description{
-Given a genomic region, this function obtains TFs that bind close to it (+-250bp).
-To this end, we used a pre-computed dataset for EPIC and HM450 Array that was created as follows:
-each HOCOMOCO human TF moitf was searched around the probe (+-250bp), and a binary matrix was created,
+Given a genomic region, this function obtains TFs within it using a motif search.
+To this end, we use  a pre-computed dataset for EPIC and HM450 Array that was created as follows:
+each JASPAR 2018 human TF motif is searched within region and a binary matrix is created,
 with 1 if the motif was found, 0 if not.
-The function \code{get_tf_in_region} uses this pre-computed dataset to link regions to TFs:
-for each region, obtain the probes within it and a motif will be selected
-if at least one of the probes within the region has the motif (i.e. value 1 in the original dataset).
-
-Then for each TF motifs found within the region, we can select:
-(1) only TF motif
-(2) All TFs withing the same family as the TF motif
-(3) All TFs withing the same subfamily as the TF motif
-
-For example, if the motif is for the TF FOXA1, the option (1),
-will return only FOXA1, option two will provide FOXA1, FOXA2, FOXA3, since they
-are classified into the same subfamily group by the TFClass database, and
-option (3) will provide FOX family members.
 }
 \examples{
 \dontrun{
- regions.names <- c("chr1:60591-79592","chr4:40162197-43162198")
- region.tf <- get_tf_in_region(regions.names,
-                 genome = "hg19",
-                 arrayType = "450k",
-                 classification = "subfamily")
- regions.names <- c("chr1:60591-79592","chr4:40162197-43162198")
- region.tf <- get_tf_in_region(regions.names,
-                 genome = "hg19",
-                 arrayType = "450k",
-                 classification = "motif")
+ regions.names <- c("chr1:79502-79592","chr4:43162098-43162198")
  regions.gr <- make_granges_from_names(regions.names)
- region.tf <- get_tf_in_region(regions.gr,
-                 genome = "hg38",
-                 arrayType = "450k",
-                 classification = "family")
+ region.tf <- get_tf_in_region(
+                 regions.gr,
+                 genome = "hg38"
+ )
+ regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
+ regions.gr <- make_granges_from_names(regions.names)
+ region.tf <- get_tf_in_region(
+                 regions.gr,
+                 window.size = 25,
+                 genome = "hg38"
+ )
 }
 }

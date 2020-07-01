@@ -124,7 +124,7 @@ get_tf_in_region <- function(
     message("Preparing output")
     # Merge results of region and motif to motif TF
 
-    motifs.probes.df$TF_ensembl_gene_id <- map_symbol_to_ensg(motifs.probes.df$TF_external_gene_name)
+    motifs.probes.df$TF <- map_symbol_to_ensg(motifs.probes.df$TF_external_gene_name)
     motifs.probes.df <- motifs.probes.df %>% na.omit
     return(motifs.probes.df %>% unique)
 

@@ -276,11 +276,18 @@ interaction_model_rlm <- function(data){
 }
 
 interaction_model_zeroinfl <- function(data){
-    zinb <- pscl::zeroinfl(
-        trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
-        data = data,
-        dist = "negbin",
-        EM = FALSE) %>% summary %>% coef
+    zinb <- tryCatch({
+        pscl::zeroinfl(
+            trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
+            data = data,
+            dist = "negbin",
+            EM = FALSE) %>% summary %>% coef
+    }, error = function(e){
+        # message("Continuous model: ", e)
+        return(NULL)
+    })
+    if(is.null(zinb)) return(interaction_model_no_results())
+
     zinb <- zinb$count %>% data.frame
 
     all.pval <- zinb[c(-1,-5),4,drop = F] %>% t %>% as.data.frame()

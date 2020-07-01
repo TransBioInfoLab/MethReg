@@ -5,7 +5,7 @@
 \title{Get human TF list for a region using JASPAR 2018 database and motifmatchr}
 \usage{
 get_tf_in_region(
-  region.gr,
+  region,
   window.size = 0,
   genome = c("hg19", "hg38"),
   p.cutoff = 1e-08,
@@ -13,6 +13,8 @@ get_tf_in_region(
 )
 }
 \arguments{
+\item{region}{A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs}
+
 \item{window.size}{Integer value to extend the regions. For example, a value of 50 will
 extend 50 bp upstream and 50 downstream the region. Default is no increase}
 
@@ -21,8 +23,6 @@ extend 50 bp upstream and 50 downstream the region. Default is no increase}
 \item{p.cutoff}{Motifmatcher p.cutoff. Default 1e-8.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
-
-\item{region}{A GRanges object with the DNA methylation regions to be scanned for the motifs}
 }
 \description{
 Given a genomic region, this function obtains TFs within it using a motif search.
@@ -33,15 +33,14 @@ with 1 if the motif was found, 0 if not.
 \examples{
 \dontrun{
  regions.names <- c("chr1:79502-79592","chr4:43162098-43162198")
- regions.gr <- make_granges_from_names(regions.names)
  region.tf <- get_tf_in_region(
-                 regions.gr,
+                 region = regions.names,
                  genome = "hg38"
  )
  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
  regions.gr <- make_granges_from_names(regions.names)
  region.tf <- get_tf_in_region(
-                 regions.gr,
+                 region = regions.gr,
                  window.size = 25,
                  genome = "hg38"
  )

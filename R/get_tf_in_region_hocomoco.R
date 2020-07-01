@@ -202,7 +202,7 @@ map_motif_probes_to_regions <- function(
 #' each JASPAR 2018 human TF motif is searched within region and a binary matrix is created,
 #' with 1 if the motif was found, 0 if not.
 #' @importFrom SummarizedExperiment assay
-#' @param region A GRanges object with the DNA methylation regions to be scanned for the motifs
+#' @param region A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs
 #' @param window.size Integer value to extend the regions. For example, a value of 50 will
 #' extend 50 bp upstream and 50 downstream the region. Default is no increase
 #' @param genome Human genome of reference "hg38" or "hg19"
@@ -211,22 +211,21 @@ map_motif_probes_to_regions <- function(
 #' @examples
 #' \dontrun{
 #'  regions.names <- c("chr1:79502-79592","chr4:43162098-43162198")
-#'  regions.gr <- make_granges_from_names(regions.names)
 #'  region.tf <- get_tf_in_region(
-#'                  regions.gr,
+#'                  region = regions.names,
 #'                  genome = "hg38"
 #'  )
 #'  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
 #'  regions.gr <- make_granges_from_names(regions.names)
 #'  region.tf <- get_tf_in_region(
-#'                  regions.gr,
+#'                  region = regions.gr,
 #'                  window.size = 25,
 #'                  genome = "hg38"
 #'  )
 #' }
 #' @export
 get_tf_in_region <- function(
-    region.gr,
+    region,
     window.size = 0,
     genome = c("hg19","hg38"),
     p.cutoff = 1e-8,
@@ -238,8 +237,13 @@ get_tf_in_region <- function(
 
     parallel <- register_cores(cores)
 
-    if (!is(region.gr,"GenomicRanges"))
-        stop("probes.gr needs to be a GenomicRanges object")
+    if(is(region,"character") | is(region,"factor")){
+        region.gr <- make_granges_from_names(region)
+        region.names <- region
+    } else if(is(region,"GenomicRanges")){
+        region.gr <- region
+        region.names <- make_names_from_granges(region)
+    }
 
     if (min(IRanges::width(region.gr)) < 2)
         stop("Minimun region size is 2, please set window.size argument")
@@ -265,7 +269,7 @@ get_tf_in_region <- function(
         genome = genome,
         p.cutoff = p.cutoff
     ) %>% SummarizedExperiment::assay()
-    rownames(motif.matrix) <- make_names_from_granges(region.gr)
+    rownames(motif.matrix) <- region.names
 
     # remove motifs not found in any regions
     motif.matrix <- motif.matrix[,colSums(motif.matrix) > 0, drop = FALSE]

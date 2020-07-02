@@ -193,7 +193,7 @@ region.tf <- get_tf_in_region(
     region = probes.gr, 
     genome = "hg38", 
     window.size = 50,
-    p.cutoff = 1e-8
+    p.cutoff = 5e-5
 )
 ```
 
@@ -533,7 +533,7 @@ gene.exp.chr21.residuals[1:5,1:5]
 ```{R, results = "hide", eval = TRUE}
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
-dna.met.chr21.residuals <- get_residuals(dna.met.chr21[1:5,],metadata) %>% as.matrix()
+dna.met.chr21.residuals <- get_residuals(dna.met.chr21, metadata) %>% as.matrix()
 ```
 
 ```{R, eval = TRUE}

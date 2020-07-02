@@ -16,7 +16,7 @@ get_tf_in_region(
 \item{region}{A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs}
 
 \item{window.size}{Integer value to extend the regions. For example, a value of 50 will
-extend 50 bp upstream and 50 downstream the region. Default is no increase}
+extend 25 bp upstream and 25 downstream the region. Default is no increase}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 

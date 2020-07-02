@@ -110,7 +110,7 @@ get_region_target_gene <- function(
         colnames(genes.overlapping) <- paste0("gene_",colnames(genes.overlapping))
 
         colnames(genes.overlapping)[grep("ensembl_gene_id",colnames(genes.overlapping))] <- "target"
-        colnames(genes.overlapping)[grep("target_gene_name",colnames(genes.overlapping))] <- "target"
+        colnames(genes.overlapping)[grep("external_gen",colnames(genes.overlapping))] <- "target_gene_name"
         genes.overlapping <- genes.overlapping[,grep("target",colnames(genes.overlapping))]
 
         out <- dplyr::bind_cols(

@@ -245,11 +245,11 @@ get_tf_in_region <- function(
         region.names <- make_names_from_granges(region)
     }
 
-    if (min(IRanges::width(region.gr)) < 2)
-        stop("Minimun region size is 2, please set window.size argument")
-
     region.gr <- region.gr + (window.size/2)
     # region <- resize(region,width = 50,fix = "center")
+
+    if (min(IRanges::width(region.gr)) < 2)
+        stop("Minimun region size is 2, please set window.size argument")
 
     genome <- match.arg(genome)
 

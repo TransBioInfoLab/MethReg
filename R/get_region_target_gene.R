@@ -71,7 +71,7 @@ get_region_target_gene <- function(
                          "external_gene_name",
                          "ensembl_gene_id")])
 
-        colnames(neargenes)[1:3] <- c("gene_chrom","gene_start","gene_end")
+        colnames(neargenes)[1:3] <- c("target_gene_chrom","target_gene_start","target_gene_end")
         colnames(neargenes)[4] <- "target_gene_name"
         colnames(neargenes)[5] <- "target"
 
@@ -79,7 +79,7 @@ get_region_target_gene <- function(
         regionID <- paste0(regionID[[1]],":",regionID[[2]],"-",regionID[[3]])
         out <- dplyr::bind_cols(
             data.frame("regionID" = regionID, stringsAsFactors = FALSE),
-            neargenes
+            neargenes[,4:5]
         ) %>% tibble::as_tibble()
 
     } else {
@@ -110,14 +110,16 @@ get_region_target_gene <- function(
         colnames(genes.overlapping) <- paste0("gene_",colnames(genes.overlapping))
 
         colnames(genes.overlapping)[grep("ensembl_gene_id",colnames(genes.overlapping))] <- "target"
+        colnames(genes.overlapping)[grep("target_gene_name",colnames(genes.overlapping))] <- "target"
+        genes.overlapping <- genes.overlapping[,grep("target",colnames(genes.overlapping))]
 
         out <- dplyr::bind_cols(
             data.frame("regionID" = regionID,stringsAsFactors = FALSE),
-            data.frame("regionID.extended" = regionID.extended %>% as.character(),
-                       "window.extended.width" = window.width,
-                       "Distance region-gene" = distance(regions.gr[queryHits(overlap)],
-                                                         geneAnnot[subjectHits(overlap)]),
-                       stringsAsFactors = FALSE),
+            #data.frame("regionID.extended" = regionID.extended %>% as.character(),
+            #           "window.extended.width" = window.width,
+            #           "Distance region-gene" = distance(regions.gr[queryHits(overlap)],
+            #                                             geneAnnot[subjectHits(overlap)]),
+            #           stringsAsFactors = FALSE),
             genes.overlapping)  %>% tibble::as_tibble()
     }
     return(out)

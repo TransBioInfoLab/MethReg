@@ -108,6 +108,7 @@ dna.met.chr21[1:5,1:5]
 ```
 
 ### 3.1.2 DMRs data
+
 Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage 
 can be obtained from R packages such as \code{coMethDMR}, \code{comb-p}, \code{DMRcate} 
 and many others. The methylation levels in multiple CpGs within the DMRs need to be 
@@ -143,7 +144,6 @@ Note that the distal analysis will be more time and resource consuming.
  
 ```{R}
 # Get CpG information
-HM450.hg38.manifest <- sesameData::sesameDataGet("HM450.hg38.manifest")
 probes.gr <- make_granges_from_names(rownames(dna.met.chr21))
 class(probes.gr)
 
@@ -179,32 +179,28 @@ regionID start - window.width/2 and  regionID end + window.width/2
 
 ### Mapping region to TF
 
-HOCOMOCO is a database of transcription factor binding sites (TFBS) motifs derived 
-from _in vivo_ ChIP-seq datasets [@kulakovskiy2016hocomoco]. The function `get_tf_in_region` 
-maps the regions to TF using a precomputed dataset of HOCOMOCO motifs . 
-For each motif we scanned 500 bp around (i.e. +-250bp) each EPIC and HM450 arrays probes. 
-Then for each motif found in a region we extract TF within the same Tf family or subfamily, 
-using TFClass [@wingender2013tfclass], since they have similar binding motifs.
+JASPAR 2020 is an open-access database of curated, non-redundant transcription 
+factor (TF)-binding profiles [@JASPAR2020, @fornes2020jaspar], which contains 
+more the 500 human TF motifs.
 
-Therefore, a region is linked to a TF if any of the probes within it is mapped to the TF. 
-In other words, we link the DNA methylation regions to TFs within 250 bp from the start or end of the region. 
+The function `get_tf_in_region` uses `motifmatchr` [@motifmatchr] to scan them for occurrences of motifs.
+The argument `window.size` will be use to extend the region to scan
+for the motifs, for example, a `window.size` of `50` will add `25` bp 
+upstream and `25` bp downstream of the original region.
 
 ```{R, results = "hide"}
 # we will only map the first 200 regions, since this function may take a while to compute
 region.tf <- get_tf_in_region(
     region = probes.gr[1:200], 
     genome = "hg38", 
-    arrayType = "450k", 
-    classification = "subfamily"
+    window.size = 50,
+    p.cutoff = 1e-8
 )
-# only keep those within our example dataset
-region.tf <- region.tf %>% dplyr::filter(TF_ensembl_gene_id %in% rownames(gene.exp.chr21))
 ```
 
 ```{R}
 head(region.tf)
 ```
-
 
 ### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
 
@@ -217,8 +213,8 @@ The triplet is a data frame with the following columns:
 ```{R, message = FALSE, warning = FALSE}
 # Merging the results from the previous sections (region and target, and region and TF)
 triplet <- dplyr::inner_join(
-    mapping.closest[,c("regionID","target")],
-    region.tf[,c("regionID","TF_ensembl_gene_id")]
+    mapping.closest[,c("regionID","target","target_gene_name")],
+    region.tf
     )
 colnames(triplet) <- c("regionID","target","TF")
 ```

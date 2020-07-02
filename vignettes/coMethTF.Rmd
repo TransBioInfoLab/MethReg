@@ -189,9 +189,8 @@ for the motifs, for example, a `window.size` of `50` will add `25` bp
 upstream and `25` bp downstream of the original region.
 
 ```{R, results = "hide"}
-# we will only map the first 200 regions, since this function may take a while to compute
 region.tf <- get_tf_in_region(
-    region = probes.gr[1:200], 
+    region = probes.gr, 
     genome = "hg38", 
     window.size = 50,
     p.cutoff = 1e-8
@@ -200,6 +199,7 @@ region.tf <- get_tf_in_region(
 
 ```{R}
 head(region.tf)
+dim(region.tf)
 ```
 
 ### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
@@ -212,23 +212,18 @@ The triplet is a data frame with the following columns:
 
 ```{R, message = FALSE, warning = FALSE}
 # Merging the results from the previous sections (region and target, and region and TF)
-triplet <- dplyr::inner_join(
-    mapping.closest[,c("regionID","target","target_gene_name")],
-    region.tf
-    )
-colnames(triplet) <- c("regionID","target","TF")
+triplet <- dplyr::inner_join(mapping.closest,region.tf)
 ```
 
 ```{R}
 head(triplet)
 ```
 
-Note that this dataset include only regions with both nearby target genes (500K bp) and nearby TFs (500 bp). 
 There may also be multiple rows for a region, when multiple target gene and/or TFs are found close to it. 
 
 # 4. Evaluating the regulatory potential of DMRs (or CpGs)
 
-Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby (Yin et al. 2013), 
+Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby [@yin2017impact], 
 target gene expression can often be influenced by the synergistic effects of both TF and DNA methylation. 
 In other words, TF activities in gene regulation is affected by DNA methylation or vice versa. 
 

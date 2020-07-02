@@ -196,10 +196,10 @@ map_motif_probes_to_regions <- function(
     motif.matrix
 }
 
-#' @title Get human TF list for a region using JASPAR 2018 database and motifmatchr
+#' @title Get human TF list for a region using JASPAR 2020 database and motifmatchr
 #' @description Given a genomic region, this function obtains TFs within it using a motif search.
 #' To this end, we use  a pre-computed dataset for EPIC and HM450 Array that was created as follows:
-#' each JASPAR 2018 human TF motif is searched within region and a binary matrix is created,
+#' each JASPAR 2020 human TF motif is searched within region and a binary matrix is created,
 #' with 1 if the motif was found, 0 if not.
 #' @importFrom SummarizedExperiment assay
 #' @param region A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs
@@ -232,7 +232,7 @@ get_tf_in_region <- function(
     cores = 1)
 {
 
-    check_package("JASPAR2018")
+    check_package("JASPAR2020")
     check_package("TFBSTools")
 
     parallel <- register_cores(cores)
@@ -256,7 +256,7 @@ get_tf_in_region <- function(
     opts <- list()
     opts[["species"]] <- 9606 # homo sapies
     # opts[["all_versions"]] <- TRUE
-    PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2018::JASPAR2018, opts)
+    PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, opts)
     motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
     names(PFMatrixList) <- motifs.names
     PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]

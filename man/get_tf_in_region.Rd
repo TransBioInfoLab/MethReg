@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_tf_in_region_hocomoco.R
 \name{get_tf_in_region}
 \alias{get_tf_in_region}
-\title{Get human TF list for a region using JASPAR 2018 database and motifmatchr}
+\title{Get human TF list for a region using JASPAR 2020 database and motifmatchr}
 \usage{
 get_tf_in_region(
   region,
@@ -27,7 +27,7 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 \description{
 Given a genomic region, this function obtains TFs within it using a motif search.
 To this end, we use  a pre-computed dataset for EPIC and HM450 Array that was created as follows:
-each JASPAR 2018 human TF motif is searched within region and a binary matrix is created,
+each JASPAR 2020 human TF motif is searched within region and a binary matrix is created,
 with 1 if the motif was found, 0 if not.
 }
 \examples{

@@ -204,7 +204,7 @@ map_motif_probes_to_regions <- function(
 #' @importFrom SummarizedExperiment assay
 #' @param region A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs
 #' @param window.size Integer value to extend the regions. For example, a value of 50 will
-#' extend 50 bp upstream and 50 downstream the region. Default is no increase
+#' extend 25 bp upstream and 25 downstream the region. Default is no increase
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param p.cutoff Motifmatcher p.cutoff. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
@@ -248,7 +248,7 @@ get_tf_in_region <- function(
     if (min(IRanges::width(region.gr)) < 2)
         stop("Minimun region size is 2, please set window.size argument")
 
-    region.gr <- region.gr + window.size
+    region.gr <- region.gr + (window.size/2)
     # region <- resize(region,width = 50,fix = "center")
 
     genome <- match.arg(genome)

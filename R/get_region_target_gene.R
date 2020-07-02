@@ -8,7 +8,7 @@
 #' genes within a window around the region ("window").
 #' @param window.width When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
-#' @importFrom GenomicRanges distanceToNearest nearest ranges makeGRangesFromDataFrame values seqnames distance
+#' @import GenomicRanges
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
 #' @importFrom ELMER getTSS

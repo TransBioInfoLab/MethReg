@@ -149,7 +149,7 @@ stratified_model <- function(
 #' )
 #' stratified_model_aux_fast(df)
 #' @noRd
-#' @importFrom speedglm speedlm.fit
+# @importFrom speedglm speedlm.fit
 stratified_model_aux_fast <- function(data, prefix = ""){
 
     # Faster implementation of linear model

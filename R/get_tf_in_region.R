@@ -5,6 +5,7 @@
 #' with 1 if the motif was found, 0 if not.
 #' @importFrom SummarizedExperiment assay
 #' @importFrom DelayedArray colSums
+#' @importFrom IRanges width
 #' @param region A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs
 #' @param window.size Integer value to extend the regions. For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase

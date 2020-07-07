@@ -30,7 +30,7 @@ filter_regions_by_mean_quantile_difference <- function(dnam, diff.mean.th = 0.2,
     tab$Status[which(tab$Status == TRUE)] <- "Regions above threshold"
     print(tab)
 
-    diff.regions <- c(diff_mean %>% filter(diff_mean > 0.2) %>% pull(X1) %>% as.character())
+    diff.regions <- c(diff_mean %>% filter(diff_mean > 0.2) %>% pull(.data$X1) %>% as.character())
     dnam[diff.regions,]
 }
 
@@ -72,7 +72,7 @@ filter_genes_by_quantile_mean_fold_change <- function(
     tab$Status[which(tab$Status == TRUE)] <- "Genes above threshold"
     print(tab)
 
-    diff.genes <- c(diff.genes %>% filter(diff_fold_change > fold.change) %>% pull(X1) %>% as.character())
+    diff.genes <- c(diff.genes %>% filter(.data$diff_fold_change > fold.change) %>% pull(.data$X1) %>% as.character())
     exp[diff.genes,]
 }
 

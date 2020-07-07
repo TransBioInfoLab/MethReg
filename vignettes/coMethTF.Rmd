@@ -146,7 +146,9 @@ Note that the distal analysis will be more time and resource consuming.
 # Get CpG information
 probes.gr <- make_granges_from_names(rownames(dna.met.chr21))
 class(probes.gr)
+```
 
+```{R}
 # Map probes to nearest gene
 mapping.closest <- get_region_target_gene(
     regions.gr = probes.gr, 
@@ -155,7 +157,9 @@ mapping.closest <- get_region_target_gene(
 )
 dim(mapping.closest)
 mapping.closest
+```
 
+```{R}
 # Map probes to genes within 500kb window
 mapping.window <- get_region_target_gene(
     regions.gr = probes.gr, 
@@ -349,7 +353,7 @@ plots <- plot_stratified_model(
     triplet.results = results.stratified.model[1,], 
     dnam = dna.met.chr21, 
     exp = gene.exp.chr21
-    )
+)
 ```
 
 ```{R, fig.height = 14, fig.width = 12, eval = TRUE}
@@ -427,10 +431,6 @@ from the `coMethDMR` R package here.
 probes.cluster <- coMethDMR::getPredefinedCluster(arrayType = "450k", clusterType = "regions")
 ```
 
-```{R, include = FALSE}
-data("probes.cluster")
-```
-
 ```{R}
 message("Number of clusters: ",length(probes.cluster))
 probes.cluster %>% head
@@ -469,7 +469,8 @@ coMeth_ls <- CoMethAllRegions(
     arrayType = "450k",
     returnAllCpGs = FALSE,
     output = "CpGs",
-    nCores_int = 8)
+    nCores_int = 8
+)
 ```
 
 ```{R, include = FALSE}

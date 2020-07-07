@@ -4,6 +4,7 @@
 #' each JASPAR 2020 human TF motif is searched within region and a binary matrix is created,
 #' with 1 if the motif was found, 0 if not.
 #' @importFrom SummarizedExperiment assay
+#' @importFrom DelayedArray colSums
 #' @param region A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs
 #' @param window.size Integer value to extend the regions. For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
@@ -74,13 +75,13 @@ get_tf_in_region <- function(
     rownames(motif.matrix) <- region.names
 
     # remove motifs not found in any regions
-    motif.matrix <- motif.matrix[,colSums(motif.matrix) > 0, drop = FALSE]
+    motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
 
     if(is(motif.matrix, "lgCMatrix")){
         motif.matrix <-  motif.matrix %>% as.matrix() %>% as.data.frame()
     }
 
-    message("Preparing out put")
+    message("Preparing output")
     motifs.probes.df <- plyr::alply(
         colnames(motif.matrix),
         .margins = 1,

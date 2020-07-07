@@ -21,7 +21,7 @@ vignette: >
   
 <style> body {text-align: justify} </style>
   
-```{r, include = FALSE}
+```{r settings, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(dplyr)
 library(sesameData)
@@ -57,7 +57,7 @@ You can install the development version of the package from GitHub using the fol
 devtools::install_github("TransBioInfoLab/coMethTF")
 ```
 
-```{r, eval = TRUE, include = FALSE}
+```{r libs_load, eval = TRUE, include = FALSE}
 library(coMethTF)
 ```
 

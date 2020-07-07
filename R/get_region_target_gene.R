@@ -106,7 +106,7 @@ get_region_target_gene <- function(
             regions.gr.extend[queryHits(overlap)] %>% end
         )
 
-        genes.overlapping <- geneAnnot[subjectHits(overlap)] %>% as.data.frame()
+        genes.overlapping <- geneAnnot[subjectHits(overlap)] %>% as.data.frame(row.names = NULL)
         colnames(genes.overlapping) <- paste0("gene_",colnames(genes.overlapping))
 
         colnames(genes.overlapping)[grep("ensembl_gene_id",colnames(genes.overlapping))] <- "target"

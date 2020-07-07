@@ -34,7 +34,9 @@ Imports:
     stats,
     Matrix,
     MASS,
-    rlang
+    rlang,
+    pscl,
+    IRanges
 Suggests: 
     rmarkdown,
     testthat (>= 2.1.0),
@@ -49,7 +51,9 @@ Suggests:
     prettydoc,
     JASPAR2020,
     TFBSTools,
-    motifmatchr
+    motifmatchr,
+    coMethDMR,
+    matrixStats
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Depends: 

@@ -26,6 +26,8 @@ Then, for each promoter region calculate the mean DNA methylation of probes
 overlapping the region.
 }
 \examples{
-data("dna.met.chr21")
-promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
+\dontrun{
+ data("dna.met.chr21")
+ promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
+}
 }

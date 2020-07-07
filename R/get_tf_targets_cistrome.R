@@ -99,7 +99,7 @@ check_cistrome_study <- function(conn, study){
 #' Get list of cistrome studies
 #' @examples
 #' get_cistrome_studies()
-#' @export
+#' @noRd
 get_cistrome_studies <- function(conn = NULL){
 
     check_package("DBI")

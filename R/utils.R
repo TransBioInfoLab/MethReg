@@ -160,8 +160,6 @@ get_gene_information_biomart <- function(genome = "hg38"){
     }
 }
 
-
-#' @export
 #' @noRd
 get_gene_information <- function(genome = "hg38", as.granges = FALSE){
     if(genome == "hg19"){

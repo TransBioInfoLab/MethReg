@@ -9,7 +9,11 @@
 #' @examples
 #' data("dna.met.chr21")
 #' dna.met.chr21.filtered <- filter_regions_by_mean_quantile_difference(dna.met.chr21)
-filter_regions_by_mean_quantile_difference <- function(dnam, diff.mean.th = 0.2, cores = 1){
+filter_regions_by_mean_quantile_difference <- function(
+    dnam,
+    diff.mean.th = 0.2,
+    cores = 1
+){
 
     parallel <- register_cores(cores)
     diff_mean <- plyr::adply(dnam,.margins = 1,.fun = function(row){
@@ -18,8 +22,8 @@ filter_regions_by_mean_quantile_difference <- function(dnam, diff.mean.th = 0.2,
         low.cutoff <- quant.met[2]
         upper.cutoff <- quant.met[4]
 
-        mean.q1 <- row %>% .[. <= low.cutoff] %>% mean(na.rm = TRUE)
-        mean.q4 <- row %>% .[. >= upper.cutoff] %>% mean(na.rm = TRUE)
+        mean.q1 <- row[row <= low.cutoff] %>% mean(na.rm = TRUE)
+        mean.q4 <- row[row <= upper.cutoff] %>% mean(na.rm = TRUE)
         data.frame("diff_mean" = mean.q4 - mean.q1, stringsAsFactors = FALSE)
     }, .progress = "time", .parallel = parallel)
 
@@ -49,8 +53,8 @@ filter_regions_by_mean_quantile_difference <- function(dnam, diff.mean.th = 0.2,
 filter_genes_by_quantile_mean_fold_change <- function(
     exp,
     fold.change = 1.5,
-    cores = 1)
-{
+    cores = 1
+){
 
     parallel <- register_cores(cores)
     diff.genes <- plyr::adply(exp,.margins = 1,.fun = function(row){
@@ -95,7 +99,9 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
 #' @examples
 #' data("gene.exp.chr21")
 #' gene.exp.chr21.filtered <- filter_genes_zero_expression_all_samples(gene.exp.chr21)
-filter_genes_zero_expression_all_samples <- function(exp){
+filter_genes_zero_expression_all_samples <- function(
+    exp
+){
     genes.keep <- rownames(exp)[rowSums(exp == 0, na.rm = TRUE) < ncol(exp)] %>% na.omit()
     if(length(genes.keep) < nrow(exp) & length(genes.keep) > 0){
         message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")

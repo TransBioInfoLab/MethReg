@@ -3,8 +3,6 @@
 export(cor_region_dnam_target_gene)
 export(filter_genes_by_quantile_mean_fold_change)
 export(filter_regions_by_mean_quantile_difference)
-export(get_cistrome_studies)
-export(get_gene_information)
 export(get_human_tfs)
 export(get_promoter_avg)
 export(get_region_target_gene)

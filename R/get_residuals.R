@@ -51,7 +51,7 @@ get_residuals <- function(
 
     if(is.null(data.matrix)) stop("Please data.matrix dnam argument with a matrix")
     if(is.null(metadata.samples)) stop("Please set metadata argument with metadata information")
-    if(!all(colnames(data.matrix) == rownames(metadata))) {
+    if(!all(colnames(data.matrix) == rownames(metadata.samples))) {
         stop("data.matrix columns names should be the same as metadata row names")
     }
 

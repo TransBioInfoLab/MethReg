@@ -9,8 +9,10 @@
 #' @export
 #' @importFrom GenomicRanges reduce
 #' @examples
-#' data("dna.met.chr21")
-#' promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
+#' \dontrun{
+#'  data("dna.met.chr21")
+#'  promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
+#' }
 #' @param dnam A DNA methylation matrix
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
@@ -34,13 +36,12 @@ get_promoter_avg <- function(
     # Get probes regions for mapping the motifs
     message("o Get DNA methylation regions overlapping promoter regions")
 
-    # If inout are probes we need to map to regions
+    # If input are probes, we need to map to regions
     if(any(grepl("cg", rownames(dnam)))){
         dnam <- map_probes_to_regions(dnam, genome = genome, arrayType = arrayType)
     }
 
     probes.gr <- make_granges_from_names(rownames(dnam))
-
 
     # Find which probes overlap with the regions
     hits <- findOverlaps(promoter.gr, probes.gr, ignore.strand = TRUE) %>% as.data.frame()

@@ -140,33 +140,6 @@ stratified_model <- function(
     return(out)
 }
 
-#' Fast linear model
-#' @examples
-#' df <- data.frame(
-#'   "rna.target" = runif(10, min = 0, max = 4),
-#'   "rna.tf" = runif(10, min = 0, max = 4),
-#'   "met" = runif(10, min = 0, max = 1)
-#' )
-#' stratified_model_aux_fast(df)
-#' @noRd
-# @importFrom speedglm speedlm.fit
-stratified_model_aux_fast <- function(data, prefix = ""){
-
-    # Faster implementation of linear model
-    # Idea is fit fast version of lm to all triplets,
-    # select significant triplets with pval.intxn < 0.05
-    results <- speedlm.fit(
-        y = data$rna.target,
-        X = cbind(1, data$rna.tf %>% as.matrix()),
-        intercept = FALSE
-    ) %>% summary %>% coef
-
-    print(results)
-    results.pval <- results[-1,4,drop = F] %>% t %>% as.data.frame()
-    colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
-    return(list("pval" = results.pval))
-}
-
 
 #' @importFrom MASS rlm psi.bisquare
 #' @importFrom stats coef pt

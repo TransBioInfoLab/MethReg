@@ -158,36 +158,10 @@ interaction_model <- function(
         },
         .progress = "time",
         .parallel = parallel,
-        .inform = FALSE,
+        .inform = TRUE,
         .paropts = list(.errorhandling = 'pass'))
 }
 
-#' Fast linear model
-#' @examples
-#' df <- data.frame(
-#'   "rna.target" = runif(300, min = 0, max = 4),
-#'   "rna.tf" = runif(300, min = 0, max = 4),
-#'   "met" = runif(300, min = 0, max = 1)
-#' )
-#' @noRd
-# @importFrom speedglm speedlm.fit
-interaction_model_aux_fast <- function(data){
-
-    # Faster implementation of linear model
-    # Idea is fit fast version of lm to all triplets,
-    # select significant triplets with pval.intxn < 0.05
-    results <- speedlm(
-        rna.target ~ met + rna.tf + rna.tf * met,
-        data = data
-    ) %>% summary %>% coef
-
-    results.pval <- results[-1,4,drop = F] %>% t %>% as.data.frame()
-    colnames(results.pval) <- paste0("pval_",colnames(results.pval))
-
-    return(
-        list("pval" = results.pval)
-    )
-}
 
 interaction_model_no_results <- function(){
     cbind(

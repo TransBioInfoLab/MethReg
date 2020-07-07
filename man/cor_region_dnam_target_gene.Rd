@@ -40,7 +40,6 @@ using spearman rank correlation test.  Note that genes with RNA expression equal
 will not be evaluated.
 }
 \examples{
-library(dplyr)
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 regions.gr <- make_granges_from_names(rownames(dna.met.chr21))
@@ -64,5 +63,6 @@ results.all <- cor_region_dnam_target_gene(
    links = links,
    dnam = dna.met.chr21,
    exp = gene.exp.chr21,
-   min.cor.pval = 1)
+   min.cor.pval = 1
+)
 }

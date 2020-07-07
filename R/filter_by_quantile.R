@@ -64,8 +64,8 @@ filter_genes_by_quantile_mean_fold_change <- function(
         low.cutoff <- quant[2]
         upper.cutoff <- quant[4]
 
-        mean.q1 <- row %>% .[. <= low.cutoff] %>% mean(na.rm = TRUE)
-        mean.q4 <- row %>% .[. >= upper.cutoff] %>% mean(na.rm = TRUE)
+        mean.q1 <- row[row <= low.cutoff] %>% mean(na.rm = TRUE)
+        mean.q4 <- row[row >= upper.cutoff] %>% mean(na.rm = TRUE)
         data.frame("diff_fold_change" = mean.q4 / mean.q1, stringsAsFactors = FALSE)
     }, .progress = "time",.parallel = parallel)
 

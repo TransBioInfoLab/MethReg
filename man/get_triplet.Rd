@@ -5,7 +5,7 @@
 \title{For a given dnam region maps candidate target gene and scan for TF binding}
 \usage{
 get_triplet(
-  dnam,
+  region,
   genome = c("hg38", "hg19"),
   target.method = c("closest.gene", "window"),
   target.window.size = 500 * 10^3,
@@ -15,9 +15,15 @@ get_triplet(
 )
 }
 \arguments{
-\item{dnam}{DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)}
+\item{region}{A Granges or a named vector with regions (i.e "chr21:100002-1004000")}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
+
+\item{target.method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
+genes within a window around the region ("window").}
+
+\item{target.window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
+Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 
 \item{motif.search.window.size}{Integer value to extend the regions. For example, a value of 50 will
 extend 25 bp upstream and 25 downstream the region. Default is no increase}
@@ -25,12 +31,6 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 \item{motif.search.p.cutoff}{Motifmatcher pvalue cut-off. Default 1e-8.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
-
-\item{method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
-genes within a window around the region ("window").}
-
-\item{window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
-Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 }
 \description{
 This function wraps two other functions:
@@ -41,6 +41,12 @@ a given window.
 To find TF binding to the region JASPAR2020 is used to look into the region.
 }
 \examples{
+\dontrun{
 data("dna.met.chr21")
-triplet <- get_triplet(dna.met.chr21[1:100,], motif.search.window.size = 50)
+dnam.regions <- map_probes_to_regions(dna.met.chr21)
+triplet <- get_triplet(
+   region = rownames(dnam.regions)[1:100],
+   motif.search.window.size = 50
+)
+}
 }

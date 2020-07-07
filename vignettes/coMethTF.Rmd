@@ -150,25 +150,25 @@ class(probes.gr)
 
 ```{R}
 # Map probes to nearest gene
-mapping.closest <- get_region_target_gene(
+region.target.closest <- get_region_target_gene(
     regions.gr = probes.gr, 
     genome = "hg38", 
     method = "closest.gene"
 )
-dim(mapping.closest)
-mapping.closest
+dim(region.target.closest)
+region.target.closest
 ```
 
 ```{R}
 # Map probes to genes within 500kb window
-mapping.window <- get_region_target_gene(
+region.target.window <- get_region_target_gene(
     regions.gr = probes.gr, 
     genome = "hg38", 
     method = "window"
 )
 
-dim(mapping.window)
-mapping.window
+dim(region.target.window)
+region.target.window
 ```
 
 Some of the columns of the data frame output from `get_region_target_gene` 
@@ -216,7 +216,7 @@ The triplet is a data frame with the following columns:
 
 ```{R, message = FALSE, warning = FALSE}
 # Merging the results from the previous sections (region and target, and region and TF)
-triplet <- dplyr::inner_join(mapping.closest,region.tf)
+triplet <- dplyr::inner_join(region.target.closest, region.tf)
 ```
 
 ```{R}

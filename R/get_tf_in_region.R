@@ -52,8 +52,8 @@ get_tf_in_region <- function(
     region.gr <- region.gr + (window.size/2)
     # region <- resize(region,width = 50,fix = "center")
 
-    if (min(IRanges::width(region.gr)) < 2)
-        stop("Minimun region size is 2, please set window.size argument")
+    if (min(IRanges::width(region.gr)) < 8)
+        stop("Minimun region size is 8, please set window.size argument")
 
     genome <- match.arg(genome)
 
@@ -77,6 +77,11 @@ get_tf_in_region <- function(
 
     # remove motifs not found in any regions
     motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
+
+    if(ncol(motif.matrix) == 0){
+        message("No motifs found")
+        return(NULL)
+    }
 
     if(is(motif.matrix, "lgCMatrix")){
         motif.matrix <-  motif.matrix %>% as.matrix() %>% as.data.frame()

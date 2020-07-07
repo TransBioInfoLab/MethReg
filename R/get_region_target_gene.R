@@ -1,12 +1,12 @@
 #' @title Obtain target genes that are close to input regions
 #' @description To map genes to a region there are two options: 1) closest gene
-#' 2) map to all genes within a window around the region (default window.width = 500kbp
+#' 2) map to all genes within a window around the region (default window.size = 500kbp
 #' (i.e. +/- 250kbp from start or end of the region)).
 #' @param regions.gr A Genomic Ranges object (GRanges)
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
 #' genes within a window around the region ("window").
-#' @param window.width When \code{method = "window"}, number of base pairs to extend the region (+- window.width/2).
+#' @param window.size When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
 #' @importFrom GenomicRanges findOverlaps
 #' @importFrom S4Vectors queryHits subjectHits
@@ -41,7 +41,7 @@ get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
     method = c("closest.gene","window"),
-    window.width = 500000
+    window.size = 500 * 10^3
 ){
 
     method <- match.arg(method)
@@ -86,7 +86,7 @@ get_region_target_gene <- function(
         geneAnnot <- get_gene_information(genome = genome, as.granges = TRUE)
         geneAnnot$entrezgene <- NULL
         geneAnnot <- unique(geneAnnot)
-        regions.gr.extend <- regions.gr + (window.width/2)
+        regions.gr.extend <- regions.gr + (window.size/2)
 
         overlap <- findOverlaps(regions.gr.extend,geneAnnot)
 

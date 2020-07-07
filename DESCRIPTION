@@ -18,6 +18,8 @@ Imports:
     dplyr,
     plyr,
     GenomicRanges,
+    SummarizedExperiment,
+    DelayedArray,
     biomaRt,
     ggplot2,
     ggpubr,
@@ -46,8 +48,6 @@ Suggests:
     reshape2,
     prettydoc,
     JASPAR2020,
-    ELMER.data,
-    ELMER,
     TFBSTools,
     motifmatchr
 VignetteBuilder: knitr

@@ -170,7 +170,7 @@ interaction_model <- function(
 #'   "met" = runif(300, min = 0, max = 1)
 #' )
 #' @noRd
-#' @importFrom speedglm speedlm.fit
+# @importFrom speedglm speedlm.fit
 interaction_model_aux_fast <- function(data){
 
     # Faster implementation of linear model

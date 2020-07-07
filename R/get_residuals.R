@@ -59,8 +59,6 @@ get_residuals <- function(
         message("There are NA's within the metadata, residuals for those samples will be NA.")
     }
 
-
-
     if(!missing(metadata.genes)) {
 
         if(ncol(metadata.genes) != ncol(data.matrix)){

@@ -11,7 +11,6 @@
 #' @import GenomicRanges
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
-#' @importFrom ELMER getTSS
 #' @importFrom dplyr select
 #' @examples
 #' library(GenomicRanges)

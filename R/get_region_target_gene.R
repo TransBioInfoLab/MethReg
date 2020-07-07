@@ -61,7 +61,7 @@ get_region_target_gene <- function(
         hits <- findOverlaps(regions.gr, gene.promoters, ignore.strand = FALSE, select = "all")
 
         # overlap region and promoter
-        neargenes <- gene.info[subjectHits(hits)] %>% as.data.frame()
+        neargenes <- gene.info[subjectHits(hits)] %>% as.data.frame(row.names = NULL)
 
         regions.gr <- regions.gr[queryHits(hits)]
         neargenes <- cbind(

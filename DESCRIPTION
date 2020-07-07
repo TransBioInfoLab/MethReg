@@ -51,6 +51,6 @@ Suggests:
     TFBSTools,
     motifmatchr
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Depends: 
     R (>= 3.6.0)

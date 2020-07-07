@@ -46,7 +46,11 @@ filter_regions_by_mean_quantile_difference <- function(dnam, diff.mean.th = 0.2,
 #' @examples
 #' data("gene.exp.chr21")
 #' gene.exp.chr21.filtered <- filter_genes_by_quantile_mean_fold_change(gene.exp.chr21)
-filter_genes_by_quantile_mean_fold_change <- function(exp, fold.change = 1.5, cores = 1){
+filter_genes_by_quantile_mean_fold_change <- function(
+    exp,
+    fold.change = 1.5,
+    cores = 1)
+{
 
     parallel <- register_cores(cores)
     diff.genes <- plyr::adply(exp,.margins = 1,.fun = function(row){

@@ -275,6 +275,7 @@ interaction_model_rlm <- function(data){
     return(cbind(all.pval, all.estimate))
 }
 
+#' @importFrom pscl zeroinfl
 interaction_model_zeroinfl <- function(data){
     zinb <- tryCatch({
         pscl::zeroinfl(

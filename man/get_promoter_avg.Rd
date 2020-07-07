@@ -6,6 +6,15 @@
 \usage{
 get_promoter_avg(dnam, genome, arrayType, cores = 1)
 }
+\arguments{
+\item{dnam}{A DNA methylation matrix}
+
+\item{genome}{Human genome of reference hg38 or hg19}
+
+\item{arrayType}{DNA methylation array type (450k or EPIC)}
+
+\item{cores}{A integer number to use multiple cores. Default 1 core.}
+}
 \value{
 A list with a data frame of the new regions and merged ones,
 and the calculated mean/median beta-value matrix

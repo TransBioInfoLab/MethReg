@@ -15,7 +15,7 @@
 #' @importFrom plyr adply
 #' @importFrom tibble tibble
 #' @importFrom stats p.adjust cor.test
-#' @importFrom dplyr filter
+#' @import dplyr
 #' @export
 #' @examples
 #' library(dplyr)

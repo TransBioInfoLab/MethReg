@@ -18,7 +18,7 @@
 #'  get_tf_targets_cistrome("ACC")
 #'  get_tf_targets_cistrome("COAD_READ*")
 #' }
-#' @export
+#' @noRd
 get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
 
     check_package("reshape2")

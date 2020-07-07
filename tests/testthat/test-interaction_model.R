@@ -28,5 +28,5 @@ test_that("interaction_model handles 0 cases", {
     )
     gene.exp.chr21[1,-1] <- 0 # at least one of the two groups will have only 0 values
     results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
-    expect_true(nrow(restuls) == 0)
+    expect_true(nrow(results) == 0)
 })

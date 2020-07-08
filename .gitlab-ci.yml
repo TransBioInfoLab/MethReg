@@ -6,7 +6,7 @@ variables:
 
 stages:
   - build
-  - test
+  - coverage
   - deploy
 
 building:

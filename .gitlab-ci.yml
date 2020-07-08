@@ -13,9 +13,13 @@ building:
   stage: build
   script:
     - R -e 'install.packages("pkgdown")'
+    - R -e 'install.packages("BiocManager")'
     - R -e 'BiocManager::install("JASPAR2020")'
     - R -e 'BiocManager::install("TFBSTools")'
     - R -e 'BiocManager::install("motifmatchr")'
+    - R -e 'BiocManager::install("sesameData")'
+    - R -e 'BiocManager::install("biomaRt")'
+    - R -e 'BiocManager::install("SummarizedExperiment")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check(args = c("--no-examples", "--no-tests"))'
 

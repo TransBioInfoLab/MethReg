@@ -14,6 +14,9 @@ building:
   script:
     - apt-get install -y qpdf
     - R -e 'install.packages("pkgdown")'
+    - R -e 'BiocManager::install("JASPAR2020")'
+    - R -e 'BiocManager::install("TFBSTools")'
+    - R -e 'BiocManager::install("motifmatchr")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'devtools::check(args = c("--no-examples", "--no-tests"))'
 

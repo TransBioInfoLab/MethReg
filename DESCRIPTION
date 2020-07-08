@@ -52,7 +52,6 @@ Suggests:
     JASPAR2020,
     TFBSTools,
     motifmatchr,
-    coMethDMR,
     matrixStats
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1

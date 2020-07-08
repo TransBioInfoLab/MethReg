@@ -419,7 +419,7 @@ devtools::install_github("TransBioInfoLab/coMethDMR")
 
 We can then summarize methylation levels from multiple CpGs within each region using median. 
 
-```{r, eval = TRUE, include = TRUE, message = FALSE, results = "hide"}
+```{r, eval = FALSE, include = TRUE, message = FALSE, results = "hide"}
 library(coMethDMR)
 library(dplyr)
 ```
@@ -427,14 +427,14 @@ library(dplyr)
 For illustration, we will use probe clusters in predefined genomic regions 
 from the `coMethDMR` R package here. 
 
-```{R cluster_probes, eval = TRUE}
+```{R cluster_probes, eval = FALSE}
 probes.cluster <- coMethDMR::getPredefinedCluster(
   arrayType = "450k",
   clusterType = "regions"
 )
 ```
 
-```{R}
+```{R, eval = FALSE}
 message("Number of clusters: ",length(probes.cluster))
 probes.cluster %>% head
 ```
@@ -445,7 +445,7 @@ function can be used to extract probes within the DMRs.
 
 
 To find co-methylated regions within the DMRs, first we need to extract probes within the DMRs.  
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 probes.cluster <- coMethDMR::GetCpGsInAllRegion(
     regionName_char = c("chr21:37432493-37432782",
                         "chr21:18884682-18885210", 
@@ -457,13 +457,13 @@ probes.cluster
 
 
 Next we find co-methylated regions within the DMRs.
-```{R cometh, eval = TRUE}
+```{R cometh, eval = FALSE}
 data("dna.met.chr21")
 # just keep the used probes
 dna.met.chr21 <- dna.met.chr21[rownames(dna.met.chr21) %in% unique(unlist(probes.cluster)),]
 ```
 
-```{R,eval = TRUE}
+```{R,eval = FALSE}
 coMeth_ls <- coMethDMR::CoMethAllRegions(
     dnam = dna.met.chr21,
     betaToM = TRUE,
@@ -478,14 +478,14 @@ coMeth_ls <- coMethDMR::CoMethAllRegions(
 ```
 
 
-```{R}
+```{R, eval = FALSE}
 message("Number of co-methylated cluster: ",length(coMeth_ls))
 coMeth_ls %>% head
 ```
 
 Finally, we compute median methylation of co-methylated regions. 
 
-```{R, results = "hide"}
+```{R, eval = FALSE, results = "hide"}
 median.df.tumor <- plyr::ldply(
     coMeth_ls[!duplicated(names(coMeth_ls))],
     function(probes){
@@ -494,7 +494,7 @@ median.df.tumor <- plyr::ldply(
 )
 ```
 
-```{R}
+```{R, eval = FALSE}
 rownames(median.df.tumor) <- median.df.tumor$.id
 median.df.tumor$.id <- NULL
 colnames(median.df.tumor) <- colnames(dna.met.chr21)

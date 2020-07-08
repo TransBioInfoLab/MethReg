@@ -1,4 +1,4 @@
-image: tiagochst/tcgabiolinksgui:latest
+image:  bioconductor/bioconductor_docker:devel
 
 variables:
   CRAN: "https://cran.rstudio.com"

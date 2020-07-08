@@ -12,7 +12,6 @@ stages:
 building:
   stage: build
   script:
-    - R -e 'install.packages("pkgdown")'
     - R -e 'install.packages("BiocManager")'
     - R -e 'BiocManager::install("JASPAR2020")'
     - R -e 'BiocManager::install("TFBSTools")'
@@ -21,6 +20,9 @@ building:
     - R -e 'BiocManager::install("biomaRt")'
     - R -e 'BiocManager::install("SummarizedExperiment")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
+    - R -e 'install.packages("pkgdown")'
+    - R -e 'install.packages("devtools")'
+#    - R -e 'devtools::check(args = c("--as-cran"))'
 
 # To have the coverage percentage appear as a gitlab badge follow these
 # instructions:
@@ -28,18 +30,20 @@ building:
 # The coverage parsing string is
 # Coverage: \d+\.\d+
 
-testing:
-    stage: test
-    allow_failure: true
-    when: on_success
-    only:
-        - master
-    script:
-        - Rscript -e 'install.packages("DT")'
-        - Rscript -e 'covr::gitlab(quiet = FALSE)'
-    artifacts:
-        paths:
-            - public
+coverage:
+  stage: deploy
+  allow_failure: true
+  when: on_success
+  only:
+    - master
+  script:
+    - install2.r covr
+    - r -e 'devtools::install()'
+    - r -e 'covr::codecov(type = c("tests", "examples"), quiet = FALSE)'
+    - Rscript -e 'covr::gitlab(quiet = FALSE)'
+  artifacts:
+    paths:
+      - public
 
 # To produce a code coverage report as a GitLab page see
 # https://about.gitlab.com/2016/11/03/publish-code-coverage-report-with-gitlab-pages/
@@ -49,6 +53,7 @@ pages:
     dependencies:
         - testing
     script:
+      - R -e 'install.packages("pkgdown")'
       - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:

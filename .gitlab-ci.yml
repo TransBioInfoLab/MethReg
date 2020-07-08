@@ -21,7 +21,6 @@ building:
     - R -e 'BiocManager::install("biomaRt")'
     - R -e 'BiocManager::install("SummarizedExperiment")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
-    - R -e 'devtools::check(args = c("--no-examples", "--no-tests"))'
 
 # To have the coverage percentage appear as a gitlab badge follow these
 # instructions:

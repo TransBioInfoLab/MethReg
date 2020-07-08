@@ -15,12 +15,20 @@ reference:
   - title: Interaction model
     contents:
     - interaction_model
+  - title: Stratified model
+    contents:
+    - stratified_model
   - title: Plot
     contents:
     - starts_with("plot")
   - title: Controlling confounding effects
     contents:
     - get_residuals
+  - title: Auxiliary functions
+    contents:
+    - map_probes_to_regions
+    - make_granges_from_names
+     -make_names_from_granges
 
 
 

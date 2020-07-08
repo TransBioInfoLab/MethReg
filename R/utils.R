@@ -68,8 +68,9 @@ map_probes_to_regions <- function(
     return(dnam)
 }
 
-get_met_probes_info <- function(genome = c("hg38","hg19"),
-                                arrayType = c("450k","EPIC")
+get_met_probes_info <- function(
+    genome = c("hg38","hg19"),
+    arrayType = c("450k","EPIC")
 ){
     genome <- match.arg(genome)
     arrayType <- match.arg(arrayType)
@@ -90,8 +91,10 @@ get_met_probes_info <- function(genome = c("hg38","hg19"),
 #' gene.symbols <- map_ensg_to_symbol(rownames(gene.exp.chr21))
 #' @noRd
 #' @importFrom biomaRt useEnsembl listDatasets getBM
-map_ensg_to_symbol <- function(ensembl.gene.id, genome = "hg38")
-{
+map_ensg_to_symbol <- function(
+    ensembl.gene.id,
+    genome = "hg38"
+){
     gene.location <- get_gene_information(genome)
     symbols <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]$external_gene_name
     return(symbols)
@@ -104,8 +107,10 @@ map_ensg_to_symbol <- function(ensembl.gene.id, genome = "hg38")
 #' gene.symbols <- map_symbol_to_ensg("TP63"s)
 #' @noRd
 #' @importFrom biomaRt useEnsembl listDatasets getBM
-map_symbol_to_ensg <- function(gene.symbol, genome = "hg38")
-{
+map_symbol_to_ensg <- function(
+    gene.symbol,
+    genome = "hg38"
+){
     gene.location <- get_gene_information(genome)
     ensembl_gene_id <- gene.location[match(gene.symbol,gene.location$external_gene_name),]$ensembl_gene_id
     return(ensembl_gene_id)
@@ -117,8 +122,11 @@ get_gene_information_biomart <- function(genome = "hg38"){
     msg <- character()
     while (tries < 3L) {
         gene.location <- tryCatch({
-            host <- ifelse(genome == "hg19", "grch37.ensembl.org",
-                           "www.ensembl.org")
+            host <- ifelse(
+                genome == "hg19",
+                "grch37.ensembl.org",
+                "www.ensembl.org"
+            )
             mirror <- list(NULL, "useast", "uswest", "asia")[[tries + 1]]
             ensembl <- tryCatch({
                 message(ifelse(is.null(mirror),

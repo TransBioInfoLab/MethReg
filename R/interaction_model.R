@@ -191,11 +191,13 @@ make_df_from_triple <- function(exp, dnam, row.triplet){
     data
 }
 
-interaction_model_output <- function(itx.all,
-                                     pct.zeros.in.samples,
-                                     quant.diff,
-                                     itx.quant,
-                                     pct.zeros.in.quant.samples){
+interaction_model_output <- function(
+    itx.all,
+    pct.zeros.in.samples,
+    quant.diff,
+    itx.quant,
+    pct.zeros.in.quant.samples
+){
     if(is.null(itx.quant)) itx.quant <- interaction_model_no_results()
     if(is.null(itx.all)) itx.all <- data.frame(rep(NA,6) %>% t)
 
@@ -216,7 +218,8 @@ interaction_model_output <- function(itx.all,
                        "Robust Linear Model")
         ),
         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
-        "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
+        "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %"),
+        "Max_interaction_pval" = max(itx.all$`pval_met:rna.tf`,itx.quant$`quant_pval_metGrp:rna.tf`,na.rm = TRUE)
     )
 }
 

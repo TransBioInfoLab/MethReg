@@ -32,9 +32,58 @@ devtools::install_github("TransBioInfoLab/coMethTF")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to use the package:
 
-```{r example}
+```{r example, warning = FALSE}
 library(coMethTF)
-## basic example code
+#---------------------------------------
+# Data input
+#---------------------------------------
+# 1) Gene expression matrix
+# 2) DNA methylation
+# With same column names
+data("dna.met.chr21")
+data("gene.exp.chr21")
+all(colnames(dna.met.chr21) == colnames(gene.exp.chr21))
+
+# Since we are working with regions we need to map our 450k array to regions
+dnam.regions <- map_probes_to_regions(dna.met.chr21)
+```
+
+```{r map, warning = FALSE, results = "hide"}
+#---------------------------------------
+# Mapping regions
+#---------------------------------------
+# For each region get target gene and predicted TF biding to the regions
+# get_triplet incorporates two other functions:
+# 1) get_region_target_gene
+# 2) get_tf_in_region
+triplet <- get_triplet(
+    region = rownames(dnam.regions),
+    motif.search.window.size = 50,
+    motif.search.p.cutoff = 10^-3,
+    target.method = "closest.gene",
+    genome = "hg19",
+    cores = 1
+)
+```
+
+```{r model, warning = FALSE}
+#---------------------------------------
+# Evaluate two models: 
+#---------------------------------------
+# 1) target gene ~ TF + DNAm + TF * DNAm
+# 2) target gene ~ TF + DNAm_group + TF * DNAm_group 
+# where DNAm_group is a binary indicator if the sample belongs to: Q4 or Q1
+results <- interaction_model(
+    triplet = triplet, 
+    dnam = dnam.regions,
+    exp = gene.exp.chr21
+)
+head(results)
+```
+
+# Session information
+```{R}
+sessionInfo()
 ```

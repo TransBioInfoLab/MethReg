@@ -12,7 +12,6 @@ stages:
 building:
   stage: build
   script:
-    - apt-get install -y qpdf
     - R -e 'install.packages("pkgdown")'
     - R -e 'BiocManager::install("JASPAR2020")'
     - R -e 'BiocManager::install("TFBSTools")'

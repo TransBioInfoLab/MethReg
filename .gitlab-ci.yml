@@ -51,8 +51,9 @@ coverage:
 pages:
     stage: deploy
     script:
-      - R -e 'install.packages("pkgdown")'
-      - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
+    - r -e 'devtools::install()'
+    - R -e 'BiocManager::install("SummarizedExperiment")'
+    - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:
             - public

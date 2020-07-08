@@ -50,8 +50,6 @@ coverage:
 
 pages:
     stage: deploy
-    dependencies:
-        - testing
     script:
       - R -e 'install.packages("pkgdown")'
       - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'

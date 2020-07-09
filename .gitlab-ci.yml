@@ -50,7 +50,6 @@ coverage:
     - master
   script:
     - install2.r covr
-    - r -e 'devtools::install()'
     - r -e 'covr::codecov(type = c("tests", "examples"), quiet = FALSE)'
     - Rscript -e 'covr::gitlab(quiet = FALSE)'
   artifacts:
@@ -63,7 +62,7 @@ coverage:
 pages:
     stage: deploy
     script:
-    - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
+    - R -e 'install.packages("pkgdown");pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:
             - public

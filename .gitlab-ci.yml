@@ -1,5 +1,7 @@
+image:  bioconductor/bioconductor_docker:latest
+
 variables:
-  CODECOV_TOKEN: "CODECOV_TOKEN_STRING"
+  CODECOV_TOKEN: "6e1249f6-ddb5-435f-8a3a-50de99d67024"
   _R_CHECK_CRAN_INCOMING_: "false"
   _R_CHECK_FORCE_SUGGESTS_: "true"
   APT_PKGS: "libcurl4-openssl-dev libssh2-1-dev libssl-dev libxml2-dev zlib1g-dev git"
@@ -21,13 +23,12 @@ before_script:
   - R -e "remotes::install_deps(dependencies = TRUE)"
   - R -e 'install.packages("pkgdown")'
   - R -e 'install.packages("remotes")'
+  - R -e 'BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")'
+  - R -e 'BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")'
 
-
-image:  bioconductor/bioconductor_docker:latest
 
 stages:
   - build
-  - test
   - deploy
 
 building:
@@ -43,29 +44,8 @@ building:
 # The coverage parsing string is
 # Coverage: \d+\.\d+
 
-coverage:
-  stage: test
-  dependencies:
-        - building
-  allow_failure: true
-  when: on_success
-  only:
-    - master
-  script:
-    - install2.r covr
-    - r -e 'covr::codecov(type = c("tests", "examples"), quiet = FALSE)'
-    - Rscript -e 'covr::gitlab(quiet = FALSE)'
-  artifacts:
-    paths:
-      - public
-
-# To produce a code coverage report as a GitLab page see
-# https://about.gitlab.com/2016/11/03/publish-code-coverage-report-with-gitlab-pages/
-
 pages:
     stage: deploy
-    dependencies:
-        - building
     script:
     - R -e 'remotes::install_local()'
     - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'

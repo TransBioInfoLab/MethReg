@@ -11,27 +11,28 @@ before_script:
   - apt-get install -y --no-install-recommends ${APT_PKGS}
   - apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
   - install2.r devtools
+  - R -e 'install.packages("BiocManager")'
+  - R -e 'BiocManager::install("JASPAR2020")'
+  - R -e 'BiocManager::install("TFBSTools")'
+  - R -e 'BiocManager::install("motifmatchr")'
+  - R -e 'BiocManager::install("sesameData")'
+  - R -e 'BiocManager::install("biomaRt")'
+  - R -e 'BiocManager::install("SummarizedExperiment")'
+  - R -e "remotes::install_deps(dependencies = TRUE)"
+  - R -e 'install.packages("pkgdown")'
+  - R -e 'install.packages("remotes")'
+
 
 image:  bioconductor/bioconductor_docker:latest
 
 stages:
   - build
-  - coverage
+  - test
   - deploy
 
 building:
   stage: build
   script:
-    - R -e 'install.packages("BiocManager")'
-    - R -e 'BiocManager::install("JASPAR2020")'
-    - R -e 'BiocManager::install("TFBSTools")'
-    - R -e 'BiocManager::install("motifmatchr")'
-    - R -e 'BiocManager::install("sesameData")'
-    - R -e 'BiocManager::install("biomaRt")'
-    - R -e 'BiocManager::install("SummarizedExperiment")'
-    - R -e "remotes::install_deps(dependencies = TRUE)"
-    - R -e 'install.packages("pkgdown")'
-    - R -e 'install.packages("remotes")'
     - R -e 'remotes::install_local()'
 
 #    - R -e 'devtools::check(args = c("--as-cran"))'
@@ -43,7 +44,9 @@ building:
 # Coverage: \d+\.\d+
 
 coverage:
-  stage: deploy
+  stage: test
+  dependencies:
+        - building
   allow_failure: true
   when: on_success
   only:
@@ -61,8 +64,11 @@ coverage:
 
 pages:
     stage: deploy
+    dependencies:
+        - building
     script:
-    - R -e 'install.packages("pkgdown");pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
+    - R -e 'remotes::install_local()'
+    - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:
             - public

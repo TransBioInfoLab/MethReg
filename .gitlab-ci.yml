@@ -31,8 +31,8 @@ building:
     - R -e 'BiocManager::install("SummarizedExperiment")'
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'install.packages("pkgdown")'
-    - R -e 'install.packages("devtools")'
-    - R -e 'BiocManager::install()'
+    - R -e 'install.packages("remotes")'
+    - R -e 'remotes::install_local()'
 
 #    - R -e 'devtools::check(args = c("--as-cran"))'
 

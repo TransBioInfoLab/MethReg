@@ -11,7 +11,6 @@ before_script:
   - apt-get install -y --no-install-recommends ${APT_PKGS}
   - apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
   - install2.r devtools
-  - r -e 'devtools::install_dev_deps()'
 
 image:  bioconductor/bioconductor_docker:latest
 
@@ -33,6 +32,8 @@ building:
     - R -e "remotes::install_deps(dependencies = TRUE)"
     - R -e 'install.packages("pkgdown")'
     - R -e 'install.packages("devtools")'
+    - R -e 'BiocManager::install()'
+
 #    - R -e 'devtools::check(args = c("--as-cran"))'
 
 # To have the coverage percentage appear as a gitlab badge follow these
@@ -62,8 +63,6 @@ coverage:
 pages:
     stage: deploy
     script:
-    - r -e 'devtools::install()'
-    - R -e 'BiocManager::install("SummarizedExperiment")'
     - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:

@@ -13,14 +13,7 @@ before_script:
   - apt-get install -y --no-install-recommends ${APT_PKGS}
   - apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
   - install2.r devtools
-  - R -e 'BiocManager::install("JASPAR2020")'
-  - R -e 'BiocManager::install("TFBSTools")'
-  - R -e 'BiocManager::install("motifmatchr")'
   - R -e "remotes::install_deps(dependencies = TRUE)"
-  - R -e 'install.packages("pkgdown")'
-  - R -e 'install.packages("remotes")'
-  - R -e 'BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")'
-  - R -e 'BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")'
 
 
 stages:

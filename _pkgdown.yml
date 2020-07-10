@@ -1,6 +1,5 @@
 url: https://tiagochst.github.io/methTF
 
-
 authors:
   Tiago Chedraoui Silva:
     href: https://tiagosilva.netlify.app/
@@ -29,6 +28,3 @@ reference:
     - map_probes_to_regions
     - make_granges_from_names
     - make_names_from_granges
-
-
-

@@ -107,6 +107,7 @@ dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21[1:5,1:5]
 ```
 
+
 ### 3.1.2 DMRs data
 
 Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage 
@@ -146,6 +147,11 @@ Note that the distal analysis will be more time and resource consuming.
 # Get CpG information
 probes.gr <- make_granges_from_names(rownames(dna.met.chr21))
 class(probes.gr)
+```
+
+```{R memory_reduction, include = FALSE}
+# Just reducing memory usage
+probes.gr <- sort(probes.gr)[300:500,]
 ```
 
 ```{R}

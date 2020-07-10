@@ -220,6 +220,11 @@ triplet <- dplyr::inner_join(region.target.closest, region.tf)
 ```
 
 ```{R}
+# Since our data has only chr21 we will only keep TFs on chr21.
+triplet <- triplet[triplet$TF %in% rownames(gene.exp.chr21),]
+```
+
+```{R}
 head(triplet)
 ```
 
@@ -256,7 +261,7 @@ $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm 
  
 ```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
-    triplet = triplet, 
+    triplet = triplet[1,], 
     dnam = dna.met.chr21,
     exp = gene.exp.chr21
 )
@@ -330,7 +335,7 @@ $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 
 ```{R stratified_model, message = FALSE, results = "hide"}
 results.stratified.model <- stratified_model(
-    triplet = triplet, 
+    triplet = triplet[1,],
     dnam = dna.met.chr21,
     exp = gene.exp.chr21
 )

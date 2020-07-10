@@ -28,7 +28,7 @@ reference:
     contents:
     - map_probes_to_regions
     - make_granges_from_names
-     -make_names_from_granges
+    - make_names_from_granges
 
 
 

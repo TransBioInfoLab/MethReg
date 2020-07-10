@@ -172,7 +172,7 @@ interaction_model_no_results <- function(){
         "quant_pval_metGrp:rna.tf" = NA,
         "quant_estimate_metGrp" = NA,
         "quant_estimate_rna.tf" = NA,
-        "quant_estimate_metGrp:rna.tf" = NA)
+        "quant_estimate_metGrp:rna.tf" = NA) %>% as.data.frame()
     #"Model.quantile" = NA,
     #"% 0 target genes (All samples)" = NA,
     #"% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
@@ -201,6 +201,15 @@ interaction_model_output <- function(
     if(is.null(itx.quant)) itx.quant <- interaction_model_no_results()
     if(is.null(itx.all)) itx.all <- data.frame(rep(NA,6) %>% t)
 
+    suppressWarnings({
+        max_p <- max(
+            itx.all %>% as.data.frame %>% pull(.data$`pval_met:rna.tf`),
+            itx.quant %>% as.data.frame %>% pull(.data$`quant_pval_metGrp:rna.tf`),
+            na.rm = TRUE)
+    })
+
+    if(max_p %in% c(-Inf,Inf)) max_p <- NA
+
     cbind(
         itx.all,
         data.frame(
@@ -219,7 +228,7 @@ interaction_model_output <- function(
         ),
         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %"),
-        "Max_interaction_pval" = max(itx.all$`pval_met:rna.tf`,itx.quant$`quant_pval_metGrp:rna.tf`,na.rm = TRUE)
+        "Max_interaction_pval" = max_p
     )
 }
 
@@ -255,11 +264,13 @@ interaction_model_rlm <- function(data){
 #' @importFrom pscl zeroinfl
 interaction_model_zeroinfl <- function(data){
     zinb <- tryCatch({
-        pscl::zeroinfl(
-            trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
-            data = data,
-            dist = "negbin",
-            EM = FALSE) %>% summary %>% coef
+        suppressWarnings({
+            pscl::zeroinfl(
+                trunc(rna.target) ~ met + rna.tf + rna.tf * met | 1,
+                data = data,
+                dist = "negbin",
+                EM = FALSE) %>% summary %>% coef
+        })
     }, error = function(e){
         # message("Continuous model: ", e)
         return(NULL)
@@ -278,11 +289,13 @@ interaction_model_zeroinfl <- function(data){
 
 interaction_model_quant_zeroinfl <- function(data){
     zinb.quant <- tryCatch({
-        pscl::zeroinfl(
-            trunc(rna.target) ~ metGrp + rna.tf + metGrp * rna.tf | 1,
-            data = data,
-            dist = "negbin",
-            EM = FALSE) %>% summary %>% coef
+        suppressWarnings({
+            pscl::zeroinfl(
+                trunc(rna.target) ~ metGrp + rna.tf + metGrp * rna.tf | 1,
+                data = data,
+                dist = "negbin",
+                EM = FALSE) %>% summary %>% coef
+        })
     }, error = function(e){
         # message("Continuous model: ", e)
         return(NULL)
@@ -307,11 +320,13 @@ interaction_model_quant_zeroinfl <- function(data){
 
 interaction_model_quant_rlm <- function(data){
     rlm.bisquare.quant <- tryCatch({
-        rlm (
-            rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
-            data = data,
-            psi = MASS::psi.bisquare,
-            maxit = 100) %>% summary %>% coef %>% data.frame
+        suppressWarnings({
+            rlm (
+                rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
+                data = data,
+                psi = MASS::psi.bisquare,
+                maxit = 100) %>% summary %>% coef %>% data.frame
+        })
     }, error = function(e){
         #message("Binary model: ", e)
         return(NULL)

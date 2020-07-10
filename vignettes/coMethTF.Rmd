@@ -520,7 +520,7 @@ function which extract residuals after fitting the following model:
 $$features \sim covariate_{1} + covariate_{2} ... + covariate_{N}$$
 
 
-```{R residuals, results = "hide", eval = TRUE}
+```{R residuals, results = "hide", eval = FALSE}
 data("gene.exp.chr21")
 data("clinical")
 metadata <- clinical[,c("sample_type","gender")]
@@ -528,17 +528,17 @@ metadata <- clinical[,c("sample_type","gender")]
 gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21[1:250,], metadata) %>% as.matrix()
 ```
 
-```{R, eval = TRUE}
+```{R, eval = FALSE}
 gene.exp.chr21.residuals[1:5,1:5]
 ```
 
-```{R, results = "hide", eval = TRUE}
+```{R, results = "hide", eval = FALSE}
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 dna.met.chr21.residuals <- get_residuals(dna.met.chr21, metadata) %>% as.matrix()
 ```
 
-```{R, eval = TRUE}
+```{R, eval = FALSE}
 dna.met.chr21.residuals[1:5,1:5]
 ```
 
@@ -546,7 +546,7 @@ The `interaction_model` function can then be applied to these residuals data,
 as the following:  `rna.target ~ met + rna.tf + rna.tf * met`.
 
 
-```{R, message = FALSE, results = "hide", eval = TRUE}
+```{R, message = FALSE, results = "hide", eval = FALSE}
 results <- interaction_model(
     triplet = triplet, 
     dnam = dna.met.chr21.residuals, 

@@ -249,6 +249,16 @@ interaction_model_rlm <- function(data){
     # if(is.null(rlm.bisquare)) return(interaction_model_no_results())
     if(is.null(rlm.bisquare)) return(NULL)
 
+    if(!"met:rna.tf" %in% rownames(rlm.bisquare)){
+        rlm.bisquare <- rbind(
+            rlm.bisquare,
+            data.frame(row.names = "met:rna.tf",
+                       "Value" = NA,
+                       "Std..Error" = NA,
+                       "t.value" = NA)
+        )
+    }
+
     degrees.freedom.value <- nrow(data) - 4
     rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
 
@@ -333,6 +343,18 @@ interaction_model_quant_rlm <- function(data){
     })
 
     if(is.null(rlm.bisquare.quant)) return(NULL)
+
+    # if the interaction is NA, it is removed from the data frame,
+    # we have to re add it
+    if(!"metGrp:rna.tf" %in% rownames(rlm.bisquare.quant)){
+        rlm.bisquare.quant <- rbind(
+            rlm.bisquare.quant,
+            data.frame(row.names = "metGrp:rna.tf",
+                       "Value" = NA,
+                       "Std..Error" = NA,
+                       "t.value" = NA)
+        )
+    }
 
     # if(is.null(rlm.bisquare.quant)) return(interaction_model_no_results())
 

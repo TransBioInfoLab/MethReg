@@ -41,7 +41,7 @@
 #'    metadata.samples = metadata
 #' )
 #' @export
-#' @importFrom stats residuals na.exclude na.omit
+#' @importFrom stats rstudent na.exclude na.omit
 get_residuals <- function(
     data.matrix,
     metadata.samples = NULL,
@@ -98,7 +98,7 @@ get_residuals <- function(
                 }
             }
             fitE <- lm(form, data = dat, na.action = na.exclude)
-            residuals(fitE)
+            rstudent(fitE)
         },
         genes = rownames(data.matrix),
         metadata.genes = metadata.genes,

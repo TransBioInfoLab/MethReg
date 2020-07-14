@@ -102,7 +102,12 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
 filter_genes_zero_expression_all_samples <- function(
     exp
 ){
-    genes.keep <- rownames(exp)[rowSums(exp == 0, na.rm = TRUE) < ncol(exp)] %>% na.omit()
+
+    idx.all.zero <- rowSums(exp == 0, na.rm = TRUE) == ncol(exp)
+    idx.all.na <- rowSums(is.na(exp)) == ncol(exp)
+
+    # do not keep if it is all zero or all NA
+    genes.keep <- rownames(exp)[!(idx.all.zero | idx.all.na)] %>% na.omit()
     if(length(genes.keep) < nrow(exp) & length(genes.keep) > 0){
         message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
     }

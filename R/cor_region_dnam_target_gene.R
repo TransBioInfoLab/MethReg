@@ -86,7 +86,7 @@ cor_region_dnam_target_gene <- function(
             res <- cor.test(exp %>% as.numeric,
                             dnam %>% as.numeric,
                             method = "spearman",
-                            exact = FALSE)
+                            exact = TRUE)
             return(tibble("met_exp_cor_pvalue" = res$p.value,
                           "met_exp_cor_estimate" = res$estimate))
             },error = function(e){

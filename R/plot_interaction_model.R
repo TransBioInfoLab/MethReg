@@ -1,4 +1,3 @@
-
 #' @title Plot interaction data
 #' @description Create several plots to show interaction data
 #' TF expression with target gene interaction using a linear model
@@ -241,53 +240,83 @@ get_plot_results <- function(df,row.triplet,color){
                 "tf.target" = tf.target.plot))
 }
 
-get_plot_results_aux <- function(df, x, y, color, xlab, ylab, facet.by){
+
+#' @importFrom sfsmisc f.robftest
+#' @noRd
+#' @examples
+#' df <- data.frame(x = runif(20),y = runif(20))
+#' get_plot_results_aux(df, "x","y",NULL, xlab = "x", ylab = "y")
+get_plot_results_aux <- function(
+    df,
+    x,
+    y,
+    color,
+    xlab,
+    ylab,
+    facet.by
+){
     if(missing(facet.by)){
         if(!is.null(color)){
-            ggscatter(df,
-                      x = x,
-                      y = y,
-                      color = color,
-                      size = 1
-            ) + xlab(xlab) +
-                ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE) +
-                stat_cor(method = "spearman",color = "blue")
+            p <- ggscatter(
+                df,
+                x = x,
+                y = y,
+                color = color,
+                size = 1
+            )
         } else {
-            ggscatter(df,
-                      x = x,
-                      y = y,
-                      size = 1
-            ) + xlab(xlab) +
-                ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE)  +
-                stat_cor(method = "spearman",color = "blue")
+            p <- ggscatter(
+                df,
+                x = x,
+                y = y,
+                size = 1
+            )
         }
     } else{
         if(!is.null(color)){
-            ggscatter(df,
-                      x = x,
-                      y = y,
-                      facet.by = facet.by,
-                      color = color,
-                      size = 1
-            ) + xlab(xlab) +
-                ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE) +
-                stat_cor(method = "spearman",color = "blue")
+            p <- ggscatter(
+                df,
+                x = x,
+                y = y,
+                facet.by = facet.by,
+                color = color,
+                size = 1
+            )
         } else {
-            ggscatter(df,
-                      x = x,
-                      y = y,
-                      facet.by = facet.by,
-                      size = 1
-            ) + xlab(xlab) +
-                ylab(ylab) +
-                geom_smooth(method = MASS::rlm, se = FALSE) +
-                stat_cor(method = "spearman",color = "blue")
+            p <- ggscatter(
+                df,
+                x = x,
+                y = y,
+                facet.by = facet.by,
+                size = 1
+            )
         }
     }
 
+    p <- p + xlab(xlab) + ylab(ylab)
+    p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
+
+    rls <- MASS::rlm(
+        as.formula(paste0(y, "~",x)),
+        data = df,
+        psi = psi.bisquare,
+        maxit = 100)
+    rlm.val <- rls %>% summary %>% coef %>% data.frame
+    rlm.val <- rlm.val[-1,1]
+    rlm.p.value <- sfsmisc::f.robftest(rls)$p.value
+    p <- p + ggplot2::annotate(
+        geom = "text",
+        x = min(df[[x]], na.rm = TRUE),
+        y = max(df[[y]], na.rm = TRUE),
+        hjust = 0,
+        vjust = 1,
+        color = 'blue',
+        label = paste0(x, ".", y, ".",
+                       "rlm = ",formatC(rlm.val, digits = 2, format = "e"),
+                       " pval.rlm = ",  formatC(rlm.p.value, digits = 2, format = "e"))
+    )
+    p
+    # stat_cor(method = "spearman",color = "blue")
 }
 
 get_table_plot_results <- function(row.triplet, type){

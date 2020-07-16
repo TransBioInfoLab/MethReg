@@ -254,7 +254,7 @@ get_region_gene_distance <- function(idx, regions.gr,geneAnnot){
 }
 
 #' @importFrom progress progress_bar
-#' @importFrom GenomicRanges findOverlaps
+#' @importFrom GenomicRanges findOverlaps distance nearest
 get_region_target_gene_nearest.genes_aux <- function(
     direction.fun,
     nearest.idx,
@@ -322,6 +322,7 @@ get_region_target_gene_nearest.genes_aux <- function(
     return(ret)
 }
 
+#' @importFrom dplyr group_by
 get_region_target_gene_nearest.genes_addPos <- function(ret, num.flanking.genes){
     f <- function(pairs) {
         center <- which(abs(pairs$Distance) == min(abs(pairs$Distance)))[1]

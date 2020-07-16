@@ -7,8 +7,9 @@
 get_region_target_gene(
   regions.gr,
   genome = c("hg38", "hg19"),
-  method = c("closest.gene", "window"),
-  window.size = 500 * 10^3
+  method = c("closest.gene", "window", "nearest.genes"),
+  window.size = 500 * 10^3,
+  num.flanking.genes = 5
 )
 }
 \arguments{
@@ -17,10 +18,15 @@ get_region_target_gene(
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
 \item{method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
-genes within a window around the region ("window").}
+genes within a window around the region ("window"); or a fixed number genes upstream
+and downstream of the region "nearest.genes"}
 
 \item{window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
+
+\item{num.flanking.genes}{Number of flanking genes upstream and downstream to search.
+For example, if num.flanking.genes = 5, it will return the 5 genes upstream
+and 5 genes dowstream of the given region.}
 }
 \description{
 To map genes to a region there are two options: 1) closest gene
@@ -33,10 +39,10 @@ library(dplyr)
 
 # Create example region
 regions.gr <- data.frame(
-              chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
-              start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
-              end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
-              stringsAsFactors = FALSE)  \%>\%
+       chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
+       start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
+       end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
+       stringsAsFactors = FALSE)  \%>\%
      makeGRangesFromDataFrame
 
  # map to closest gene
@@ -49,5 +55,13 @@ regions.gr <- data.frame(
  region.window <- get_region_target_gene(
                       regions.gr = regions.gr,
                       genome = "hg19",
-                      method = "window")
+                      method = "window",
+                      window.size = 500 * 10^3)
+
+ # map regions to n upstream and n dowstream genes
+ region.nearest <- get_region_target_gene(
+                      regions.gr = regions.gr,
+                      genome = "hg19",
+                      method = "nearest.genes",
+                      num.flanking.genes = 5)
 }

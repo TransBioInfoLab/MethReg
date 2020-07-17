@@ -177,7 +177,6 @@ get_region_target_gene_nearest.genes <- function(
 ){
 
     names(regions.gr) <- make_names_from_granges(regions.gr)
-    print( names(regions.gr))
     genes.gr <- get_gene_information(genome = genome, as.granges = TRUE)
     genes.gr$entrezgene <- NULL
     genes.gr <- unique(genes.gr)
@@ -235,7 +234,6 @@ get_region_target_gene_nearest.genes <- function(
                ]
 
     message("Identifying gene position for each region")
-    print(ret[order(ret$ID),])
     ret <- get_region_target_gene_nearest.genes_addPos(ret, num.flanking.genes)
     colnames(ret)[1:3] <- c("regionID", "target", "target_gene_name")
     return(ret)

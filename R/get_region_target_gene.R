@@ -63,8 +63,10 @@ get_region_target_gene <- function(
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
 
     if(method == "closest.gene"){
+        message("Mapping regions to the closest gene")
         out <- get_region_target_gene_closest(regions.gr, genome)
     } else if(method == "window"){
+        message("Mapping regions to genes within a window of size: ", window.size, " bp")
         out <- get_region_target_gene_window(regions.gr, genome, window.size)
     } else {
         out <- get_region_target_gene_nearest.genes(

@@ -64,7 +64,7 @@ get_region_target_gene <- function(
 
     if(method == "closest.gene"){
         out <- get_region_target_gene_closest(regions.gr, genome)
-    } else if(method == "window.size"){
+    } else if(method == "window"){
         out <- get_region_target_gene_window(regions.gr, genome, window.size)
     } else {
         out <- get_region_target_gene_nearest.genes(

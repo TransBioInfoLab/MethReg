@@ -18,7 +18,7 @@ test_that("get_tf_in_region is able to scan", {
 })
 
 test_that("get_tf_in_region accepts granges as input", {
-
+    regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
     region.tf <- get_tf_in_region(
         region = regions.names %>% make_granges_from_names(),
         genome = "hg19"

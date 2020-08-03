@@ -9,8 +9,6 @@ test_that("get_promoter_avg throws error if not promoter regions/probes", {
             arrayType = "450k"
         ),
         regexp = "No overlap found between promoter regions and DNA methylation array found")
-    expect_type(promoter.avg,"double")
-    expect_true(is(promoter.avg,"matrix"))
 })
 
 test_that("get_promoter_avg works correctly merges regions overlapping a promoter region", {

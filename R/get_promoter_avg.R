@@ -21,8 +21,15 @@ get_promoter_avg <- function(
     dnam,
     genome,
     arrayType,
-    cores = 1)
-{
+    cores = 1
+) {
+
+    if(is(dnam,"SummarizedExperiment")){
+        dnam <- assay(dnam)
+    }
+    if(!is(dnam,"matrix")){
+        stop("dnam input is wrong")
+    }
 
     # We will start by defining the promoter regions
     message("o Get promoter regions for ", genome)
@@ -74,7 +81,9 @@ get_promoter_avg <- function(
                 Matrix::colMeans(dnam[rows,,drop = FALSE],na.rm = TRUE)
             }, .id = NULL, .parallel = parallel , .progress = "time", .inform = TRUE)
 
-        rownames(non.unique.promoter) <- make_names_from_granges(promoter.gr[unique(non.unique.hits$queryHits)])
+        rownames(non.unique.promoter) <-
+            promoter.gr[unique(non.unique.hits$queryHits)] %>%
+            make_names_from_granges
 
         if(is.null(promoter.matrix)) {
             promoter.matrix <- non.unique.promoter
@@ -82,8 +91,8 @@ get_promoter_avg <- function(
             promoter.matrix <-  rbind(promoter.matrix, non.unique.promoter)
         }
     }
-
-    promoter.matrix %>% as.matrix
+    se <- promoter.matrix %>% as.matrix %>% make_se_from_dnam_regions()
+    return(se)
 }
 
 

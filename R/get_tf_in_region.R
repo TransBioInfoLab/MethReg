@@ -14,7 +14,7 @@
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @examples
 #' \dontrun{
-#'  regions.names <- c("chr1:79502-79592","chr4:43162098-43162198")
+#'  regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
 #'  region.tf <- get_tf_in_region(
 #'                  region = regions.names,
 #'                  genome = "hg38"
@@ -97,7 +97,7 @@ get_tf_in_region <- function(
             colum <- motif.matrix[,colum.name, drop = FALSE]
             regions <- rownames(colum)[which(colum %>% pull > 0)];
             tfs <- colum.name
-            expand.grid(regions,tfs)
+            expand.grid(regions,tfs,stringsAsFactors = FALSE)
         }, .progress = "time",.parallel = parallel)
     motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
     colnames(motifs.probes.df) <- c("regionID","TF_external_gene_name")

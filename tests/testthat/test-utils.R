@@ -1,7 +1,7 @@
 test_that("make_granges_from_names returns a GRanges", {
     library(GenomicRanges)
     gr <- make_granges_from_names("chr22:11-20")
-    expect_true(is(gr, "GRanges"))
+    expect_true(is(gr,"GRanges"))
     expect_equal(width(gr), 10)
 })
 
@@ -11,7 +11,7 @@ test_that("make_names_from_granges returns a string", {
     regions.gr <- make_granges_from_names(regions.names)
     names <- make_names_from_granges(regions.gr)
     expect_equal(names, regions.names)
-    expect_true(is(names,"character"))
+    expect_type(names,"character")
 })
 
 test_that("map_probes_to_regions changes probes cpgs to regions", {
@@ -25,14 +25,14 @@ test_that("map_ensg_to_symbol returns the correct mapping", {
     data(dna.met.chr21)
     symbol <- map_ensg_to_symbol("ENSG00000073282")
     expect_equal("TP63",symbol)
-    expect_true(is(symbol,"character"))
+    expect_type(symbol,"character")
 })
 
 test_that("map_ensg_to_symbol returns the correct mapping", {
     data(dna.met.chr21)
     ensg <- map_symbol_to_ensg("TP63")
     expect_equal("ENSG00000073282",ensg)
-    expect_true(is(ensg,"character"))
+    expect_type(ensg,"character")
 })
 
 
@@ -48,6 +48,7 @@ test_that("get_gene_information returns Granges or dataframes", {
 test_that("make_se_from_dnam_probes returns a SE with regions", {
     dna.met.chr21 <- get(data("dna.met.chr21"))
     se <- make_se_from_dnam_probes(dna.met.chr21)
+    expect_s4_class(se,"SummarizedExperiment")
     expect_true(is(se,"SummarizedExperiment"))
     expect_true(all(grepl("chr21",rownames(se))))
 })
@@ -56,6 +57,7 @@ test_that("make_se_from_dnam_regions returns a SE with regions", {
     dna.met.chr21 <- get(data("dna.met.chr21"))
     dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
     se <- make_se_from_dnam_regions(dna.met.chr21.regions)
+    expect_s4_class(se,"SummarizedExperiment")
     expect_true(is(se,"SummarizedExperiment"))
     expect_true(all(grepl("chr21",rownames(se))))
 })
@@ -63,6 +65,7 @@ test_that("make_se_from_dnam_regions returns a SE with regions", {
 test_that("make_se_from_dnam_regions returns a SE with ENSG as rownames", {
     gene.exp.chr21 <- get(data("gene.exp.chr21"))
     se <- make_se_from_gene_matrix(gene.exp.chr21)
+    expect_s4_class(se,"SummarizedExperiment")
     expect_true(is(se,"SummarizedExperiment"))
     expect_true(all(grepl("ENSG",rownames(se))))
     #expect_equal("ENSG00000142156",rowData(se)$ensembl_gene_id[rowData(se)$external_gene_name == "COL6A1"])

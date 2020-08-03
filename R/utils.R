@@ -302,12 +302,12 @@ make_se_from_dnam_probes <- function (
 
     # Create SummarizedExperiment
     message("oo Preparing SummarizedExperiment object")
-    met <- SummarizedExperiment::SummarizedExperiment(
+    se <- SummarizedExperiment::SummarizedExperiment(
         assays = assay,
         rowRanges = rowRanges,
         colData = colData
     )
-    return(met)
+    return(se)
 }
 
 
@@ -335,10 +335,41 @@ make_se_from_dnam_regions <- function (
 
     # Create SummarizedExperiment
     message("oo Preparing SummarizedExperiment object")
-    met <- SummarizedExperiment::SummarizedExperiment(
+    se <- SummarizedExperiment::SummarizedExperiment(
         assays = assay,
         rowRanges = rowRanges,
         colData = colData
     )
-    return(met)
+    return(se)
+}
+
+#' @title Transform gene expression matrix to a Summarized Experiment object
+#' @param exp Gene expressio  matrix with gene expression counts,
+#' row as ENSG gene IDS and column as samples
+#' @noRd
+#' @examples
+#' gene.exp.chr21 <- get(data("gene.exp.chr21"))
+#' gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21)
+make_se_from_gene_matrix <- function (
+    exp,
+    genome = c("hg38","hg19")
+) {
+    # Data checking
+    genome <- match.arg(genome)
+
+    if (!all(grepl("ENSG", rownames(exp)))) {
+        stop("Please the gene expression matrix should receive ENSEMBLE IDs (ENSG)")
+    }
+
+    message("o Creating a SummarizedExperiment from gene expression input")
+    gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
+    rowRanges <- gene.info[match(exp %>% rownames(),gene.info$ensembl_gene_id),]
+    colData <- S4Vectors::DataFrame(samples = colnames(exp))
+
+    se <- SummarizedExperiment::SummarizedExperiment(
+        assays = exp %>% data.matrix(),
+        rowRanges = rowRanges,
+        colData = colData
+    )
+    return(se)
 }

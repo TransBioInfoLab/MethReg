@@ -35,7 +35,7 @@ filter_regions_by_mean_quantile_difference <- function(
     print(tab)
 
     diff.regions <- c(diff_mean %>% filter(diff_mean > 0.2) %>% pull(.data$X1) %>% as.character())
-    dnam[diff.regions,]
+    dnam[diff.regions,,drop = FALSE]
 }
 
 
@@ -77,7 +77,7 @@ filter_genes_by_quantile_mean_fold_change <- function(
     print(tab)
 
     diff.genes <- c(diff.genes %>% filter(.data$diff_fold_change > fold.change) %>% pull(.data$X1) %>% as.character())
-    exp[diff.genes,]
+    exp[diff.genes,,drop = FALSE]
 }
 
 

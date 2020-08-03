@@ -59,20 +59,34 @@ cor_region_dnam_target_gene <- function(
     if(ncol(dnam) != ncol(exp)) stop("exp and dnam does not have the same size")
     if(!all(c("target","regionID") %in% colnames(links))) stop("links object must have target and regionID columns")
 
+    if(is(dnam,"SummarizedExperiment")){
+        dnam <- assay(dnam)
+    }
+    if(!is(dnam,"matrix")){
+        stop("dnam input is wrong")
+    }
+
+    if(is(exp,"SummarizedExperiment")){
+        exp <- assay(exp)
+    }
+    if(!is(exp,"matrix")){
+        stop("exp input is wrong")
+    }
+
     # remove links with RNA expression equal to 0 for more than 25% of the samples
     message("Removing genes with RNA expression equal to 0 for all samples")
     exp <- filter_genes_zero_expression_all_samples(exp)
 
     regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
-    dnam <- dnam[regions.keep,]
+    dnam <- dnam[regions.keep,, drop = FALSE]
 
     links <- links[links$target %in% rownames(exp),]
     links <- links[links$regionID %in% rownames(dnam),]
     if(nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
 
     # reducing object sizes in case we will make it parallel
-    exp <- exp[rownames(exp) %in% links$target,]
-    dnam <- dnam[rownames(dnam) %in% links$regionID,]
+    exp <- exp[rownames(exp) %in% links$target,,drop = FALSE]
+    dnam <- dnam[rownames(dnam) %in% links$regionID,, drop = FALSE]
 
     parallel <- register_cores(cores)
 

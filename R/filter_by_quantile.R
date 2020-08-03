@@ -88,7 +88,7 @@ filter_genes_by_quantile_mean_fold_change <- function(
 filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
     genes.keep <- (rowSums(exp == 0) / ncol(exp) <= max.samples.percentage) %>% which %>% names
     message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
-    exp[genes.keep,]
+    exp[genes.keep,, drop = FALSE]
 }
 
 
@@ -111,5 +111,5 @@ filter_genes_zero_expression_all_samples <- function(
     if(length(genes.keep) < nrow(exp) & length(genes.keep) > 0){
         message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
     }
-    exp <- exp[genes.keep,]
+    exp <- exp[genes.keep,,drop = FALSE]
 }

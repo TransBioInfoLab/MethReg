@@ -82,6 +82,9 @@ interaction_model <- function(
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
     if(missing(exp)) stop("Please set exp argument with gene expression matrix")
 
+    if(is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+    if(is(exp,"SummarizedExperiment")) exp <- assay(exp)
+
     check_data(dnam, exp)
 
     if(!all(grepl("ENSG", rownames(exp)))){

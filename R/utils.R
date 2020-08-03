@@ -302,6 +302,11 @@ make_se_from_dnam_probes <- function (
     met <- met[names(rowRanges), , drop = FALSE]
     assay <- data.matrix(met)
 
+    rowRanges$probeID <- names(rowRanges)
+    regions.name <-  make_names_from_granges(rowRanges)
+    names(rowRanges) <- regions.name
+    rownames(met) <- regions.name
+
     # Create SummarizedExperiment
     message("oo Preparing SummarizedExperiment object")
     se <- SummarizedExperiment::SummarizedExperiment(
@@ -366,6 +371,7 @@ make_se_from_gene_matrix <- function (
     message("o Creating a SummarizedExperiment from gene expression input")
     gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
     rowRanges <- gene.info[match(exp %>% rownames(),gene.info$ensembl_gene_id),]
+    names(rowRanges) <- rowRanges$ensembl_gene_id
     colData <- S4Vectors::DataFrame(samples = colnames(exp))
 
     se <- SummarizedExperiment::SummarizedExperiment(

@@ -36,14 +36,12 @@ building:
 pages:
     stage: deploy
     script:
-    - R -e 'remotes::install_local()'
-    - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
+      - Rscript -e 'library(covr); codecov()'
+      - R -e 'remotes::install_local()'
+      - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:
             - public
         expire_in: 30 days
     only:
         - master
-
-after_success:
-  - Rscript -e 'library(covr); codecov()'

@@ -43,6 +43,9 @@ plot_interaction_model <-  function(triplet.results,
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
+    if(is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+    if(is(exp,"SummarizedExperiment")) exp <- assay(exp)
+
     check_data(dnam, exp, metadata)
 
     out <- plyr::alply(

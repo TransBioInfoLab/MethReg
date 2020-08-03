@@ -41,7 +41,11 @@ plot_stratified_model <-  function(
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
+    if(is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+    if(is(exp,"SummarizedExperiment")) exp <- assay(exp)
+
     check_data(dnam, exp, metadata)
+
 
     out <- plyr::alply(
         .data = triplet.results,

@@ -277,8 +277,8 @@ $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm 
 ```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
     triplet = triplet[1,], 
-    dnam = dna.met.chr21,
-    exp = gene.exp.chr21
+    dnam = dna.met.chr21.se,
+    exp = gene.exp.chr21.se
 )
 ```
 
@@ -351,8 +351,8 @@ $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 ```{R stratified_model, message = FALSE, results = "hide"}
 results.stratified.model <- stratified_model(
     triplet = triplet[1,],
-    dnam = dna.met.chr21,
-    exp = gene.exp.chr21
+    dnam = dna.met.chr21.se,
+    exp = gene.exp.chr21.se
 )
 ```
 

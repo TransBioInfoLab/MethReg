@@ -67,12 +67,14 @@ get_tf_in_region <- function(
 
     message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
     message("This may take a while...")
-    motif.matrix <- motifmatchr::matchMotifs(
-        pwms = PFMatrixList,
-        subject = region.gr,
-        genome = genome,
-        p.cutoff = p.cutoff
-    ) %>% SummarizedExperiment::assay()
+    suppressWarnings({
+        motif.matrix <- motifmatchr::matchMotifs(
+            pwms = PFMatrixList,
+            subject = region.gr,
+            genome = genome,
+            p.cutoff = p.cutoff
+        ) %>% SummarizedExperiment::assay()
+    })
     rownames(motif.matrix) <- region.names
 
     # remove motifs not found in any regions

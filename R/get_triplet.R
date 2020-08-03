@@ -31,8 +31,9 @@
 get_triplet <- function(
     region,
     genome = c("hg38","hg19"),
-    target.method = c("closest.gene","window"),
+    target.method = c("closest.gene","window","nearest.genes"),
     target.window.size = 500 * 10^3,
+    target.num.flanking.genes = 5,
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
     cores = 1
@@ -53,7 +54,9 @@ get_triplet <- function(
     region.target <- get_region_target_gene(
         regions.gr = region.gr,
         genome = genome,
-        method = target.method
+        window.size = target.window.size,
+        method = target.method,
+        num.flanking.genes = target.num.flanking.genes
     )
 
     message("Looking for TFBS")

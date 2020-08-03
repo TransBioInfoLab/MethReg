@@ -7,8 +7,9 @@
 get_triplet(
   region,
   genome = c("hg38", "hg19"),
-  target.method = c("closest.gene", "window"),
+  target.method = c("closest.gene", "window", "nearest.genes"),
   target.window.size = 500 * 10^3,
+  target.num.flanking.genes = 5,
   motif.search.window.size = 0,
   motif.search.p.cutoff = 1e-08,
   cores = 1

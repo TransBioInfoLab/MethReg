@@ -44,3 +44,6 @@ pages:
         expire_in: 30 days
     only:
         - master
+
+after_success:
+  - Rscript -e 'library(covr); codecov()'

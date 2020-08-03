@@ -262,10 +262,12 @@ get_non_promoter_regions <- function(regions.gr, genome){
 #' @title Transform DNA methylation array to a summarized Experiment object
 #' @param met DNA methylation matrix with beta-values or m-values as data,
 #' row as regions or regions and column as samples
-#' @noRd
+#' @export
 #' @examples
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
 #' se <- make_se_from_dnam_probes(dna.met.chr21)
+#' @importFrom S4Vectors DataFrame
+#' @importFrom SummarizedExperiment SummarizedExperiment
 make_se_from_dnam_probes <- function (
     met,
     genome = c("hg38","hg19"),
@@ -314,7 +316,7 @@ make_se_from_dnam_probes <- function (
 #' @title Transform DNA methylation array to a summarized Experiment object
 #' @param met DNA methylation matrix with beta-values or m-values as data,
 #' row as cpgs and column as samples
-#' @noRd
+#' @export
 #' @examples
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
 #' dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
@@ -346,7 +348,7 @@ make_se_from_dnam_regions <- function (
 #' @title Transform gene expression matrix to a Summarized Experiment object
 #' @param exp Gene expressio  matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
-#' @noRd
+#' @export
 #' @examples
 #' gene.exp.chr21 <- get(data("gene.exp.chr21"))
 #' gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21)

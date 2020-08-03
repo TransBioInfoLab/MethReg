@@ -92,6 +92,7 @@ The individual CpGs data can be, for example, differentially methylated sites
 
 ```{R warning=FALSE}
 dna.met.chr21 <- get(data("dna.met.chr21"))
+
 ```
 
 ```{R}
@@ -99,12 +100,13 @@ dna.met.chr21[1:5,1:5]
 ```
 
 ```{R}
-dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21.se <- make_se_from_dnam_probes(dna.met.chr21)
 ```
 
 
 ```{R}
-dna.met.chr21[1:5,1:5]
+dna.met.chr21.se
+SummarizedExperiment::rowRanges(dna.met.chr21.se)[1:4,1:4]
 ```
 
 
@@ -128,6 +130,9 @@ The samples are in the columns and the genes are in the rows.
 ```{R}
 data("gene.exp.chr21", package = "coMethTF")
 gene.exp.chr21[1:5,1:5]
+gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21)
+gene.exp.chr21.se
+SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 ```
 
 ## 3.3 Creating triplet dataset
@@ -137,15 +142,15 @@ The function `get_region_target_gene` provides two methods to link a DMR to
 a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
 (2) mapping the region to all the genes within a window 
 (default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
+or (3) mapping the region to a specific number of genes upstream down/upstream of the region (`method = "nearest.genes"`)
 
 For promoter analysis, we recommend setting `method = "closest.gene"`.
-For analysis of distal regions, 
-we recommend setting  `method = "window"`. 
+For analysis of distal regions, we recommend setting either `method = "window"` or `method = "nearest.genes"`. 
 Note that the distal analysis will be more time and resource consuming. 
  
 ```{R}
 # Get CpG information
-probes.gr <- make_granges_from_names(rownames(dna.met.chr21))
+probes.gr <- SummarizedExperiment::rowRanges(dna.met.chr21.se)
 class(probes.gr)
 ```
 
@@ -170,22 +175,26 @@ region.target.closest
 region.target.window <- get_region_target_gene(
     regions.gr = probes.gr, 
     genome = "hg38", 
-    method = "window"
+    method = "window",
+     window.size = 500 * 10^3
 )
 
 dim(region.target.window)
 region.target.window
 ```
 
-Some of the columns of the data frame output from `get_region_target_gene` 
-when the method is set to `"window"` are described below:
+```{R}
+# Map probes to 5 genes upstream and 5 downstream
+region.target.nearest.genes <- get_region_target_gene(
+    regions.gr = probes.gr, 
+    genome = "hg38", 
+    method = "nearest.genes",
+    num.flanking.genes = 5
+)
 
-* regionID: chromossome, start, end
-* regionID.extended: same as regionID, but start and end values of the regions will be 
-regionID start - window.width/2 and  regionID end + window.width/2 
-* window.extended.width:  width of window around region used to find target genes
-* Distance.region.gene: distance from region to target gene TSS
-
+dim(region.target.window)
+region.target.window
+```
 
 ### Mapping region to TF
 

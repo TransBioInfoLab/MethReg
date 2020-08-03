@@ -1,8 +1,8 @@
 ---
 title: "coMethTF: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies"
 author:
-  - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902@miami.edu]
-  - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg@gmail.com]
+  - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902 at miami.edu]
+  - Lily Wang^[University of Miami Miller School of Medicine, lily.wang at gmail.com]
 output: 
   prettydoc::html_pretty:
     theme: leonids
@@ -71,7 +71,7 @@ library(coMethTF)
 
 The input of `coMethTF` are DNA methylation and gene expression datasets measured 
 on the same set of samples. Using additional information from the 
-HOCOMOCO database [@kulakovskiy2016hocomoco], we will then create a data frame 
+JASPAR database, we will then create a data frame 
 with information on the triplet: DMR (or CpG), TF and target gene. 
 
 For illustration, we will use chromosome 21 data from 38 TCGA-COAD samples.

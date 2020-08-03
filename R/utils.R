@@ -258,3 +258,87 @@ get_non_promoter_regions <- function(regions.gr, genome){
     message("o Remove promoter regions")
     GenomicRanges::setdiff(regions.gr, promoter.regions)
 }
+
+#' @title Transform DNA methylation array to a summarized Experiment object
+#' @param met DNA methylation matrix with beta-values or m-values as data,
+#' row as regions or regions and column as samples
+#' @noRd
+#' @examples
+#' dna.met.chr21 <- get(data("dna.met.chr21"))
+#' se <- make_se_from_dnam_probes(dna.met.chr21)
+make_se_from_dnam_probes <- function (
+    met,
+    genome = c("hg38","hg19"),
+    arrayType = c("450k","EPIC")
+) {
+    genome <- match.arg(genome)
+    arrayType <- match.arg(arrayType)
+
+    check_package("SummarizedExperiment")
+    check_package("S4Vectors")
+
+    message("o Creating a SummarizedExperiment from DNA methylation input")
+
+    # Get probes annotation
+    message("oo Fetching probes metadata")
+    annotation <- get_met_probes_info(genome = genome, arrayType =  arrayType)
+
+    # Keep only annotation with information in the methylation array
+    rowRanges <- annotation[names(annotation) %in% rownames(met),, drop = FALSE]
+    if(length(rowRanges) == 0){
+        message("We were not able to map the rownames to cpgs probes identifiers. Please, check your input.")
+        return(NULL)
+    }
+
+    # remove masked probes
+    message("oo Removing masked probes")
+    rowRanges <- rowRanges[!rowRanges$MASK_general]
+
+    # Prepare all data matrices
+    colData <- S4Vectors::DataFrame(samples = colnames(met))
+    met <- met[rownames(met) %in% names(rowRanges), , drop = FALSE]
+    met <- met[names(rowRanges), , drop = FALSE]
+    assay <- data.matrix(met)
+
+    # Create SummarizedExperiment
+    message("oo Preparing SummarizedExperiment object")
+    met <- SummarizedExperiment::SummarizedExperiment(
+        assays = assay,
+        rowRanges = rowRanges,
+        colData = colData
+    )
+    return(met)
+}
+
+
+#' @title Transform DNA methylation array to a summarized Experiment object
+#' @param met DNA methylation matrix with beta-values or m-values as data,
+#' row as cpgs and column as samples
+#' @noRd
+#' @examples
+#' dna.met.chr21 <- get(data("dna.met.chr21"))
+#' dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
+#' dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
+make_se_from_dnam_regions <- function (
+    met
+) {
+
+    check_package("SummarizedExperiment")
+    check_package("S4Vectors")
+
+    message("o Creating a SummarizedExperiment from DNA methylation input")
+
+    # Prepare all data matrices
+    rowRanges <- met %>% rownames() %>% make_granges_from_names()
+    colData <- S4Vectors::DataFrame(samples = colnames(met))
+    assay <- data.matrix(met)
+
+    # Create SummarizedExperiment
+    message("oo Preparing SummarizedExperiment object")
+    met <- SummarizedExperiment::SummarizedExperiment(
+        assays = assay,
+        rowRanges = rowRanges,
+        colData = colData
+    )
+    return(met)
+}

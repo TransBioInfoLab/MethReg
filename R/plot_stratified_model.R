@@ -1,4 +1,3 @@
-
 #' @title Plot stratifed model results
 #' @description Create several plots to show interaction data
 #' TF expression with target gene interaction using a linear model
@@ -28,10 +27,11 @@
 #' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme
 #' @importFrom ggplot2 xlab ylab geom_smooth
 #' @importFrom tibble as_tibble
-plot_stratified_model <-  function(triplet.results,
-                                   dnam,
-                                   exp,
-                                   metadata
+plot_stratified_model <-  function(
+    triplet.results,
+    dnam,
+    exp,
+    metadata
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")

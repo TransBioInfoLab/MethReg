@@ -32,7 +32,7 @@ with 1 if the motif was found, 0 if not.
 }
 \examples{
 \dontrun{
- regions.names <- c("chr1:79502-79592","chr4:43162098-43162198")
+ regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
  region.tf <- get_tf_in_region(
                  region = regions.names,
                  genome = "hg38"

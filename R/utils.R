@@ -90,7 +90,6 @@ get_met_probes_info <- function(
 #' data(gene.exp.chr21)
 #' gene.symbols <- map_ensg_to_symbol(rownames(gene.exp.chr21))
 #' @noRd
-#' @importFrom biomaRt useEnsembl listDatasets getBM
 map_ensg_to_symbol <- function(
     ensembl.gene.id,
     genome = "hg38"
@@ -106,7 +105,6 @@ map_ensg_to_symbol <- function(
 #' @examples
 #' gene.symbols <- map_symbol_to_ensg("TP63"s)
 #' @noRd
-#' @importFrom biomaRt useEnsembl listDatasets getBM
 map_symbol_to_ensg <- function(
     gene.symbol,
     genome = "hg38"
@@ -118,6 +116,7 @@ map_symbol_to_ensg <- function(
 
 
 get_gene_information_biomart <- function(genome = "hg38"){
+    check_package("biomaRt")
     tries <- 0L
     msg <- character()
     while (tries < 3L) {

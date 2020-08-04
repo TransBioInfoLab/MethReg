@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # coMethTF
 
 <!-- badges: start -->
+[![codecov](https://codecov.io/gl/tiagochst/methtf/branch/%5Cx6d6173746572/graph/badge.svg?token=NESBYPVF64)](https://codecov.io/gl/tiagochst/methtf)
 <!-- badges: end -->
 
 

@@ -95,14 +95,19 @@ cor_region_dnam_target_gene <- function(
         .margins = 1,
         .fun = function(link){
             tryCatch({
-            exp <- exp[link$target,]
-            dnam <- dnam[rownames(dnam) == link$regionID,]
-            res <- cor.test(exp %>% as.numeric,
-                            dnam %>% as.numeric,
-                            method = "spearman",
-                            exact = TRUE)
-            return(tibble("met_exp_cor_pvalue" = res$p.value,
-                          "met_exp_cor_estimate" = res$estimate))
+                exp <- exp[link$target,]
+                dnam <- dnam[rownames(dnam) == link$regionID,]
+                suppressWarnings({
+                    res <- cor.test(exp %>% as.numeric,
+                                    dnam %>% as.numeric,
+                                    method = "spearman",
+                                    exact = TRUE)
+                })
+                return(
+                    tibble("met_exp_cor_pvalue" = res$p.value,
+                           "met_exp_cor_estimate" = res$estimate
+                    )
+                )
             },error = function(e){
                 return(tibble("met_exp_cor_pvalue" = NA,
                               "met_exp_cor_estimate" = NA))

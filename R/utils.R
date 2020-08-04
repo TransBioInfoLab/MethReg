@@ -133,8 +133,10 @@ get_gene_information_biomart <- function(genome = "hg38"){
                                       host, " to get gene information"),
                                paste0("Accessing ",
                                       host, " (mirror ", mirror, ")")))
-                useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl",
-                           host = host, mirror = mirror)
+                biomaRt::useEnsembl(
+                    "ensembl",
+                    dataset = "hsapiens_gene_ensembl",
+                    host = host, mirror = mirror)
             }, error = function(e) {
                 message(e)
                 return(NULL)
@@ -147,10 +149,10 @@ get_gene_information_biomart <- function(genome = "hg38"){
                 "end_position",
                 "start_position"
             )
-            db.datasets <- listDatasets(ensembl)
+            db.datasets <- biomaRt::listDatasets(ensembl)
             description <- db.datasets[db.datasets$dataset == "hsapiens_gene_ensembl", ]$description
             message(paste0("Downloading genome information (try:", tries, ") Using: ", description))
-            gene.location <- getBM(
+            gene.location <- biomaRt::getBM(
                 attributes = attributes,
                 filters = "chromosome_name",
                 values = c(1:22,"X","Y"),

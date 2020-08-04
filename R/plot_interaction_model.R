@@ -306,7 +306,11 @@ get_plot_results_aux <- function(
         maxit = 100)
     rlm.val <- rls %>% summary %>% coef %>% data.frame
     rlm.val <- rlm.val[-1,1]
-    rlm.p.value <- sfsmisc::f.robftest(rls)$p.value
+    rlm.p.value <- tryCatch({
+        sfsmisc::f.robftest(rls)$p.value
+    }, error = function(e){
+        message(e); return("NA")
+    })
     p <- p + ggplot2::annotate(
         geom = "text",
         x = min(df[[x]], na.rm = TRUE),

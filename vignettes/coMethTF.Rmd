@@ -396,12 +396,12 @@ If you want to highlight different group of samples, you can also use the metada
 with a dataframe with rownames as samples (same order as the columns of the 
 DNAm and gene expression), and a column highlighting the groups.
 
-```{R, message = TRUE, results = "hide"}
+```{R, message = TRUE, results = "hide",eval = FALSE}
 data("clinical")
 metadata <- clinical[,c("sample_type"),drop = FALSE]
 ```
 
-```{R, eval = TRUE, results = "hide", message = FALSE}
+```{R, eval = TRUE, results = "hide", message = FALSE,eval = FALSE}
 plots <- plot_stratified_model(
         triplet.results = results.stratified.model[1,,drop = FALSE], 
         dnam = dna.met.chr21.se, 

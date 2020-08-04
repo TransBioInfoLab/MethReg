@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![codecov](https://codecov.io/gl/tiagochst/methtf/branch/%5Cx6d6173746572/graph/badge.svg?token=NESBYPVF64)](https://codecov.io/gl/tiagochst/methtf)
+[![license](https://img.shields.io/badge/license-GPL%20(%3E%3D%202)-blue)]()
 <!-- badges: end -->
 
 
@@ -69,7 +70,7 @@ triplet <- get_triplet(
 )
 ```
 
-```{r model, warning = FALSE}
+```{r model, warning = FALSE, results="hide"}
 #---------------------------------------
 # Evaluate two models: 
 #---------------------------------------
@@ -81,6 +82,9 @@ results <- interaction_model(
     dnam = dnam.regions,
     exp = gene.exp.chr21
 )
+```
+
+```{r model_res, warning = FALSE}
 head(results)
 ```
 

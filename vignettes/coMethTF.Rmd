@@ -368,15 +368,15 @@ It requires the output from the function `interaction_model` (a dataframe),
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
-```{R, plot_stratified_model, message = FALSE, results = "hide", eval = TRUE}
+```{R, plot_stratified_model, message = FALSE, results = "hide", eval = FALSE}
 plots <- plot_stratified_model(
-    triplet.results = results.stratified.model[1,], 
+    triplet.results = results.stratified.model[1,,drop = FALSE], 
     dnam = dna.met.chr21, 
     exp = gene.exp.chr21
 )
 ```
 
-```{R, fig.height = 14, fig.width = 12, eval = TRUE}
+```{R, fig.height = 14, fig.width = 12, eval = FALSE}
 plots[[1]]
 ```
 

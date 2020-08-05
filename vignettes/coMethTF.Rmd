@@ -347,7 +347,15 @@ lowest DNAm levels (bottom 25 percent), separately.
 
 $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 
-```{R stratified_model, message = FALSE, results = "hide"}
+```{R, message = FALSE, results = "hide", include = FALSE}
+results.stratified.model <- stratified_model(
+    triplet = triplet[1,],
+    dnam = dna.met.chr21.se[triplet$regionID,],
+    exp = gene.exp.chr21.se[c(triplet$target,triplet$TF),]
+)
+```
+
+```{R stratified_model, message = FALSE, results = "hide", eval = FALSE}
 results.stratified.model <- stratified_model(
     triplet = triplet[1,],
     dnam = dna.met.chr21.se,
@@ -366,6 +374,13 @@ in a way that corresponds to the linear model we considered above.
 It requires the output from the function `interaction_model` (a dataframe), 
 the DNA methylation matrix and the gene expression matrix as input. 
 
+```{R, message = FALSE, results = "hide", include = FALSE}
+results.stratified.model <- plot_stratified_model(
+    triplet.results = results.stratified.model[1,,drop = FALSE],
+    dnam = dna.met.chr21.se[triplet$regionID,],
+    exp = gene.exp.chr21.se[c(triplet$target,triplet$TF),]
+)
+```
 
 ```{R, plot_stratified_model, message = FALSE, results = "hide", eval = FALSE}
 plots <- plot_stratified_model(
@@ -401,7 +416,17 @@ data("clinical")
 metadata <- clinical[,c("sample_type"),drop = FALSE]
 ```
 
-```{R, eval = TRUE, results = "hide", message = FALSE,eval = FALSE}
+
+```{R, message = FALSE, results = "hide", include = FALSE}
+results.stratified.model <- plot_stratified_model(
+ triplet.results = results.stratified.model[1,,drop = FALSE], 
+ dnam = dna.met.chr21.se[triplet$regionID,],
+ exp = gene.exp.chr21.se[c(triplet$target,triplet$TF),],
+ metadata = metadata
+)
+```
+
+```{R, eval = TRUE, results = "hide", message = FALSE, eval = FALSE}
 plots <- plot_stratified_model(
         triplet.results = results.stratified.model[1,,drop = FALSE], 
         dnam = dna.met.chr21.se, 
@@ -411,7 +436,7 @@ plots <- plot_stratified_model(
 ```
 
 
-```{R, fig.height = 14, fig.width = 12, eval = FALSE}
+```{R, fig.height = 14, fig.width = 12, eval = TRUE}
 plots[[1]]
 ```
 

@@ -98,6 +98,10 @@ dna.met.chr21 <- get(data("dna.met.chr21"))
 dna.met.chr21[1:5,1:5]
 ```
 
+We will first create a SummarizedExperiment object with the function
+`make_se_from_dnam_probes`. This funtion will use the Sesame package to map the array
+probes into genomic regions.
+
 ```{R}
 dna.met.chr21.se <- make_se_from_dnam_probes(
   met = dna.met.chr21,
@@ -133,6 +137,12 @@ The samples are in the columns and the genes are in the rows.
 ```{R}
 gene.exp.chr21 <- get(data("gene.exp.chr21", package = "coMethTF"))
 gene.exp.chr21[1:5,1:5]
+```
+
+We will also create a SummarizedExperiment object for the gene expression data.
+This object will contain the genomic information for each gene.
+
+```{R}
 gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21)
 gene.exp.chr21.se
 SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
@@ -284,8 +294,17 @@ Note that in this implementation, only samples wih DNAm values in the first and 
 
 $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm Group}$$
  
-```{R interaction_model, message = FALSE, results = "hide"}
-results <- interaction_model(
+```{R, message = FALSE, results = "hide", include = FALSE}
+results.interaction.model <- interaction_model(
+    triplet = triplet,
+    dnam = dna.met.chr21.se[rownames(dna.met.chr21.se) %in% triplet$regionID,],
+    exp = gene.exp.chr21.se[rownames(gene.exp.chr21.se) %in% c(triplet$target,triplet$TF),]
+)
+```
+
+ 
+```{R interaction_model, message = FALSE, results = "hide", eval = FALSE}
+results.interaction.model <- interaction_model(
     triplet = triplet, 
     dnam = dna.met.chr21.se,
     exp = gene.exp.chr21.se
@@ -310,12 +329,12 @@ The following columns are provided for the results of fitting **Model 1** to tri
 * `estimate_met.rna.tf`: estimate for DNA methylation by  TF interaction
 
 ```{R interaction_model_results}
-dim(results)
-colnames(results)
+dim(results.interaction.model)
+colnames(results.interaction.model)
 
 # Results for full model (with all samples)
-results %>% dplyr::select(
-    c(1,4,5,grep("quant",colnames(results),invert = TRUE))
+results.interaction.model %>% dplyr::select(
+    c(1,4,5,grep("quant",colnames(results.interaction.model),invert = TRUE))
     ) %>% head
 ```
 
@@ -332,8 +351,8 @@ The following columns are provided for the results of fitting **Model 2** (quart
 
 ```{R}
 # Results for quartile model
-results %>% dplyr::select(
-  c(1,4,5,grep("quant",colnames(results)))
+results.interaction.model %>% dplyr::select(
+  c(1,4,5,grep("quant",colnames(results.interaction.model)))
   ) %>% head
 ```
 
@@ -341,7 +360,8 @@ To select significant DNAm by TF intereaction from both models, you can subset t
 using the p-value from each linear model.
 
 ```{r, include = FALSE, eval = TRUE}
-results.sig <- results %>% dplyr::filter(`pval_met:rna.tf` < 0.05 & `quant_pval_metGrp:rna.tf` < 0.05)
+results.sig <- results.interaction.model %>% 
+  dplyr::filter(`pval_met:rna.tf` < 0.05 & `quant_pval_metGrp:rna.tf` < 0.05)
 ```
 
 ```{R}
@@ -361,8 +381,8 @@ $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 ```{R, message = FALSE, results = "hide", include = FALSE}
 results.stratified.model <- stratified_model(
     triplet = triplet,
-    dnam = dna.met.chr21.se[triplet$regionID,],
-    exp = gene.exp.chr21.se[c(triplet$target,triplet$TF),]
+    dnam = dna.met.chr21.se[rownames(dna.met.chr21.se) %in% triplet$regionID,],
+    exp = gene.exp.chr21.se[rownames(gene.exp.chr21.se) %in% c(triplet$target,triplet$TF),]
 )
 ```
 

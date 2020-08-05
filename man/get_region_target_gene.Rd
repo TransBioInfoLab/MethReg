@@ -13,7 +13,8 @@ get_region_target_gene(
 )
 }
 \arguments{
-\item{regions.gr}{A Genomic Ranges object (GRanges)}
+\item{regions.gr}{A Genomic Ranges object (GRanges) or a
+SummarizedExperiment object (rowRanges will be used)}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 

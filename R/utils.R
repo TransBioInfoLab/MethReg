@@ -250,6 +250,9 @@ register_cores <- function(cores){
     return(parallel)
 }
 
+#' @title Get non promoter regions
+#' @description Subset a granges object to those not overlapping promoter regions
+#' (default +- 2kb away from TSS)
 #' @importFrom IRanges subsetByOverlaps
 #' @noRd
 get_non_promoter_regions <- function(regions.gr, genome){

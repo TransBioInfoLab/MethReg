@@ -2,7 +2,8 @@
 #' @description To map genes to a region there are two options: 1) closest gene
 #' 2) map to all genes within a window around the region (default window.size = 500kbp
 #' (i.e. +/- 250kbp from start or end of the region)).
-#' @param regions.gr A Genomic Ranges object (GRanges)
+#' @param regions.gr A Genomic Ranges object (GRanges) or a
+#' SummarizedExperiment object (rowRanges will be used)
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
 #' genes within a window around the region ("window"); or a fixed number genes upstream
@@ -59,6 +60,10 @@ get_region_target_gene <- function(
 
     method <- match.arg(method)
     genome <- match.arg(genome)
+
+    if(is(regions.gr,"SummarizedExperiment")) {
+        regions.gr <- SummarizedExperiment::rowRanges(regions.gr)
+    }
 
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
 

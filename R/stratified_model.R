@@ -89,7 +89,7 @@ stratified_model <- function(
 
     message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
-    dnam <- dnam[regions.keep,]
+    dnam <- dnam[regions.keep,,drop = FALSE]
 
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &

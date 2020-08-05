@@ -13,6 +13,10 @@ make_se_from_dnam_probes(
 \arguments{
 \item{met}{DNA methylation matrix with beta-values or m-values as data,
 row as regions or regions and column as samples}
+
+\item{genome}{HUman genome of reference: hg38 or hg19}
+
+\item{arrayType}{DNA methylation array type (450k or EPIC)}
 }
 \description{
 Transform DNA methylation array to a summarized Experiment object

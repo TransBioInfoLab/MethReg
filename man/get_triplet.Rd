@@ -26,6 +26,9 @@ genes within a window around the region ("window").}
 \item{target.window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 
+\item{target.num.flanking.genes}{Number of flanking genes upstream and downstream to search.
+For example, if num.flanking.genes = 5, it will return the 5 genes upstream}
+
 \item{motif.search.window.size}{Integer value to extend the regions. For example, a value of 50 will
 extend 25 bp upstream and 25 downstream the region. Default is no increase}
 

@@ -9,6 +9,8 @@ make_se_from_gene_matrix(exp, genome = c("hg38", "hg19"))
 \arguments{
 \item{exp}{Gene expressio  matrix with gene expression counts,
 row as ENSG gene IDS and column as samples}
+
+\item{genome}{HUman genome of reference: hg38 or hg19}
 }
 \description{
 Transform gene expression matrix to a Summarized Experiment object

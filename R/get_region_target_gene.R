@@ -341,7 +341,7 @@ get_region_target_gene_nearest.genes_addPos <- function(ret, num.flanking.genes)
                 cts <- length(grep("L", sort(pairs$Side), value = TRUE))
                 out <- pairs %>%
                     dplyr::filter(
-                        Side %in% c(paste0("R", 1:(num.flanking.genes - cts)),
+                        .data$Side %in% c(paste0("R", 1:(num.flanking.genes - cts)),
                                     grep("L", sort(out$Side), value = TRUE))
                     )
             } else {
@@ -358,5 +358,5 @@ get_region_target_gene_nearest.genes_addPos <- function(ret, num.flanking.genes)
         return(out)
     }
 
-    ret %>% group_by(ID) %>% do(f(.))
+    ret %>% group_by(.data$ID) %>% do(f(.))
 }

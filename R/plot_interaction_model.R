@@ -245,6 +245,7 @@ get_plot_results <- function(df,row.triplet,color){
 
 
 #' @importFrom sfsmisc f.robftest
+#' @importFrom stats as.formula
 #' @noRd
 #' @examples
 #' df <- data.frame(x = runif(20),y = runif(20))

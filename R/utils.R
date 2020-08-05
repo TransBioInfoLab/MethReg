@@ -252,6 +252,7 @@ register_cores <- function(cores){
 
 #' @importFrom IRanges subsetByOverlaps
 #' @export
+#' @noRd
 get_non_promoter_regions <- function(regions.gr, genome){
     message("o Get promoter regions for ", genome)
     promoter.gr <- get_promoter_regions(genome) %>% reduce
@@ -263,6 +264,8 @@ get_non_promoter_regions <- function(regions.gr, genome){
 #' @title Transform DNA methylation array to a summarized Experiment object
 #' @param met DNA methylation matrix with beta-values or m-values as data,
 #' row as regions or regions and column as samples
+#' @param genome HUman genome of reference: hg38 or hg19
+#' @param arrayType DNA methylation array type (450k or EPIC)
 #' @export
 #' @examples
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
@@ -327,7 +330,7 @@ make_se_from_dnam_probes <- function (
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
 #' dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
 #' dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
-make_se_from_dnam_regions <- function (
+make_se_from_dnam_regions <- function(
     met
 ) {
 
@@ -354,6 +357,7 @@ make_se_from_dnam_regions <- function (
 #' @title Transform gene expression matrix to a Summarized Experiment object
 #' @param exp Gene expressio  matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
+#' @param genome HUman genome of reference: hg38 or hg19
 #' @export
 #' @examples
 #' gene.exp.chr21 <- get(data("gene.exp.chr21"))

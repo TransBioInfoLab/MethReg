@@ -30,6 +30,7 @@ To consider covariates, RNA can also be the residuals.
 \deqn{log2(RNA target residuals) ~ log2(TF residual) + DNAm + log2(TF residual) * DNAm}
 }
 \examples{
+library(dplyr)
 dnam <- runif(20,min = 0,max = 1) \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(dnam) <- c("chr3:203727581-203728580")

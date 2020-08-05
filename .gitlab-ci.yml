@@ -1,6 +1,8 @@
 image:  tiagochst/tcgabiolinksgui:latest
 
 variables:
+  KUBERNETES_MEMORY_REQUEST: 1Gi
+  KUBERNETES_MEMORY_LIMIT: 2Gi
   CODECOV_TOKEN: "6e1249f6-ddb5-435f-8a3a-50de99d67024"
   _R_CHECK_CRAN_INCOMING_: "false"
   _R_CHECK_FORCE_SUGGESTS_: "true"

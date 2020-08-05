@@ -74,6 +74,7 @@ RNA or DNAm residual values which have covariate effects removed, then fit inter
 log2 transformation is needed when \code{interaction_model} is applied to residuals data.
 }
 \examples{
+library(dplyr)
 dnam <- runif(20,min = 0,max = 1) \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(dnam) <- c("chr3:203727581-203728580")

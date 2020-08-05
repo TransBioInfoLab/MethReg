@@ -12,6 +12,7 @@
 #' color the samples
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @examples
+#' library(dplyr)
 #' dnam <- runif(20,min = 0,max = 1) %>%
 #'   matrix(ncol = 1) %>%  t
 #' rownames(dnam) <- c("chr3:203727581-203728580")

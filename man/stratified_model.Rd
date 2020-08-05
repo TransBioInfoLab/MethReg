@@ -67,6 +67,7 @@ transcription is observed in samples with low DNAm. That is, DNAm reduces TF reg
 on target gene expression.
 }
 \examples{
+library(dplyr)
 dnam <- runif(20,min = 0,max = 1) \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(dnam) <- c("chr3:203727581-203728580")

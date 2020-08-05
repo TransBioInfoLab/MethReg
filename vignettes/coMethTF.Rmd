@@ -163,11 +163,6 @@ probes.gr <- SummarizedExperiment::rowRanges(dna.met.chr21.se)
 class(probes.gr)
 ```
 
-```{R memory_reduction, include = FALSE}
-# Just reducing memory usage
-probes.gr <- sort(probes.gr)[300:500,]
-```
-
 ```{R}
 # Map probes to nearest gene
 region.target.closest <- get_region_target_gene(
@@ -392,7 +387,6 @@ the DNA methylation matrix and the gene expression matrix as input.
 
 
 ```{R plot_stratified_model, message = FALSE, results = "hide", eval = TRUE}
-save(gene.exp.chr21.se,dna.met.chr21.se,results.stratified.model, file = "test.rda")
 plots <- plot_stratified_model(
     triplet.results = results.stratified.model, 
     dnam = dna.met.chr21.se, 

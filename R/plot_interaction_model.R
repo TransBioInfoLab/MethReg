@@ -15,6 +15,35 @@
 #' color the samples
 #' @return A dataframe with Region, TF, Estimates and P-value from linear model
 #' @examples
+#' dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+#' rownames(dnam) <- c("chr3:203727581-203728580")
+#' colnames(dnam) <- paste0("Samples",1:20)
+#'
+#' exp.target <-  c(runif(10,min = 0,max = 0),
+#'                 runif(10,min = 0,max = 10)) %>%
+#'   matrix(ncol = 1) %>%  t
+#' rownames(exp.target) <- c("ENSG00000232886")
+#' colnames(exp.target) <- paste0("Samples",1:20)
+#'
+#' exp.tf <-  t(matrix(sort(c(runif(20))), ncol = 1))
+#' rownames(exp.tf) <- c("ENSG00000232888")
+#' colnames(exp.tf) <- paste0("Samples",1:20)
+#'
+#' exp <- rbind(exp.tf, exp.target)
+#' # Map example region to closest gene
+#' triplet <- data.frame(
+#'    "regionID" =  c("chr3:203727581-203728580"),
+#'    "target" = "ENSG00000232886",
+#'    "TF" = "ENSG00000232888"
+#')
+#'
+#' results <- interaction_model(triplet, dnam, exp)
+#' plots <- plot_interaction_model(
+#'     triplet.results = results,
+#'     dnam = dnam,
+#'     exp = exp
+#' )
+#' \dontrun{
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 #' data("gene.exp.chr21")
@@ -26,6 +55,7 @@
 #' # Adding color to samples
 #' metadata <- clinical[,"sample_type",drop = FALSE]
 #' plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21,metadata)
+#' }
 #' @export
 #' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme stat_cor
 #' @importFrom ggplot2 xlab ylab geom_smooth

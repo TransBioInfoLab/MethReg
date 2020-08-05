@@ -74,8 +74,33 @@ RNA or DNAm residual values which have covariate effects removed, then fit inter
 log2 transformation is needed when \code{interaction_model} is applied to residuals data.
 }
 \examples{
+dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+rownames(dnam) <- c("chr3:203727581-203728580")
+colnames(dnam) <- paste0("Samples",1:20)
+
+exp.target <-  c(runif(10,min = 0,max = 0),
+                runif(10,min = 0,max = 10)) \%>\%
+  matrix(ncol = 1) \%>\%  t
+rownames(exp.target) <- c("ENSG00000232886")
+colnames(exp.target) <- paste0("Samples",1:20)
+
+exp.tf <-  t(matrix(sort(c(runif(20))), ncol = 1))
+rownames(exp.tf) <- c("ENSG00000232888")
+colnames(exp.tf) <- paste0("Samples",1:20)
+
+exp <- rbind(exp.tf, exp.target)
+# Map example region to closest gene
+triplet <- data.frame(
+   "regionID" =  c("chr3:203727581-203728580"),
+   "target" = "ENSG00000232886",
+   "TF" = "ENSG00000232888"
+)
+
+results <- interaction_model(triplet, dnam, exp)
+
+\dontrun{
 data("dna.met.chr21")
-dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 data("gene.exp.chr21")
 triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
                       "TF" = rownames(gene.exp.chr21)[11:20],
@@ -84,5 +109,5 @@ results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
 
 # select those that are significant in both models
 # results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
-
+}
 }

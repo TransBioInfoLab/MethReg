@@ -28,15 +28,60 @@ TF expression with target gene interaction using a linear model
 to samples with higest DNAm values (top 25 percent) and lowest DNAm values (bottom 25 percent), separately.
 }
 \examples{
+dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+rownames(dnam) <- c("chr3:203727581-203728580")
+colnames(dnam) <- paste0("Samples",1:20)
+
+exp.target <-  c(runif(10,min = 0,max = 0),
+                runif(10,min = 0,max = 10)) \%>\%
+  matrix(ncol = 1) \%>\%  t
+rownames(exp.target) <- c("ENSG00000232886")
+colnames(exp.target) <- paste0("Samples",1:20)
+
+exp.tf <-  t(matrix(sort(c(runif(20))), ncol = 1))
+rownames(exp.tf) <- c("ENSG00000232888")
+colnames(exp.tf) <- paste0("Samples",1:20)
+
+exp <- rbind(exp.tf, exp.target)
+# Map example region to closest gene
+triplet <- data.frame(
+   "regionID" =  c("chr3:203727581-203728580"),
+   "target" = "ENSG00000232886",
+   "TF" = "ENSG00000232888"
+)
+
+results <- stratified_model(triplet = triplet,dnam = dnam, exp = exp)
+plots <- plot_stratified_model(
+    triplet.results = results,
+    dnam = dnam,
+    exp = exp
+)
+\dontrun{
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 data("gene.exp.chr21")
-triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:5],
-                      "TF" = rownames(gene.exp.chr21)[11:15],
-                      "target" = rownames(gene.exp.chr21)[1:5])
-results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21)
-plots <- plot_stratified_model(results[1,], dna.met.chr21, gene.exp.chr21)
+triplet <- data.frame(
+   "regionID" = rownames(dna.met.chr21)[1:5],
+   "TF" = rownames(gene.exp.chr21)[11:15],
+   "target" = rownames(gene.exp.chr21)[1:5]
+)
+results <- stratified_model(
+   triplet = triplet,
+   dnam = dna.met.chr21,
+   exp = gene.exp.chr21
+)
+plots <- plot_stratified_model(
+   triplet.results = results[1,],
+   dnam = dna.met.chr21,
+   exp = gene.exp.chr21
+)
 # Adding color to samples
 metadata <- clinical[,"sample_type",drop = FALSE]
-plots <- plot_stratified_model(results[1,], dna.met.chr21, gene.exp.chr21,metadata)
+plots <- plot_stratified_model(
+   triplet.results = results[1,],
+   dnam = dna.met.chr21,
+   exp = gene.exp.chr21,
+   metadata = metadata
+)
+}
 }

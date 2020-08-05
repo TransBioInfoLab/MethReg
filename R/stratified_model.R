@@ -52,6 +52,30 @@
 #'
 #'
 #' @examples
+#' dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+#' rownames(dnam) <- c("chr3:203727581-203728580")
+#' colnames(dnam) <- paste0("Samples",1:20)
+#'
+#' exp.target <-  c(runif(10,min = 0,max = 0),
+#'                 runif(10,min = 0,max = 10)) %>%
+#'   matrix(ncol = 1) %>%  t
+#' rownames(exp.target) <- c("ENSG00000232886")
+#' colnames(exp.target) <- paste0("Samples",1:20)
+#'
+#' exp.tf <-  t(matrix(sort(c(runif(20))), ncol = 1))
+#' rownames(exp.tf) <- c("ENSG00000232888")
+#' colnames(exp.tf) <- paste0("Samples",1:20)
+#'
+#' exp <- rbind(exp.tf, exp.target)
+#' # Map example region to closest gene
+#' triplet <- data.frame(
+#'    "regionID" =  c("chr3:203727581-203728580"),
+#'    "target" = "ENSG00000232886",
+#'    "TF" = "ENSG00000232888"
+#')
+#'
+#' results <- stratified_model(triplet = triplet,dnam = dnam, exp = exp)
+#' \dontrun{
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
 #' data("gene.exp.chr21")
@@ -59,6 +83,7 @@
 #'                       "TF" = rownames(gene.exp.chr21)[11:20],
 #'                       "target" = rownames(gene.exp.chr21)[1:10])
 #' results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21)
+#' }
 #' @export
 #' @importFrom tibble tibble
 #' @importFrom rlang .data

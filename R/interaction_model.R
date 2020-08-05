@@ -58,8 +58,33 @@
 #' log2 transformation is needed when \code{interaction_model} is applied to residuals data.
 #'
 #' @examples
+#' dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+#' rownames(dnam) <- c("chr3:203727581-203728580")
+#' colnames(dnam) <- paste0("Samples",1:20)
+#'
+#' exp.target <-  c(runif(10,min = 0,max = 0),
+#'                 runif(10,min = 0,max = 10)) %>%
+#'   matrix(ncol = 1) %>%  t
+#' rownames(exp.target) <- c("ENSG00000232886")
+#' colnames(exp.target) <- paste0("Samples",1:20)
+#'
+#' exp.tf <-  t(matrix(sort(c(runif(20))), ncol = 1))
+#' rownames(exp.tf) <- c("ENSG00000232888")
+#' colnames(exp.tf) <- paste0("Samples",1:20)
+#'
+#' exp <- rbind(exp.tf, exp.target)
+#' # Map example region to closest gene
+#' triplet <- data.frame(
+#'    "regionID" =  c("chr3:203727581-203728580"),
+#'    "target" = "ENSG00000232886",
+#'    "TF" = "ENSG00000232888"
+#')
+#'
+#' results <- interaction_model(triplet, dnam, exp)
+#'
+#' \dontrun{
 #' data("dna.met.chr21")
-#' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+#' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 #' data("gene.exp.chr21")
 #' triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
 #'                       "TF" = rownames(gene.exp.chr21)[11:20],
@@ -68,7 +93,7 @@
 #'
 #' # select those that are significant in both models
 #' # results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
-#'
+#' }
 #' @export
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare
@@ -102,7 +127,7 @@ interaction_model <- function(
 
     message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
-    dnam <- dnam[regions.keep,]
+    dnam <- dnam[regions.keep,,drop = FALSE]
 
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
@@ -136,17 +161,25 @@ interaction_model <- function(
 
             pct.zeros.in.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
 
+            message("\no Model: Interaction all samples")
             if(pct.zeros.in.samples > 0.25){
+                message("-> Using Zero-inflated Negative Binomial Model")
                 itx.all <- interaction_model_zeroinfl(data)
             } else {
+                message("-> Using Robust Fitting of Linear Models")
                 itx.all <- interaction_model_rlm(data)
             }
 
-            # Quantile model: we will use data.high.low (Q4 and Q1 only)
-            pct.zeros.in.quant.samples <- sum(data.high.low$rna.target == 0,na.rm = TRUE) / nrow(data.high.low)
+            message("o Quantile model: using data in Q4 and Q1 only")
+            pct.zeros.in.quant.samples <- sum(
+                data.high.low$rna.target == 0,
+                na.rm = TRUE) / nrow(data.high.low)
+
             if(pct.zeros.in.quant.samples > 0.25){
+                message("-> Using Zero-inflated Negative Binomial Model")
                 itx.quant <- interaction_model_quant_zeroinfl(data.high.low)
             } else {
+                message("-> Using Robust Fitting of Linear Models")
                 itx.quant <- interaction_model_quant_rlm(data.high.low)
             }
 
@@ -166,19 +199,24 @@ interaction_model <- function(
 }
 
 
-interaction_model_no_results <- function(){
+interaction_all_model_no_results <- function(){
     cbind(
-        #"Model.interaction" = NA,
-        #"met.q4_minus_q1" = NA,
+        "pval_met" = NA,
+        "pval_rna.tf" = NA,
+        "pval_met:rna.tf" = NA,
+        "estimate_met" = NA,
+        "estimate_rna.tf" = NA,
+        "estimate_met:rna.tf" = NA) %>% as.data.frame()
+}
+
+interaction_quant_model_no_results <- function(){
+    cbind(
         "quant_pval_metGrp" = NA,
         "quant_pval_rna.tf" = NA,
         "quant_pval_metGrp:rna.tf" = NA,
         "quant_estimate_metGrp" = NA,
         "quant_estimate_rna.tf" = NA,
         "quant_estimate_metGrp:rna.tf" = NA) %>% as.data.frame()
-    #"Model.quantile" = NA,
-    #"% 0 target genes (All samples)" = NA,
-    #"% of 0 target genes (Q1 and Q4)" = NA) %>% as.data.frame
 }
 
 make_df_from_triple <- function(exp, dnam, row.triplet){
@@ -201,8 +239,8 @@ interaction_model_output <- function(
     itx.quant,
     pct.zeros.in.quant.samples
 ){
-    if(is.null(itx.quant)) itx.quant <- interaction_model_no_results()
-    if(is.null(itx.all)) itx.all <- data.frame(rep(NA,6) %>% t)
+    if(is.null(itx.quant)) itx.quant <- interaction_quant_model_no_results()
+    if(is.null(itx.all)) itx.all <- interaction_all_model_no_results()
 
     suppressWarnings({
         max_p <- max(
@@ -250,7 +288,8 @@ interaction_model_rlm <- function(data){
     })
 
     # if(is.null(rlm.bisquare)) return(interaction_model_no_results())
-    if(is.null(rlm.bisquare)) return(NULL)
+    if(is.null(rlm.bisquare)) return(interaction_all_model_no_results())
+    # if(is.null(rlm.bisquare)) return(NULL)
 
     if(!"met:rna.tf" %in% rownames(rlm.bisquare)){
         rlm.bisquare <- rbind(
@@ -288,7 +327,7 @@ interaction_model_zeroinfl <- function(data){
         # message("Continuous model: ", e)
         return(NULL)
     })
-    if(is.null(zinb)) return(interaction_model_no_results())
+    if(is.null(zinb)) return(interaction_all_model_no_results())
 
     zinb <- zinb$count %>% data.frame
 
@@ -313,7 +352,7 @@ interaction_model_quant_zeroinfl <- function(data){
         # message("Continuous model: ", e)
         return(NULL)
     })
-    if(is.null(zinb.quant)) return(interaction_model_no_results())
+    if(is.null(zinb.quant)) return(interaction_quant_model_no_results())
 
     zinb.quant <- zinb.quant$count %>% data.frame
     quant.pval <- zinb.quant[c(-1,-5),4,drop = F] %>%
@@ -345,7 +384,7 @@ interaction_model_quant_rlm <- function(data){
         return(NULL)
     })
 
-    if(is.null(rlm.bisquare.quant)) return(NULL)
+    if(is.null(rlm.bisquare.quant)) return(interaction_quant_model_no_results())
 
     # if the interaction is NA, it is removed from the data frame,
     # we have to re add it

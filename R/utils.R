@@ -251,7 +251,6 @@ register_cores <- function(cores){
 }
 
 #' @importFrom IRanges subsetByOverlaps
-#' @export
 #' @noRd
 get_non_promoter_regions <- function(regions.gr, genome){
     message("o Get promoter regions for ", genome)

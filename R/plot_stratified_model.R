@@ -34,15 +34,17 @@ plot_stratified_model <-  function(
     metadata
 ){
 
-    if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
-    if(missing(exp)) stop("Please set exp argument with gene expression matrix")
-    if(missing(triplet.results)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
-    if(!all(c("regionID","TF","target") %in% colnames(triplet.results))) {
+    #---------------------------------------------------------------------------
+    # Input checking
+    #---------------------------------------------------------------------------
+    if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
+    if (missing(exp)) stop("Please set exp argument with gene expression matrix")
+    if (missing(triplet.results)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
+    if (!all(c("regionID","TF","target") %in% colnames(triplet.results))) {
         stop("triplet must have the following columns names: regionID, TF, target")
     }
-
-    if(is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
-    if(is(exp,"SummarizedExperiment")) exp <- assay(exp)
+    if (is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+    if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
 
     check_data(dnam, exp, metadata)
 
@@ -52,14 +54,15 @@ plot_stratified_model <-  function(
         .margins = 1,
         .fun = function(row.triplet,metadata){
 
-            rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
+            rna.target <- exp[rownames(exp) == as.character(row.triplet$target), , drop = FALSE]
+            rna.tf <- exp[rownames(exp) == as.character(row.triplet$TF), , drop = FALSE]
             met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), , drop = FALSE]
-            rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
 
             df <- data.frame(
                 rna.target = rna.target %>% as.numeric,
                 met = met %>% as.numeric,
-                rna.tf = rna.tf %>% as.numeric
+                rna.tf = rna.tf %>% as.numeric,
+                stringsAsFactors = FALSE
             )
 
             color <- NULL
@@ -68,7 +71,7 @@ plot_stratified_model <-  function(
                 color <- colnames(metadata)[1]
             }
 
-            plots <- get_plot_results(df,row.triplet,color)
+            plots <- get_plot_results(df, row.triplet, color)
 
             # Reformat p-values for better looking on the plots
             for(idx in grep("pval|fdr|value",colnames(row.triplet))) {
@@ -104,7 +107,10 @@ plot_stratified_model <-  function(
         }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
-    names(out) <- paste0(triplet.results$regionID,"_TF_",triplet.results$TF,"_target_",triplet.results$target)
+    names(out) <- paste0(
+        triplet.results$regionID,"_TF_",triplet.results$TF,
+        "_target_",triplet.results$target
+    )
     out
 }
 

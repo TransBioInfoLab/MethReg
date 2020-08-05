@@ -148,7 +148,7 @@ get_table_plot <- function(row.triplet){
 
 #' @importFrom  stats quantile lm
 #' @importFrom MASS rlm
-get_plot_results <- function(df,row.triplet,color){
+get_plot_results <- function(df, row.triplet, color){
 
     target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))
     region.lab <- "DNA methylation"
@@ -165,10 +165,11 @@ get_plot_results <- function(df,row.triplet,color){
     df$DNAm.group[df$met >= quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
     df$DNAm.group[df$met <= quantile_lower_cutoff] <- paste0("DNAm low quartile " , range1)
 
-    df$DNAm.group <- factor(df$DNAm.group,
-                            levels = c(paste0("DNAm low quartile " , range1),
-                                       paste0("DNAm high quartile ", range2)
-                            )
+    df$DNAm.group <- factor(
+        df$DNAm.group,
+        levels = c(paste0("DNAm low quartile " , range1),
+                   paste0("DNAm high quartile ", range2)
+        )
     )
 
     # quintile plots TF
@@ -181,11 +182,12 @@ get_plot_results <- function(df,row.triplet,color){
     df$TF.group <- NA
     df$TF.group[df$rna.tf >= quantile_upper_cutoff] <- paste0("TF high quartile ", range2)
     df$TF.group[df$rna.tf <= quantile_lower_cutoff] <- paste0("TF low quartile ", range1)
-    df$TF.group <- factor(df$TF.group,
-                          levels = c(
-                              paste0("TF low quartile " , range1),
-                              paste0("TF high quartile ", range2)
-                          )
+    df$TF.group <- factor(
+        df$TF.group,
+        levels = c(
+            paste0("TF low quartile " , range1),
+            paste0("TF high quartile ", range2)
+        )
     )
 
 
@@ -205,7 +207,6 @@ get_plot_results <- function(df,row.triplet,color){
         ylab = target.lab,
         xlab = region.lab)
 
-
     dnam.tf.plot <- get_plot_results_aux(
         df,
         x = "met",
@@ -213,7 +214,6 @@ get_plot_results <- function(df,row.triplet,color){
         color = color,
         ylab = tf.lab,
         xlab = region.lab)
-
 
     tf.target.quantile.plot <- get_plot_results_aux(
         df[!is.na(df$DNAm.group),],
@@ -224,8 +224,6 @@ get_plot_results <- function(df,row.triplet,color){
         facet.by = "DNAm.group",
         color = color
     )
-
-
 
     dnam.target.quantile.plot <- get_plot_results_aux(
         df[!is.na(df$TF.group),],
@@ -298,20 +296,25 @@ get_plot_results_aux <- function(
     }
 
     p <- p + xlab(xlab) + ylab(ylab)
-    p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
+    suppressWarnings({
+        p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
 
-    rls <- MASS::rlm(
-        as.formula(paste0(y, "~",x)),
-        data = df,
-        psi = psi.bisquare,
-        maxit = 100)
+        rls <- MASS::rlm(
+            as.formula(paste0(y, "~",x)),
+            data = df,
+            psi = psi.bisquare,
+            maxit = 100)
+    })
     rlm.val <- rls %>% summary %>% coef %>% data.frame
     rlm.val <- rlm.val[-1,1]
     rlm.p.value <- tryCatch({
-        sfsmisc::f.robftest(rls)$p.value
+        ftest <- sfsmisc::f.robftest(rls)
+        ftest$p.value
     }, error = function(e){
-        message(e); return("NA")
+        # message(e);
+        return("NA")
     })
+
     p <- p + ggplot2::annotate(
         geom = "text",
         x = min(df[[x]], na.rm = TRUE),
@@ -323,7 +326,7 @@ get_plot_results_aux <- function(
                        "rlm = ",formatC(rlm.val, digits = 2, format = "e"),
                        " pval.rlm = ",  formatC(rlm.p.value, digits = 2, format = "e"))
     )
-    p
+    return(p)
     # stat_cor(method = "spearman",color = "blue")
 }
 

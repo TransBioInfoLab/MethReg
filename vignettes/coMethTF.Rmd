@@ -99,7 +99,11 @@ dna.met.chr21[1:5,1:5]
 ```
 
 ```{R}
-dna.met.chr21.se <- make_se_from_dnam_probes(dna.met.chr21)
+dna.met.chr21.se <- make_se_from_dnam_probes(
+  met = dna.met.chr21,
+  genome = "hg38",
+  arrayType = "450k"
+)
 ```
 
 
@@ -275,7 +279,7 @@ $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm 
  
 ```{R interaction_model, message = FALSE, results = "hide"}
 results <- interaction_model(
-    triplet = triplet[1,], 
+    triplet = triplet, 
     dnam = dna.met.chr21.se,
     exp = gene.exp.chr21.se
 )
@@ -349,7 +353,7 @@ $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 
 ```{R, message = FALSE, results = "hide", include = FALSE}
 results.stratified.model <- stratified_model(
-    triplet = triplet[1,],
+    triplet = triplet,
     dnam = dna.met.chr21.se[triplet$regionID,],
     exp = gene.exp.chr21.se[c(triplet$target,triplet$TF),]
 )
@@ -357,7 +361,7 @@ results.stratified.model <- stratified_model(
 
 ```{R stratified_model, message = FALSE, results = "hide", eval = FALSE}
 results.stratified.model <- stratified_model(
-    triplet = triplet[1,],
+    triplet = triplet,
     dnam = dna.met.chr21.se,
     exp = gene.exp.chr21.se
 )
@@ -374,23 +378,17 @@ in a way that corresponds to the linear model we considered above.
 It requires the output from the function `interaction_model` (a dataframe), 
 the DNA methylation matrix and the gene expression matrix as input. 
 
-```{R, message = FALSE, results = "hide", include = FALSE}
-results.stratified.model <- plot_stratified_model(
-    triplet.results = results.stratified.model[1,,drop = FALSE],
-    dnam = dna.met.chr21.se[triplet$regionID,],
-    exp = gene.exp.chr21.se[c(triplet$target,triplet$TF),]
-)
-```
 
-```{R, plot_stratified_model, message = FALSE, results = "hide", eval = FALSE}
+```{R plot_stratified_model, message = FALSE, results = "hide", eval = TRUE}
+save(gene.exp.chr21.se,dna.met.chr21.se,results.stratified.model, file = "test.rda")
 plots <- plot_stratified_model(
-    triplet.results = results.stratified.model[1,,drop = FALSE], 
+    triplet.results = results.stratified.model, 
     dnam = dna.met.chr21.se, 
     exp = gene.exp.chr21.se
 )
 ```
 
-```{R, fig.height = 14, fig.width = 12, eval = FALSE}
+```{R, fig.height = 14, fig.width = 12, eval = TRUE}
 plots[[1]]
 ```
 
@@ -417,18 +415,10 @@ metadata <- clinical[,c("sample_type"),drop = FALSE]
 ```
 
 
-```{R, message = FALSE, results = "hide", include = FALSE}
-results.stratified.model <- plot_stratified_model(
- triplet.results = results.stratified.model[1,,drop = FALSE], 
- dnam = dna.met.chr21.se[triplet$regionID,],
- exp = gene.exp.chr21.se[c(triplet$target,triplet$TF),],
- metadata = metadata
-)
-```
 
 ```{R, eval = TRUE, results = "hide", message = FALSE, eval = FALSE}
 plots <- plot_stratified_model(
-        triplet.results = results.stratified.model[1,,drop = FALSE], 
+        triplet.results = results.stratified.model, 
         dnam = dna.met.chr21.se, 
         exp = gene.exp.chr21.se,
         metadata = metadata
@@ -436,7 +426,7 @@ plots <- plot_stratified_model(
 ```
 
 
-```{R, fig.height = 14, fig.width = 12, eval = TRUE}
+```{R, fig.height = 14, fig.width = 12, eval = FALSE}
 plots[[1]]
 ```
 

@@ -1,7 +1,7 @@
 test_that("cor_region_dnam_target_gene works with SE and is filtering", {
-    # data("dna.met.chr21")
+    # dna.met.chr21 <- get(data("dna.met.chr21"))
     # dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
-    # data("gene.exp.chr21")
+    # gene.exp.chr21 <- get(data("gene.exp.chr21"))
     # gene.exp.chr21 <- make_se_from_gene_matrix(gene.exp.chr21)
     # # Map example region to closest gene
     # links <- get_region_target_gene(

@@ -138,6 +138,12 @@ gene.exp.chr21.se
 SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 ```
 
+```{R, include = FALSE, results = "hide"}
+rm(dna.met.chr21)
+rm(gene.exp.chr21)
+gc()
+```
+
 ## 3.3 Creating triplet dataset
 ### Mapping DMR region (or CpG) to the target gene
 
@@ -223,6 +229,12 @@ region.tf <- get_tf_in_region(
 head(region.tf)
 dim(region.tf)
 ```
+
+```{R, include = FALSE, results = "hide"}
+rm(probes.gr)
+gc()
+```
+
 
 ### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
 

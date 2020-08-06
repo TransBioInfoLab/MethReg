@@ -261,9 +261,9 @@ get_non_promoter_regions <- function(regions.gr, genome){
     GenomicRanges::setdiff(regions.gr, promoter.regions)
 }
 
-#' @title Transform DNA methylation array to a summarized Experiment object
+#' @title Transform DNA methylation array into a summarized Experiment object
 #' @param met DNA methylation matrix with beta-values or m-values as data,
-#' row as regions or regions and column as samples
+#' row as cpgs and column as samples
 #' @param genome HUman genome of reference: hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
 #' @export
@@ -322,9 +322,9 @@ make_se_from_dnam_probes <- function (
 }
 
 
-#' @title Transform DNA methylation array to a summarized Experiment object
+#' @title Transform DNA methylation array into a summarized Experiment object
 #' @param met DNA methylation matrix with beta-values or m-values as data,
-#' row as cpgs and column as samples
+#' row as genomic regions and column as samples
 #' @export
 #' @examples
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
@@ -354,7 +354,7 @@ make_se_from_dnam_regions <- function(
     return(se)
 }
 
-#' @title Transform gene expression matrix to a Summarized Experiment object
+#' @title Transform gene expression matrix into a Summarized Experiment object
 #' @param exp Gene expressio  matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
 #' @param genome HUman genome of reference: hg38 or hg19

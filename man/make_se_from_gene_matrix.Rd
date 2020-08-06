@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{make_se_from_gene_matrix}
 \alias{make_se_from_gene_matrix}
-\title{Transform gene expression matrix to a Summarized Experiment object}
+\title{Transform gene expression matrix into a Summarized Experiment object}
 \usage{
 make_se_from_gene_matrix(exp, genome = c("hg38", "hg19"))
 }
@@ -13,7 +13,7 @@ row as ENSG gene IDS and column as samples}
 \item{genome}{HUman genome of reference: hg38 or hg19}
 }
 \description{
-Transform gene expression matrix to a Summarized Experiment object
+Transform gene expression matrix into a Summarized Experiment object
 }
 \examples{
 gene.exp.chr21 <- get(data("gene.exp.chr21"))

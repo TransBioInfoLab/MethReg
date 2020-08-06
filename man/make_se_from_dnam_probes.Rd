@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{make_se_from_dnam_probes}
 \alias{make_se_from_dnam_probes}
-\title{Transform DNA methylation array to a summarized Experiment object}
+\title{Transform DNA methylation array into a summarized Experiment object}
 \usage{
 make_se_from_dnam_probes(
   met,
@@ -12,14 +12,14 @@ make_se_from_dnam_probes(
 }
 \arguments{
 \item{met}{DNA methylation matrix with beta-values or m-values as data,
-row as regions or regions and column as samples}
+row as cpgs and column as samples}
 
 \item{genome}{HUman genome of reference: hg38 or hg19}
 
 \item{arrayType}{DNA methylation array type (450k or EPIC)}
 }
 \description{
-Transform DNA methylation array to a summarized Experiment object
+Transform DNA methylation array into a summarized Experiment object
 }
 \examples{
 dna.met.chr21 <- get(data("dna.met.chr21"))

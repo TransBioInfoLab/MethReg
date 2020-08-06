@@ -290,7 +290,7 @@ make_se_from_dnam_probes <- function (
     annotation <- get_met_probes_info(genome = genome, arrayType =  arrayType)
 
     # Keep only annotation with information in the methylation array
-    rowRanges <- annotation[names(annotation) %in% rownames(met),, drop = FALSE]
+    rowRanges <- annotation[names(annotation) %in% rownames(dnam),, drop = FALSE]
     if(length(rowRanges) == 0){
         message("We were not able to map the rownames to cpgs probes identifiers. Please, check your input.")
         return(NULL)
@@ -301,15 +301,15 @@ make_se_from_dnam_probes <- function (
     rowRanges <- rowRanges[!rowRanges$MASK_general]
 
     # Prepare all data matrices
-    colData <- S4Vectors::DataFrame(samples = colnames(met))
-    met <- met[rownames(met) %in% names(rowRanges), , drop = FALSE]
-    met <- met[names(rowRanges), , drop = FALSE]
-    assay <- data.matrix(met)
+    colData <- S4Vectors::DataFrame(samples = colnames(dnam))
+    dnam <- dnam[rownames(dnam) %in% names(rowRanges), , drop = FALSE]
+    dnam <- dnam[names(rowRanges), , drop = FALSE]
+    assay <- data.matrix(dnam)
 
     rowRanges$probeID <- names(rowRanges)
     regions.name <-  make_names_from_granges(rowRanges)
     names(rowRanges) <- regions.name
-    rownames(met) <- regions.name
+    rownames(dnam) <- regions.name
 
     # Create SummarizedExperiment
     message("oo Preparing SummarizedExperiment object")
@@ -340,9 +340,9 @@ make_se_from_dnam_regions <- function(
     message("o Creating a SummarizedExperiment from DNA methylation input")
 
     # Prepare all data matrices
-    rowRanges <- met %>% rownames() %>% make_granges_from_names()
-    colData <- S4Vectors::DataFrame(samples = colnames(met))
-    assay <- data.matrix(met)
+    rowRanges <- dnam %>% rownames() %>% make_granges_from_names()
+    colData <- S4Vectors::DataFrame(samples = colnames(dnam))
+    assay <- data.matrix(dnam)
 
     # Create SummarizedExperiment
     message("oo Preparing SummarizedExperiment object")

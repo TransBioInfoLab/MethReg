@@ -262,7 +262,7 @@ get_non_promoter_regions <- function(regions.gr, genome){
 }
 
 #' @title Transform DNA methylation array into a summarized Experiment object
-#' @param met DNA methylation matrix with beta-values or m-values as data,
+#' @param dnam DNA methylation matrix with beta-values or m-values as data,
 #' row as cpgs and column as samples
 #' @param genome HUman genome of reference: hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
@@ -273,7 +273,7 @@ get_non_promoter_regions <- function(regions.gr, genome){
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment SummarizedExperiment
 make_se_from_dnam_probes <- function (
-    met,
+    dnam,
     genome = c("hg38","hg19"),
     arrayType = c("450k","EPIC")
 ) {
@@ -323,7 +323,7 @@ make_se_from_dnam_probes <- function (
 
 
 #' @title Transform DNA methylation array into a summarized Experiment object
-#' @param met DNA methylation matrix with beta-values or m-values as data,
+#' @param dnam DNA methylation matrix with beta-values or m-values as data,
 #' row as genomic regions and column as samples
 #' @export
 #' @examples
@@ -331,7 +331,7 @@ make_se_from_dnam_probes <- function (
 #' dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
 #' dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
 make_se_from_dnam_regions <- function(
-    met
+    dnam
 ) {
 
     check_package("SummarizedExperiment")

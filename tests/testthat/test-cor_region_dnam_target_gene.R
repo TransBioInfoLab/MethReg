@@ -99,6 +99,56 @@ test_that("cor_region_dnam_target_gene correlation signal is correct", {
     expect_true(results.cor.pos$met_exp_cor_fdr < 0.05)
 })
 
+test_that("cor_region_dnam_target_gene filter results", {
+    dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+    rownames(dnam) <- c("chr3:203727581-203728580")
+    colnames(dnam) <- paste0("Samples",1:20)
+
+    exp <- t(matrix(rep(0.5,20), ncol = 1))
+    rownames(exp) <- c("ENSG00000232886")
+    colnames(exp) <- paste0("Samples",1:20)
+
+    # Map example region to closest gene
+    links <- data.frame(
+        "regionID" =  c("chr3:203727581-203728580"),
+        "target" = "ENSG00000232886"
+    )
+
+    # Correalted DNAm and gene expression, display only significant associations
+    results.cor.pos <- cor_region_dnam_target_gene(
+        links = links,
+        dnam = dnam,
+        exp = exp,
+        filter.results = TRUE
+    )
+
+
+    expect_true(nrow(results.cor.pos) == 0)
+})
+
+test_that("cor_region_dnam_target_gene checks input", {
+
+    dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+    rownames(dnam) <- c("chr3:203727581-203728580")
+    colnames(dnam) <- paste0("Samples",1:20)
+
+    exp <- t(matrix(rep(0.5,20), ncol = 1))
+    rownames(exp) <- c("ENSG00000232886")
+    colnames(exp) <- paste0("Samples",1:20)
+
+    # Map example region to closest gene
+    links <- data.frame(
+        "regionID" =  c("chr3:203727581-203728580"),
+        "target" = "ENSG00000232886"
+    )
+    # Correalted DNAm and gene expression, display only significant associations
+    expect_error(cor_region_dnam_target_gene())
+    expect_error(cor_region_dnam_target_gene(links = links))
+    expect_error(cor_region_dnam_target_gene(links = links,dnam = dnam))
+    expect_error(cor_region_dnam_target_gene(links = links,exp = exp))
+    expect_error(cor_region_dnam_target_gene(links = links,dnam, "error", exp = exp))
+})
+
 
 
 

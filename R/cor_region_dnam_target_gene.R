@@ -79,14 +79,17 @@ cor_region_dnam_target_gene <- function(
     cores = 1
 ){
 
+    #--------------------------------------------------
+    # Checking input
+    if(missing(exp)) stop("Please set exp matrix")
+    if(missing(dnam)) stop("Please set dnam matrix")
     if(is.null(exp)) stop("Please set exp matrix")
     if(is.null(dnam)) stop("Please set dnam matrix")
-    if(ncol(dnam) != ncol(exp)) stop("exp and dnam does not have the same size")
-    if(!all(c("target","regionID") %in% colnames(links))) stop("links object must have target and regionID columns")
 
     if(is(dnam,"SummarizedExperiment")){
         dnam <- assay(dnam)
     }
+
     if(!is(dnam,"matrix")){
         stop("dnam input is wrong")
     }
@@ -94,9 +97,19 @@ cor_region_dnam_target_gene <- function(
     if(is(exp,"SummarizedExperiment")){
         exp <- assay(exp)
     }
+
     if(!is(exp,"matrix")){
         stop("exp input is wrong")
     }
+
+    if(ncol(dnam) != ncol(exp)) {
+        stop("exp and dnam does not have the same size")
+    }
+
+    if(!all(c("target","regionID") %in% colnames(links))) {
+        stop("links object must have target and regionID columns")
+    }
+    #--------------------------------------------------
 
     # remove links with RNA expression equal to 0 for more than 25% of the samples
     message("Removing genes with RNA expression equal to 0 for all samples")

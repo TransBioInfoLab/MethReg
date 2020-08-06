@@ -104,7 +104,7 @@ probes into genomic regions.
 
 ```{R}
 dna.met.chr21.se <- make_se_from_dnam_probes(
-  met = dna.met.chr21,
+  dnam = dna.met.chr21,
   genome = "hg38",
   arrayType = "450k"
 )

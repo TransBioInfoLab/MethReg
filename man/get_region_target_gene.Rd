@@ -2,7 +2,8 @@
 % Please edit documentation in R/get_region_target_gene.R
 \name{get_region_target_gene}
 \alias{get_region_target_gene}
-\title{Obtain target genes that are close to input regions}
+\title{Obtain target genes of regions with 3 methods: 1) closest gene
+2) genes within a fixed window 3) fixed number of nearby genes (upstream/downstream)}
 \usage{
 get_region_target_gene(
   regions.gr,

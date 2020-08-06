@@ -1,4 +1,4 @@
-#' Create Granges from name
+#' Create a Granges object from a genmic region string
 #' @description Given a region name such as chr22:18267969-18268249, we will create a Granges
 #' object
 #' @importFrom tidyr separate
@@ -7,7 +7,6 @@
 #' @examples
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)
-#' @export
 make_granges_from_names <- function(names){
     names %>%
         data.frame %>%
@@ -34,7 +33,7 @@ make_names_from_granges <- function(region){
 }
 
 
-#' Change probes names to region names
+#' Change row names of a matrix from DNAm probes (cpgs) to genomic region.
 #' @description Given a DNA methylation matrix with probes as row names,
 #' map probes to genomic regions
 #' @param dnam A DNA methylation matrix
@@ -44,7 +43,6 @@ make_names_from_granges <- function(region){
 #' @examples
 #' data(dna.met.chr21)
 #' dna.met.chr21.with.region.name <- map_probes_to_regions(dna.met.chr21)
-#' @export
 #' @importFrom sesameData sesameDataCacheAll sesameDataGet
 map_probes_to_regions <- function(
     dnam,

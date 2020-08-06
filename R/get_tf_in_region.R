@@ -1,4 +1,4 @@
-#' @title Get human TF list for a region using JASPAR 2020 database and motifmatchr
+#' @title Get human TFs for regions by scanning it with motifmatchr using JASPAR 2020 database
 #' @description Given a genomic region, this function obtains TFs within it using a motif search.
 #' To this end, we use  a pre-computed dataset for EPIC and HM450 Array that was created as follows:
 #' each JASPAR 2020 human TF motif is searched within region and a binary matrix is created,

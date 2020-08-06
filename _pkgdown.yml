@@ -28,5 +28,3 @@ reference:
     - make_se_from_dnam_probes
     - make_se_from_dnam_regions
     - make_se_from_gene_matrix
-    - map_probes_to_regions
-    - make_granges_from_names

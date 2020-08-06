@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_tf_in_region.R
 \name{get_tf_in_region}
 \alias{get_tf_in_region}
-\title{Get human TF list for a region using JASPAR 2020 database and motifmatchr}
+\title{Get human TFs for regions by scanning it with motifmatchr using JASPAR 2020 database}
 \usage{
 get_tf_in_region(
   region,

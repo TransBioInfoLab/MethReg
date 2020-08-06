@@ -2,7 +2,8 @@
 % Please edit documentation in R/interaction_model.R
 \name{interaction_model}
 \alias{interaction_model}
-\title{Fits linear models with interaction to triplet data (Target, TF, DNAm)}
+\title{Fits linear models with interaction to triplet data (Target, TF, DNAm) with DNAm
+as a continuos variable (for all samples) or a binary variable (samples in Q1 or Q4)}
 \usage{
 interaction_model(triplet, dnam, exp, cores = 1)
 }

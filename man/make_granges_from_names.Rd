@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{make_granges_from_names}
 \alias{make_granges_from_names}
-\title{Create Granges from name}
+\title{Create a Granges object from a genmic region string}
 \usage{
 make_granges_from_names(names)
 }

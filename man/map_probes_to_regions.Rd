@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{map_probes_to_regions}
 \alias{map_probes_to_regions}
-\title{Change probes names to region names}
+\title{Change row names of a matrix from DNAm probes (cpgs) to genomic region.}
 \usage{
 map_probes_to_regions(
   dnam,

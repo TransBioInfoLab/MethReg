@@ -1,4 +1,5 @@
-#' @title Fits linear models with interaction to triplet data (Target, TF, DNAm)
+#' @title Fits linear models with interaction to triplet data (Target, TF, DNAm) with DNAm
+#' as a continuos variable (for all samples) or a binary variable (samples in Q1 or Q4)
 #' @description Identify DNA methylation (DNAm) changes that work synergistically with TFs in regulating
 #' target gene expression, by fitting robust linear model or zero inflated negative binomial model to triplet data.
 #' @param triplet Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)

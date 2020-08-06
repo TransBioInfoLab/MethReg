@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_interaction_model.R
 \name{plot_interaction_model}
 \alias{plot_interaction_model}
-\title{Plot interaction data}
+\title{Plot interaction model results}
 \usage{
 plot_interaction_model(triplet.results, dnam, exp, metadata)
 }

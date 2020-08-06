@@ -1,4 +1,5 @@
-#' @title Obtain target genes that are close to input regions
+#' @title Obtain target genes of regions with 3 methods: 1) closest gene
+#' 2) genes within a fixed window 3) fixed number of nearby genes (upstream/downstream)
 #' @description To map genes to a region there are two options: 1) closest gene
 #' 2) map to all genes within a window around the region (default window.size = 500kbp
 #' (i.e. +/- 250kbp from start or end of the region)).

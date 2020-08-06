@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_residuals.R
 \name{get_residuals}
 \alias{get_residuals}
-\title{Get Residuals}
+\title{Get studentized residual from regression model}
 \usage{
 get_residuals(
   data.matrix,

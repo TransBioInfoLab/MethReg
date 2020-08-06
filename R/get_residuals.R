@@ -1,4 +1,4 @@
-#' @title Get Residuals
+#' @title Get studentized residual from regression model
 #' @description Get Residuals using a data matrix and a sample metadata data frame as
 #' follows: features ~ Sample_covariate1 + Sample_covariate2 ... + Sample_covariateN
 #' where n is the index of the columns of the metadata provided

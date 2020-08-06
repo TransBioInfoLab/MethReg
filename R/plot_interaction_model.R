@@ -1,4 +1,4 @@
-#' @title Plot interaction data
+#' @title Plot interaction model results
 #' @description Create several plots to show interaction data
 #' TF expression with target gene interaction using a linear model
 #' \deqn{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}

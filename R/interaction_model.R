@@ -134,7 +134,13 @@ interaction_model <- function(
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
             .data$TF %in% rownames(exp) &
-            .data$regionID %in% rownames(dnam))
+            .data$regionID %in% rownames(dnam)
+    )
+
+    # Remove cases where target is also the TF if it exists
+    triplet <- triplet %>% dplyr::filter(
+        .data$TF != .data$target
+    )
 
     if(nrow(triplet) == 0){
         stop("We were not able to find the same rows from triple in the data, please check the input.")

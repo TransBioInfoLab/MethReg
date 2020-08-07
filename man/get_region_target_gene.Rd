@@ -10,7 +10,8 @@ get_region_target_gene(
   genome = c("hg38", "hg19"),
   method = c("closest.gene", "window", "nearest.genes"),
   window.size = 500 * 10^3,
-  num.flanking.genes = 5
+  num.flanking.genes = 5,
+  rm.promoter.regions.from.distal.linking = TRUE
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 \item{num.flanking.genes}{Number of flanking genes upstream and downstream to search.
 For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 and 5 genes dowstream of the given region.}
+
+\item{rm.promoter.regions.from.distal.linking}{When performing distal linking
+with methods one of the methods "windows" and "nearest.genes" if set to TRUE (default)
+it will remove promoter regions from the input region.}
 }
 \description{
 To map genes to a region there are two options: 1) closest gene

@@ -14,6 +14,9 @@
 #' @param num.flanking.genes Number of flanking genes upstream and downstream to search.
 #' For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 #' and 5 genes dowstream of the given region.
+#' @param rm.promoter.regions.from.distal.linking When performing distal linking
+#' with methods one of the methods "windows" and "nearest.genes" if set to TRUE (default)
+#' it will remove promoter regions from the input region.
 #' @importFrom GenomicRanges findOverlaps
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
@@ -56,7 +59,8 @@ get_region_target_gene <- function(
     genome = c("hg38","hg19"),
     method = c("closest.gene","window","nearest.genes"),
     window.size = 500 * 10^3,
-    num.flanking.genes = 5
+    num.flanking.genes = 5,
+    rm.promoter.regions.from.distal.linking = TRUE
 ){
 
     method <- match.arg(method)
@@ -67,6 +71,10 @@ get_region_target_gene <- function(
     }
 
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
+    if(method != "closest.gene" & rm.promoter.regions.from.distal.linking){
+        message("Removing regions overlapping promoter regions")
+        regions.gr <- get_non_promoter_regions(regions.gr, genome)
+    }
 
     if(method == "closest.gene"){
         message("Mapping regions to the closest gene")

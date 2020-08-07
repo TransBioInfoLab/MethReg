@@ -34,6 +34,10 @@ Samples should be in the same order as the DNA methylation matrix.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }
+\value{
+A data frame with the following information: regionID, target geene, correlation pvalue and estimate between
+DNA methylation and target gene expression, FDR corrected p-values.
+}
 \description{
 This function evaluate the correlation of the DNA methylation region and target gene expression
 using spearman rank correlation test.  Note that genes with RNA expression equal to 0 for more than 25% of the samples

@@ -16,7 +16,8 @@ get_tf_in_region(
 \item{region}{A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs}
 
 \item{window.size}{Integer value to extend the regions. For example, a value of 50 will
-extend 25 bp upstream and 25 downstream the region. Default is no increase}
+extend 25 bp upstream and 25 downstream the region.
+The default is not to increase the scanned region.}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
@@ -24,11 +25,14 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }
+\value{
+A data frame with the following information: regionID, TF symbol, TF ensembl ID
+}
 \description{
-Given a genomic region, this function obtains TFs within it using a motif search.
-To this end, we use  a pre-computed dataset for EPIC and HM450 Array that was created as follows:
-each JASPAR 2020 human TF motif is searched within region and a binary matrix is created,
-with 1 if the motif was found, 0 if not.
+Given a genomic region, this function uses motifmatchr and JASPAR2020
+to scan the region for 554 human transcription factors binding sites. If desired, there is
+a option (argument "window.size") to extend the scanning region before performing the search, which
+by default is 0 (do not extend)
 }
 \examples{
 \dontrun{

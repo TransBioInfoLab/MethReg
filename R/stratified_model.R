@@ -127,6 +127,10 @@ stratified_model <- function(
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
 
+    # Remove cases where target is also the TF if it exists
+    triplet <- triplet %>% dplyr::filter(
+            .data$TF != .data$target
+    )
 
     if(nrow(triplet) == 0){
         stop("We were not able to find the same rows from triple in the data, please check the input.")

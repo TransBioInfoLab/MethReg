@@ -381,7 +381,7 @@ using the p-value from each linear model.
 
 ```{r, include = TRUE, eval = TRUE}
 results.sig <- results.interaction.model %>% 
-  dplyr::filter(`pval_met:rna.tf` < 0.05 & `quant_pval_metGrp:rna.tf` < 0.05)
+  dplyr::filter(Max_interaction_pval < 0.05)
 ```
 
 ```{R}

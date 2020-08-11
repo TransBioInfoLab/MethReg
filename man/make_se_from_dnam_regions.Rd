@@ -10,6 +10,9 @@ make_se_from_dnam_regions(dnam)
 \item{dnam}{DNA methylation matrix with beta-values or m-values as data,
 row as genomic regions and column as samples}
 }
+\value{
+A summarized Experiment object
+}
 \description{
 Transform DNA methylation array into a summarized Experiment object
 }

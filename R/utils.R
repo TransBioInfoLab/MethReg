@@ -272,6 +272,8 @@ get_non_promoter_regions <- function(regions.gr, genome){
 #' se <- make_se_from_dnam_probes(dna.met.chr21)
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @return A summarized Experiment object with DNA methylation probes mapped to
+#' genomic regions
 make_se_from_dnam_probes <- function (
     dnam,
     genome = c("hg38","hg19"),
@@ -330,6 +332,7 @@ make_se_from_dnam_probes <- function (
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
 #' dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
 #' dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
+#' @return A summarized Experiment object
 make_se_from_dnam_regions <- function(
     dnam
 ) {
@@ -362,6 +365,7 @@ make_se_from_dnam_regions <- function(
 #' @examples
 #' gene.exp.chr21 <- get(data("gene.exp.chr21"))
 #' gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21)
+#' @return A summarized Experiment object
 make_se_from_gene_matrix <- function (
     exp,
     genome = c("hg38","hg19")

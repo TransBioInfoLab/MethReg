@@ -18,6 +18,10 @@ row as cpgs and column as samples}
 
 \item{arrayType}{DNA methylation array type (450k or EPIC)}
 }
+\value{
+A summarized Experiment object with DNA methylation probes mapped to
+genomic regions
+}
 \description{
 Transform DNA methylation array into a summarized Experiment object
 }

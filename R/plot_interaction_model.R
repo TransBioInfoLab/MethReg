@@ -332,13 +332,15 @@ get_plot_results_aux <- function(
 
     p <- p + xlab(xlab) + ylab(ylab)
     suppressWarnings({
-        p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
+        suppressMessages({
+            p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
 
-        rls <- MASS::rlm(
-            as.formula(paste0(y, "~",x)),
-            data = df,
-            psi = psi.bisquare,
-            maxit = 100)
+            rls <- MASS::rlm(
+                as.formula(paste0(y, "~",x)),
+                data = df,
+                psi = psi.bisquare,
+                maxit = 100)
+        })
     })
     rlm.val <- rls %>% summary %>% coef %>% data.frame
     rlm.val <- rlm.val[-1,1]

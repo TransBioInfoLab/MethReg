@@ -12,6 +12,9 @@ row as ENSG gene IDS and column as samples}
 
 \item{genome}{HUman genome of reference: hg38 or hg19}
 }
+\value{
+A summarized Experiment object
+}
 \description{
 Transform gene expression matrix into a Summarized Experiment object
 }

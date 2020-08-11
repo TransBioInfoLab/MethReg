@@ -1,7 +1,6 @@
 #' @title Select regions with variations in DNA methylation levels above a threshold
 #' @description For each region, compares the mean DNA methylation (DNAm) levels in samples with
-#' high DNAm  (Q4) vs. low DNAm (Q1)
-#' and requires the difference to be above a threshold.
+#' high DNAm  (Q4) vs. low DNAm (Q1) and requires the difference to be above a threshold.
 #' @param dnam DNA methylation matrix
 #' @param diff.mean.th Threshold for difference in mean DNAm levels for samples in Q4 and Q1
 #' @param cores Number of CPU cores to be used in the analysis. Default: 1
@@ -9,6 +8,7 @@
 #' @examples
 #' data("dna.met.chr21")
 #' dna.met.chr21.filtered <- filter_regions_by_mean_quantile_difference(dna.met.chr21)
+#' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_regions_by_mean_quantile_difference <- function(
     dnam,
     diff.mean.th = 0.2,
@@ -50,6 +50,7 @@ filter_regions_by_mean_quantile_difference <- function(
 #' @examples
 #' data("gene.exp.chr21")
 #' gene.exp.chr21.filtered <- filter_genes_by_quantile_mean_fold_change(gene.exp.chr21)
+#' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_genes_by_quantile_mean_fold_change <- function(
     exp,
     fold.change = 1.5,
@@ -85,6 +86,7 @@ filter_genes_by_quantile_mean_fold_change <- function(
 #' @param exp Gene expression matrix
 #' @param max.samples.percentage Max percentage of samples with gene expression as 0, for genes to be selected.
 #' @noRd
+#' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
     genes.keep <- (rowSums(exp == 0) / ncol(exp) <= max.samples.percentage) %>% which %>% names
     message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
@@ -99,6 +101,7 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
 #' @examples
 #' data("gene.exp.chr21")
 #' gene.exp.chr21.filtered <- filter_genes_zero_expression_all_samples(gene.exp.chr21)
+#' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_genes_zero_expression_all_samples <- function(
     exp
 ){

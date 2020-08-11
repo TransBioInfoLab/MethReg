@@ -13,10 +13,12 @@ filter_regions_by_mean_quantile_difference(dnam, diff.mean.th = 0.2, cores = 1)
 
 \item{cores}{Number of CPU cores to be used in the analysis. Default: 1}
 }
+\value{
+A subset of the original matrix only with the rows passing the filter threshold.
+}
 \description{
 For each region, compares the mean DNA methylation (DNAm) levels in samples with
-high DNAm  (Q4) vs. low DNAm (Q1)
-and requires the difference to be above a threshold.
+high DNAm  (Q4) vs. low DNAm (Q1) and requires the difference to be above a threshold.
 }
 \examples{
 data("dna.met.chr21")

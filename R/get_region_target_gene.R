@@ -54,6 +54,7 @@
 #'                       method = "nearest.genes",
 #'                       num.flanking.genes = 5)
 #' @export
+#' @return A data frame with the following information: regionID, Target symbol, Target ensembl ID
 get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),

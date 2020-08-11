@@ -35,6 +35,9 @@ and 5 genes dowstream of the given region.}
 with methods one of the methods "windows" and "nearest.genes" if set to TRUE (default)
 it will remove promoter regions from the input region.}
 }
+\value{
+A data frame with the following information: regionID, Target symbol, Target ensembl ID
+}
 \description{
 To map genes to a region there are two options: 1) closest gene
 2) map to all genes within a window around the region (default window.size = 500kbp

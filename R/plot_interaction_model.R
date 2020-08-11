@@ -331,19 +331,78 @@ get_plot_results_aux <- function(
     }
 
     p <- p + xlab(xlab) + ylab(ylab)
-    suppressWarnings({
-        suppressMessages({
-            p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
 
-            rls <- MASS::rlm(
-                as.formula(paste0(y, "~",x)),
-                data = df,
-                psi = psi.bisquare,
-                maxit = 100)
-        })
-    })
+    p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
+
+    if(missing(facet.by)){
+        rlm.res <- get_rlm_val_pval(df, x, y)
+
+        p <- p + ggplot2::annotate(
+            geom = "text",
+            x = min(df[[x]], na.rm = TRUE),
+            y = max(df[[y]], na.rm = TRUE),
+            hjust = 0,
+            vjust = 1,
+            color = 'blue',
+            label = paste0(x, ".", y, ".",
+                           "rlm = ",formatC(rlm.res$rlm.val, digits = 2, format = "e"),
+                           " pval.rlm = ",  formatC(rlm.res$rlm.p.value, digits = 2, format = "e"))
+        )
+    } else {
+        # lower Annotation
+        rlm.res.low <- get_rlm_val_pval(df %>% dplyr::filter(grepl("low",df[[facet.by]])),x , y)
+
+        ann_text.low <- data.frame(
+            x = min(df[[x]], na.rm = TRUE),
+            y = max(df[[y]], na.rm = TRUE),
+            facet.by = factor(grep("low",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
+        )
+        colnames(ann_text.low) <- c(x,y,facet.by)
+        # higher Annotation
+        p <- p + ggplot2::geom_text(
+            data = ann_text.low,
+            hjust = 0,
+            vjust = 1,
+            color = 'blue',
+            label = paste0(
+                x, ".", y, ".",
+                "rlm = ",formatC(rlm.res.low$rlm.val, digits = 2, format = "e"),
+                " pval.rlm = ",  formatC(rlm.res.low$rlm.p.value, digits = 2, format = "e"))
+        )
+
+        rlm.res.high <- get_rlm_val_pval(df %>% dplyr::filter(grepl("high",df[[facet.by]])), x , y)
+        ann_text.high <- data.frame(
+            x = min(df[[x]], na.rm = TRUE),
+            y = max(df[[y]], na.rm = TRUE),
+            facet.by = factor(grep("high",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
+        )
+        colnames(ann_text.high) <- c(x,y,facet.by)
+
+        # higher Annotation
+        p <- p + ggplot2::geom_text(
+            data = ann_text.high,
+            hjust = 0,
+            vjust = 1,
+            color = 'blue',
+            label = paste0(
+                x, ".", y, ".",
+                "rlm = ",formatC(rlm.res.high$rlm.val, digits = 2, format = "e"),
+                " pval.rlm = ",  formatC(rlm.res.high$rlm.p.value, digits = 2, format = "e"))
+        )
+    }
+    return(p)
+    # stat_cor(method = "spearman",color = "blue")
+}
+
+get_rlm_val_pval <- function(df, x, y){
+    rls <- MASS::rlm(
+        as.formula(paste0(y, "~",x)),
+        data = df,
+        psi = psi.bisquare,
+        maxit = 100)
     rlm.val <- rls %>% summary %>% coef %>% data.frame
     rlm.val <- rlm.val[-1,1]
+
     rlm.p.value <- tryCatch({
         ftest <- sfsmisc::f.robftest(rls)
         ftest$p.value
@@ -352,19 +411,11 @@ get_plot_results_aux <- function(
         return("NA")
     })
 
-    p <- p + ggplot2::annotate(
-        geom = "text",
-        x = min(df[[x]], na.rm = TRUE),
-        y = max(df[[y]], na.rm = TRUE),
-        hjust = 0,
-        vjust = 1,
-        color = 'blue',
-        label = paste0(x, ".", y, ".",
-                       "rlm = ",formatC(rlm.val, digits = 2, format = "e"),
-                       " pval.rlm = ",  formatC(rlm.p.value, digits = 2, format = "e"))
+    return(
+        list(rlm.p.value = rlm.p.value,
+             rlm.val = rlm.val
+        )
     )
-    return(p)
-    # stat_cor(method = "spearman",color = "blue")
 }
 
 get_table_plot_results <- function(row.triplet, type){

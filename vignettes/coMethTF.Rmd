@@ -295,9 +295,7 @@ The function `interaction_model` assess the regulatory impact of DNA methylation
 **Model 1** (considering DNAm values as a continuous variable) - we fit a model with TF by DNA methylation interaction using all samples.
 
 $$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
-**_Interpretation_ :**
-
-Note that Model 1 partitions the effects of DNA methylation and TF on target gene expressions into three categories: 
+**_Interpretation_ :**    Note that Model 1 partitions the effects of DNA methylation and TF on target gene expressions into three categories: 
 
 * `log_2(TF)` - models direct effect of TF on target gene expression; 
 * `DNAm` - models direct effect of DNA methylation on target gene expression; 
@@ -449,9 +447,9 @@ decreased gene expression (a repressor TF). On the other hand, when DNA methylat
 level is high, target gene expression is relatively independent of the amount of TF available. 
 One possibility is that DNA methylation might affect TF binding in this case. 
 
-If you want to highlight different group of samples, you can also use the metadata argument
-with a dataframe with rownames as samples (same order as the columns of the 
-DNAm and gene expression), and a column highlighting the groups.
+If you want to highlight different group of samples, you can also use the `metadata` argument
+with a dataframe where rownames are the samples (same order as the columns of the 
+DNAm and gene expression), and the columns highlight the groups. Here is an example: 
 
 ```{R, message = TRUE, results = "hide",eval = FALSE}
 data("clinical")
@@ -479,13 +477,13 @@ plots[[1]]
 Shown below are some expected results from fitting Models 1 & 2 described in 
 **Section 4.1** above, depending on TF binding preferences. Please note that 
 there can be more possible scenarios than those listed here, therefore, 
-careful evaluation of the statistical models and visualizations of data as 
-described in **Section 4** is needed to gain a good understanding of the 
+careful evaluation of the statistical models and visualization of data as 
+described in **Section 4** are needed to gain a good understanding of the 
 multi-omics data. 
 
-![Illustration - Possible scenarios](scenarios.png)
+![Figure 1 - Different biological scenarios considered by `coMethTF`](scenarios.png)
 
-# 6. Identifying co-methylated clusters and summarizing regions using medians for DMRs
+# 6. Identifying co-methylated clusters of CpGs in DMRs and summarizing regions with multiple CpGs
 
 Given regions for DMRs, the R package [coMethDMR](https://github.com/TransBioInfoLab/coMethDMR) 
 can be used to identify co-methylated regions [@gomez2019comethdmr]. 
@@ -519,10 +517,9 @@ probes.cluster %>% head
 
 For real data analyis, please replace `probes.cluster` with probes in DMRs 
 identified in epigenomewide association study. The  `coMethDMR::GetCpGsInAllRegion` 
-function can be used to extract probes within the DMRs.  
+function can be used to extract probes within the DMRs. 
 
-
-To find co-methylated regions within the DMRs, first we need to extract probes within the DMRs.  
+Here are the sample scripts for this task:   
 ```{r, eval = FALSE}
 probes.cluster <- coMethDMR::GetCpGsInAllRegion(
     regionName_char = c("chr21:37432493-37432782",
@@ -533,11 +530,10 @@ probes.cluster <- coMethDMR::GetCpGsInAllRegion(
 probes.cluster
 ```
 
-
 Next we find co-methylated regions within the DMRs.
 ```{R cometh, eval = FALSE}
 data("dna.met.chr21")
-# just keep the used probes
+# only keep DNAm values for the probes obtained above
 dna.met.chr21 <- dna.met.chr21[rownames(dna.met.chr21) %in% unique(unlist(probes.cluster)),]
 ```
 

@@ -20,6 +20,8 @@
 #' was used to fit Model 1, and \code{Model.quantile} indicates which model(robust linear model or zero
 #' inflated model) was used to fit Model 2.
 #'
+#' \code{Max_interaction_pval} is the max(quant_estimate_metGrp:rna.tf, pval_met:rna.tf).
+#'
 #'@details This function fits the linear model
 #'
 #' \code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}

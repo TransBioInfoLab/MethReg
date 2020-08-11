@@ -117,19 +117,24 @@ plot_interaction_model <-  function(triplet.results,
             table.plots <- get_table_plot(row.triplet)
 
             # Arrange the plots on the same page
-            plot.table <- ggarrange(
-                ggarrange(table.plots$table.plot.metadata,
-                          table.plots$table.plot.lm.all,
-                          table.plots$table.plot.lm.quant,
-                          ncol = 3),
-                ggarrange(plots$tf.target,
-                          plots$dnam.target,
-                          plots$dnam.tf,
-                          ncol = 3),
-                plots$tf.target.quantile,
-                plots$dnam.target.quantile,
-                nrow = 4,
-                heights = c(2,2,2.5,2.5))
+            suppressWarnings({
+                suppressMessages({
+
+                    plot.table <- ggarrange(
+                        ggarrange(table.plots$table.plot.metadata,
+                                  table.plots$table.plot.lm.all,
+                                  table.plots$table.plot.lm.quant,
+                                  ncol = 3),
+                        ggarrange(plots$tf.target,
+                                  plots$dnam.target,
+                                  plots$dnam.tf,
+                                  ncol = 3),
+                        plots$tf.target.quantile,
+                        plots$dnam.target.quantile,
+                        nrow = 4,
+                        heights = c(2,2,2.5,2.5))
+                })
+            })
             plot.table
         }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
@@ -332,8 +337,11 @@ get_plot_results_aux <- function(
 
     p <- p + xlab(xlab) + ylab(ylab)
 
-    p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
-
+    suppressWarnings({
+        suppressMessages({
+            p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
+        })
+    })
     if(missing(facet.by)){
         rlm.res <- get_rlm_val_pval(df, x, y)
 
@@ -395,14 +403,17 @@ get_plot_results_aux <- function(
 }
 
 get_rlm_val_pval <- function(df, x, y){
-    rls <- MASS::rlm(
-        as.formula(paste0(y, "~",x)),
-        data = df,
-        psi = psi.bisquare,
-        maxit = 100)
-    rlm.val <- rls %>% summary %>% coef %>% data.frame
-    rlm.val <- rlm.val[-1,1]
-
+    suppressMessages({
+        suppressWarnings({
+            rls <- MASS::rlm(
+                as.formula(paste0(y, "~",x)),
+                data = df,
+                psi = psi.bisquare,
+                maxit = 100)
+            rlm.val <- rls %>% summary %>% coef %>% data.frame
+            rlm.val <- rlm.val[-1,1]
+        })
+    })
     rlm.p.value <- tryCatch({
         ftest <- sfsmisc::f.robftest(rls)
         ftest$p.value

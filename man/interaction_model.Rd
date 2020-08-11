@@ -30,6 +30,8 @@ generates \code{quant_pval_metGrp}, \code{quant_pval_rna.tf}, \code{quant_pval_m
 \code{Model.interaction} indicates which model (robust linear model or zero inflated model)
 was used to fit Model 1, and \code{Model.quantile} indicates which model(robust linear model or zero
 inflated model) was used to fit Model 2.
+
+\code{Max_interaction_pval} is the max(quant_estimate_metGrp:rna.tf, pval_met:rna.tf).
 }
 \description{
 Identify DNA methylation (DNAm) changes that work synergistically with TFs in regulating

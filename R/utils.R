@@ -334,6 +334,7 @@ make_se_from_dnam_probes <- function (
 #' @title Transform DNA methylation array into a summarized Experiment object
 #' @param dnam DNA methylation matrix with beta-values or m-values as data,
 #' row as genomic regions and column as samples
+#' @param betaToM indicates if converting methylation beta values to mvalues
 #' @export
 #' @examples
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
@@ -341,7 +342,8 @@ make_se_from_dnam_probes <- function (
 #' dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
 #' @return A summarized Experiment object
 make_se_from_dnam_regions <- function(
-    dnam
+    dnam,
+    betaToM = FALSE
 ) {
 
     check_package("SummarizedExperiment")
@@ -353,6 +355,11 @@ make_se_from_dnam_regions <- function(
     rowRanges <- dnam %>% rownames() %>% make_granges_from_names()
     colData <- S4Vectors::DataFrame(samples = colnames(dnam))
     assay <- data.matrix(dnam)
+
+    if (betaToM){
+        ### Compute M values
+        assay <- log2(assay / (1 - assay))
+    }
 
     # Create SummarizedExperiment
     message("oo Preparing SummarizedExperiment object")

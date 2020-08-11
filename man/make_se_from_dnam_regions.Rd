@@ -4,11 +4,13 @@
 \alias{make_se_from_dnam_regions}
 \title{Transform DNA methylation array into a summarized Experiment object}
 \usage{
-make_se_from_dnam_regions(dnam)
+make_se_from_dnam_regions(dnam, betaToM = FALSE)
 }
 \arguments{
 \item{dnam}{DNA methylation matrix with beta-values or m-values as data,
 row as genomic regions and column as samples}
+
+\item{betaToM}{indicates if converting methylation beta values to mvalues}
 }
 \value{
 A summarized Experiment object

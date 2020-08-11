@@ -609,7 +609,12 @@ gene.exp.chr21.residuals[1:5,1:5]
 
 ```{R, results = "hide", eval = FALSE}
 data("dna.met.chr21")
-dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
+dna.met.chr21 <- make_se_from_dnam_probes(
+  dnam = dna.met.chr21,
+  genome = "hg38",
+  arrayType = "450k", 
+  betaToM = TRUE
+)
 dna.met.chr21.residuals <- get_residuals(dna.met.chr21, metadata) %>% as.matrix()
 ```
 

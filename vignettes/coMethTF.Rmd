@@ -582,16 +582,14 @@ for DMRs using `median.df.tumor`, in the same way as those for dataset `dna.met.
 # 7. Controlling effects from confounding variables
 
 Both gene expressions and DNA methylation levels can be affected by age, sex, 
-shifting in cell types, batch effects and other confounding variables.  
-In this section, we illustrate analysis workflow that reduces confounding effects, 
-by first extracting the residual data with the function 
-`get_residuals`, before fitting the models discussed above in Section 4. 
+shifting in cell types, batch effects and other confounding (or covariate) variables. In this section, we illustrate analysis workflow that reduces confounding effects, by first extracting the residual data with the function `get_residuals`, before fitting the models discussed above in Section 4. 
 
 The `get_residuals` function will use gene expression (or DNA methylation data) 
-and phenotype data as input. 
-To remove confounding effects in gene expression data, we use the `get_residuals` 
-function which extract residuals after fitting the following model: 
-$$features \sim covariate_{1} + covariate_{2} ... + covariate_{N}$$
+and phenotype data as input. To remove confounding effects in gene expression data, we use the `get_residuals` function which extract residuals after fitting the following model for gene expression data: 
+$$log_2(RNA target) \sim covariate_{1} + covariate_{2} + ... + covariate_{N}$$
+or the following model for methylation data: 
+
+$$methylation.Mvalues \sim covariate_{1} + covariate_{2} + ... + covariate_{N}$$
 
 
 ```{R residuals, results = "hide", eval = FALSE}
@@ -616,9 +614,7 @@ dna.met.chr21.residuals <- get_residuals(dna.met.chr21, metadata) %>% as.matrix(
 dna.met.chr21.residuals[1:5,1:5]
 ```
 
-The `interaction_model` function can then be applied to these residuals data, 
-as the following:  `rna.target ~ met + rna.tf + rna.tf * met`.
-
+The models described in **Section 4.1** can then be applied to these residuals data using the `interaction_model` function:  
 
 ```{R, message = FALSE, results = "hide", eval = FALSE}
 results <- interaction_model(

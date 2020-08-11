@@ -161,9 +161,12 @@ To create the triplet dataset of CpGs, target genes and TFs, we first link each 
 In this section, **regions** refer to the regions where CpGs are located. The function `get_region_target_gene` provides three different methods to link a region to a target gene: 
 
 1. Mapping the region to the closest gene (`method = "closest.gene"`)
-2. Mapping the region to all the genes within a window 
-(default size = 500 kbp around the region, i.e. +- 250 kbp from start or end of the region) (`method = "window"`).
-3. Mapping the region to a specific number of genes upstream down/upstream of the region (`method = "nearest.genes"`)
+2. Mapping the region to a specific number of genes upstream down/upstream of the region (`method = "nearest.genes"`) [@silva2019elmer].
+3. Mapping the region to all the genes within a window 
+(default size = 500 kbp around the region, i.e. +- 250 kbp from start or end of the region) (`method = "window"`) [@reese2019epigenome].
+
+
+![Figure 1 - Different target linking strategies](mapping_target_strategies.png)
 
 For promoter analysis, we recommend setting `method = "closest.gene"`.
 For the analysis of distal regions, we recommend setting either `method = "window"` or `method = "nearest.genes"`. 
@@ -481,7 +484,7 @@ careful evaluation of the statistical models and visualization of data as
 described in **Section 4** are needed to gain a good understanding of the 
 multi-omics data. 
 
-![Figure 1 - Different biological scenarios considered by `coMethTF`](scenarios.png)
+![Figure 2 - Different biological scenarios considered by `coMethTF`](scenarios.png)
 
 # 6. Identifying co-methylated clusters of CpGs in DMRs and summarizing regions with multiple CpGs
 

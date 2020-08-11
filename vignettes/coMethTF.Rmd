@@ -2,7 +2,7 @@
 title: "coMethTF: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies"
 author:
   - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902 at miami.edu]
-  - Lily Wang^[University of Miami Miller School of Medicine, lily.wang at gmail.com]
+  - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg at gmail.com]
 output: 
   prettydoc::html_pretty:
     theme: leonids
@@ -37,7 +37,7 @@ also be added or removed by proteins associated with transcription
 factors [@bonder2017disease; @banovich2014methylation; @zhu2016transcription].
 
 To provide functional annotations for differentially methylated regions (DMRs) 
-and differentially methylated CpG sites (DMS),`coMethTF` performs integrative 
+and differentially methylated CpG sites (DMS), `coMethTF` performs integrative 
 analyses using matched DNA methylation and gene expression along with 
 Transcription Factor Binding Sites (TFBS) data. coMethTF evaluates, prioritizes 
 and annotates DNA methylation regions (or sites) with high regulatory potential 
@@ -72,22 +72,21 @@ library(coMethTF)
 The input of `coMethTF` are DNA methylation and gene expression datasets measured 
 on the same set of samples. Using additional information from the 
 JASPAR database, we will then create a data frame 
-with information on the triplet: DMR (or CpG), TF and target gene. 
+with information on the triplet: CpG (or DMR), TF and target gene. 
 
 For illustration, we will use chromosome 21 data from 38 TCGA-COAD samples.
 
-## 3.1 DNA methylation dataset
+## 3.1 Input DNA methylation dataset
 
 The DNA methylation dataset is a matrix with methylation beta or M-values. 
-If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
-this matrix can also contain residuals from fitting linear regression 
-instead (see **Section 5** below). 
+If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix would contain residuals from fitting linear regression 
+instead (see details **Section 7** "Controlling effects from confounding variables" below). 
 
-The samples are in the columns and regions/probes are in the rows.   
+The samples are in the columns and methylation regions or probes are in the rows.   
 
 ### 3.1.1 Analysis for individual CpGs data
 
-The individual CpGs data can be, for example, differentially methylated sites 
+The individual CpGs data can be, for example, deferentially methylated sites 
 (DMS) obtained in a DNA methylation study.
 
 ```{R warning=FALSE}
@@ -117,21 +116,19 @@ SummarizedExperiment::rowRanges(dna.met.chr21.se)[1:4,1:4]
 ```
 
 
-### 3.1.2 DMRs data
+### 3.1.2 Analysis of DMRs
 
-Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage 
-can be obtained from R packages such as \code{coMethDMR}, \code{comb-p}, \code{DMRcate} 
-and many others. The methylation levels in multiple CpGs within the DMRs need to be 
+Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage can be obtained from R packages such as `coMethDMR`, `comb-p`, `DMRcate` and many others. The methylation levels in multiple CpGs within the DMRs need to be 
 summarized (e.g. using medians), then the analysis for DMR will proceed in the same way 
-as those for CpGs. See **Section 6** "Identifying co-methylated clusters and summarizing 
-regions using medians for DMRs" below for more details.   
+as those for CpGs. See **Section 6** "Identifying co-methylated clusters and summarizing regions using medians for DMRs" below for more details.   
 
 
-## 3.2 Gene expression dataset
+## 3.2 Input gene expression dataset
 
 The gene expression dataset is a matrix with log2 transformed and normalized gene expression values. 
 If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
-this matrix can also contain residuals from linear regression instead (see **Section 5** below).
+this matrix can also contain residuals from linear regression instead (see **Section 7** "Controlling effects from confounding variables" below).
+
 The samples are in the columns and the genes are in the rows. 
 
 ```{R}
@@ -155,18 +152,24 @@ gc()
 ```
 
 ## 3.3 Creating triplet dataset
-### Mapping DMR region (or CpG) to the target gene
 
-The function `get_region_target_gene` provides two methods to link a DMR to 
-a target gene, by (1) mapping the region to the closest gene (`method = "closest.gene"`) or 
-(2) mapping the region to all the genes within a window 
-(default size = 500Kbp around the region, i.e. +- 250K bp from start or end of the region) (`method = "window"`).
-or (3) mapping the region to a specific number of genes upstream down/upstream of the region (`method = "nearest.genes"`)
+To create the triplet dataset of CpGs, target genes and TFs, we first link each CpG with target gene (_CpG region-target gene_ dataset). Next, we link each CpG with TFs that have binding sites nearby (_CpG region-TF_ dataset). Finally, we merge the two datasets by CpGs. 
+
+### Mapping Regions to the target gene
+
+In this section, **regions** refer to the regions where CpGs are located. The function `get_region_target_gene` provides three different methods to link a region to a target gene: 
+
+1. Mapping the region to the closest gene (`method = "closest.gene"`)
+2. Mapping the region to all the genes within a window 
+(default size = 500 kbp around the region, i.e. +- 250 kbp from start or end of the region) (`method = "window"`).
+3. Mapping the region to a specific number of genes upstream down/upstream of the region (`method = "nearest.genes"`)
 
 For promoter analysis, we recommend setting `method = "closest.gene"`.
-For analysis of distal regions, we recommend setting either `method = "window"` or `method = "nearest.genes"`. 
+For the analysis of distal regions, we recommend setting either `method = "window"` or `method = "nearest.genes"`. 
 Note that the distal analysis will be more time and resource consuming. 
- 
+
+As an example, the following scripts link CpGs with the nearest gene (method 1. above)
+
 ```{R}
 # Get CpG information
 probes.gr <- SummarizedExperiment::rowRanges(dna.met.chr21.se)
@@ -184,6 +187,7 @@ dim(region.target.closest)
 region.target.closest
 ```
 
+Alternatively, we can also link each probe with genes within 500 kb window (method 2). 
 ```{R}
 # Map probes to genes within 500kb window
 region.target.window <- get_region_target_gene(
@@ -196,6 +200,8 @@ region.target.window <- get_region_target_gene(
 dim(region.target.window)
 region.target.window
 ```
+
+For method 3, to map probes to 5 nearest upstream and downstream genes:  
 
 ```{R}
 # Map probes to 5 genes upstream and 5 downstream
@@ -210,14 +216,15 @@ dim(region.target.window)
 region.target.window
 ```
 
-### Mapping region to TF
+### Mapping Regions to TF
+
+In this section, **regions** refer to the regions where CpGs are located. The function `get_tf_in_region` uses `motifmatchr` [@motifmatchr] to scan these regions for occurrences of motifs in the JASPAR database.
 
 JASPAR 2020 is an open-access database of curated, non-redundant transcription 
 factor (TF)-binding profiles [@JASPAR2020, @fornes2020jaspar], which contains 
 more the 500 human TF motifs.
 
-The function `get_tf_in_region` uses `motifmatchr` [@motifmatchr] to scan them for occurrences of motifs.
-The argument `window.size` will be use to extend the region to scan
+The argument `window.size` will be used to extend the region when scanning
 for the motifs, for example, a `window.size` of `50` will add `25` bp 
 upstream and `25` bp downstream of the original region.
 
@@ -243,11 +250,7 @@ gc()
 
 ### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
 
-The triplet is a data frame with the following columns:
-
-* `target`: gene identifier (obtained from row names of the gene expression matrix),
-* `regionID`: region/cpg identifier (obtained from row names of the DNA methylation matrix)
-* `TF`: gene identifier (obtained from the row names of the gene expression matrix)
+We create the triplet dataset by merging the _CpG region-target gene_ dataset and the _CpG region-TF_ dataset. 
 
 ```{R, message = FALSE, warning = FALSE}
 # Merging the results from the previous sections (region and target, and region and TF)
@@ -259,11 +262,18 @@ triplet <- dplyr::inner_join(region.target.closest, region.tf)
 triplet <- triplet[triplet$TF %in% rownames(gene.exp.chr21.se),]
 ```
 
+The triplet is a data frame with the following columns:
+
+* `target`: gene identifier (obtained from row names of the gene expression matrix),
+* `regionID`: region/cpg identifier (obtained from row names of the DNA methylation matrix)
+* `TF`: gene identifier (obtained from the row names of the gene expression matrix)
+
+
 ```{R}
 head(triplet)
 ```
 
-There may also be multiple rows for a region, when multiple target gene and/or TFs are found close to it. 
+Note that there may be multiple rows for a CpG region, when multiple target gene and/or TFs are found close to it. 
 
 # 4. Evaluating the regulatory potential of DMRs (or CpGs)
 

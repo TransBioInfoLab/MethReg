@@ -7,7 +7,8 @@
 make_se_from_dnam_probes(
   dnam,
   genome = c("hg38", "hg19"),
-  arrayType = c("450k", "EPIC")
+  arrayType = c("450k", "EPIC"),
+  betaToM = FALSE
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ row as cpgs and column as samples}
 \item{genome}{HUman genome of reference: hg38 or hg19}
 
 \item{arrayType}{DNA methylation array type (450k or EPIC)}
+
+\item{betaToM}{indicates if converting methylation beta values to mvalues}
 }
 \value{
 A summarized Experiment object with DNA methylation probes mapped to

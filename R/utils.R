@@ -266,6 +266,7 @@ get_non_promoter_regions <- function(regions.gr, genome){
 #' row as cpgs and column as samples
 #' @param genome HUman genome of reference: hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
+#' @param betaToM indicates if converting methylation beta values to mvalues
 #' @export
 #' @examples
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
@@ -277,7 +278,8 @@ get_non_promoter_regions <- function(regions.gr, genome){
 make_se_from_dnam_probes <- function (
     dnam,
     genome = c("hg38","hg19"),
-    arrayType = c("450k","EPIC")
+    arrayType = c("450k","EPIC"),
+    betaToM = FALSE
 ) {
     genome <- match.arg(genome)
     arrayType <- match.arg(arrayType)
@@ -307,6 +309,11 @@ make_se_from_dnam_probes <- function (
     dnam <- dnam[rownames(dnam) %in% names(rowRanges), , drop = FALSE]
     dnam <- dnam[names(rowRanges), , drop = FALSE]
     assay <- data.matrix(dnam)
+
+    if (betaToM){
+        ### Compute M values
+        assay <- log2(assay / (1 - assay))
+    }
 
     rowRanges$probeID <- names(rowRanges)
     regions.name <-  make_names_from_granges(rowRanges)

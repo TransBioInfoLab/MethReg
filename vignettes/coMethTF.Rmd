@@ -597,7 +597,7 @@ data("gene.exp.chr21")
 data("clinical")
 metadata <- clinical[,c("sample_type","gender")]
 
-gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21[1:250,], metadata) %>% as.matrix()
+gene.exp.chr21.residuals <- get_residuals(gene.exp.chr21, metadata) %>% as.matrix()
 ```
 
 ```{R, eval = FALSE}
@@ -606,7 +606,7 @@ gene.exp.chr21.residuals[1:5,1:5]
 
 ```{R, results = "hide", eval = FALSE}
 data("dna.met.chr21")
-dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 dna.met.chr21.residuals <- get_residuals(dna.met.chr21, metadata) %>% as.matrix()
 ```
 

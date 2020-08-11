@@ -49,7 +49,14 @@ get_residuals <- function(
     cores = 1
 ){
 
-    if(is.null(data.matrix)) stop("Please data.matrix dnam argument with a matrix")
+    if(missing(data.matrix)) stop("Please data.matrix argument with a matrix/SE")
+    if(is.null(data.matrix)) stop("Please data.matrix argument with a matrix/SE")
+
+    if(is(data.matrix,"SummarizedExperiment")){
+        data.matrix <- assay(data.matrix)
+    }
+
+
     if(is.null(metadata.samples)) stop("Please set metadata argument with metadata information")
     if(!all(colnames(data.matrix) == rownames(metadata.samples))) {
         stop("data.matrix columns names should be the same as metadata row names")

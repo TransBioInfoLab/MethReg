@@ -83,10 +83,10 @@ cor_region_dnam_target_gene <- function(
 
     #--------------------------------------------------
     # Checking input
-    if(missing(exp)) stop("Please set exp matrix")
-    if(missing(dnam)) stop("Please set dnam matrix")
-    if(is.null(exp)) stop("Please set exp matrix")
-    if(is.null(dnam)) stop("Please set dnam matrix")
+    if(missing(exp)) stop("Please set an R matrix/SE to exp argument")
+    if(missing(dnam)) stop("Please set an R matrix/SE to dnam argument")
+    if(is.null(exp)) stop("Please set an R matrix/SE to exp argument")
+    if(is.null(dnam)) stop("Please set an R matrix/SE to dnam argument")
 
     if(is(dnam,"SummarizedExperiment")){
         dnam <- assay(dnam)

@@ -86,8 +86,9 @@ The samples are in the columns and methylation regions or probes are in the rows
 
 ### 3.1.1 Analysis for individual CpGs data
 
-The individual CpGs data can be, for example, deferentially methylated sites 
-(DMS) obtained in a DNA methylation study.
+We will analyze all CpGs on chromosome 21 in this vignette. 
+
+However, oftentimes, the methylation data can also be, for example, **differentially methylated sites* (DMS) or **differentially methylated regions** (DMRs) obtained in an EWAS study.
 
 ```{R warning=FALSE}
 dna.met.chr21 <- get(data("dna.met.chr21"))
@@ -275,18 +276,17 @@ head(triplet)
 
 Note that there may be multiple rows for a CpG region, when multiple target gene and/or TFs are found close to it. 
 
-# 4. Evaluating the regulatory potential of DMRs (or CpGs)
+# 4. Evaluating the regulatory potential of CpGs (or DMRs) 
 
-Because TF binding to DNA can be influenced by (or influence) DNA methylation levels nearby [@yin2017impact], 
-target gene expression can often be influenced by the synergistic effects of both TF and DNA methylation. 
-In other words, TF activities in gene regulation is affected by DNA methylation or vice versa. 
+Because TF binding to DNA can be influenced by (or influences) DNA methylation levels nearby [@yin2017impact], 
+target gene expression levels are often resulted from the synergistic effects of both TF and DNA methylation. In other words, TF activities in gene regulation is often affected by DNA methylation. 
 
 Our goal then is to highlight DNA methylation regions (or CpGs) where these synergistic DNAm and TF collaborations occur. 
 We will perform analyses using the 3 datasets described above in Section 3:
 
-* DNA methylation matrix
-* Gene expression matrix
-* The triplet data frame with DNA methylation region, TF, and target gene
+* An input DNA methylation matrix
+* An input Gene expression matrix
+* The created triplet data frame with expression values for DNA methylation region, TF, and target gene
 
 ## 4.1 Analysis using model with methylation by TF interaction
 
@@ -295,6 +295,15 @@ The function `interaction_model` assess the regulatory impact of DNA methylation
 **Model 1** (considering DNAm values as a continuous variable) - we fit a model with TF by DNA methylation interaction using all samples.
 
 $$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
+**_Interpretation_ :**
+
+Note that Model 1 partitions the effects of DNA methylation and TF on target gene expressions into three categories: 
+
+* `log_2(TF)` - models direct effect of TF on target gene expression; 
+* `DNAm` - models direct effect of DNA methylation on target gene expression; 
+* `log_2(TF) × DNAm` interaction term - models synergistic effect of TF and DNA methylation, that is, how effect of TF on target gene expression is modified by DNA methylation. 
+
+To identify the cases where DNAm collaborate with TFs to influence gene expression, we're typically interested in those triplets with significant `log_2(TF) × DNAm` interaction term, although the cases for which `log_2(TF)` or `DNAm` are significant can also be interesting.     
 
 **Model 2** (considering DNAm values as a binary variable) - we define a binary variable 
 `DNAm Group` for DNA methylation values (high = 1, low = 0). That is, samples with the 
@@ -369,7 +378,7 @@ results.interaction.model %>% dplyr::select(
 To select significant DNAm by TF intereaction from both models, you can subset the results
 using the p-value from each linear model.
 
-```{r, include = FALSE, eval = TRUE}
+```{r, include = TRUE, eval = TRUE}
 results.sig <- results.interaction.model %>% 
   dplyr::filter(`pval_met:rna.tf` < 0.05 & `quant_pval_metGrp:rna.tf` < 0.05)
 ```
@@ -380,10 +389,9 @@ head(results.sig)
 
 ## 4.2 Stratified analysis by high and low DNA methylation levels
 
-For significant triplets that are identified above, we can further assess how 
-gene regulation by TF changes when DNAm is high or low. To this end, the function 
-`stratified_model` fits two separate models (see below) to only the 
-samples in highest DNAm levels (top 25 percent), and then to only the samples in 
+For triplets with significant `log_2(TF) × DNAm` interaction effect identified above, we can further assess how gene regulation by TF changes when DNAm is high or low. To this end, the function 
+`stratified_model` fits two separate models (see below) to only 
+samples with the highest DNAm levels (top 25 percent), and then to only samples with 
 lowest DNAm levels (bottom 25 percent), separately.
 
 $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$

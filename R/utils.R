@@ -7,6 +7,7 @@
 #' @examples
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)
+#' @noRd
 make_granges_from_names <- function(names){
     names %>%
         data.frame %>%
@@ -44,6 +45,7 @@ make_names_from_granges <- function(region){
 #' data(dna.met.chr21)
 #' dna.met.chr21.with.region.name <- map_probes_to_regions(dna.met.chr21)
 #' @importFrom sesameData sesameDataCacheAll sesameDataGet
+#' @noRd
 map_probes_to_regions <- function(
     dnam,
     genome = c("hg38","hg19"),
@@ -338,7 +340,7 @@ make_se_from_dnam_probes <- function (
 #' @export
 #' @examples
 #' dna.met.chr21 <- get(data("dna.met.chr21"))
-#' dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
+#' dna.met.chr21.regions <- coMethTF:::map_probes_to_regions(dna.met.chr21)
 #' dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
 #' @return A summarized Experiment object
 make_se_from_dnam_regions <- function(

@@ -20,6 +20,6 @@ Transform DNA methylation array into a summarized Experiment object
 }
 \examples{
 dna.met.chr21 <- get(data("dna.met.chr21"))
-dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21.regions <- coMethTF:::map_probes_to_regions(dna.met.chr21)
 dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
 }

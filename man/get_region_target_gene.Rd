@@ -2,8 +2,8 @@
 % Please edit documentation in R/get_region_target_gene.R
 \name{get_region_target_gene}
 \alias{get_region_target_gene}
-\title{Obtain target genes of regions with 3 methods: 1) closest gene
-2) genes within a fixed window 3) fixed number of nearby genes (upstream/downstream)}
+\title{Obtain target genes of input regions with 3 methods: 1) closest gene
+2) genes within a fixed window of distance 3) fixed number of nearby genes (upstream/downstream)}
 \usage{
 get_region_target_gene(
   regions.gr,
@@ -32,8 +32,8 @@ For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 and 5 genes dowstream of the given region.}
 
 \item{rm.promoter.regions.from.distal.linking}{When performing distal linking
-with methods one of the methods "windows" and "nearest.genes" if set to TRUE (default)
-it will remove promoter regions from the input region.}
+with method = "windows" or method = "nearest.genes", if set to TRUE (default),
+probes in promoter regions will be removed from the input.}
 }
 \value{
 A data frame with the following information: regionID, Target symbol, Target ensembl ID

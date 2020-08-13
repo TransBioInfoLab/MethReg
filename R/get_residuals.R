@@ -1,9 +1,9 @@
 #' @title Get studentized residual from regression model
-#' @description Get Residuals using a data matrix and a sample metadata data frame as
+#' @description Compute residuals for expression values in a data matrix as
 #' follows: features ~ Sample_covariate1 + Sample_covariate2 ... + Sample_covariateN
-#' where n is the index of the columns of the metadata provided
-#' In case the user also provide a gene metadata (i.e copy number variation/alteration)
-#' get Residuals using:
+#' where n is the index of the columns in the metadata provided, features are expression values
+#' When the user also provide a gene metadata (e.g. gene_covariate = copy number variations/alterations)
+#' get Residuals fits the following model:
 #' features ~ Sample_covariate1 + Sample_covariate2 ... + Sample_covariateN + gene_covariate
 #' @param data.matrix A matrix with samples as columns and features (gene, probes)
 #' as rows.

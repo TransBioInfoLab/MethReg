@@ -12,9 +12,10 @@
 #'
 #' Model 1 (considering DNAm values as a continuous variable) generates \code{pval_met}, \code{pval_rna.tf},
 #' \code{pval_met.rna.tf} and \code{estimates_met}, \code{estimates_rna.tf}, \code{estimates_met.rna.tf}.
-#' Model 2 (considering DNAm values as a binary variable)
-#' generates \code{quant_pval_metGrp}, \code{quant_pval_rna.tf}, \code{quant_pval_metGrp.rna.tf},
-#' \code{quant_estimates_metGrp}, \code{quant_estimates_rna.tf}, \code{quant_estimates_metGrp.rna.tf}
+#'
+#' Model 2 (considering DNAm values as a binary variable) generates \code{quant_pval_metGrp},
+#' \code{quant_pval_rna.tf}, \code{quant_pval_metGrp.rna.tf},
+#' \code{quant_estimates_metGrp}, \code{quant_estimates_rna.tf}, \code{quant_estimates_metGrp.rna.tf}.
 #'
 #' \code{Model.interaction} indicates which model (robust linear model or zero inflated model)
 #' was used to fit Model 1, and \code{Model.quantile} indicates which model(robust linear model or zero

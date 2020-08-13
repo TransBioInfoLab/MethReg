@@ -88,8 +88,14 @@ filter_genes_by_quantile_mean_fold_change <- function(
 #' @noRd
 #' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
-    genes.keep <- (rowSums(exp == 0) / ncol(exp) <= max.samples.percentage) %>% which %>% names
-    message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
+    if(is(exp,"SummarizedExperiment")){
+        matrix <- assay(exp)
+    } else {
+        matrix <- exp
+    }
+
+    genes.keep <- (rowSums(matrix == 0) / ncol(matrix) <= max.samples.percentage) %>% which %>% names
+    message("Removing ", nrow(matrix) - length(genes.keep), " out of ", nrow(matrix), " genes")
     exp[genes.keep,, drop = FALSE]
 }
 

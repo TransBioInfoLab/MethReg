@@ -4,8 +4,8 @@
 #' overlap they will be merged.
 #' Then, for each promoter region calculate the mean DNA methylation of probes
 #' overlapping the region.
-#' @return A list with a data frame of the new regions and merged ones,
-#' and the calculated mean/median beta-value matrix
+#' @return A RangedSummarizedExperiment (a list with a data frame of the new regions
+#' and merged ones and the calculated mean/median beta-value matrix).
 #' @export
 #' @importFrom GenomicRanges reduce
 #' @examples

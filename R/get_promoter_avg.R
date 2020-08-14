@@ -1,6 +1,6 @@
 #' @title Summarize promoter methylation beta values by mean or median.
 #' @description
-#' First, identify gene promoter regions (+-2Kkb around TSS). In case, promoters
+#' First, identify gene promoter regions (+-2Kkb around TSS). When promoters
 #' overlap they will be merged.
 #' Then, for each promoter region calculate the mean DNA methylation of probes
 #' overlapping the region.

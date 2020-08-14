@@ -1,23 +1,37 @@
-#' @title Get studentized residual from regression model
-#' @description Compute residuals for expression values in a data matrix as
-#' follows: features ~ Sample_covariate1 + Sample_covariate2 ... + Sample_covariateN
-#' where n is the index of the columns in the metadata provided, features are expression values
-#' When the user also provide a gene metadata (e.g. gene_covariate = copy number variations/alterations)
-#' get Residuals fits the following model:
-#' features ~ Sample_covariate1 + Sample_covariate2 ... + Sample_covariateN + gene_covariate
+#' @title Get residuals from regression model
+#' @description Compute studentized residuals from fitting linear regression models to expression values
+#' in a data matrix
 #' @param data.matrix A matrix with samples as columns and features (gene, probes)
-#' as rows.
+#' as rows. Note that log2(x+1) transformation should typically be done for expression
+#' values before fitting linear regression models.
 #' @param metadata.samples A data frame with samples as rows and columns the covariates.
-#' Observation: No NA values are allowed, otherwise residual of the sample will be NA.
-#' @param metadata.genes A data frame with genes (covariates) as rows and samples on columns.
-#' For each evaluated gene the columns will be set as a single covariates.
-#' This can be used to correct each gene for copy number alterations.
-#' @param cores Number of CPU cores to be used. Default 1.
-#' @return A residuals matrix with samples as columns and features (gene, probes)
+#' No NA values are allowed, otherwise residual of the corresponding sample will be NA.
+#' @param metadata.genes A data frame with genes (covariates) as rows and samples as columns.
+#' For each evaluated gene, each column (e.g. CNA) that corresponds to the same gene
+#' will be set as a single covariate variable. This can be used to correct copy number alterations for each gene.
+#' @param cores Number of CPU cores to be used. Defaults to 1.
+#' @return A residuals matrix with samples as columns and features (gene, probes) as rows
+#' @details When only \code{metadata.samples} are provided, this function computes
+#' residuals for expression values in a data matrix by fitting model
+#'
+#' \code{features ~ Sample_covariate1 + Sample_covariate2 ... + Sample_covariateN}
+#' where \code{N} is the index of the columns in the metadata provided, \code{features} are
+#' (typically log transformed) expression values.
+#'
+#' When the user additionally provide \code{metadata.genes},
+#' that is, gene metadata (e.g. gene_covariate = copy number variations/alterations)
+#' residuals are computed by fitting the following model:
+#'
+#' \code{features ~ Sample_covariate1 + Sample_covariate2 ... + Sample_covariateN + gene_covariate}
+#'
 #' @examples
 #' data("gene.exp.chr21")
+#'
+#' gene.exp.log <- log2(gene.exp.chr21 + 1)
+#'
 #' data("clinical")
 #' metadata <- clinical[,c( "gender", "sample_type")]
+#'
 #' cnv <- matrix(
 #'    sample(x = c(-2,-1,0,1,2),
 #'    size = ncol(gene.exp.chr21) * nrow(gene.exp.chr21),replace = TRUE),
@@ -26,18 +40,19 @@
 #' )
 #' rownames(cnv) <- rownames(gene.exp.chr21)
 #' colnames(cnv) <- colnames(gene.exp.chr21)
+#'
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.chr21[1:3,],
+#'    data.matrix = gene.exp.log[1:3,],
 #'    metadata.samples = metadata,
 #'    metadata.genes = cnv
 #' )
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.chr21[1:3,],
+#'    data.matrix = gene.exp.log[1:3,],
 #'    metadata.samples = metadata,
 #'    metadata.genes = cnv[1:2,]
 #' )
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.chr21[1:3,],
+#'    data.matrix = gene.exp.log[1:3,],
 #'    metadata.samples = metadata
 #' )
 #' @export

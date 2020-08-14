@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_triplet.R
 \name{get_triplet}
 \alias{get_triplet}
-\title{For a given dnam region maps candidate target gene and scan for TF binding}
+\title{For an input DNA methylation region, maps candidate target genes and TFs with binding sites located nearby}
 \usage{
 get_triplet(
   region,
@@ -18,16 +18,18 @@ get_triplet(
 \arguments{
 \item{region}{A Granges or a named vector with regions (i.e "chr21:100002-1004000")}
 
-\item{genome}{Human genome of reference "hg38" or "hg19"}
+\item{genome}{Human genome reference "hg38" or "hg19"}
 
-\item{target.method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
-genes within a window around the region ("window").}
+\item{target.method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene");
+genes within a window around the region ("window"); or fixed number of nearby genes upstream and
+downstream from the region}
 
 \item{target.window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 
 \item{target.num.flanking.genes}{Number of flanking genes upstream and downstream to search.
-For example, if num.flanking.genes = 5, it will return the 5 genes upstream}
+For example, if \code{target.num.flanking.genes = 5}, it will return the
+5 genes upstream and 5 genes downstream}
 
 \item{motif.search.window.size}{Integer value to extend the regions. For example, a value of 50 will
 extend 25 bp upstream and 25 downstream the region. Default is no increase}
@@ -37,12 +39,11 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \description{
-This function wraps two other functions:
-get_region_target_gene and get_tf_in_region from the package.
-This function will map a region to a target gene using two methods
-one mapping to the closest gene, and another one mapping to any gene within
-a given window.
-To find TF binding to the region JASPAR2020 is used to look into the region.
+This function wraps two other functions
+\code{get_region_target_gene} and \code{get_tf_in_region} from the package.
+This function will map a region to a target gene using three methods (mapping to the closest gene,
+mapping to any gene within a given window of distance, or mapping to a fixed number of nearby genes upstream or downstream).
+To find TFs binding to the region, JASPAR2020 is used.
 }
 \examples{
 \dontrun{

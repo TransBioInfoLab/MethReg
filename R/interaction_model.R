@@ -1,7 +1,10 @@
-#' @title Fits linear models with interaction to triplet data (Target, TF, DNAm) with DNAm
-#' as a continuos variable (for all samples) or a binary variable (samples in Q1 or Q4)
-#' @description Identify DNA methylation (DNAm) changes that work synergistically with TFs in regulating
-#' target gene expression, by fitting robust linear model or zero inflated negative binomial model to triplet data.
+#' @title Fits linear models with interaction to triplet data (Target, TF, DNAm), where DNAm
+#' can be a continuous variable (for all samples) or a binary variable (samples in Q1 or Q4)
+#' @description Evaluates regulatory potential of DNA methylation (DNAm) on gene expression,
+#' by fitting robust linear model or zero inflated negative binomial model to triplet data.
+#' These models consist of terms to model direct effect of DNAm on target gene expression,
+#' direct effect of TF on gene expression, as well as an interaction term that evaluates
+#' the synegistic effect of DNAm and TF on gene expression.
 #' @param triplet Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)
 #' @param dnam DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
 #' @param exp A log2 (gene expression count + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
@@ -38,8 +41,10 @@
 #' implementation, only samples wih DNAm values in the first and last quartiles
 #' are considered.
 #'
-#' We can then identify significant DNAm by TF interactions by selecting those that are significant in both
-#' Model 1 and Model 2.
+#' In these models, the term \code{log2(TF)} evaluates direct effect of TF on
+#' target gene expression, \code{DNAm} evaluates direct effect of DNAm on target
+#' gene expression, and \code{log2(TF)*DNAm} evaluates synergistic effect of DNAm
+#' and TF, that is, if TF regulatory activity is modified by DNAm.
 #'
 #' There are two implementations of these models, depending on whether there are an excessive
 #' amount (i.e. more than 25 percent) of samples with zero counts in RNAseq data:

@@ -266,7 +266,7 @@ get_non_promoter_regions <- function(regions.gr, genome){
 #' @title Transform DNA methylation array into a summarized Experiment object
 #' @param dnam DNA methylation matrix with beta-values or m-values as data,
 #' row as cpgs and column as samples
-#' @param genome HUman genome of reference: hg38 or hg19
+#' @param genome Human genome of reference: hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
 #' @param betaToM indicates if converting methylation beta values to mvalues
 #' @export

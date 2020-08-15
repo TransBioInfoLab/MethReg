@@ -1,10 +1,10 @@
 #' @title Plot interaction model results
 #' @description Create several plots to show interaction data
 #' TF expression with target gene interaction using a linear model
-#' \deqn{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+#' \deqn{log2(RNA target) = log2(TF) + DNAm + log2(TF) * DNAm}
 #'
 #' To consider covariates, RNA can also be the residuals.
-#' \deqn{log2(RNA target residuals) ~ log2(TF residual) + DNAm + log2(TF residual) * DNAm}
+#' \deqn{log2(RNA target residuals) = log2(TF residual) + DNAm + log2(TF residual) * DNAm}
 #'
 #' @param triplet.results Output from function interaction_model
 #' with Region ID, TF  (column name: TF),  and target gene  (column name: target),
@@ -13,8 +13,8 @@
 #' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
 #' @param metadata A data frame with samples as rownames and one columns that will be used to
 #' color the samples
-#' @return A ggplot object with a table with the results and the
-#' the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
+#' @return A ggplot object, includes a table with results from fitting interaction model,
+#' and the the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
 #' 5) Target vs DNAm for samples in Q1 and Q4 for the TF
 #' @examples
@@ -48,6 +48,7 @@
 #'     dnam = dnam,
 #'     exp = exp
 #' )
+#'
 #' \dontrun{
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)

@@ -19,18 +19,18 @@ p-values and estimates of interaction}
 color the samples}
 }
 \value{
-A ggplot object with a table with the results and the
-the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
+A ggplot object, includes a table with results from fitting interaction model,
+and the the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
 5) Target vs DNAm for samples in Q1 and Q4 for the TF
 }
 \description{
 Create several plots to show interaction data
 TF expression with target gene interaction using a linear model
-\deqn{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
+\deqn{log2(RNA target) = log2(TF) + DNAm + log2(TF) * DNAm}
 
 To consider covariates, RNA can also be the residuals.
-\deqn{log2(RNA target residuals) ~ log2(TF residual) + DNAm + log2(TF residual) * DNAm}
+\deqn{log2(RNA target residuals) = log2(TF residual) + DNAm + log2(TF residual) * DNAm}
 }
 \examples{
 library(dplyr)
@@ -63,6 +63,7 @@ plots <- plot_interaction_model(
     dnam = dnam,
     exp = exp
 )
+
 \dontrun{
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)

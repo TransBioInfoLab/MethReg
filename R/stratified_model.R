@@ -15,7 +15,7 @@
 #' \code{DNAmhigh_pval_rna.tf.1}), annotations for TF (\code{class.TF}) and (\code{class.TF.DNAm}).
 #'
 #' @details This function fits linear model
-#' \code{log2(RNA target) ~ log2(TF)}
+#' \code{log2(RNA target) = log2(TF)}
 #'
 #' to samples with higest DNAm values (top 25 percent) or lowest DNAm values (bottom 25 percent), separately.
 #'

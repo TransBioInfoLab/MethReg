@@ -27,8 +27,6 @@
 #' @examples
 #' data("gene.exp.chr21")
 #'
-#' gene.exp.log <- log2(gene.exp.chr21 + 1)
-#'
 #' data("clinical")
 #' metadata <- clinical[,c( "gender", "sample_type")]
 #'
@@ -42,17 +40,17 @@
 #' colnames(cnv) <- colnames(gene.exp.chr21)
 #'
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.log[1:3,],
+#'    data.matrix = gene.exp.chr21[1:3,],
 #'    metadata.samples = metadata,
 #'    metadata.genes = cnv
 #' )
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.log[1:3,],
+#'    data.matrix = gene.exp.chr21[1:3,],
 #'    metadata.samples = metadata,
 #'    metadata.genes = cnv[1:2,]
 #' )
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.log[1:3,],
+#'    data.matrix = gene.exp.chr21[1:3,],
 #'    metadata.samples = metadata
 #' )
 #' @export

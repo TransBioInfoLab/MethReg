@@ -32,12 +32,14 @@
 #'    "target" = "ENSG00000232886"
 #' )
 #'
-#' # Correalted DNAm and gene expression, display only significant associations
+#' # Correlated DNAm and gene expression, display only significant associations
 #' results.cor.pos <- cor_region_dnam_target_gene(
 #'    links = links,
 #'    dnam = dnam,
 #'    exp = exp,
-#'    filter.results = FALSE
+#'    filter.results = TRUE,
+#'    min.cor.pval = 0.05,
+#'    min.cor.estimate = 0.0
 #')
 #' \dontrun{
 #' # Load data
@@ -67,7 +69,7 @@
 #'    links = links,
 #'    dnam = dna.met.chr21,
 #'    exp = gene.exp.chr21,
-#'    min.cor.pval = 1
+#'    filter.results = FALSE
 #' )
 #' }
 cor_region_dnam_target_gene <- function(

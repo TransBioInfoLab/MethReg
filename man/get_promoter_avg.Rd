@@ -16,8 +16,7 @@ get_promoter_avg(dnam, genome, arrayType, cores = 1)
 \item{cores}{A integer number to use multiple cores. Default 1 core.}
 }
 \value{
-A RangedSummarizedExperiment (a list with a data frame of the new regions
-and merged ones and the calculated mean/median beta-value matrix).
+A RangedSummarizedExperiment with promoter region and mean beta-values of cpgs within it.
 }
 \description{
 First, identify gene promoter regions (+-2Kkb around TSS). When promoters

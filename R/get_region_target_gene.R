@@ -8,14 +8,15 @@
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
 #' genes within a window around the region ("window"); or a fixed number genes upstream
-#' and downstream of the region ("nearest.genes")
+#' and downstream of the region ("nearby.genes")
 #' @param window.size When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
-#' @param num.flanking.genes Number of flanking genes upstream and downstream to search.
+#' @param num.flanking.genes When \code{method = "nearby.genes"}, set the number
+#' of flanking genes upstream and downstream to search.
 #' For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 #' and 5 genes dowstream of the given region.
 #' @param rm.promoter.regions.from.distal.linking When performing distal linking
-#' with method = "windows" or method = "nearest.genes", if set to TRUE (default),
+#' with method = "windows" or method = "nearby.genes", if set to TRUE (default),
 #' probes in promoter regions will be removed from the input.
 #' @importFrom GenomicRanges findOverlaps
 #' @importFrom S4Vectors queryHits subjectHits
@@ -35,33 +36,35 @@
 #'      makeGRangesFromDataFrame
 #'
 #'  # map to closest gene
-#'  region.closest <- get_region_target_gene(
+#'  region.closest.genes <- get_region_target_gene(
 #'                       regions.gr = regions.gr,
 #'                       genome = "hg19",
 #'                       method = "closest.gene")
 #'
 #'  # map to all gene within region +- 250kbp
-#'  region.window <- get_region_target_gene(
+#'  region.window.genes <- get_region_target_gene(
 #'                       regions.gr = regions.gr,
 #'                       genome = "hg19",
 #'                       method = "window",
-#'                       window.size = 500 * 10^3)
+#'                       window.size = 500 * 10^3
+#'  )
 #'
 #'  # map regions to n upstream and n dowstream genes
-#'  region.nearest <- get_region_target_gene(
+#'  region.nearby.genes <- get_region_target_gene(
 #'                       regions.gr = regions.gr,
 #'                       genome = "hg19",
-#'                       method = "nearest.genes",
-#'                       num.flanking.genes = 5)
+#'                       method = "nearby.genes",
+#'                       num.flanking.genes = 5
+#'  )
 #' @export
 #' @return A data frame with the following information: regionID, Target symbol, Target ensembl ID
 #' @details For the analysis of probes in promoter regions (promoter analysis), we recommend setting
 #'  \code{method = "closest.gene"}.
 #'
 #'  For the analysis of probes in distal regions (distal analysis),
-#'  we recommend setting either \code{method = "window"} or \code{method = "nearest.genes"}.
+#'  we recommend setting either \code{method = "window"} or \code{method = "nearby.genes"}.
 #'
-#'  Note that because \code{method = "window"} or \code{method = "nearest.genes"} are
+#'  Note that because \code{method = "window"} or \code{method = "nearby.genes"} are
 #'  mainly used for analyzing distal probes,
 #'  by default \code{rm.promoter.regions.from.distal.linking = TRUE} to
 #'  remove probes in promoter regions.
@@ -69,7 +72,7 @@
 get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
-    method = c("closest.gene","window","nearest.genes"),
+    method = c("closest.gene","window","nearby.genes"),
     window.size = 500 * 10^3,
     num.flanking.genes = 5,
     rm.promoter.regions.from.distal.linking = TRUE
@@ -95,7 +98,7 @@ get_region_target_gene <- function(
         message("Mapping regions to genes within a window of size: ", window.size, " bp")
         out <- get_region_target_gene_window(regions.gr, genome, window.size)
     } else {
-        out <- get_region_target_gene_nearest.genes(
+        out <- get_region_target_gene_nearby.genes(
             regions.gr = regions.gr,
             genome = genome,
             num.flanking.genes = num.flanking.genes
@@ -198,7 +201,7 @@ get_region_target_gene_window <- function(
 #' genome <- "hg38"
 #' num.flanking.genes <- 10
 #' @noRd
-get_region_target_gene_nearest.genes <- function(
+get_region_target_gene_nearby.genes <- function(
     regions.gr,
     genome,
     num.flanking.genes
@@ -211,14 +214,14 @@ get_region_target_gene_nearest.genes <- function(
 
     # Optimized version
     # Idea: vectorize search
-    # 1) For all regions, get nearest gene
+    # 1) For all regions, get nearby gene
     # 2) check follow and overlapping genes recursively
     # 3) check precede and overlapping genes recursively
     # 4) map the positions based on min distance (L1)
     # The input data has to be at gene level and not transcript which would broke
     # some of the optimizations for which we remove the genes already evaluated
 
-    # 1) For all regions, get nearest gene
+    # 1) For all regions, get nearby gene
     message("Identifying genes close to the region")
     nearest.idx <- nearest(
         regions.gr,
@@ -234,7 +237,7 @@ get_region_target_gene_nearest.genes <- function(
     )
 
     message("Identifying ",num.flanking.genes, " genes downstream to the region")
-    precede.genes <- get_region_target_gene_nearest.genes_aux(
+    precede.genes <- get_region_target_gene_nearby.genes_aux(
         direction.fun = GenomicRanges::precede,
         nearest.idx = nearest.idx,
         genes.gr = genes.gr,
@@ -244,7 +247,7 @@ get_region_target_gene_nearest.genes <- function(
 
     # 2) check follow and overlapping genes recursively
     message("Identifying ",num.flanking.genes, " genes upstream of the region")
-    follow.genes <- get_region_target_gene_nearest.genes_aux(
+    follow.genes <- get_region_target_gene_nearby.genes_aux(
         direction.fun = GenomicRanges::follow,
         nearest.idx = nearest.idx,
         genes.gr = genes.gr,
@@ -262,7 +265,7 @@ get_region_target_gene_nearest.genes <- function(
                ]
 
     message("Identifying gene position for each region")
-    ret <- get_region_target_gene_nearest.genes_addPos(ret, num.flanking.genes)
+    ret <- get_region_target_gene_nearby.genes_addPos(ret, num.flanking.genes)
     colnames(ret)[1:3] <- c("regionID", "target", "target_gene_name")
     return(ret)
 }
@@ -281,7 +284,7 @@ get_region_gene_distance <- function(idx, regions.gr,geneAnnot){
 
 #' @importFrom progress progress_bar
 #' @importFrom GenomicRanges findOverlaps distance nearest
-get_region_target_gene_nearest.genes_aux <- function(
+get_region_target_gene_nearby.genes_aux <- function(
     direction.fun,
     nearest.idx,
     genes.gr,
@@ -349,7 +352,7 @@ get_region_target_gene_nearest.genes_aux <- function(
 }
 
 #' @importFrom dplyr group_by
-get_region_target_gene_nearest.genes_addPos <- function(ret, num.flanking.genes){
+get_region_target_gene_nearby.genes_addPos <- function(ret, num.flanking.genes){
     f <- function(pairs) {
         center <- which(abs(pairs$Distance) == min(abs(pairs$Distance)))[1]
         pos <- setdiff(-center:(nrow(pairs) - center), 0)

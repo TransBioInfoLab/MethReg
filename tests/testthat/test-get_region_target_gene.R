@@ -21,18 +21,18 @@ test_that("get_region_target_gene works", {
    )
 
    # map to all gene within region +- 250kbp
-   region.nearest.genes <- get_region_target_gene(
+   region.nearby.genes <- get_region_target_gene(
       regions.gr = regions.gr,
       genome = "hg38",
-      method = "nearest.genes",
+      method = "nearby.genes",
       num.flanking.genes = 5
    )
 
    expect_true("target" %in% colnames(region.window))
    expect_true("target" %in% colnames(region.closest))
-   expect_true("target" %in% colnames(region.nearest.genes))
+   expect_true("target" %in% colnames(region.nearby.genes))
    expect_true("regionID" %in% colnames(region.window))
    expect_true("regionID" %in% colnames(region.closest))
-   expect_true("regionID" %in% colnames(region.nearest.genes))
+   expect_true("regionID" %in% colnames(region.nearby.genes))
 
 })

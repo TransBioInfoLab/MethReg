@@ -7,7 +7,7 @@
 get_region_target_gene(
   regions.gr,
   genome = c("hg38", "hg19"),
-  method = c("closest.gene", "window", "nearest.genes"),
+  method = c("closest.gene", "window", "nearby.genes"),
   window.size = 500 * 10^3,
   num.flanking.genes = 5,
   rm.promoter.regions.from.distal.linking = TRUE
@@ -21,17 +21,18 @@ SummarizedExperiment object (rowRanges will be used)}
 
 \item{method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
 genes within a window around the region ("window"); or a fixed number genes upstream
-and downstream of the region ("nearest.genes")}
+and downstream of the region ("nearby.genes")}
 
 \item{window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 
-\item{num.flanking.genes}{Number of flanking genes upstream and downstream to search.
+\item{num.flanking.genes}{When \code{method = "nearby.genes"}, set the number
+of flanking genes upstream and downstream to search.
 For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 and 5 genes dowstream of the given region.}
 
 \item{rm.promoter.regions.from.distal.linking}{When performing distal linking
-with method = "windows" or method = "nearest.genes", if set to TRUE (default),
+with method = "windows" or method = "nearby.genes", if set to TRUE (default),
 probes in promoter regions will be removed from the input.}
 }
 \value{
@@ -48,9 +49,9 @@ For the analysis of probes in promoter regions (promoter analysis), we recommend
  \code{method = "closest.gene"}.
 
  For the analysis of probes in distal regions (distal analysis),
- we recommend setting either \code{method = "window"} or \code{method = "nearest.genes"}.
+ we recommend setting either \code{method = "window"} or \code{method = "nearby.genes"}.
 
- Note that because \code{method = "window"} or \code{method = "nearest.genes"} are
+ Note that because \code{method = "window"} or \code{method = "nearby.genes"} are
  mainly used for analyzing distal probes,
  by default \code{rm.promoter.regions.from.distal.linking = TRUE} to
  remove probes in promoter regions.
@@ -68,22 +69,24 @@ regions.gr <- data.frame(
      makeGRangesFromDataFrame
 
  # map to closest gene
- region.closest <- get_region_target_gene(
+ region.closest.genes <- get_region_target_gene(
                       regions.gr = regions.gr,
                       genome = "hg19",
                       method = "closest.gene")
 
  # map to all gene within region +- 250kbp
- region.window <- get_region_target_gene(
+ region.window.genes <- get_region_target_gene(
                       regions.gr = regions.gr,
                       genome = "hg19",
                       method = "window",
-                      window.size = 500 * 10^3)
+                      window.size = 500 * 10^3
+ )
 
  # map regions to n upstream and n dowstream genes
- region.nearest <- get_region_target_gene(
+ region.nearby.genes <- get_region_target_gene(
                       regions.gr = regions.gr,
                       genome = "hg19",
-                      method = "nearest.genes",
-                      num.flanking.genes = 5)
+                      method = "nearby.genes",
+                      num.flanking.genes = 5
+ )
 }

@@ -10,7 +10,9 @@
 #' @param tcga.study A TCGA study from the database
 #' (i.e. "ACC","BLCA", "BRCA_1", "BRCA_2", "CESC", "COAD_READ*")
 #' Please check function for a complete list: get_cistrome_studies()
-#' @param minCor Cistrome minimum correlation between TF and target gene
+#' @param minCor Cistrome absolute minimum correlation between TF and target gene
+#' For example a minCor set to 0.5, will return any correlations in [-1,-0.5] and
+#' [0.5, 1].
 #' @importFrom rlang .data
 #' @return A dataframe with TF, target and correlation
 #' @examples
@@ -51,7 +53,7 @@ get_tf_targets_cistrome <- function(tcga.study, minCor = 0.2) {
     results <- na.omit(results)
     message("Cistrome TF target # links: ", nrow(results))
     message("Applying minCor filter (minCor: ", minCor)
-    results <- results %>% dplyr::filter(.data$cor > minCor)
+    results <- results %>% dplyr::filter(abs(.data$cor) > minCor)
 
     message("Cistrome TF target with minCor # links: ", nrow(results))
     return(results)

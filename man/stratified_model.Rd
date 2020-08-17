@@ -31,7 +31,7 @@ examines in more details on how TF activities differ in samples with high DNAm o
 }
 \details{
 This function fits linear model
-\code{log2(RNA target) ~ log2(TF)}
+\code{log2(RNA target) = log2(TF)}
 
 to samples with higest DNAm values (top 25 percent) or lowest DNAm values (bottom 25 percent), separately.
 

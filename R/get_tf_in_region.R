@@ -1,7 +1,7 @@
 #' @title Get human TFs for regions by scanning it with motifmatchr using JASPAR 2020 database
 #' @description Given a genomic region, this function uses motifmatchr and JASPAR2020
-#' to scan the region for 554 human transcription factors binding sites. If desired, there is
-#' a option (argument "window.size") to extend the scanning region before performing the search, which
+#' to scan the region for 554 human transcription factors binding sites. There is also
+#' an option (argument \code{window.size}) to extend the scanning region before performing the search, which
 #' by default is 0 (do not extend)
 #' @return A data frame with the following information: regionID, TF symbol, TF ensembl ID
 #' @importFrom SummarizedExperiment assay
@@ -9,7 +9,7 @@
 #' @importFrom IRanges width
 #' @param region A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs
 #' @param window.size Integer value to extend the regions. For example, a value of 50 will
-#' extend 25 bp upstream and 25 downstream the region.
+#' extend 25 bp upstream and 25 bp downstream the region.
 #' The default is not to increase the scanned region.
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param p.cutoff Motifmatcher p.cutoff. Default 1e-8.
@@ -21,6 +21,7 @@
 #'                  region = regions.names,
 #'                  genome = "hg38"
 #'  )
+#'
 #'  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
 #'  regions.gr <- make_granges_from_names(regions.names)
 #'  region.tf <- get_tf_in_region(

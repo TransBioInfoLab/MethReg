@@ -1,14 +1,14 @@
-#' @title Obtain target genes of input regions with 3 methods: 1) closest gene
-#' 2) genes within a fixed window of distance 3) fixed number of nearby genes (upstream/downstream)
-#' @description To map genes to a region there are two options: 1) closest gene
-#' 2) map to all genes within a window around the region (default window.size = 500kbp
+#' @title Obtain target genes of input regions
+#' @description To map an input region to genes there are three options: 1) map region to closest gene
+#' 2) map region to all genes within a window around the region (default window.size = 500kbp
 #' (i.e. +/- 250kbp from start or end of the region)).
+#' 3) map region to a fixed number of nearby genes (upstream/downstream)
 #' @param regions.gr A Genomic Ranges object (GRanges) or a
 #' SummarizedExperiment object (rowRanges will be used)
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
 #' genes within a window around the region ("window"); or a fixed number genes upstream
-#' and downstream of the region "nearest.genes"
+#' and downstream of the region ("nearest.genes")
 #' @param window.size When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
 #' @param num.flanking.genes Number of flanking genes upstream and downstream to search.
@@ -55,6 +55,17 @@
 #'                       num.flanking.genes = 5)
 #' @export
 #' @return A data frame with the following information: regionID, Target symbol, Target ensembl ID
+#' @details For the analysis of probes in promoter regions (promoter analysis), we recommend setting
+#'  \code{method = "closest.gene"}.
+#'
+#'  For the analysis of probes in distal regions (distal analysis),
+#'  we recommend setting either \code{method = "window"} or \code{method = "nearest.genes"}.
+#'
+#'  Note that because \code{method = "window"} or \code{method = "nearest.genes"} are
+#'  mainly used for analyzing distal probes,
+#'  by default \code{rm.promoter.regions.from.distal.linking = TRUE} to
+#'  remove probes in promoter regions.
+
 get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),

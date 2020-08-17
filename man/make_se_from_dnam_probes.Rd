@@ -15,7 +15,7 @@ make_se_from_dnam_probes(
 \item{dnam}{DNA methylation matrix with beta-values or m-values as data,
 row as cpgs and column as samples}
 
-\item{genome}{HUman genome of reference: hg38 or hg19}
+\item{genome}{Human genome of reference: hg38 or hg19}
 
 \item{arrayType}{DNA methylation array type (450k or EPIC)}
 

@@ -10,8 +10,8 @@
 #' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
 #' @param metadata A data frame with samples as rownames and one columns that will be used to
 #' color the samples
-#' @return A ggplot object with a table with the results and the
-#' the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
+#' @return A ggplot object, includes a table with results from fitting stratified model,
+#' and the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
 #' 5) Target vs DNAm for samples in Q1 and Q4 for the TF
 #' @examples

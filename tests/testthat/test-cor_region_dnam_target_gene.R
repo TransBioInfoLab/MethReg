@@ -1,8 +1,8 @@
 test_that("cor_region_dnam_target_gene works with SE and is filtering", {
     # dna.met.chr21 <- get(data("dna.met.chr21"))
     # dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
-    # gene.exp.chr21 <- get(data("gene.exp.chr21"))
-    # gene.exp.chr21 <- make_se_from_gene_matrix(gene.exp.chr21)
+    # gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
+    # gene.exp.chr21.log2 <- make_se_from_gene_matrix(gene.exp.chr21.log2)
     # # Map example region to closest gene
     # links <- get_region_target_gene(
     #     regions.gr = dna.met.chr21 %>% rowRanges(),
@@ -14,21 +14,21 @@ test_that("cor_region_dnam_target_gene works with SE and is filtering", {
     # results <- cor_region_dnam_target_gene(
     #     links = links,
     #     dnam = dna.met.chr21,
-    #     exp = gene.exp.chr21,
+    #     exp = gene.exp.chr21.log2,
     #     filter.results = FALSE
     # )
     #
     # results.filtered <- cor_region_dnam_target_gene(
     #     links = links,
     #     dnam = dna.met.chr21,
-    #     exp = gene.exp.chr21,
+    #     exp = gene.exp.chr21.log2,
     #     filter.results = TRUE
     # )
     #
     # results.filtered.stringent <- cor_region_dnam_target_gene(
     #     links = links,
     #     dnam = dna.met.chr21,
-    #     exp = gene.exp.chr21,
+    #     exp = gene.exp.chr21.log2,
     #     min.cor.estimate = 0.8,
     #     filter.results = TRUE
     # )
@@ -36,7 +36,7 @@ test_that("cor_region_dnam_target_gene works with SE and is filtering", {
     # results.filtered.less.stringent <- cor_region_dnam_target_gene(
     #     links = links,
     #     dnam = dna.met.chr21,
-    #     exp = gene.exp.chr21,
+    #     exp = gene.exp.chr21.log2,
     #     min.cor.estimate = 0.2,
     #     min.cor.pval = 1,
     #     filter.results = TRUE

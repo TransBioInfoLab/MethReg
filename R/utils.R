@@ -223,7 +223,7 @@ check_data <- function(dnam, exp, metadata){
 
 }
 
-#' @title register cores
+#' @title check if package is avaliable
 #' @param package Package name
 #' @noRd
 check_package <- function(package){
@@ -327,7 +327,10 @@ make_se_from_dnam_probes <- function (
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = assay,
         rowRanges = rowRanges,
-        colData = colData
+        colData = colData,
+        metadata = list("genome" = genome,
+                        "arrayType" = arrayType
+        )
     )
     return(se)
 }
@@ -402,7 +405,8 @@ make_se_from_gene_matrix <- function (
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = exp %>% data.matrix(),
         rowRanges = rowRanges,
-        colData = colData
+        colData = colData,
+        metadata = list("genome" = genome)
     )
     return(se)
 }

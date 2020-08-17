@@ -12,7 +12,7 @@
 #' extend 25 bp upstream and 25 bp downstream the region.
 #' The default is not to increase the scanned region.
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param p.cutoff Motifmatcher p.cutoff. Default 1e-8.
+#' @param p.cutoff motifmatchr p.cutoff. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @examples
 #' \dontrun{

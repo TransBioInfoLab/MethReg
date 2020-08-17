@@ -21,7 +21,7 @@ The default is not to increase the scanned region.}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
-\item{p.cutoff}{Motifmatcher p.cutoff. Default 1e-8.}
+\item{p.cutoff}{motifmatchr p.cutoff. Default 1e-8.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }

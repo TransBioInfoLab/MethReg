@@ -99,7 +99,7 @@ dna.met.chr21[1:5,1:5]
 ```
 
 We will first create a SummarizedExperiment object with the function
-`make_se_from_dnam_probes`. This funtion will use the Sesame package to map the array
+`make_se_from_dnam_probes`. This function will use the Sesame package to map the array
 probes into genomic regions.
 
 ```{R}
@@ -133,7 +133,7 @@ this matrix can also contain residuals from linear regression instead (see **Sec
 The samples are in the columns and the genes are in the rows. 
 
 ```{R}
-gene.exp.chr21 <- get(data("gene.exp.chr21", package = "coMethTF"))
+gene.exp.chr21 <- get(data("gene.exp.chr21.log2", package = "coMethTF"))
 gene.exp.chr21[1:5,1:5]
 ```
 
@@ -269,7 +269,7 @@ triplet <- triplet[triplet$TF %in% rownames(gene.exp.chr21.se),]
 The triplet is a data frame with the following columns:
 
 * `target`: gene identifier (obtained from row names of the gene expression matrix),
-* `regionID`: region/cpg identifier (obtained from row names of the DNA methylation matrix)
+* `regionID`: region/CpG identifier (obtained from row names of the DNA methylation matrix)
 * `TF`: gene identifier (obtained from the row names of the gene expression matrix)
 
 
@@ -310,7 +310,7 @@ To identify the cases where DNAm collaborate with TFs to influence gene expressi
 `DNAm Group` for DNA methylation values (high = 1, low = 0). That is, samples with the 
 highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0.  
 
-Note that in this implementation, only samples wih DNAm values in the first and last quartiles are considered.
+Note that in this implementation, only samples with DNAm values in the first and last quartiles are considered.
 
 $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm Group}$$
  
@@ -376,7 +376,7 @@ results.interaction.model %>% dplyr::select(
   ) %>% head
 ```
 
-To select significant DNAm by TF intereaction from both models, you can subset the results
+To select significant DNAm by TF interaction from both models, you can subset the results
 using the p-value from each linear model.
 
 ```{r, include = TRUE, eval = TRUE}
@@ -518,8 +518,8 @@ message("Number of clusters: ",length(probes.cluster))
 probes.cluster %>% head
 ```
 
-For real data analyis, please replace `probes.cluster` with probes in DMRs 
-identified in epigenomewide association study. The  `coMethDMR::GetCpGsInAllRegion` 
+For real data analysis, please replace `probes.cluster` with probes in DMRs 
+identified in epigenome-wide association study. The  `coMethDMR::GetCpGsInAllRegion` 
 function can be used to extract probes within the DMRs. 
 
 Here are the sample scripts for this task:   
@@ -596,7 +596,7 @@ $$methylation.Mvalues \sim covariate_{1} + covariate_{2} + ... + covariate_{N}$$
 
 
 ```{R residuals, results = "hide", eval = FALSE}
-data("gene.exp.chr21")
+data("gene.exp.chr21.log2")
 data("clinical")
 metadata <- clinical[,c("sample_type","gender")]
 

@@ -39,7 +39,7 @@ Evaluates regulatory potential of DNA methylation (DNAm) on gene expression,
 by fitting robust linear model or zero inflated negative binomial model to triplet data.
 These models consist of terms to model direct effect of DNAm on target gene expression,
 direct effect of TF on gene expression, as well as an interaction term that evaluates
-the synegistic effect of DNAm and TF on gene expression.
+the synergistic effect of DNAm and TF on gene expression.
 }
 \details{
 This function fits the linear model
@@ -53,8 +53,8 @@ Model 1 : by considering \code{DNAm} as a continuous variable
 Model 2:  by considering \code{DNAm} as a binary variable - we defined a binary group for
 DNA methylation values (high = 1, low = 0). That is, samples with the highest
 DNAm levels (top 25 percent) has high = 1, samples with lowest
-DNAm levels (bottom 25 pecent) has high = 0. Note that in this
-implementation, only samples wih DNAm values in the first and last quartiles
+DNAm levels (bottom 25 percent) has high = 0. Note that in this
+implementation, only samples with DNAm values in the first and last quartiles
 are considered.
 
 In these models, the term \code{log2(TF)} evaluates direct effect of TF on
@@ -111,11 +111,11 @@ results <- interaction_model(triplet, dnam, exp)
 \dontrun{
 data("dna.met.chr21")
 dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
-data("gene.exp.chr21")
+data("gene.exp.chr21.log2")
 triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
-                      "TF" = rownames(gene.exp.chr21)[11:20],
-                      "target" = rownames(gene.exp.chr21)[1:10])
-results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21)
+                      "TF" = rownames(gene.exp.chr21.log2)[11:20],
+                      "target" = rownames(gene.exp.chr21.log2)[1:10])
+results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
 
 # select those that are significant in both models
 # results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]

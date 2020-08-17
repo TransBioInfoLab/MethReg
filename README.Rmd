@@ -45,11 +45,11 @@ library(coMethTF)
 # 2) DNA methylation
 # With same column names
 data("dna.met.chr21")
-data("gene.exp.chr21")
-all(colnames(dna.met.chr21) == colnames(gene.exp.chr21))
+data("gene.exp.chr21.log2")
+all(colnames(dna.met.chr21) == colnames(gene.exp.chr21.log2))
 
 # Since we are working with regions we need to map our 450k array to regions
-dnam.regions <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 ```
 
 ```{r map, warning = FALSE, results = "hide"}
@@ -61,7 +61,7 @@ dnam.regions <- map_probes_to_regions(dna.met.chr21)
 # 1) get_region_target_gene
 # 2) get_tf_in_region
 triplet <- get_triplet(
-    region = rownames(dnam.regions),
+    region = rownames(dna.met.chr21),
     motif.search.window.size = 50,
     motif.search.p.cutoff = 10^-3,
     target.method = "closest.gene",
@@ -79,8 +79,8 @@ triplet <- get_triplet(
 # where DNAm_group is a binary indicator if the sample belongs to: Q4 or Q1
 results <- interaction_model(
     triplet = triplet, 
-    dnam = dnam.regions,
-    exp = gene.exp.chr21
+    dnam = dna.met.chr21,
+    exp = gene.exp.chr21.log2
 )
 ```
 

@@ -34,7 +34,7 @@ make_names_from_granges <- function(region){
 }
 
 
-#' Change row names of a matrix from DNAm probes (cpgs) to genomic region.
+#' Change row names of a matrix from DNAm probes (CpGs) to genomic region.
 #' @description Given a DNA methylation matrix with probes as row names,
 #' map probes to genomic regions
 #' @param dnam A DNA methylation matrix
@@ -87,8 +87,8 @@ get_met_probes_info <- function(
 #' @param ensembl.gene.id Gene ensembl ID. A character vectors
 #' @description Given a GRanges returns region name such as chr22:18267969-18268249
 #' @examples
-#' data(gene.exp.chr21)
-#' gene.symbols <- map_ensg_to_symbol(rownames(gene.exp.chr21))
+#' data(gene.exp.chr21.log2)
+#' gene.symbols <- map_ensg_to_symbol(rownames(gene.exp.chr21.log2))
 #' @noRd
 map_ensg_to_symbol <- function(
     ensembl.gene.id,
@@ -377,13 +377,13 @@ make_se_from_dnam_regions <- function(
 }
 
 #' @title Transform gene expression matrix into a Summarized Experiment object
-#' @param exp Gene expressio  matrix with gene expression counts,
+#' @param exp Gene expression matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
-#' @param genome HUman genome of reference: hg38 or hg19
+#' @param genome Human genome of reference: hg38 or hg19
 #' @export
 #' @examples
-#' gene.exp.chr21 <- get(data("gene.exp.chr21"))
-#' gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21)
+#' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
+#' gene.exp.chr21.log2.se <- make_se_from_gene_matrix(gene.exp.chr21.log2)
 #' @return A summarized Experiment object
 make_se_from_gene_matrix <- function (
     exp,

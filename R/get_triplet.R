@@ -19,7 +19,7 @@
 #' 5 genes upstream and 5 genes downstream
 #' @param motif.search.window.size Integer value to extend the regions. For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
-#' @param motif.search.p.cutoff Motifmatcher pvalue cut-off. Default 1e-8.
+#' @param motif.search.p.cutoff motifmatchr pvalue cut-off. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @examples
 #' \dontrun{
@@ -34,7 +34,7 @@
 get_triplet <- function(
     region,
     genome = c("hg38","hg19"),
-    target.method = c("closest.gene","window","nearest.genes"),
+    target.method = c("closest.gene","window","nearby.genes"),
     target.window.size = 500 * 10^3,
     target.num.flanking.genes = 5,
     motif.search.window.size = 0,

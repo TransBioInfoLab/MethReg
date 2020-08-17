@@ -43,13 +43,13 @@ filter_regions_by_mean_quantile_difference <- function(
 #' @description For each gene, compares the mean gene expression levels in samples in high expression (Q4)
 #' vs. samples with low gene expression (Q1), and requires the fold change to be above a certain threshold.
 #' @param exp Gene expression matrix
-#' @param fold.change Threshold for fold change of mean gene expresison levels in samples with high
+#' @param fold.change Threshold for fold change of mean gene expression levels in samples with high
 #' (Q4) and low (Q1) gene expression levels. Defaults to 1.5.
 #' @param cores Number of CPU cores to be used in the analysis. Default: 1
 #' @export
 #' @examples
-#' data("gene.exp.chr21")
-#' gene.exp.chr21.filtered <- filter_genes_by_quantile_mean_fold_change(gene.exp.chr21)
+#' data("gene.exp.chr21.log2")
+#' gene.exp.chr21.log2.filtered <- filter_genes_by_quantile_mean_fold_change(gene.exp.chr21.log2)
 #' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_genes_by_quantile_mean_fold_change <- function(
     exp,
@@ -110,8 +110,8 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
 #' @param exp Gene expression matrix or a Summarized Experiment object
 #' @noRd
 #' @examples
-#' data("gene.exp.chr21")
-#' gene.exp.chr21.filtered <- filter_genes_zero_expression_all_samples(gene.exp.chr21)
+#' data("gene.exp.chr21.log2")
+#' gene.exp.chr21.log2.filtered <- filter_genes_zero_expression_all_samples(gene.exp.chr21.log2)
 #' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_genes_zero_expression_all_samples <- function(
     exp

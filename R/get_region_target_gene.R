@@ -14,7 +14,7 @@
 #' @param num.flanking.genes When \code{method = "nearby.genes"}, set the number
 #' of flanking genes upstream and downstream to search.
 #' For example, if num.flanking.genes = 5, it will return the 5 genes upstream
-#' and 5 genes dowstream of the given region.
+#' and 5 genes downstream of the given region.
 #' @param rm.promoter.regions.from.distal.linking When performing distal linking
 #' with method = "windows" or method = "nearby.genes", if set to TRUE (default),
 #' probes in promoter regions will be removed from the input.
@@ -49,7 +49,7 @@
 #'                       window.size = 500 * 10^3
 #'  )
 #'
-#'  # map regions to n upstream and n dowstream genes
+#'  # map regions to n upstream and n downstream genes
 #'  region.nearby.genes <- get_region_target_gene(
 #'                       regions.gr = regions.gr,
 #'                       genome = "hg19",

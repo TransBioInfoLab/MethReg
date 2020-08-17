@@ -1,8 +1,8 @@
-#' @title Plot stratifed model results
+#' @title Plot stratified model results
 #' @description Create several plots to show interaction data
 #' TF expression with target gene interaction using a linear model
 #' \deqn{log2(RNA target) ~ log2(TF)}
-#' to samples with higest DNAm values (top 25 percent) and lowest DNAm values (bottom 25 percent), separately.
+#' to samples with highest DNAm values (top 25 percent) and lowest DNAm values (bottom 25 percent), separately.
 #' @param triplet.results Output from function stratified_model
 #' with Region ID, TF  (column name: TF),  and target gene  (column name: target),
 #' p-values and estimates of interaction
@@ -48,28 +48,28 @@
 #' \dontrun{
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
-#' data("gene.exp.chr21")
+#' data("gene.exp.chr21.log2")
 #' triplet <- data.frame(
 #'    "regionID" = rownames(dna.met.chr21)[1:5],
-#'    "TF" = rownames(gene.exp.chr21)[11:15],
-#'    "target" = rownames(gene.exp.chr21)[1:5]
+#'    "TF" = rownames(gene.exp.chr21.log2)[11:15],
+#'    "target" = rownames(gene.exp.chr21.log2)[1:5]
 #' )
 #' results <- stratified_model(
 #'    triplet = triplet,
 #'    dnam = dna.met.chr21,
-#'    exp = gene.exp.chr21
+#'    exp = gene.exp.chr21.log2
 #' )
 #' plots <- plot_stratified_model(
 #'    triplet.results = results[1,],
 #'    dnam = dna.met.chr21,
-#'    exp = gene.exp.chr21
+#'    exp = gene.exp.chr21.log2
 #' )
 #' # Adding color to samples
 #' metadata <- clinical[,"sample_type",drop = FALSE]
 #' plots <- plot_stratified_model(
 #'    triplet.results = results[1,],
 #'    dnam = dna.met.chr21,
-#'    exp = gene.exp.chr21,
+#'    exp = gene.exp.chr21.log2,
 #'    metadata = metadata
 #' )
 #' }

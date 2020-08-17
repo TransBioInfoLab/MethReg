@@ -36,12 +36,16 @@ library(coMethTF)
 # 2) DNA methylation
 # With same column names
 data("dna.met.chr21")
-data("gene.exp.chr21")
-all(colnames(dna.met.chr21) == colnames(gene.exp.chr21))
+data("gene.exp.chr21.log2")
+all(colnames(dna.met.chr21) == colnames(gene.exp.chr21.log2))
 #> [1] TRUE
 
 # Since we are working with regions we need to map our 450k array to regions
-dnam.regions <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
+#> o Creating a SummarizedExperiment from DNA methylation input
+#> oo Fetching probes metadata
+#> oo Removing masked probes
+#> oo Preparing SummarizedExperiment object
 ```
 
 ``` r
@@ -53,7 +57,7 @@ dnam.regions <- map_probes_to_regions(dna.met.chr21)
 # 1) get_region_target_gene
 # 2) get_tf_in_region
 triplet <- get_triplet(
-    region = rownames(dnam.regions),
+    region = rownames(dna.met.chr21),
     motif.search.window.size = 50,
     motif.search.p.cutoff = 10^-3,
     target.method = "closest.gene",
@@ -89,8 +93,8 @@ triplet <- get_triplet(
 # where DNAm_group is a binary indicator if the sample belongs to: Q4 or Q1
 results <- interaction_model(
     triplet = triplet, 
-    dnam = dnam.regions,
-    exp = gene.exp.chr21
+    dnam = dna.met.chr21,
+    exp = gene.exp.chr21.log2
 )
 #> Removing genes with RNA expression equal to 0 for all samples from triplets
 #> Removing triplet with no DNA methylation information for more than 25% of the samples
@@ -99,61 +103,61 @@ results <- interaction_model(
 ``` r
 head(results)
 #>                  regionID target_gene_name          target
-#> 1 chr21:37258041-37258042         PPP1R2P2 ENSG00000234008
-#> 2 chr21:37258041-37258042         PPP1R2P2 ENSG00000234008
-#> 3 chr21:45553263-45553264         C21orf33 ENSG00000160221
-#> 4 chr21:45973002-45973003        KRTAP10-2 ENSG00000205445
-#> 5 chr21:32412214-32412215        KRTAP19-8 ENSG00000206102
-#> 6 chr21:31873903-31873904        KRTAP19-5 ENSG00000186977
-#>   TF_external_gene_name              TF TF_symbol target_symbol   pval_met
-#> 1                 OLIG2 ENSG00000205927     OLIG2      PPP1R2P2 0.41736883
-#> 2                 OLIG1 ENSG00000184221     OLIG1      PPP1R2P2 0.79914752
-#> 3                  ETS2 ENSG00000157557      ETS2        GATD3A 0.04510031
-#> 4                 OLIG1 ENSG00000184221     OLIG1     KRTAP10-2 0.23056884
-#> 5                 BACH1 ENSG00000156273     BACH1     KRTAP19-8        NaN
-#> 6                 BACH1 ENSG00000156273     BACH1     KRTAP19-5        NaN
+#> 1 chr21:18245122-18245123       AF212831.2 ENSG00000232886
+#> 2 chr21:18245122-18245123       AF212831.2 ENSG00000232886
+#> 3 chr21:18245122-18245123       AF212831.2 ENSG00000232886
+#> 4 chr21:25562143-25562144       AP000470.2 ENSG00000224018
+#> 5 chr21:25562370-25562371       AP000470.2 ENSG00000224018
+#> 6 chr21:25562573-25562574       AP000470.2 ENSG00000224018
+#>   TF_external_gene_name              TF TF_symbol target_symbol pval_met
+#> 1                 OLIG2 ENSG00000205927     OLIG2    AF212831.1      NaN
+#> 2                 OLIG1 ENSG00000184221     OLIG1    AF212831.1      NaN
+#> 3                 GABPA ENSG00000154727     GABPA    AF212831.1      NaN
+#> 4                 GABPA ENSG00000154727     GABPA    AP000470.1      NaN
+#> 5                 OLIG2 ENSG00000205927     OLIG2    AP000470.1      NaN
+#> 6                 GABPA ENSG00000154727     GABPA    AP000470.1      NaN
 #>   pval_rna.tf pval_met:rna.tf  estimate_met estimate_rna.tf estimate_met:rna.tf
-#> 1  0.41569327      0.35888262 -2.638193e+01   -2.267866e-01        3.005770e+00
-#> 2  0.77910914      0.75178558  2.210383e+00   -2.583537e-02        4.028465e-01
-#> 3  0.04657082      0.04320122 -3.945954e+02   -1.122433e+01        1.865710e+01
-#> 4  0.64005823      0.45547429  5.915981e-01    1.689216e-02       -9.129480e-02
-#> 5         NaN             NaN -1.554984e-10   -4.194612e-08       -2.813108e-09
-#> 6  0.78394162             NaN -3.353047e+00    1.900536e+01       -3.207120e+00
+#> 1         NaN             NaN  9.558688e-01   -6.802002e-02        1.844318e-04
+#> 2         NaN             NaN  8.669732e-01   -1.321329e-02        6.725235e-04
+#> 3         NaN             NaN  1.113898e+00   -1.714299e-01        6.999789e-06
+#> 4         NaN             NaN -3.294481e-10   -2.628426e-07       -5.099006e-09
+#> 5         NaN             NaN -2.077405e-09   -4.182182e-07       -1.863170e-08
+#> 6         NaN             NaN -1.297804e-09   -2.552366e-07       -1.900931e-08
 #>                       Model.interaction met.q4_minus_q1 quant_pval_metGrp
-#> 1 Zero-inflated Negative Binomial Model      0.04123867               NaN
-#> 2 Zero-inflated Negative Binomial Model      0.04123867        0.95384060
-#> 3                   Robust Linear Model      0.18105392        0.03621953
-#> 4 Zero-inflated Negative Binomial Model      0.21609131        0.22705049
-#> 5 Zero-inflated Negative Binomial Model      0.01910411               NaN
-#> 6 Zero-inflated Negative Binomial Model      0.01505539                NA
+#> 1 Zero-inflated Negative Binomial Model     0.165474975               NaN
+#> 2 Zero-inflated Negative Binomial Model     0.165474975               NaN
+#> 3 Zero-inflated Negative Binomial Model     0.165474975               NaN
+#> 4 Zero-inflated Negative Binomial Model     0.003748681               NaN
+#> 5 Zero-inflated Negative Binomial Model     0.012488103               NaN
+#> 6 Zero-inflated Negative Binomial Model     0.058289052               NaN
 #>   quant_pval_rna.tf quant_pval_metGrp:rna.tf quant_estimate_metGrp
-#> 1               NaN                      NaN         -3.500503e-08
-#> 2        0.99999776               0.99999931          1.453565e+01
-#> 3        0.04858627               0.03489433         -1.444184e+02
-#> 4        0.98050022               0.98097527          3.342399e-01
-#> 5               NaN                      NaN         -5.982758e-10
-#> 6                NA                       NA         -5.816523e+01
+#> 1               NaN                      NaN         -1.075548e-08
+#> 2               NaN                      NaN         -1.704966e-08
+#> 3               NaN                      NaN         -6.584724e-09
+#> 4               NaN                      NaN         -7.239205e-09
+#> 5               NaN                      NaN         -1.075846e-08
+#> 6               NaN                      NaN         -7.239199e-09
 #>   quant_estimate_rna.tf quant_estimate_metGrp:rna.tf
-#> 1         -3.317330e-07                -2.542329e-07
-#> 2         -1.910617e+00                -5.854055e-01
-#> 3         -5.433864e+00                 6.762088e+00
-#> 4         -1.488147e+00                 1.451887e+00
-#> 5         -1.158967e-08                -1.158964e-08
-#> 6         -1.895244e+01                 2.911858e+01
+#> 1         -1.321712e-07                -5.132464e-08
+#> 2         -2.148548e-07                -1.083325e-07
+#> 3         -1.633070e-07                -1.212368e-07
+#> 4         -1.757191e-07                -1.344448e-07
+#> 5         -1.140343e-07                -8.120024e-08
+#> 6         -1.742115e-07                -1.333088e-07
 #>                          Model.quantile % 0 target genes (All samples)
-#> 1 Zero-inflated Negative Binomial Model                        84.21 %
-#> 2 Zero-inflated Negative Binomial Model                        84.21 %
-#> 3                   Robust Linear Model                         2.63 %
-#> 4 Zero-inflated Negative Binomial Model                        65.79 %
+#> 1 Zero-inflated Negative Binomial Model                        92.11 %
+#> 2 Zero-inflated Negative Binomial Model                        92.11 %
+#> 3 Zero-inflated Negative Binomial Model                        92.11 %
+#> 4 Zero-inflated Negative Binomial Model                        97.37 %
 #> 5 Zero-inflated Negative Binomial Model                        97.37 %
-#> 6 Zero-inflated Negative Binomial Model                        94.74 %
+#> 6 Zero-inflated Negative Binomial Model                        97.37 %
 #>   % of 0 target genes (Q1 and Q4) Max_interaction_pval
-#> 1                            95 %           0.35888262
-#> 2                            95 %           0.99999931
-#> 3                             0 %           0.04320122
-#> 4                            65 %           0.98097527
+#> 1                            95 %                   NA
+#> 2                            95 %                   NA
+#> 3                            95 %                   NA
+#> 4                            95 %                   NA
 #> 5                            95 %                   NA
-#> 6                            90 %                   NA
+#> 6                            95 %                   NA
 ```
 
 # Session information
@@ -209,8 +213,8 @@ sessionInfo()
 #>  [41] rappdirs_0.3.1                Rcpp_1.0.5                   
 #>  [43] carData_3.0-4                 Biobase_2.48.0               
 #>  [45] cellranger_1.1.0              vctrs_0.3.2                  
-#>  [47] iterators_1.0.12              CNEr_1.24.0                  
-#>  [49] xfun_0.16                     stringr_1.4.0                
+#>  [47] iterators_1.0.12              xfun_0.16                    
+#>  [49] CNEr_1.24.0                   stringr_1.4.0                
 #>  [51] openxlsx_4.1.5                mime_0.9                     
 #>  [53] lifecycle_0.2.0               poweRlaw_0.70.6              
 #>  [55] gtools_3.8.2                  rstatix_0.6.0                
@@ -220,30 +224,29 @@ sessionInfo()
 #>  [63] SummarizedExperiment_1.18.2   JASPAR2020_0.99.10           
 #>  [65] yaml_2.2.1                    curl_4.3                     
 #>  [67] memoise_1.1.0                 ggplot2_3.3.2                
-#>  [69] biomaRt_2.44.1                stringi_1.4.6                
-#>  [71] RSQLite_2.2.0                 BiocVersion_3.11.1           
-#>  [73] foreach_1.5.0                 caTools_1.18.0               
-#>  [75] zip_2.0.4                     BiocParallel_1.22.0          
-#>  [77] rlang_0.4.7                   pkgconfig_2.0.3              
-#>  [79] matrixStats_0.56.0            bitops_1.0-6                 
-#>  [81] pracma_2.2.9                  evaluate_0.14                
-#>  [83] lattice_0.20-41               purrr_0.3.4                  
-#>  [85] GenomicAlignments_1.24.0      bit_4.0.3                    
-#>  [87] tidyselect_1.1.0              plyr_1.8.6                   
-#>  [89] magrittr_1.5                  R6_2.4.1                     
-#>  [91] generics_0.0.2                DelayedArray_0.14.1          
-#>  [93] DBI_1.1.0                     pillar_1.4.6                 
-#>  [95] haven_2.3.1                   foreign_0.8-80               
-#>  [97] KEGGREST_1.28.0               abind_1.4-5                  
-#>  [99] RCurl_1.98-1.2                tibble_3.0.3                 
-#> [101] crayon_1.3.4                  car_3.0-8                    
-#> [103] rmarkdown_2.3                 progress_1.2.2               
-#> [105] TFBSTools_1.26.0              grid_4.0.2                   
-#> [107] readxl_1.3.1                  data.table_1.13.0            
-#> [109] blob_1.2.1                    forcats_0.5.0                
-#> [111] digest_0.6.25                 xtable_1.8-4                 
-#> [113] tidyr_1.1.1                   httpuv_1.5.4                 
-#> [115] R.utils_2.9.2                 openssl_1.4.2                
-#> [117] munsell_0.5.0                 DirichletMultinomial_1.30.0  
-#> [119] motifmatchr_1.10.0            askpass_1.1
+#>  [69] stringi_1.4.6                 RSQLite_2.2.0                
+#>  [71] BiocVersion_3.11.1            foreach_1.5.0                
+#>  [73] caTools_1.18.0                zip_2.1.0                    
+#>  [75] BiocParallel_1.22.0           rlang_0.4.7                  
+#>  [77] pkgconfig_2.0.3               matrixStats_0.56.0           
+#>  [79] bitops_1.0-6                  pracma_2.2.9                 
+#>  [81] evaluate_0.14                 lattice_0.20-41              
+#>  [83] purrr_0.3.4                   GenomicAlignments_1.24.0     
+#>  [85] bit_4.0.3                     tidyselect_1.1.0             
+#>  [87] plyr_1.8.6                    magrittr_1.5                 
+#>  [89] R6_2.4.1                      generics_0.0.2               
+#>  [91] DelayedArray_0.14.1           DBI_1.1.0                    
+#>  [93] pillar_1.4.6                  haven_2.3.1                  
+#>  [95] foreign_0.8-80                KEGGREST_1.28.0              
+#>  [97] abind_1.4-5                   RCurl_1.98-1.2               
+#>  [99] tibble_3.0.3                  crayon_1.3.4                 
+#> [101] car_3.0-9                     rmarkdown_2.3                
+#> [103] progress_1.2.2                TFBSTools_1.26.0             
+#> [105] grid_4.0.2                    readxl_1.3.1                 
+#> [107] data.table_1.13.0             blob_1.2.1                   
+#> [109] forcats_0.5.0                 digest_0.6.25                
+#> [111] xtable_1.8-4                  tidyr_1.1.1                  
+#> [113] httpuv_1.5.4                  R.utils_2.9.2                
+#> [115] munsell_0.5.0                 DirichletMultinomial_1.30.0  
+#> [117] motifmatchr_1.10.0
 ```

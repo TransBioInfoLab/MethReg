@@ -43,7 +43,7 @@
 #')
 #' \dontrun{
 #' # Load data
-#' data("gene.exp.chr21")
+#' data("gene.exp.chr21.log2")
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 #'
@@ -55,20 +55,20 @@
 #' )
 #'
 #' # Samples in met and exp datasets should be in the same order.
-#' identical (colnames (dna.met.chr21), colnames(gene.exp.chr21))
+#' identical (colnames (dna.met.chr21), colnames(gene.exp.chr21.log2))
 #'
 #' # Correalted DNAm and gene expression, display only significant associations
 #' results <- cor_region_dnam_target_gene(
 #'   links = links,
 #'   dnam = dna.met.chr21,
-#'   exp = gene.exp.chr21
+#'   exp = gene.exp.chr21.log2
 #' )
 #'
 #' # display all associations
 #' results.all <- cor_region_dnam_target_gene(
 #'    links = links,
 #'    dnam = dna.met.chr21,
-#'    exp = gene.exp.chr21,
+#'    exp = gene.exp.chr21.log2,
 #'    filter.results = FALSE
 #' )
 #' }

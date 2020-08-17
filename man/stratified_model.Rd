@@ -33,7 +33,7 @@ examines in more details on how TF activities differ in samples with high DNAm o
 This function fits linear model
 \code{log2(RNA target) = log2(TF)}
 
-to samples with higest DNAm values (top 25 percent) or lowest DNAm values (bottom 25 percent), separately.
+to samples with highest DNAm values (top 25 percent) or lowest DNAm values (bottom 25 percent), separately.
 
 There are two implementations of these models, depending on whether there are an excessive
 amount (i.e. more than 25 percent) of samples with zero counts in RNAseq data:
@@ -95,10 +95,10 @@ results <- stratified_model(triplet = triplet,dnam = dnam, exp = exp)
 \dontrun{
 data("dna.met.chr21")
 dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
-data("gene.exp.chr21")
+data("gene.exp.chr21.log2")
 triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
-                      "TF" = rownames(gene.exp.chr21)[11:20],
-                      "target" = rownames(gene.exp.chr21)[1:10])
-results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21)
+                      "TF" = rownames(gene.exp.chr21.log2)[11:20],
+                      "target" = rownames(gene.exp.chr21.log2)[1:10])
+results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
 }
 }

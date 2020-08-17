@@ -63,8 +63,8 @@ test_that("make_se_from_dnam_regions returns a SE with regions", {
 })
 
 test_that("make_se_from_dnam_regions returns a SE with ENSG as rownames", {
-    gene.exp.chr21 <- get(data("gene.exp.chr21"))
-    se <- make_se_from_gene_matrix(gene.exp.chr21)
+    gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
+    se <- make_se_from_gene_matrix(gene.exp.chr21.log2)
     expect_s4_class(se,"SummarizedExperiment")
     expect_true(is(se,"SummarizedExperiment"))
     expect_true(all(grepl("ENSG",rownames(se))))

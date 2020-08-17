@@ -2,8 +2,8 @@
 #' @description Compute studentized residuals from fitting linear regression models to expression values
 #' in a data matrix
 #' @param data.matrix A matrix with samples as columns and features (gene, probes)
-#' as rows. Note that log2(x+1) transformation should typically be done for expression
-#' values before fitting linear regression models.
+#' as rows. Note that expression values should typically be log2(x+1) transformed
+#' before fitting linear regression models.
 #' @param metadata.samples A data frame with samples as rows and columns the covariates.
 #' No NA values are allowed, otherwise residual of the corresponding sample will be NA.
 #' @param metadata.genes A data frame with genes (covariates) as rows and samples as columns.

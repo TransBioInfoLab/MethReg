@@ -39,9 +39,9 @@ A data frame with the following information: regionID, target gene, correlation 
 DNA methylation and target gene expression, FDR corrected p-values.
 }
 \description{
-This function evaluate the correlation of the DNA methylation region and target gene expression
-using spearman rank correlation test.  Note that genes with RNA expression equal to 0 for more than 25 percent
-of the samples will not be evaluated.
+This function evaluate the correlation of the DNA methylation
+region and target gene expression using spearman rank correlation test.
+Note that genes with RNA expression equal to 0 for  all samples will not be evaluated.
 }
 \examples{
 dnam <- t(matrix(sort(c(runif(20))), ncol = 1))

@@ -19,3 +19,19 @@ test_that("filter_genes_by_quantile_mean_fold_change remove correctly genes with
     expect_false("to_be_removed" %in% rownames(filtered))
 })
 
+
+test_that("filter_genes_zero_expression remove correctly genes 0", {
+    exp <- t(matrix(c(rep(0,15), rep(1,5)),ncol = 2))
+    rownames(exp) <- c("one_hundred_percent_zero","fifty_percent_zero")
+    colnames(exp) <- paste0("Samples",1:10)
+
+    filtered <- filter_genes_zero_expression(exp, max.samples.percentage = 1)
+    expect_true(is(filtered, "matrix"))
+    expect_false("one_hundred_percent_zero" %in% rownames(filtered))
+    expect_true("fifty_percent_zero" %in% rownames(filtered))
+
+    filtered <- filter_genes_zero_expression(exp, max.samples.percentage = 0)
+    expect_true(nrow(filtered) == 0)
+})
+
+

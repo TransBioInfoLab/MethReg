@@ -1,7 +1,7 @@
 #' @title Evaluate correlation of DNA methylation region and target gene expression
-#' @description This function evaluate the correlation of the DNA methylation region and target gene expression
-#' using spearman rank correlation test.  Note that genes with RNA expression equal to 0 for more than 25 percent
-#' of the samples will not be evaluated.
+#' @description This function evaluate the correlation of the DNA methylation
+#' region and target gene expression using spearman rank correlation test.
+#' Note that genes with RNA expression equal to 0 for  all samples will not be evaluated.
 #' @return A data frame with the following information: regionID, target gene, correlation pvalue and estimate between
 #' DNA methylation and target gene expression, FDR corrected p-values.
 #' @param links A dataframe with the following columns: regionID (DNA methylation) and target (target gene)
@@ -112,11 +112,10 @@ cor_region_dnam_target_gene <- function(
         stop("links object must have target and regionID columns")
     }
     #--------------------------------------------------
+    message("Removing genes with RNA expression equal to 0/NA for all samples")
+    exp <- filter_genes_zero_expression(exp = exp, max.samples.percentage = 100)
 
-    # remove links with RNA expression equal to 0 for more than 25% of the samples
-    message("Removing genes with RNA expression equal to 0 for all samples")
-    exp <- filter_genes_zero_expression_all_samples(exp)
-
+    message("Removing regions with beta-values equal to NA for all samples")
     regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
     dnam <- dnam[regions.keep,, drop = FALSE]
 

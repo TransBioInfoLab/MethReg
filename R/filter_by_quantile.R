@@ -85,6 +85,9 @@ filter_genes_by_quantile_mean_fold_change <- function(
 #' @title Remove genes with gene expression level equal to 0 in a substantial percentage of the samples
 #' @param exp Gene expression matrix
 #' @param max.samples.percentage Max percentage of samples with gene expression as 0, for genes to be selected.
+#' If max.samples.percentage 100, remove genes with 0 for 100% samples.
+#' If max.samples.percentage 25, remove genes with 0 for more than 25% of the samples.
+#'
 #' @noRd
 #' @return A subset of the original matrix only with the rows passing the filter threshold.
 filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
@@ -94,15 +97,17 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
         matrix <- exp
     }
 
-    genes.keep <- (rowSums(matrix == 0) / ncol(matrix) <= max.samples.percentage) %>% which %>% names
+    na.or.zeros <- matrix == 0 | is.na(matrix)
+    percent.na.or.zeros <- rowSums(na.or.zeros) / ncol(matrix)
+
+    genes.keep <- (percent.na.or.zeros < max.samples.percentage) %>% which %>% names
     message("Removing ", nrow(matrix) - length(genes.keep), " out of ", nrow(matrix), " genes")
     exp[genes.keep,, drop = FALSE]
 }
 
 
-#' @title Remove genes with gene expression level equal to 0 in a substantial percentage of the samples
-#' @param exp Gene expression matrix
-#' @param max.samples.percentage Max percentage of samples with gene expression as 0, for genes to be selected.
+#' @title Remove genes with gene expression level equal to 0 or NA in a all samples
+#' @param exp Gene expression matrix or a Summarized Experiment object
 #' @noRd
 #' @examples
 #' data("gene.exp.chr21")
@@ -111,7 +116,9 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
 filter_genes_zero_expression_all_samples <- function(
     exp
 ){
-
+    if(is(exp,"SummarizedExperiment")){
+        exp <- assay(exp)
+    }
     idx.all.zero <- rowSums(exp == 0, na.rm = TRUE) == ncol(exp)
     idx.all.na <- rowSums(is.na(exp)) == ncol(exp)
 

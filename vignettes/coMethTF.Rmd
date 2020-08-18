@@ -71,10 +71,10 @@ library(coMethTF)
 
 The input of `coMethTF` are DNA methylation and gene expression datasets measured 
 on the same set of samples. Using additional information from the 
-JASPAR database, we will then create a data frame 
+JASPAR2000 database, we will then create a data frame 
 with information on the triplet: CpG (or DMR), TF and target gene. 
 
-For illustration, we will use chromosome 21 data from 38 TCGA-COAD samples.
+For illustration, we will use chromosome 21 data from 38 TCGA-COAD (colon cancer) samples.
 
 ## 3.1 Input DNA methylation dataset
 
@@ -88,7 +88,7 @@ The samples are in the columns and methylation regions or probes are in the rows
 
 We will analyze all CpGs on chromosome 21 in this vignette. 
 
-However, oftentimes, the methylation data can also be, for example, **differentially methylated sites* (DMS) or **differentially methylated regions** (DMRs) obtained in an EWAS study.
+However, oftentimes, the methylation data can also be, for example, **differentially methylated sites** (DMS) or **differentially methylated regions** (DMRs) obtained in an epigenome-wide association study (EWAS) study.
 
 ```{R warning=FALSE}
 dna.met.chr21 <- get(data("dna.met.chr21"))

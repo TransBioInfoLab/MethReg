@@ -434,7 +434,7 @@ plots <- plot_stratified_model(
 ```
 
 ```{R, fig.height = 14, fig.width = 14, eval = TRUE}
-plots[[1]]
+plots[[29]]
 ```
 
 The first row of the figures shows pairwise associations between DNA methylation, 
@@ -445,10 +445,12 @@ gene expression levels vary by DNA methylation levels. When TF by methylation
 interaction is significant (Section 4.1), we expect the association between TF 
 and target gene expression vary depending on whether DNA methylation is low or high. 
 
-In this example, when DNA methylation is low, more abundant TF corresponds to 
-decreased gene expression (a repressor TF). On the other hand, when DNA methylation 
-level is high, target gene expression is relatively independent of the amount of TF available. 
-One possibility is that DNA methylation might affect TF binding in this case. 
+In this example, when DNA methylation is low, target gene expression is relatively independent of the amount of TF available. On the other hand, when DNA methylation 
+level is high, more abundant TF corresponds to increased gene expression (an activator TF). 
+One possibility is that DNA methylation might enhance TF binding in this case. 
+_**This is an example where DNA methylation and TF work synergistically to affect target gene expression**_. 
+
+While the main goal of coMethTF is to prioritize methylation CpGs, also note that without stratifying by DNA methylation, the overall TF-target effects (p = 0.142) is not as significant as the association in stratified analysis in high methylation samples (p = 0.00508). _**This demonstrates that by additionally modeling DNA methylation, we can also nominate TF – target associations that might have been missed otherwise**_. 
 
 If you want to highlight different group of samples, you can also use the `metadata` argument
 with a dataframe where rownames are the samples (same order as the columns of the 
@@ -461,9 +463,9 @@ metadata <- clinical[,c("sample_type"),drop = FALSE]
 
 
 
-```{R eval=FALSE, message=TRUE, warning=FALSE, results="hide"}
+```{R eval=FALSE, message=FALSE, warning=FALSE, results="hide"}
 plots <- plot_stratified_model(
-        triplet.results = results.stratified.model, 
+        triplet.results = results.stratified.model[29 ,], 
         dnam = dna.met.chr21.se, 
         exp = gene.exp.chr21.se,
         metadata = metadata

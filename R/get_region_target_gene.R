@@ -119,7 +119,12 @@ get_region_target_gene_closest <- function(
     gene.promoters <-  gene.info %>%
         promoters(upstream = 2000, downstream = 2000)
 
-    hits <- findOverlaps(regions.gr, gene.promoters, ignore.strand = FALSE, select = "all")
+    hits <- findOverlaps(
+        query = regions.gr,
+        subject = gene.promoters,
+        ignore.strand = TRUE,
+        select = "all"
+    )
 
     # overlap region and promoter
     neargenes <- gene.info[subjectHits(hits)] %>% as.data.frame(row.names = NULL)

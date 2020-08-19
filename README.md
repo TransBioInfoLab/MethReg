@@ -60,7 +60,7 @@ triplet <- get_triplet(
     region = rownames(dna.met.chr21),
     motif.search.window.size = 50,
     motif.search.p.cutoff = 10^-3,
-    target.method = "closest.gene",
+    target.method = "genes.promoter.overlap",
     genome = "hg19",
     cores = 1
 )

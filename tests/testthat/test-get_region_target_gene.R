@@ -10,7 +10,7 @@ test_that("get_region_target_gene works", {
    region.closest <- get_region_target_gene(
       regions.gr = regions.gr,
       genome = "hg19",
-      method = "closest.gene"
+      method = "genes.promoter.overlap"
    )
 
    # map to all gene within region +- 250kbp

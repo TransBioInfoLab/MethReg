@@ -293,7 +293,8 @@ make_se_from_dnam_probes <- function (
 
     # Get probes annotation
     message("oo Fetching probes metadata")
-    annotation <- get_met_probes_info(genome = genome, arrayType =  arrayType)
+    annotation <- get_met_probes_info(genome = genome, arrayType = arrayType)
+    strand(annotation) <- "*" # don't add strand info for CpGs
 
     # Keep only annotation with information in the methylation array
     rowRanges <- annotation[names(annotation) %in% rownames(dnam),, drop = FALSE]

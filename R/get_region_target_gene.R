@@ -6,7 +6,7 @@
 #' @param regions.gr A Genomic Ranges object (GRanges) or a
 #' SummarizedExperiment object (rowRanges will be used)
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
+#' @param method How genes are mapped to regions: region overlapping gene promoter ("genes.promoter.overlap"); or
 #' genes within a window around the region ("window"); or a fixed number genes upstream
 #' and downstream of the region ("nearby.genes")
 #' @param window.size When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
@@ -36,10 +36,10 @@
 #'      makeGRangesFromDataFrame
 #'
 #'  # map to closest gene
-#'  region.closest.genes <- get_region_target_gene(
+#'  region.genes.promoter.overlaps <- get_region_target_gene(
 #'                       regions.gr = regions.gr,
 #'                       genome = "hg19",
-#'                       method = "closest.gene")
+#'                       method = "genes.promoter.overlap")
 #'
 #'  # map to all gene within region +- 250kbp
 #'  region.window.genes <- get_region_target_gene(
@@ -59,7 +59,7 @@
 #' @export
 #' @return A data frame with the following information: regionID, Target symbol, Target ensembl ID
 #' @details For the analysis of probes in promoter regions (promoter analysis), we recommend setting
-#'  \code{method = "closest.gene"}.
+#'  \code{method = "genes.promoter.overlap"}.
 #'
 #'  For the analysis of probes in distal regions (distal analysis),
 #'  we recommend setting either \code{method = "window"} or \code{method = "nearby.genes"}.
@@ -72,7 +72,7 @@
 get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
-    method = c("closest.gene","window","nearby.genes"),
+    method = c("genes.promoter.overlap","window","nearby.genes"),
     window.size = 500 * 10^3,
     num.flanking.genes = 5,
     rm.promoter.regions.from.distal.linking = TRUE
@@ -86,12 +86,12 @@ get_region_target_gene <- function(
     }
 
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
-    if(method != "closest.gene" & rm.promoter.regions.from.distal.linking){
+    if(method != "genes.promoter.overlap" & rm.promoter.regions.from.distal.linking){
         message("Removing regions overlapping promoter regions")
         regions.gr <- get_non_promoter_regions(regions.gr, genome)
     }
 
-    if(method == "closest.gene"){
+    if(method == "genes.promoter.overlap"){
         message("Mapping regions to the closest gene")
         out <- get_region_target_gene_closest(regions.gr, genome)
     } else if(method == "window"){
@@ -135,7 +135,8 @@ get_region_target_gene_closest <- function(
                      "start",
                      "end",
                      "external_gene_name",
-                     "ensembl_gene_id")])
+                     "ensembl_gene_id")]
+    )
 
     colnames(neargenes)[1:3] <- c("target_gene_chrom","target_gene_start","target_gene_end")
     colnames(neargenes)[4] <- "target_gene_name"

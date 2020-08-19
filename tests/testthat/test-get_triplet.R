@@ -2,7 +2,7 @@ test_that("get_human_tfs return list of TFs", {
     triplet <- get_triplet(
         region = "chr3:189631389-189631389",
         genome = "hg38",
-        target.method = "closest.gene",
+        target.method = "genes.promoter.overlap",
         motif.search.window.size = 50,
         motif.search.p.cutoff = 1
     )

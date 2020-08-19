@@ -7,7 +7,7 @@
 get_triplet(
   region,
   genome = c("hg38", "hg19"),
-  target.method = c("closest.gene", "window", "nearby.genes"),
+  target.method = c("genes.promoter.overlap", "window", "nearby.genes"),
   target.window.size = 500 * 10^3,
   target.num.flanking.genes = 5,
   motif.search.window.size = 0,
@@ -20,7 +20,7 @@ get_triplet(
 
 \item{genome}{Human genome reference "hg38" or "hg19"}
 
-\item{target.method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene");
+\item{target.method}{How genes are mapped to regions: regions overlapping gene promoter ("genes.promoter.overlap");
 genes within a window around the region ("window"); or fixed number of nearby genes upstream and
 downstream from the region}
 

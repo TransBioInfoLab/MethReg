@@ -7,7 +7,7 @@
 get_region_target_gene(
   regions.gr,
   genome = c("hg38", "hg19"),
-  method = c("closest.gene", "window", "nearby.genes"),
+  method = c("genes.promoter.overlap", "window", "nearby.genes"),
   window.size = 500 * 10^3,
   num.flanking.genes = 5,
   rm.promoter.regions.from.distal.linking = TRUE
@@ -19,7 +19,7 @@ SummarizedExperiment object (rowRanges will be used)}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
-\item{method}{How genes are mapped to regions: closest gene promoter to the region ("closest.gene"); or
+\item{method}{How genes are mapped to regions: region overlapping gene promoter ("genes.promoter.overlap"); or
 genes within a window around the region ("window"); or a fixed number genes upstream
 and downstream of the region ("nearby.genes")}
 
@@ -46,7 +46,7 @@ To map an input region to genes there are three options: 1) map region to closes
 }
 \details{
 For the analysis of probes in promoter regions (promoter analysis), we recommend setting
- \code{method = "closest.gene"}.
+ \code{method = "genes.promoter.overlap"}.
 
  For the analysis of probes in distal regions (distal analysis),
  we recommend setting either \code{method = "window"} or \code{method = "nearby.genes"}.
@@ -69,10 +69,10 @@ regions.gr <- data.frame(
      makeGRangesFromDataFrame
 
  # map to closest gene
- region.closest.genes <- get_region_target_gene(
+ region.genes.promoter.overlaps <- get_region_target_gene(
                       regions.gr = regions.gr,
                       genome = "hg19",
-                      method = "closest.gene")
+                      method = "genes.promoter.overlap")
 
  # map to all gene within region +- 250kbp
  region.window.genes <- get_region_target_gene(

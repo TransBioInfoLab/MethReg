@@ -233,7 +233,7 @@ region.target.window
 In this section, **regions** refer to the regions where CpGs are located. The function `get_tf_in_region` uses `motifmatchr` [@motifmatchr] to scan these regions for occurrences of motifs in the JASPAR database.
 
 JASPAR 2020 is an open-access database of curated, non-redundant transcription 
-factor (TF)-binding profiles [@JASPAR2020, @fornes2020jaspar], which contains 
+factor (TF)-binding profiles [@JASPAR2020; @fornes2020jaspar], which contains 
 more the 500 human TF motifs.
 
 The argument `window.size` will be used to extend the region when scanning

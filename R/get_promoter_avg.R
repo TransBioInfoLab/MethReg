@@ -101,16 +101,3 @@ get_promoter_avg <- function(
     se <- promoter.matrix %>% as.matrix %>% make_se_from_dnam_regions()
     return(se)
 }
-
-
-#' @importFrom GenomicRanges promoters strand strand<-
-get_promoter_regions <- function(
-    genome,
-    upstream = 2000,
-    downstream = 2000){
-
-    genes <- get_gene_information(genome = genome, as.granges = TRUE)
-    promoters.gr <- promoters(genes, upstream = upstream, downstream = downstream)
-    strand(promoters.gr) <- "*"
-    return(promoters.gr %>% unique)
-}

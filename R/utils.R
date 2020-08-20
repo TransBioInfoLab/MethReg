@@ -250,18 +250,67 @@ register_cores <- function(cores){
     return(parallel)
 }
 
-#' @title Get non promoter regions
+#' @title Subset regions to those not overlapping promoter regions
 #' @description Subset a granges object to those not overlapping promoter regions
 #' (default +- 2kb away from TSS)
 #' @importFrom IRanges subsetByOverlaps
 #' @noRd
-get_non_promoter_regions <- function(regions.gr, genome){
+subset_by_non_promoter_regions <- function(
+    regions.gr,
+    genome,
+    upstream = 2000,
+    downstream = 2000
+){
     message("o Get promoter regions for ", genome)
-    promoter.gr <- get_promoter_regions(genome)
-    promoter.regions <- IRanges::subsetByOverlaps(regions.gr,promoter.gr)
+    promoter.gr <- get_promoter_regions(
+        genome = genome,
+        upstream = upstream,
+        downstream = downstream
+    )
+    promoter.regions <- IRanges::subsetByOverlaps(regions.gr, promoter.gr)
     message("o Remove promoter regions")
     GenomicRanges::setdiff(regions.gr, promoter.regions)
 }
+
+#' @title Subset regions to those  overlapping promoter regions
+#' @description Subset a granges object to those overlapping promoter regions
+#' (default +- 2kb away from TSS)
+#' @importFrom IRanges subsetByOverlaps
+#' @noRd
+subset_by_promoter_regions <- function(
+    regions.gr,
+    genome,
+    upstream = 2000,
+    downstream = 2000
+){
+    message("o Get promoter regions for ", genome)
+    promoter.gr <- get_promoter_regions(
+        genome = genome,
+        upstream = upstream,
+        downstream = downstream
+    )
+    promoter.regions <- IRanges::subsetByOverlaps(regions.gr, promoter.gr)
+    message("o Remove promoter regions")
+    return(promoter.regions)
+}
+
+#' @title Get promoter genes using biomart
+#' @description Subset a granges object to those overlapping promoter regions
+#' (default +- 2kb away from TSS)
+#' @noRd
+#' @importFrom GenomicRanges promoters strand strand<-
+get_promoter_regions <- function(
+    genome,
+    upstream = 2000,
+    downstream = 2000
+){
+
+    genes <- get_gene_information(genome = genome, as.granges = TRUE)
+    promoters.gr <- promoters(genes, upstream = upstream, downstream = downstream)
+    strand(promoters.gr) <- "*"
+    return(promoters.gr %>% unique)
+}
+
 
 #' @title Transform DNA methylation array into a summarized Experiment object
 #' @param dnam DNA methylation matrix with beta-values or m-values as data,

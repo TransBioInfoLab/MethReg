@@ -88,7 +88,7 @@ get_region_target_gene <- function(
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
     if(method != "genes.promoter.overlap" & rm.promoter.regions.from.distal.linking){
         message("Removing regions overlapping promoter regions")
-        regions.gr <- get_non_promoter_regions(regions.gr, genome)
+        regions.gr <- subset_by_non_promoter_regions(regions.gr, genome)
     }
 
     if(method == "genes.promoter.overlap"){

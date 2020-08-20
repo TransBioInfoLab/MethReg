@@ -257,7 +257,7 @@ register_cores <- function(cores){
 #' @noRd
 get_non_promoter_regions <- function(regions.gr, genome){
     message("o Get promoter regions for ", genome)
-    promoter.gr <- get_promoter_regions(genome) %>% reduce
+    promoter.gr <- get_promoter_regions(genome)
     promoter.regions <- IRanges::subsetByOverlaps(regions.gr,promoter.gr)
     message("o Remove promoter regions")
     GenomicRanges::setdiff(regions.gr, promoter.regions)

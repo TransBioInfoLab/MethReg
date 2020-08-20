@@ -426,7 +426,7 @@ It requires the output from the function `interaction_model`/`stratified_model` 
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
-```{R plot_interaction_model, eval=TRUE, message=FALSE, results="hide", warning=FALSE}
+```{R plot_interaction_model, eval = TRUE, message = FALSE, results = "hide", warning = FALSE}
 plots <- plot_interaction_model(
     triplet.results = results.interaction.model, 
     dnam = dna.met.chr21.se, 

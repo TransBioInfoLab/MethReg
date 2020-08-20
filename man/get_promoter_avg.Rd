@@ -4,7 +4,14 @@
 \alias{get_promoter_avg}
 \title{Summarize promoter methylation beta values by mean or median.}
 \usage{
-get_promoter_avg(dnam, genome, arrayType, cores = 1)
+get_promoter_avg(
+  dnam,
+  genome,
+  arrayType,
+  cores = 1,
+  upstream = 2000,
+  downstream = 2000
+)
 }
 \arguments{
 \item{dnam}{A DNA methylation matrix}
@@ -14,6 +21,10 @@ get_promoter_avg(dnam, genome, arrayType, cores = 1)
 \item{arrayType}{DNA methylation array type (450k or EPIC)}
 
 \item{cores}{A integer number to use multiple cores. Default 1 core.}
+
+\item{upstream}{Number of base pairs (bp) upstream of TSS to consider as promoter regions}
+
+\item{downstream}{Number of base pairs (bp) downstream of TSS to consider as promoter regions}
 }
 \value{
 A RangedSummarizedExperiment with promoter region and mean beta-values of CpGs within it.

@@ -185,7 +185,9 @@ class(probes.gr)
 region.target.closest <- get_region_target_gene(
     regions.gr = probes.gr, 
     genome = "hg38", 
-    method = "genes.promoter.overlap"
+    method = "genes.promoter.overlap",
+    promoter.upstream.dist.tss = 2000,
+    promoter.downstream.dist.tss = 2000
 )
 dim(region.target.closest)
 region.target.closest
@@ -198,7 +200,10 @@ region.target.window <- get_region_target_gene(
     regions.gr = probes.gr, 
     genome = "hg38", 
     method = "window",
-     window.size = 500 * 10^3
+    window.size = 500 * 10^3,
+    rm.promoter.regions.from.distal.linking = TRUE,
+    promoter.upstream.dist.tss = 2000,
+    promoter.downstream.dist.tss = 2000
 )
 
 dim(region.target.window)
@@ -213,7 +218,10 @@ region.target.nearby.genes <- get_region_target_gene(
     regions.gr = probes.gr, 
     genome = "hg38", 
     method = "nearby.genes",
-    num.flanking.genes = 5
+    num.flanking.genes = 5,
+    rm.promoter.regions.from.distal.linking = TRUE,
+    promoter.upstream.dist.tss = 2000,
+    promoter.downstream.dist.tss = 2000
 )
 
 dim(region.target.window)

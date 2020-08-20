@@ -16,15 +16,15 @@
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
 #' @param cores A integer number to use multiple cores. Default 1 core.
-#' @param upstream Number of base pairs (bp) upstream of TSS to consider as promoter regions
-#' @param downstream Number of base pairs (bp) downstream of TSS to consider as promoter regions
+#' @param upstream.dist.tss Number of base pairs (bp) upstream of TSS to consider as promoter regions
+#' @param downstream.dist.tss Number of base pairs (bp) downstream of TSS to consider as promoter regions
 get_promoter_avg <- function(
     dnam,
     genome,
     arrayType,
     cores = 1,
-    upstream = 2000,
-    downstream = 2000
+    upstream.dist.tss = 2000,
+    downstream.dist.tss = 2000
 ) {
 
     if(is(dnam,"SummarizedExperiment")){
@@ -38,8 +38,8 @@ get_promoter_avg <- function(
     message("o Get promoter regions for ", genome)
     promoter.gr <- get_promoter_regions(
         genome = genome,
-        upstream = upstream,
-        downstream = downstream
+        upstream = upstream.dist.tss,
+        downstream = downstream.dist.tss
     )
     message("oo Number of promoter regions in ", genome, ": ", length(promoter.gr))
 

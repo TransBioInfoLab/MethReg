@@ -8,6 +8,8 @@ get_region_target_gene(
   regions.gr,
   genome = c("hg38", "hg19"),
   method = c("genes.promoter.overlap", "window", "nearby.genes"),
+  promoter.upstream.dist.tss = 2000,
+  promoter.downstream.dist.tss = 2000,
   window.size = 500 * 10^3,
   num.flanking.genes = 5,
   rm.promoter.regions.from.distal.linking = TRUE
@@ -22,6 +24,10 @@ SummarizedExperiment object (rowRanges will be used)}
 \item{method}{How genes are mapped to regions: region overlapping gene promoter ("genes.promoter.overlap"); or
 genes within a window around the region ("window"); or a fixed number genes upstream
 and downstream of the region ("nearby.genes")}
+
+\item{promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of TSS to consider as promoter regions}
+
+\item{promoter.downstream.dist.tss}{Number of base pairs (bp) downstream of TSS to consider as promoter regions}
 
 \item{window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}

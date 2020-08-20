@@ -9,8 +9,8 @@ get_promoter_avg(
   genome,
   arrayType,
   cores = 1,
-  upstream = 2000,
-  downstream = 2000
+  upstream.dist.tss = 2000,
+  downstream.dist.tss = 2000
 )
 }
 \arguments{
@@ -22,9 +22,9 @@ get_promoter_avg(
 
 \item{cores}{A integer number to use multiple cores. Default 1 core.}
 
-\item{upstream}{Number of base pairs (bp) upstream of TSS to consider as promoter regions}
+\item{upstream.dist.tss}{Number of base pairs (bp) upstream of TSS to consider as promoter regions}
 
-\item{downstream}{Number of base pairs (bp) downstream of TSS to consider as promoter regions}
+\item{downstream.dist.tss}{Number of base pairs (bp) downstream of TSS to consider as promoter regions}
 }
 \value{
 A RangedSummarizedExperiment with promoter region and mean beta-values of CpGs within it.

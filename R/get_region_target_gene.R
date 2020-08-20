@@ -18,6 +18,8 @@
 #' @param rm.promoter.regions.from.distal.linking When performing distal linking
 #' with method = "windows" or method = "nearby.genes", if set to TRUE (default),
 #' probes in promoter regions will be removed from the input.
+#' @param promoter.upstream.dist.tss Number of base pairs (bp) upstream of TSS to consider as promoter regions
+#' @param promoter.downstream.dist.tss Number of base pairs (bp) downstream of TSS to consider as promoter regions
 #' @importFrom GenomicRanges findOverlaps
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
@@ -68,11 +70,12 @@
 #'  mainly used for analyzing distal probes,
 #'  by default \code{rm.promoter.regions.from.distal.linking = TRUE} to
 #'  remove probes in promoter regions.
-
 get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
     method = c("genes.promoter.overlap","window","nearby.genes"),
+    promoter.upstream.dist.tss = 2000,
+    promoter.downstream.dist.tss = 2000,
     window.size = 500 * 10^3,
     num.flanking.genes = 5,
     rm.promoter.regions.from.distal.linking = TRUE
@@ -88,12 +91,22 @@ get_region_target_gene <- function(
     if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
     if(method != "genes.promoter.overlap" & rm.promoter.regions.from.distal.linking){
         message("Removing regions overlapping promoter regions")
-        regions.gr <- subset_by_non_promoter_regions(regions.gr, genome)
+        regions.gr <- subset_by_non_promoter_regions(
+            regions.gr = regions.gr,
+            genome =  genome,
+            upstream = promoter.upstream.dist.tss,
+            downstream = promoter.downstream.dist.tss
+        )
     }
 
     if(method == "genes.promoter.overlap"){
         message("Mapping regions to the closest gene")
-        out <- get_region_target_gene_closest(regions.gr, genome)
+        out <- get_region_target_gene_closest(
+            regions.gr = regions.gr,
+            genome = genome,
+            upstream = promoter.upstream.dist.tss,
+            downstream = promoter.downstream.dist.tss
+        )
     } else if(method == "window"){
         message("Mapping regions to genes within a window of size: ", window.size, " bp")
         out <- get_region_target_gene_window(regions.gr, genome, window.size)
@@ -109,15 +122,17 @@ get_region_target_gene <- function(
 
 get_region_target_gene_closest <- function(
     regions.gr,
-    genome
+    genome,
+    upstream,
+    downstream
 ){
 
     # Get gene information
-    gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
-
-    # get gene promoter
-    gene.promoters <-  gene.info %>%
-        promoters(upstream = 2000, downstream = 2000)
+    gene.promoters <- get_promoter_regions(
+        genome = genome,
+        upstream = upstream,
+        downstream = downstream
+    )
 
     hits <- findOverlaps(
         query = regions.gr,
@@ -377,7 +392,7 @@ get_region_target_gene_nearby.genes_addPos <- function(ret, num.flanking.genes){
                 out <- pairs %>%
                     dplyr::filter(
                         .data$Side %in% c(paste0("R", 1:(num.flanking.genes - cts)),
-                                    grep("L", sort(out$Side), value = TRUE))
+                                          grep("L", sort(out$Side), value = TRUE))
                     )
             } else {
                 cts <- length(grep("R", sort(pairs$Side), value = TRUE))

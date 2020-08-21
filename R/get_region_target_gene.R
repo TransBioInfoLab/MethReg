@@ -130,7 +130,6 @@ get_region_target_gene <- function(
     return(out)
 }
 
-
 #' @noRd
 #' @examples
 #' regions.gr <- data.frame(
@@ -139,6 +138,8 @@ get_region_target_gene <- function(
 #'        end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
 #'        stringsAsFactors = FALSE)  %>%
 #'      makeGRangesFromDataFrame
+#' @importFrom GenomicRanges distanceToNearest
+#' @importFrom S4Vectors values
 get_region_target_gene_closest <- function(
     regions.gr,
     genome

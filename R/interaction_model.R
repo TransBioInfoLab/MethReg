@@ -157,6 +157,8 @@ interaction_model <- function(
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
 
+
+
     parallel <- register_cores(cores)
 
     plyr::adply(
@@ -175,7 +177,17 @@ interaction_model <- function(
             data.high.low <- data %>% dplyr::filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
 
+
+
             pct.zeros.in.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
+
+            suppressWarnings({
+                # Add information to filter TF if differenly expressed between DNAm high and DNAm low groups
+                wilcoxon.tf.q4.vs.q1 <- wilcox.test(
+                    data.high.low %>% dplyr::filter(.data$metGrp == 1) %>% pull(rna.tf),
+                    data.high.low %>% dplyr::filter(.data$metGrp == 0) %>% pull(rna.tf)
+                )$p.value
+            })
 
             # message("\no Model: Interaction all samples")
             if(pct.zeros.in.samples > 0.25){
@@ -205,7 +217,8 @@ interaction_model <- function(
                 pct.zeros.in.samples,
                 quant.diff,
                 itx.quant,
-                pct.zeros.in.quant.samples
+                pct.zeros.in.quant.samples,
+                wilcoxon.tf.q4.vs.q1
             )
         },
         .progress = "time",
@@ -253,7 +266,8 @@ interaction_model_output <- function(
     pct.zeros.in.samples,
     quant.diff,
     itx.quant,
-    pct.zeros.in.quant.samples
+    pct.zeros.in.quant.samples,
+    wilcoxon.tf.q4.vs.q1
 ){
     if(is.null(itx.quant)) itx.quant <- interaction_quant_model_no_results()
     if(is.null(itx.all)) itx.all <- interaction_all_model_no_results()
@@ -281,7 +295,8 @@ interaction_model_output <- function(
             "Model quantile" =
                 ifelse(pct.zeros.in.quant.samples > 0.25,
                        "Zero-inflated Negative Binomial Model",
-                       "Robust Linear Model")
+                       "Robust Linear Model"),
+            "Wilcoxon_tf_q4_vs_q1" = wilcoxon.tf.q4.vs.q1
         ),
         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %"),

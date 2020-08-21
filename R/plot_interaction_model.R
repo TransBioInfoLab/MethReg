@@ -155,7 +155,8 @@ get_table_plot <- function(row.triplet){
               "target_symbol",
               "TF",
               "TF_symbol",
-              "met.q4_minus_q1")
+              "met.q4_minus_q1",
+              "Wilcoxon_pval_tf_q4_vs_q1")
         ) %>% t() %>% as_tibble(rownames = "Variable")
 
     tab$Variable <- c(
@@ -164,7 +165,8 @@ get_table_plot <- function(row.triplet){
         "Target gene Symbol",
         "TF gene ID",
         "TF gene Symbol",
-        "Diff. DNAm (q4 - q1)"
+        "Diff. DNAm (q4 - q1)",
+        "P-value Wilcoxon TF (q4 vs Q1)"
     )
     table.plot.metadata <- ggtexttable(
         tab,

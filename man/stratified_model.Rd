@@ -60,10 +60,10 @@ increasing amount of TF (higher TF gene expression) corresponds to increased tar
 is annotated as \code{repressor} if increasing amount of TF (higher TF gene expression) corresponds to
 decrease in target gene expression.
 
-In addition, a TF is annotated as \code{M-plus} (methyl-plus) if more TF regulation on gene transcription
-is observed in samples with high DNAm. That is, DNAm enhances TF regulation on target gene expression.
-On the other hand, a TF is annotated as \code{M-minus} (methyl-minus) if more TF regulation on gene
-transcription is observed in samples with low DNAm. That is, DNAm reduces TF regulation
+In addition, a region/CpG is annotated as \code{enhancing} if more TF regulation on gene transcription
+is observed in samples with high DNAm. That is,  DNA methylation enhances TF regulation on target gene expression.
+On the other hand, a region/CpG is annotated as \code{attenuating} (methyl-minus) if more TF regulation on gene
+transcription is observed in samples with low DNAm. That is, DNA methylation reduces TF regulation
 on target gene expression.
 }
 \examples{

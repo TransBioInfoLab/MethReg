@@ -44,12 +44,11 @@
 #' is annotated as \code{repressor} if increasing amount of TF (higher TF gene expression) corresponds to
 #' decrease in target gene expression.
 #'
-#' In addition, a TF is annotated as \code{M-plus} (methyl-plus) if more TF regulation on gene transcription
-#' is observed in samples with high DNAm. That is, DNAm enhances TF regulation on target gene expression.
-#' On the other hand, a TF is annotated as \code{M-minus} (methyl-minus) if more TF regulation on gene
-#' transcription is observed in samples with low DNAm. That is, DNAm reduces TF regulation
+#' In addition, a region/CpG is annotated as \code{enhancing} if more TF regulation on gene transcription
+#' is observed in samples with high DNAm. That is,  DNA methylation enhances TF regulation on target gene expression.
+#' On the other hand, a region/CpG is annotated as \code{attenuating} (methyl-minus) if more TF regulation on gene
+#' transcription is observed in samples with low DNAm. That is, DNA methylation reduces TF regulation
 #' on target gene expression.
-#'
 #'
 #' @examples
 #' library(dplyr)
@@ -166,7 +165,7 @@ stratified_model <- function(
                 "DNAmlow_estimate_rna.tf" = results.low.estimate %>% as.numeric(),
                 "DNAmhigh_pval_rna.tf" = results.high.pval %>% as.numeric(),
                 "DNAmhigh_estimate_rna.tf" = results.high.estimate %>% as.numeric(),
-                "TF.affinity" = classification$TF.affinity,
+                "DNAm.effect" = classification$DNAm.effect,
                 "TF.role" = classification$TF.role
             )
         }, .progress = "time", .parallel = parallel, .inform = TRUE)
@@ -256,7 +255,7 @@ getClassification <- function(low.estimate, high.estimate){
     estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
 
     if(any(is.na(estimate.vector))){
-        return(list("TF.affinity" = NA,"TF.role" = NA))
+        return(list("DNAm.effect" = NA,"TF.role" = NA))
     }
 
     slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]
@@ -265,19 +264,19 @@ getClassification <- function(low.estimate, high.estimate){
     if(TF.role == "Repressor") {
 
         if(low.estimate < high.estimate) {
-            TF.affinity <- "M-minus"
+            dnam.effect <- "Attenuating"
         } else {
-            TF.affinity <- "M-plus"
+            dnam.effect <- "Enhancing"
         }
 
     } else {
 
         if(low.estimate < high.estimate) {
-            TF.affinity <- "M-plus"
+            dnam.effect <- "Enhancing"
         } else {
-            TF.affinity <- "M-minus"
+            dnam.effect <- "Attenuating"
         }
     }
-    return(list("TF.affinity" = TF.affinity,"TF.role" = TF.role))
+    return(list("DNAm.effect" = dnam.effect,"TF.role" = TF.role))
 }
 

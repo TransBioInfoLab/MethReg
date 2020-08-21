@@ -67,7 +67,7 @@
 #' @importFrom ggplot2 xlab ylab geom_smooth
 #' @importFrom tibble as_tibble
 plot_interaction_model <-  function(
-    riplet.results,
+    triplet.results,
     dnam,
     exp,
     metadata

@@ -13,7 +13,7 @@ test_that("stratified_model works", {
     expect_true("DNAmlow_estimate_rna.tf" %in% colnames(results))
     expect_true("DNAmhigh_pval_rna.tf" %in% colnames(results))
     expect_true("DNAmhigh_estimate_rna.tf" %in% colnames(results))
-    expect_true("TF.affinity" %in% colnames(results))
+    expect_true("DNAm.effect" %in% colnames(results))
     expect_true("TF.role" %in% colnames(results))
 })
 
@@ -28,6 +28,6 @@ test_that("stratified_model handles 0 cases", {
     )
     gene.exp.chr21.log2[1,-1] <- 0 # at least one of the two groups will have only 0 values
     results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
-    expect_true(is.na(results$TF.affinity))
+    expect_true(is.na(results$DNAm.effect))
     expect_true(is.na(results$TF.role))
 })

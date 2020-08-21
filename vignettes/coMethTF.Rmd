@@ -168,11 +168,12 @@ In this section, **regions** refer to the regions where CpGs are located. The fu
 
 ![Figure 1 - Different target linking strategies](mapping_target_strategies.png)
 
-For the analysis of probes in promoter regions, we recommend setting `method = "genes.promoter.overlap"`.
+For the analysis of probes in gene promoter region, we recommend setting `method = "genes.promoter.overlap"`, or 
+`method = "closest.gene"`. 
 For the analysis of probes in distal regions, we recommend setting either `method = "window"` or `method = "nearby.genes"`. 
 Note that the distal analysis will be more time and resource consuming. 
 
-As an example, the following scripts link CpGs with the nearest gene (method 1. above)
+As an example, the following scripts link CpGs with the probes in gene promoter region (method 1. above)
 
 ```{R}
 # Get CpG information

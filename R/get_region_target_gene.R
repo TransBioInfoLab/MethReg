@@ -106,7 +106,7 @@ get_region_target_gene <- function(
 
     if(method == "genes.promoter.overlap"){
         message("Mapping regions to the closest gene")
-        out <- et_region_target_gene_by_promoter_overlap(
+        out <- get_region_target_gene_by_promoter_overlap(
             regions.gr = regions.gr,
             genome = genome,
             upstream = promoter.upstream.dist.tss,

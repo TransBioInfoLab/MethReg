@@ -66,10 +66,11 @@
 #' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme stat_cor
 #' @importFrom ggplot2 xlab ylab geom_smooth
 #' @importFrom tibble as_tibble
-plot_interaction_model <-  function(triplet.results,
-                                    dnam,
-                                    exp,
-                                    metadata
+plot_interaction_model <-  function(
+    riplet.results,
+    dnam,
+    exp,
+    metadata
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -128,8 +129,8 @@ plot_interaction_model <-  function(triplet.results,
                                   ncol = 3),
                         ggarrange(plots$tf.target,
                                   plots$dnam.target,
-                                  plots$dnam.tf,
-                                  ncol = 3),
+                                  #plots$dnam.tf,
+                                  ncol = 2),
                         plots$tf.target.quantile,
                         plots$dnam.target.quantile,
                         nrow = 4,

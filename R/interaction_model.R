@@ -157,11 +157,9 @@ interaction_model <- function(
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
 
-
-
     parallel <- register_cores(cores)
 
-    plyr::adply(
+    ret <- plyr::adply(
         .data = triplet,
         .margins = 1,
         .fun = function(row.triplet){
@@ -176,8 +174,6 @@ interaction_model <- function(
 
             data.high.low <- data %>% dplyr::filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
-
-
 
             pct.zeros.in.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
 
@@ -225,6 +221,11 @@ interaction_model <- function(
         .parallel = parallel,
         .inform = TRUE,
         .paropts = list(.errorhandling = 'pass'))
+
+    #if(filter.by.tf.no.diff){
+    #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
+    #}
+    ret
 }
 
 
@@ -296,7 +297,7 @@ interaction_model_output <- function(
                 ifelse(pct.zeros.in.quant.samples > 0.25,
                        "Zero-inflated Negative Binomial Model",
                        "Robust Linear Model"),
-            "Wilcoxon_tf_q4_vs_q1" = wilcoxon.tf.q4.vs.q1
+            "Wilcoxon_pval_tf_q4_vs_q1" = wilcoxon.tf.q4.vs.q1
         ),
         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %"),

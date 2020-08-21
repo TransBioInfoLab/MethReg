@@ -8,7 +8,7 @@
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How genes are mapped to regions: region overlapping gene promoter ("genes.promoter.overlap"); or
 #' genes within a window around the region ("window"); or a fixed number genes upstream
-#' and downstream of the region ("nearby.genes")
+#' and downstream of the region ("nearby.genes"); or closest gene to the region ("closest.gene")
 #' @param window.size When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
 #' @param num.flanking.genes When \code{method = "nearby.genes"}, set the number
@@ -73,7 +73,12 @@
 get_region_target_gene <- function(
     regions.gr,
     genome = c("hg38","hg19"),
-    method = c("genes.promoter.overlap","window","nearby.genes"),
+    method = c(
+        "genes.promoter.overlap",
+        "window",
+        "nearby.genes",
+        "closest.gene"
+    ),
     promoter.upstream.dist.tss = 2000,
     promoter.downstream.dist.tss = 2000,
     window.size = 500 * 10^3,
@@ -101,7 +106,7 @@ get_region_target_gene <- function(
 
     if(method == "genes.promoter.overlap"){
         message("Mapping regions to the closest gene")
-        out <- get_region_target_gene_closest(
+        out <- et_region_target_gene_by_promoter_overlap(
             regions.gr = regions.gr,
             genome = genome,
             upstream = promoter.upstream.dist.tss,
@@ -110,17 +115,63 @@ get_region_target_gene <- function(
     } else if(method == "window"){
         message("Mapping regions to genes within a window of size: ", window.size, " bp")
         out <- get_region_target_gene_window(regions.gr, genome, window.size)
-    } else {
+    } else if(method == "nearby.genes"){
         out <- get_region_target_gene_nearby.genes(
             regions.gr = regions.gr,
             genome = genome,
             num.flanking.genes = num.flanking.genes
         )
+    } else if(method == "closest.gene"){
+        out <- get_region_target_gene_closest(
+            regions.gr = regions.gr,
+            genome = genome
+        )
     }
     return(out)
 }
 
+
+#' @noRd
+#' @examples
+#' regions.gr <- data.frame(
+#'        chrom = c("chr22", "chr22", "chr22", "chr22", "chr22"),
+#'        start = c("39377790", "50987294", "19746156", "42470063", "43817258"),
+#'        end   = c("39377930", "50987527", "19746368", "42470223", "43817384"),
+#'        stringsAsFactors = FALSE)  %>%
+#'      makeGRangesFromDataFrame
 get_region_target_gene_closest <- function(
+    regions.gr,
+    genome
+){
+    gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
+    hits <- nearest(regions.gr,gene.info)
+    nearest.genes <- gene.info[hits] %>% as.data.frame(row.names = NULL)
+    distance <- distanceToNearest(regions.gr,gene.info)
+
+
+    nearest.genes <- dplyr::bind_cols(
+        nearest.genes[,c("seqnames",
+                     "start",
+                     "end",
+                     "external_gene_name",
+                     "ensembl_gene_id")],
+        data.frame("distance_region_to_target_gene" = values(distance)[["distance"]])
+    )
+
+    colnames(nearest.genes)[1:3] <- c("target_gene_chrom","target_gene_start","target_gene_end")
+    colnames(nearest.genes)[4] <- "target_gene_name"
+    colnames(nearest.genes)[5] <- "target"
+
+    regionID <- regions.gr %>% as.data.frame %>% dplyr::select(1:3)
+    regionID <- paste0(regionID[[1]],":",regionID[[2]],"-",regionID[[3]])
+    out <- dplyr::bind_cols(
+        data.frame("regionID" = regionID, stringsAsFactors = FALSE),
+        nearest.genes[,c("target_gene_name", "target","distance_region_to_target_gene")]
+    ) %>% tibble::as_tibble()
+    out
+}
+
+get_region_target_gene_by_promoter_overlap <- function(
     regions.gr,
     genome,
     upstream,

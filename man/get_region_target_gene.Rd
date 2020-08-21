@@ -7,7 +7,7 @@
 get_region_target_gene(
   regions.gr,
   genome = c("hg38", "hg19"),
-  method = c("genes.promoter.overlap", "window", "nearby.genes"),
+  method = c("genes.promoter.overlap", "window", "nearby.genes", "closest.gene"),
   promoter.upstream.dist.tss = 2000,
   promoter.downstream.dist.tss = 2000,
   window.size = 500 * 10^3,
@@ -23,7 +23,7 @@ SummarizedExperiment object (rowRanges will be used)}
 
 \item{method}{How genes are mapped to regions: region overlapping gene promoter ("genes.promoter.overlap"); or
 genes within a window around the region ("window"); or a fixed number genes upstream
-and downstream of the region ("nearby.genes")}
+and downstream of the region ("nearby.genes"); or closest gene to the region ("closest.gene")}
 
 \item{promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of TSS to consider as promoter regions}
 

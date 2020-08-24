@@ -58,4 +58,4 @@ Suggests:
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Depends: 
-    R (>= 3.6.0)
+    R (>= 4.0)

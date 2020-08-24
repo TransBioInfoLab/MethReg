@@ -66,6 +66,9 @@
 #' RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
 #' log2 transformation is needed when \code{interaction_model} is applied to residuals data.
 #'
+#' Note that only triplets with TF expression not significantly different in high vs. low
+#' methylation groups will be evaluated (Wilcoxon test, p > 0.05).
+#'
 #' @examples
 #' library(dplyr)
 #' dnam <- runif(20,min = 0,max = 1) %>%
@@ -226,7 +229,7 @@ interaction_model <- function(
     #if(filter.by.tf.no.diff){
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
-    ret
+    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
 }
 
 

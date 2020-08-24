@@ -1,14 +1,22 @@
-#' @title Select regions with variations in DNA methylation levels above a threshold
-#' @description For each region, compares the mean DNA methylation (DNAm) levels in samples with
-#' high DNAm  (Q4) vs. low DNAm (Q1) and requires the difference to be above a threshold.
+#' @title Select regions with variations in DNA methylation
+#' levels above a threshold
+#' @description
+#' For each region, compares the mean DNA methylation (DNAm) levels
+#' in samples with high DNAm  (Q4) vs. low DNAm (Q1) and requires
+#' the difference to be above a threshold.
 #' @param dnam DNA methylation matrix
-#' @param diff.mean.th Threshold for difference in mean DNAm levels for samples in Q4 and Q1
-#' @param cores Number of CPU cores to be used in the analysis. Default: 1
+#' @param diff.mean.th
+#' Threshold for difference in mean DNAm levels for samples in Q4 and Q1
+#' @param cores
+#' Number of CPU cores to be used in the analysis. Default: 1
 #' @export
 #' @examples
 #' data("dna.met.chr21")
-#' dna.met.chr21.filtered <- filter_regions_by_mean_quantile_difference(dna.met.chr21)
-#' @return A subset of the original matrix only with the rows passing the filter threshold.
+#' dna.met.chr21.filtered <- filter_regions_by_mean_quantile_difference(
+#'   dna.met.chr21
+#' )
+#' @return
+#' A subset of the original matrix only with the rows passing the filter threshold.
 filter_regions_by_mean_quantile_difference <- function(
     dnam,
     diff.mean.th = 0.2,
@@ -40,17 +48,26 @@ filter_regions_by_mean_quantile_difference <- function(
 
 
 #' @title Select genes with variations above a threshold
-#' @description For each gene, compares the mean gene expression levels in samples in high expression (Q4)
-#' vs. samples with low gene expression (Q1), and requires the fold change to be above a certain threshold.
+#' @description For each gene, compares the mean gene expression
+#' levels in samples in high expression (Q4)
+#' vs. samples with low gene expression (Q1),
+#' and requires the fold change to be above a certain threshold.
 #' @param exp Gene expression matrix
-#' @param fold.change Threshold for fold change of mean gene expression levels in samples with high
+#' @param fold.change
+#' Threshold for fold change of mean gene
+#' expression levels in samples with high
 #' (Q4) and low (Q1) gene expression levels. Defaults to 1.5.
-#' @param cores Number of CPU cores to be used in the analysis. Default: 1
+#' @param cores
+#' Number of CPU cores to be used in the analysis. Default: 1
 #' @export
 #' @examples
 #' data("gene.exp.chr21.log2")
-#' gene.exp.chr21.log2.filtered <- filter_genes_by_quantile_mean_fold_change(gene.exp.chr21.log2)
-#' @return A subset of the original matrix only with the rows passing the filter threshold.
+#' gene.exp.chr21.log2.filtered <- filter_genes_by_quantile_mean_fold_change(
+#'   gene.exp.chr21.log2
+#' )
+#' @return
+#' A subset of the original matrix only with the rows passing
+#' the filter threshold.
 filter_genes_by_quantile_mean_fold_change <- function(
     exp,
     fold.change = 1.5,
@@ -67,7 +84,10 @@ filter_genes_by_quantile_mean_fold_change <- function(
 
         mean.q1 <- row[row <= low.cutoff] %>% mean(na.rm = TRUE)
         mean.q4 <- row[row >= upper.cutoff] %>% mean(na.rm = TRUE)
-        data.frame("diff_fold_change" = mean.q4 / mean.q1, stringsAsFactors = FALSE)
+        data.frame(
+            "diff_fold_change" = mean.q4 / mean.q1,
+            stringsAsFactors = FALSE
+        )
     }, .progress = "time",.parallel = parallel)
 
 
@@ -77,19 +97,28 @@ filter_genes_by_quantile_mean_fold_change <- function(
     tab$Status[which(tab$Status == TRUE)] <- "Genes above threshold"
     print(tab)
 
-    diff.genes <- c(diff.genes %>% filter(.data$diff_fold_change > fold.change) %>% pull(.data$X1) %>% as.character())
+    diff.genes <- c(
+        diff.genes %>%
+            filter(.data$diff_fold_change > fold.change) %>%
+            pull(.data$X1) %>%
+            as.character()
+    )
     exp[diff.genes,,drop = FALSE]
 }
 
 
-#' @title Remove genes with gene expression level equal to 0 in a substantial percentage of the samples
+#' @title Remove genes with gene expression level equal to 0 in a
+#' substantial percentage of the samples
 #' @param exp Gene expression matrix
-#' @param max.samples.percentage Max percentage of samples with gene expression as 0, for genes to be selected.
+#' @param max.samples.percentage Max percentage of samples with gene
+#' expression as 0, for genes to be selected.
 #' If max.samples.percentage 100, remove genes with 0 for 100% samples.
-#' If max.samples.percentage 25, remove genes with 0 for more than 25% of the samples.
+#' If max.samples.percentage 25, remove genes with 0 for more
+#' than 25% of the samples.
 #'
 #' @noRd
-#' @return A subset of the original matrix only with the rows passing the filter threshold.
+#' @return A subset of the original matrix only with the rows
+#' passing the filter threshold.
 filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
     if(is(exp,"SummarizedExperiment")){
         matrix <- assay(exp)
@@ -105,14 +134,18 @@ filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
     exp[genes.keep,, drop = FALSE]
 }
 
-
-#' @title Remove genes with gene expression level equal to 0 or NA in a all samples
+#' @title
+#' Remove genes with gene expression level equal to 0 or NA in a all samples
 #' @param exp Gene expression matrix or a Summarized Experiment object
 #' @noRd
 #' @examples
 #' data("gene.exp.chr21.log2")
-#' gene.exp.chr21.log2.filtered <- filter_genes_zero_expression_all_samples(gene.exp.chr21.log2)
-#' @return A subset of the original matrix only with the rows passing the filter threshold.
+#' gene.exp.chr21.log2.filtered <- filter_genes_zero_expression_all_samples(
+#'   gene.exp.chr21.log2
+#' )
+#' @return
+#' A subset of the original matrix only with the rows
+#' passing the filter threshold.
 filter_genes_zero_expression_all_samples <- function(
     exp
 ){
@@ -125,7 +158,10 @@ filter_genes_zero_expression_all_samples <- function(
     # do not keep if it is all zero or all NA
     genes.keep <- rownames(exp)[!(idx.all.zero | idx.all.na)] %>% na.omit()
     if(length(genes.keep) < nrow(exp) & length(genes.keep) > 0){
-        message("Removing ", nrow(exp) - length(genes.keep), " out of ", nrow(exp), " genes")
+        message(
+            "Removing ", nrow(exp) - length(genes.keep),
+            " out of ", nrow(exp), " genes"
+        )
     }
     exp <- exp[genes.keep,,drop = FALSE]
 }

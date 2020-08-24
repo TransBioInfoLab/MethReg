@@ -151,16 +151,18 @@ cor_region_dnam_target_gene <- function(
                                     exact = TRUE)
                 })
                 return(
-                    tibble("met_exp_cor_pvalue" = res$p.value,
-                           "met_exp_cor_estimate" = res$estimate
+                    tibble(
+                        "met_exp_cor_pvalue" = res$p.value,
+                        "met_exp_cor_estimate" = res$estimate
                     )
                 )
-            },error = function(e){
-                return(tibble("met_exp_cor_pvalue" = NA,
-                              "met_exp_cor_estimate" = NA))
+            }, error = function(e){
+                return(
+                    tibble("met_exp_cor_pvalue" = NA,
+                           "met_exp_cor_estimate" = NA)
+                )
             })
         },.progress = "time",.parallel = parallel,.inform = TRUE)
-
 
     correlation.df <- na.omit(correlation.df)
     correlation.df$met_exp_cor_fdr <- p.adjust(

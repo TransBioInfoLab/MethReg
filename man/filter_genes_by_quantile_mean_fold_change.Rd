@@ -9,19 +9,25 @@ filter_genes_by_quantile_mean_fold_change(exp, fold.change = 1.5, cores = 1)
 \arguments{
 \item{exp}{Gene expression matrix}
 
-\item{fold.change}{Threshold for fold change of mean gene expression levels in samples with high
+\item{fold.change}{Threshold for fold change of mean gene
+expression levels in samples with high
 (Q4) and low (Q1) gene expression levels. Defaults to 1.5.}
 
 \item{cores}{Number of CPU cores to be used in the analysis. Default: 1}
 }
 \value{
-A subset of the original matrix only with the rows passing the filter threshold.
+A subset of the original matrix only with the rows passing
+the filter threshold.
 }
 \description{
-For each gene, compares the mean gene expression levels in samples in high expression (Q4)
-vs. samples with low gene expression (Q1), and requires the fold change to be above a certain threshold.
+For each gene, compares the mean gene expression
+levels in samples in high expression (Q4)
+vs. samples with low gene expression (Q1),
+and requires the fold change to be above a certain threshold.
 }
 \examples{
 data("gene.exp.chr21.log2")
-gene.exp.chr21.log2.filtered <- filter_genes_by_quantile_mean_fold_change(gene.exp.chr21.log2)
+gene.exp.chr21.log2.filtered <- filter_genes_by_quantile_mean_fold_change(
+  gene.exp.chr21.log2
+)
 }

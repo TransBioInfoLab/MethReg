@@ -436,6 +436,7 @@ get_rlm_val_pval <- function(df, x, y){
 get_table_plot_results <- function(row.triplet, type){
 
     base_size <- 9
+
     if(type == "all"){
         pattern.estimate <- "^estimate"
         pattern.pval <- "^pval"
@@ -454,16 +455,23 @@ get_table_plot_results <- function(row.triplet, type){
         title <- "Target ~ TF\nDNAm high samples"
     }
 
-    table.plot.estimate <- row.triplet[,grep(pattern.estimate,colnames(row.triplet),value = T),drop  = FALSE] %>%
+    col.idx <- grep(pattern.estimate,colnames(row.triplet),value = TRUE)
+    table.plot.estimate <- row.triplet[,col.idx,drop  = FALSE] %>%
         t() %>%
         as_tibble(rownames = "Variable")
     colnames(table.plot.estimate)[2] <- "Estimate"
     table.plot.estimate$Variable <- gsub(paste0(pattern.estimate,"|_"),"", table.plot.estimate$Variable)
 
-    table.plot.pval <- row.triplet[,grep(pattern.pval, colnames(row.triplet), value = T), drop  = FALSE] %>%
+    col.idx <- grep(pattern.pval, colnames(row.triplet), value = TRUE)
+    table.plot.pval <- row.triplet[,col.idx, drop  = FALSE] %>%
         t() %>%
         as_tibble(rownames = "Variable")
-    table.plot.pval$Variable <- gsub(paste0(pattern.pval,"|_"),"",table.plot.pval$Variable)
+    table.plot.pval$Variable <- gsub(
+        pattern = paste0(pattern.pval,"|_"),
+        replacement = "",
+        table.plot.pval$Variable
+    )
+
     colnames(table.plot.pval)[2] <- "P-value"
 
     table.plot <- merge(

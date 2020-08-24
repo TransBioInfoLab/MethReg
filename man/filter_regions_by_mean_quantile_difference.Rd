@@ -2,7 +2,8 @@
 % Please edit documentation in R/filter_by_quantile.R
 \name{filter_regions_by_mean_quantile_difference}
 \alias{filter_regions_by_mean_quantile_difference}
-\title{Select regions with variations in DNA methylation levels above a threshold}
+\title{Select regions with variations in DNA methylation
+levels above a threshold}
 \usage{
 filter_regions_by_mean_quantile_difference(dnam, diff.mean.th = 0.2, cores = 1)
 }
@@ -17,10 +18,13 @@ filter_regions_by_mean_quantile_difference(dnam, diff.mean.th = 0.2, cores = 1)
 A subset of the original matrix only with the rows passing the filter threshold.
 }
 \description{
-For each region, compares the mean DNA methylation (DNAm) levels in samples with
-high DNAm  (Q4) vs. low DNAm (Q1) and requires the difference to be above a threshold.
+For each region, compares the mean DNA methylation (DNAm) levels
+in samples with high DNAm  (Q4) vs. low DNAm (Q1) and requires
+the difference to be above a threshold.
 }
 \examples{
 data("dna.met.chr21")
-dna.met.chr21.filtered <- filter_regions_by_mean_quantile_difference(dna.met.chr21)
+dna.met.chr21.filtered <- filter_regions_by_mean_quantile_difference(
+  dna.met.chr21
+)
 }

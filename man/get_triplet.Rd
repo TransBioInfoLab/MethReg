@@ -47,14 +47,6 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 }
 \value{
 A data frame with TF, target and RegionID information.
-\dontrun{
-data("dna.met.chr21")
-dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
-triplet <- get_triplet(
-   region = rownames(dnam.regions)[1:100],
-   motif.search.window.size = 50
-)
-}
 }
 \description{
 This function wraps two other functions
@@ -64,4 +56,14 @@ This function will map a region to a target gene using three methods
 mapping to any gene within a given window of distance, or mapping to a
 fixed number of nearby genes upstream or downstream).
 To find TFs binding to the region, JASPAR2020 is used.
+}
+\examples{
+\dontrun{
+data("dna.met.chr21")
+dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
+triplet <- get_triplet(
+   region = rownames(dnam.regions)[1:100],
+   motif.search.window.size = 50
+)
+}
 }

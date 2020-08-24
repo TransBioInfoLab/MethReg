@@ -115,6 +115,9 @@ map_symbol_to_ensg <- function(
 }
 
 
+#' @title Get human genome information from biomaRt
+#' @param genome Human genome of reference. Options: hg38, hg19.
+#' @noRd
 get_gene_information_biomart <- function(genome = "hg38"){
     check_package("biomaRt")
     tries <- 0L
@@ -155,7 +158,7 @@ get_gene_information_biomart <- function(genome = "hg38"){
             gene.location <- biomaRt::getBM(
                 attributes = attributes,
                 filters = "chromosome_name",
-                values = c(1:22,"X","Y"),
+                values = c(seq_len(22),"X","Y"),
                 mart = ensembl
             )
             gene.location

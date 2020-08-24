@@ -30,8 +30,8 @@
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
 #' @param motif.search.p.cutoff motifmatchr pvalue cut-off. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
-#' @examples
 #' @return A data frame with TF, target and RegionID information.
+#' @examples
 #' \dontrun{
 #' data("dna.met.chr21")
 #' dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)

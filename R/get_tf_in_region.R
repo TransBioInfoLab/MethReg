@@ -1,26 +1,31 @@
-#' @title Get human TFs for regions by scanning it with motifmatchr using JASPAR 2020 database
-#' @description Given a genomic region, this function uses motifmatchr and JASPAR2020
+#' @title Get human TFs for regions by scanning it with motifmatchr using
+#' JASPAR 2020 database
+#' @description Given a genomic region, this function uses motifmatchr
+#' and JASPAR2020
 #' to scan the region for 554 human transcription factors binding sites. There is also
-#' an option (argument \code{window.size}) to extend the scanning region before performing the search, which
+#' an option (argument \code{window.size}) to extend the scanning region
+#' before performing the search, which
 #' by default is 0 (do not extend)
 #' @return A data frame with the following information: regionID, TF symbol, TF ensembl ID
 #' @importFrom SummarizedExperiment assay
 #' @importFrom DelayedArray colSums
 #' @importFrom IRanges width
-#' @param region A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs
-#' @param window.size Integer value to extend the regions. For example, a value of 50 will
+#' @param region A vector of region names or GRanges object with the DNA
+#' methylation regions to be scanned for the motifs
+#' @param window.size Integer value to extend the regions.
+#' For example, a value of 50 will
 #' extend 25 bp upstream and 25 bp downstream the region.
 #' The default is not to increase the scanned region.
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param p.cutoff motifmatchr p.cutoff. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @examples
-#' \dontrun{
 #'  regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
 #'  region.tf <- get_tf_in_region(
 #'                  region = regions.names,
 #'                  genome = "hg38"
 #'  )
+#' \dontrun{
 #'
 #'  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
 #'  regions.gr <- make_granges_from_names(regions.names)
@@ -105,7 +110,10 @@ get_tf_in_region <- function(
     motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
     colnames(motifs.probes.df) <- c("regionID","TF_external_gene_name")
 
-    motifs.probes.df$TF <- map_symbol_to_ensg(motifs.probes.df$TF_external_gene_name)
+    motifs.probes.df$TF <- map_symbol_to_ensg(
+        motifs.probes.df$TF_external_gene_name
+    )
+
     motifs.probes.df <- motifs.probes.df %>% na.omit
     return(motifs.probes.df %>% unique)
 

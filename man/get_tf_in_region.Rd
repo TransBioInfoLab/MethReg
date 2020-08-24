@@ -2,7 +2,8 @@
 % Please edit documentation in R/get_tf_in_region.R
 \name{get_tf_in_region}
 \alias{get_tf_in_region}
-\title{Get human TFs for regions by scanning it with motifmatchr using JASPAR 2020 database}
+\title{Get human TFs for regions by scanning it with motifmatchr using
+JASPAR 2020 database}
 \usage{
 get_tf_in_region(
   region,
@@ -13,9 +14,11 @@ get_tf_in_region(
 )
 }
 \arguments{
-\item{region}{A vector of region names or GRanges object with the DNA methylation regions to be scanned for the motifs}
+\item{region}{A vector of region names or GRanges object with the DNA
+methylation regions to be scanned for the motifs}
 
-\item{window.size}{Integer value to extend the regions. For example, a value of 50 will
+\item{window.size}{Integer value to extend the regions.
+For example, a value of 50 will
 extend 25 bp upstream and 25 bp downstream the region.
 The default is not to increase the scanned region.}
 
@@ -29,18 +32,20 @@ The default is not to increase the scanned region.}
 A data frame with the following information: regionID, TF symbol, TF ensembl ID
 }
 \description{
-Given a genomic region, this function uses motifmatchr and JASPAR2020
+Given a genomic region, this function uses motifmatchr
+and JASPAR2020
 to scan the region for 554 human transcription factors binding sites. There is also
-an option (argument \code{window.size}) to extend the scanning region before performing the search, which
+an option (argument \code{window.size}) to extend the scanning region
+before performing the search, which
 by default is 0 (do not extend)
 }
 \examples{
-\dontrun{
  regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
  region.tf <- get_tf_in_region(
                  region = regions.names,
                  genome = "hg38"
  )
+\dontrun{
 
  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
  regions.gr <- make_granges_from_names(regions.names)

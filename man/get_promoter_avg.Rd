@@ -22,12 +22,15 @@ get_promoter_avg(
 
 \item{cores}{A integer number to use multiple cores. Default 1 core.}
 
-\item{upstream.dist.tss}{Number of base pairs (bp) upstream of TSS to consider as promoter regions}
+\item{upstream.dist.tss}{Number of base pairs (bp) upstream of TSS
+to consider as promoter regions}
 
-\item{downstream.dist.tss}{Number of base pairs (bp) downstream of TSS to consider as promoter regions}
+\item{downstream.dist.tss}{Number of base pairs (bp) downstream of TSS
+to consider as promoter regions}
 }
 \value{
-A RangedSummarizedExperiment with promoter region and mean beta-values of CpGs within it.
+A RangedSummarizedExperiment with promoter region and
+mean beta-values of CpGs within it.
 }
 \description{
 First, identify gene promoter regions (+-2Kkb around TSS). When promoters
@@ -36,8 +39,6 @@ Then, for each promoter region calculate the mean DNA methylation of probes
 overlapping the region.
 }
 \examples{
-\dontrun{
- data("dna.met.chr21")
- promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
-}
+data("dna.met.chr21")
+promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
 }

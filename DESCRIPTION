@@ -63,4 +63,6 @@ biocViews:
   MethylationArray,
   Regression,
   GeneExpression,
-  Transcription Factor
+  Epigenetics,
+  GeneTarget,
+  Transcription

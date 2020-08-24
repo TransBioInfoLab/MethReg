@@ -4,20 +4,21 @@
 #' overlap they will be merged.
 #' Then, for each promoter region calculate the mean DNA methylation of probes
 #' overlapping the region.
-#' @return A RangedSummarizedExperiment with promoter region and mean beta-values of CpGs within it.
+#' @return A RangedSummarizedExperiment with promoter region and
+#' mean beta-values of CpGs within it.
 #' @export
 #' @importFrom GenomicRanges reduce
 #' @examples
-#' \dontrun{
-#'  data("dna.met.chr21")
-#'  promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
-#' }
+#' data("dna.met.chr21")
+#' promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
 #' @param dnam A DNA methylation matrix
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
 #' @param cores A integer number to use multiple cores. Default 1 core.
-#' @param upstream.dist.tss Number of base pairs (bp) upstream of TSS to consider as promoter regions
-#' @param downstream.dist.tss Number of base pairs (bp) downstream of TSS to consider as promoter regions
+#' @param upstream.dist.tss Number of base pairs (bp) upstream of TSS
+#' to consider as promoter regions
+#' @param downstream.dist.tss Number of base pairs (bp) downstream of TSS
+#' to consider as promoter regions
 get_promoter_avg <- function(
     dnam,
     genome,

@@ -1,30 +1,40 @@
-#' For an input DNA methylation region, maps candidate target genes and TFs with binding sites located nearby
+#' For an input DNA methylation region, maps candidate target genes and
+#' TFs with binding sites located nearby
 #' @description This function wraps two other functions
 #' \code{get_region_target_gene} and \code{get_tf_in_region} from the package.
-#' This function will map a region to a target gene using three methods (mapping to the closest gene,
-#' mapping to any gene within a given window of distance, or mapping to a fixed number of nearby genes upstream or downstream).
+#' This function will map a region to a target gene using three methods
+#' (mapping to the closest gene,
+#' mapping to any gene within a given window of distance, or mapping to a
+#' fixed number of nearby genes upstream or downstream).
 #' To find TFs binding to the region, JASPAR2020 is used.
 #'
 #' @importFrom tidyr separate
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
-#' @param region A Granges or a named vector with regions (i.e "chr21:100002-1004000")
+#' @param region A Granges or a named vector with
+#' regions (i.e "chr21:100002-1004000")
 #' @param genome Human genome reference "hg38" or "hg19"
-#' @param target.method How genes are mapped to regions: regions overlapping gene promoter ("genes.promoter.overlap");
-#' genes within a window around the region ("window"); or fixed number of nearby genes upstream and
+#' @param target.method How genes are mapped to regions: regions
+#' overlapping gene promoter ("genes.promoter.overlap");
+#' genes within a window around the region ("window"); or fixed number of
+#' nearby genes upstream and
 #' downstream from the region
-#' @param target.window.size When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
+#' @param target.window.size When \code{method = "window"}, number of base
+#' pairs to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
-#' @param target.num.flanking.genes Number of flanking genes upstream and downstream to search.
+#' @param target.num.flanking.genes Number of flanking genes upstream and
+#' downstream to search.
 #' For example, if \code{target.num.flanking.genes = 5}, it will return the
 #' 5 genes upstream and 5 genes downstream
-#' @param motif.search.window.size Integer value to extend the regions. For example, a value of 50 will
+#' @param motif.search.window.size Integer value to extend the regions.
+#' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
 #' @param motif.search.p.cutoff motifmatchr pvalue cut-off. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @examples
+#' @return A data frame with TF, target and RegionID information.
 #' \dontrun{
 #' data("dna.met.chr21")
-#' dnam.regions <- map_probes_to_regions(dna.met.chr21)
+#' dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
 #' triplet <- get_triplet(
 #'    region = rownames(dnam.regions)[1:100],
 #'    motif.search.window.size = 50

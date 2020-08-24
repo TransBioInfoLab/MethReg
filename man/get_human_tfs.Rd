@@ -13,7 +13,5 @@ A dataframe with Human TF
 Access human TF from Lambert et al 2018 (PMID: 29425488)
 }
 \examples{
-\dontrun{
  human.tfs <- get_human_tfs()
-}
 }

@@ -11,7 +11,8 @@
 #' @param method How genes are mapped to regions: region overlapping gene
 #' promoter ("genes.promoter.overlap"); or
 #' genes within a window around the region ("window"); or a fixed number genes upstream
-#' and downstream of the region ("nearby.genes"); or closest gene to the region ("closest.gene")
+#' and downstream of the region ("nearby.genes");
+#' or closest gene to the region ("closest.gene")
 #' @param window.size When \code{method = "window"}, number of base pairs
 #' to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)

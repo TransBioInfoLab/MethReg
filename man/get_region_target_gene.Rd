@@ -24,7 +24,8 @@ SummarizedExperiment object (rowRanges will be used)}
 \item{method}{How genes are mapped to regions: region overlapping gene
 promoter ("genes.promoter.overlap"); or
 genes within a window around the region ("window"); or a fixed number genes upstream
-and downstream of the region ("nearby.genes"); or closest gene to the region ("closest.gene")}
+and downstream of the region ("nearby.genes");
+or closest gene to the region ("closest.gene")}
 
 \item{promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of
 TSS to consider as promoter regions}

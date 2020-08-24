@@ -195,12 +195,12 @@ stratified_model_aux <- function(data, prefix = ""){
 
         results <- results$count %>% data.frame
 
-        results.pval <- results["rna.tf","Pr...z..",drop = F] %>%
+        results.pval <- results["rna.tf","Pr...z..",drop = FALSE] %>%
             t %>%
             as.data.frame()
         colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
 
-        results.estimate <- results["rna.tf","Estimate",drop = F] %>%
+        results.estimate <- results["rna.tf","Estimate",drop = FALSE] %>%
             t %>%
             as.data.frame()
         colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
@@ -224,10 +224,10 @@ stratified_model_aux <- function(data, prefix = ""){
         degrees.freedom.value <- nrow(data) - 2
         results$pval <- 2 * (1 - pt( abs(results$t.value), df = degrees.freedom.value) )
 
-        results.pval <- results[-1,4,drop = F] %>% t %>% as.data.frame()
+        results.pval <- results[-1,4,drop = FALSE] %>% t %>% as.data.frame()
         colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
 
-        results.estimate <- results[-1,1,drop = F] %>% t %>% as.data.frame()
+        results.estimate <- results[-1,1,drop = FALSE] %>% t %>% as.data.frame()
         colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
     }
 

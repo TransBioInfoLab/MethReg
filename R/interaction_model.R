@@ -341,10 +341,10 @@ interaction_model_rlm <- function(data){
     rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
 
     #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
-    all.pval <- rlm.bisquare[-1,4,drop = F] %>% t %>% as.data.frame()
+    all.pval <- rlm.bisquare[-1,4,drop = FALSE] %>% t %>% as.data.frame()
     colnames(all.pval) <- paste0("pval_",colnames(all.pval))
 
-    all.estimate <- rlm.bisquare[-1,1,drop = F] %>% t %>% as.data.frame()
+    all.estimate <- rlm.bisquare[-1,1,drop = FALSE] %>% t %>% as.data.frame()
     colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
     return(cbind(all.pval, all.estimate))
 }
@@ -367,10 +367,10 @@ interaction_model_zeroinfl <- function(data){
 
     zinb <- zinb$count %>% data.frame
 
-    all.pval <- zinb[c(-1,-5),4,drop = F] %>% t %>% as.data.frame()
+    all.pval <- zinb[c(-1,-5),4,drop = FALSE] %>% t %>% as.data.frame()
     colnames(all.pval) <- paste0("pval_",colnames(all.pval))
 
-    all.estimate <- zinb[c(-1,-5),1,drop = F] %>% t %>% as.data.frame()
+    all.estimate <- zinb[c(-1,-5),1,drop = FALSE] %>% t %>% as.data.frame()
     colnames(all.estimate) <- paste0("estimate_",colnames(all.estimate))
     return(cbind(all.pval, all.estimate))
 }
@@ -391,12 +391,12 @@ interaction_model_quant_zeroinfl <- function(data){
     if(is.null(zinb.quant)) return(interaction_quant_model_no_results())
 
     zinb.quant <- zinb.quant$count %>% data.frame
-    quant.pval <- zinb.quant[c(-1,-5),4,drop = F] %>%
+    quant.pval <- zinb.quant[c(-1,-5),4,drop = FALSE] %>%
         t %>%
         as.data.frame()
     colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
 
-    quant.estimate <- zinb.quant[c(-1,-5),1,drop = F] %>%
+    quant.estimate <- zinb.quant[c(-1,-5),1,drop = FALSE] %>%
         t %>%
         as.data.frame()
     colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
@@ -440,12 +440,12 @@ interaction_model_quant_rlm <- function(data){
     rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value),
                                             df = degrees.freedom.value) )
 
-    quant.pval <- rlm.bisquare.quant[-1,4,drop = F] %>%
+    quant.pval <- rlm.bisquare.quant[-1,4,drop = FALSE] %>%
         t %>%
         as.data.frame()
     colnames(quant.pval) <- paste0("quant_pval_",colnames(quant.pval))
 
-    quant.estimate <- rlm.bisquare.quant[-1,1,drop = F] %>%
+    quant.estimate <- rlm.bisquare.quant[-1,1,drop = FALSE] %>%
         t %>%
         as.data.frame()
     colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))

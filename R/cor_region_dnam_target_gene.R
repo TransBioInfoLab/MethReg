@@ -163,7 +163,10 @@ cor_region_dnam_target_gene <- function(
 
 
     correlation.df <- na.omit(correlation.df)
-    correlation.df$met_exp_cor_fdr <- p.adjust(correlation.df$met_exp_cor_pvalue, method = "fdr")
+    correlation.df$met_exp_cor_fdr <- p.adjust(
+        correlation.df$met_exp_cor_pvalue,
+        method = "fdr"
+    )
 
     if(filter.results){
         correlation.df <- correlation.df %>%
@@ -173,7 +176,9 @@ cor_region_dnam_target_gene <- function(
             )
     }
 
-    if(!missing(file.out)) readr::write_tsv(x = correlation.df, path = file.out)
+    if(!missing(file.out)) {
+        readr::write_tsv(x = correlation.df, path = file.out)
+    }
 
     return(correlation.df)
 }

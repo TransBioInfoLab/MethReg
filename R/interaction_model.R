@@ -107,6 +107,7 @@
 #' @export
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare
+#' @importFrom stats wilcox.test
 interaction_model <- function(
     triplet,
     dnam,
@@ -180,8 +181,8 @@ interaction_model <- function(
             suppressWarnings({
                 # Add information to filter TF if differenly expressed between DNAm high and DNAm low groups
                 wilcoxon.tf.q4.vs.q1 <- wilcox.test(
-                    data.high.low %>% dplyr::filter(.data$metGrp == 1) %>% pull(rna.tf),
-                    data.high.low %>% dplyr::filter(.data$metGrp == 0) %>% pull(rna.tf)
+                    data.high.low %>% dplyr::filter(.data$metGrp == 1) %>% pull(.data$rna.tf),
+                    data.high.low %>% dplyr::filter(.data$metGrp == 0) %>% pull(.data$rna.tf)
                 )$p.value
             })
 

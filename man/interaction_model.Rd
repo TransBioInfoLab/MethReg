@@ -81,6 +81,9 @@ two processes that generated zeros (1) one where the counts are always zero
 To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
 RNA or DNAm residual values which have covariate effects removed, then fit interaction model. Note that no
 log2 transformation is needed when \code{interaction_model} is applied to residuals data.
+
+Note that only triplets with TF expression not significantly different in high vs. low
+methylation groups will be evaluated (Wilcoxon test, p > 0.05).
 }
 \examples{
 library(dplyr)

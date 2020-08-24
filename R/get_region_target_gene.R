@@ -1,15 +1,19 @@
 #' @title Obtain target genes of input regions
-#' @description To map an input region to genes there are three options: 1) map region to closest gene
-#' 2) map region to all genes within a window around the region (default window.size = 500kbp
+#' @description To map an input region to genes there are three options:
+#' 1) map region to closest gene
+#' 2) map region to all genes within a window around the region
+#' (default window.size = 500kbp
 #' (i.e. +/- 250kbp from start or end of the region)).
 #' 3) map region to a fixed number of nearby genes (upstream/downstream)
 #' @param regions.gr A Genomic Ranges object (GRanges) or a
 #' SummarizedExperiment object (rowRanges will be used)
 #' @param genome Human genome of reference "hg38" or "hg19"
-#' @param method How genes are mapped to regions: region overlapping gene promoter ("genes.promoter.overlap"); or
+#' @param method How genes are mapped to regions: region overlapping gene
+#' promoter ("genes.promoter.overlap"); or
 #' genes within a window around the region ("window"); or a fixed number genes upstream
 #' and downstream of the region ("nearby.genes"); or closest gene to the region ("closest.gene")
-#' @param window.size When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
+#' @param window.size When \code{method = "window"}, number of base pairs
+#' to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
 #' @param num.flanking.genes When \code{method = "nearby.genes"}, set the number
 #' of flanking genes upstream and downstream to search.
@@ -18,8 +22,10 @@
 #' @param rm.promoter.regions.from.distal.linking When performing distal linking
 #' with method = "windows" or method = "nearby.genes", if set to TRUE (default),
 #' probes in promoter regions will be removed from the input.
-#' @param promoter.upstream.dist.tss Number of base pairs (bp) upstream of TSS to consider as promoter regions
-#' @param promoter.downstream.dist.tss Number of base pairs (bp) downstream of TSS to consider as promoter regions
+#' @param promoter.upstream.dist.tss Number of base pairs (bp) upstream of
+#' TSS to consider as promoter regions
+#' @param promoter.downstream.dist.tss Number of base pairs (bp) downstream of
+#' TSS to consider as promoter regions
 #' @importFrom GenomicRanges findOverlaps
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
@@ -59,8 +65,10 @@
 #'                       num.flanking.genes = 5
 #'  )
 #' @export
-#' @return A data frame with the following information: regionID, Target symbol, Target ensembl ID
-#' @details For the analysis of probes in promoter regions (promoter analysis), we recommend setting
+#' @return A data frame with the following information:
+#' regionID, Target symbol, Target ensembl ID
+#' @details For the analysis of probes in promoter regions (promoter analysis),
+#'  we recommend setting
 #'  \code{method = "genes.promoter.overlap"}.
 #'
 #'  For the analysis of probes in distal regions (distal analysis),
@@ -152,10 +160,10 @@ get_region_target_gene_closest <- function(
 
     nearest.genes <- dplyr::bind_cols(
         nearest.genes[,c("seqnames",
-                     "start",
-                     "end",
-                     "external_gene_name",
-                     "ensembl_gene_id")],
+                         "start",
+                         "end",
+                         "external_gene_name",
+                         "ensembl_gene_id")],
         data.frame("distance_region_to_target_gene" = values(distance)[["distance"]])
     )
 
@@ -335,7 +343,7 @@ get_region_target_gene_nearby.genes <- function(
                  "ensembl_gene_id",
                  grep("external_gene_", colnames(ret), value = TRUE),
                  "Distance")
-               ]
+    ]
 
     message("Identifying gene position for each region")
     ret <- get_region_target_gene_nearby.genes_addPos(ret, num.flanking.genes)
@@ -403,14 +411,15 @@ get_region_target_gene_nearby.genes_aux <- function(
         idx <- idx[
             !paste0(genes.gr[idx$subjectHits]$ensembl_gene_id, names(regions.gr)[idx$evaluating]) %in%
                 paste0(ret$ensembl_gene_id, ret$ID),
-            ]
+        ]
         evaluating <- evaluating[idx$queryHits]
 
         ret <- rbind(ret, # keep old results
                      tibble::tibble(
                          genes.gr[idx$subjectHits] %>% as.data.frame(),
                          "ID" = names(regions.gr)[evaluating],
-                         "Distance" = ifelse(start(regions.gr[evaluating]) < start(genes.gr[idx$subjectHits]), 1,-1) *
+                         "Distance" = ifelse(
+                             start(regions.gr[evaluating]) < start(genes.gr[idx$subjectHits]), 1,-1) *
                              distance(regions.gr[evaluating],
                                       genes.gr[idx$subjectHits],
                                       select = "all",

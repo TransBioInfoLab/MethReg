@@ -21,15 +21,19 @@ SummarizedExperiment object (rowRanges will be used)}
 
 \item{genome}{Human genome of reference "hg38" or "hg19"}
 
-\item{method}{How genes are mapped to regions: region overlapping gene promoter ("genes.promoter.overlap"); or
+\item{method}{How genes are mapped to regions: region overlapping gene
+promoter ("genes.promoter.overlap"); or
 genes within a window around the region ("window"); or a fixed number genes upstream
 and downstream of the region ("nearby.genes"); or closest gene to the region ("closest.gene")}
 
-\item{promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of TSS to consider as promoter regions}
+\item{promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of
+TSS to consider as promoter regions}
 
-\item{promoter.downstream.dist.tss}{Number of base pairs (bp) downstream of TSS to consider as promoter regions}
+\item{promoter.downstream.dist.tss}{Number of base pairs (bp) downstream of
+TSS to consider as promoter regions}
 
-\item{window.size}{When \code{method = "window"}, number of base pairs to extend the region (+- window.size/2).
+\item{window.size}{When \code{method = "window"}, number of base pairs
+to extend the region (+- window.size/2).
 Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 
 \item{num.flanking.genes}{When \code{method = "nearby.genes"}, set the number
@@ -42,16 +46,20 @@ with method = "windows" or method = "nearby.genes", if set to TRUE (default),
 probes in promoter regions will be removed from the input.}
 }
 \value{
-A data frame with the following information: regionID, Target symbol, Target ensembl ID
+A data frame with the following information:
+regionID, Target symbol, Target ensembl ID
 }
 \description{
-To map an input region to genes there are three options: 1) map region to closest gene
-2) map region to all genes within a window around the region (default window.size = 500kbp
+To map an input region to genes there are three options:
+1) map region to closest gene
+2) map region to all genes within a window around the region
+(default window.size = 500kbp
 (i.e. +/- 250kbp from start or end of the region)).
 3) map region to a fixed number of nearby genes (upstream/downstream)
 }
 \details{
-For the analysis of probes in promoter regions (promoter analysis), we recommend setting
+For the analysis of probes in promoter regions (promoter analysis),
+ we recommend setting
  \code{method = "genes.promoter.overlap"}.
 
  For the analysis of probes in distal regions (distal analysis),

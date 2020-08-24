@@ -7,7 +7,7 @@ Authors@R: c(
       comment = c(ORCID = "0000-0003-1343-6850")),
     person("Lily", "Wang", email = "lily.wang@gmail.com", role = c("aut"))
       )
-Maintainer: Tiago Chedraoui Silva <txs902@miami.edu>
+Maintainer: Tiago Chedraoui Silva <tiagochst@gmail.com>
 Description: coMethTF evaluates, annotates and prioritizes DNA methylation regions 
   (or sites) with high regulatory potential, which work synergistically with transcription
   factors to regulate target gene expressions, without any additional ChIP-seq data.
@@ -59,3 +59,8 @@ VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 4.0)
+biocViews:
+  MethylationArray,
+  Regression,
+  GeneExpression,
+  Transcription Factor

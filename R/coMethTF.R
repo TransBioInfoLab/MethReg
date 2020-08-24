@@ -1,11 +1,14 @@
-#' @title coMethTF: functional annotation of DMRs identified in epigenome-wide association studies
-#' @description To provide functional annotations for differentially methylated regions (DMRs)
+#' @title coMethTF: functional annotation of DMRs identified in epigenome-wide
+#' association studies
+#' @description To provide functional annotations for
+#' differentially methylated regions (DMRs)
 #' and differentially methylated CpG sites (DMS), \code{coMethTF} performs
 #' integrative analyses using matched DNA methylation and gene expression
 #' along with Transcription Factor Binding Sites (TFBS) data.
 #' coMethTF evaluates, prioritizes and annotates DNA methylation regions
 #' (or sites) with high regulatory potential that works synergistically with
-#' TFs to regulate target gene expressions, without any additional ChIP-seq data.
+#' TFs to regulate target gene expressions, without any
+#' additional ChIP-seq data.
 #' @docType package
 #' @name coMethTF
 NULL
@@ -18,7 +21,7 @@ NULL
 #' patient, sample, gender and sample_type
 NULL
 
-#' TCGA-COAD DNA methylation matrix (beta-values) for 38 samples (only chromosome 21)
+#' TCGA-COAD DNA methylation matrix (beta-values) for 38 samples (only chr21)
 #' retrieved from GDC using TCGAbiolinks.
 #' @docType data
 #' @name dna.met.chr21

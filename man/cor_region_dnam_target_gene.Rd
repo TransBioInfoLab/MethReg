@@ -2,7 +2,8 @@
 % Please edit documentation in R/cor_region_dnam_target_gene.R
 \name{cor_region_dnam_target_gene}
 \alias{cor_region_dnam_target_gene}
-\title{Evaluate correlation of DNA methylation region and target gene expression}
+\title{Evaluate correlation of DNA methylation region and
+target gene expression}
 \usage{
 cor_region_dnam_target_gene(
   links,
@@ -16,12 +17,15 @@ cor_region_dnam_target_gene(
 )
 }
 \arguments{
-\item{links}{A dataframe with the following columns: regionID (DNA methylation) and target (target gene)}
+\item{links}{A dataframe with the following columns:
+regionID (DNA methylation) and target (target gene)}
 
-\item{dnam}{DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
+\item{dnam}{DNA methylation matrix (rows are regions and columns are samples).
+Samples should be in the
 same order as gene expression.}
 
-\item{exp}{Gene expression matrix (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
+\item{exp}{Gene expression matrix (rows are genes, columns are samples)
+log2-normalized (log2(exp + 1)).
 Samples should be in the same order as the DNA methylation matrix.}
 
 \item{filter.results}{Filter results using min.cor.pval and min.cor.estimate thresholds}
@@ -35,13 +39,15 @@ Samples should be in the same order as the DNA methylation matrix.}
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \value{
-A data frame with the following information: regionID, target gene, correlation pvalue and estimate between
+A data frame with the following information: regionID, target gene,
+correlation pvalue and estimate between
 DNA methylation and target gene expression, FDR corrected p-values.
 }
 \description{
 This function evaluate the correlation of the DNA methylation
 region and target gene expression using spearman rank correlation test.
-Note that genes with RNA expression equal to 0 for  all samples will not be evaluated.
+Note that genes with RNA expression equal to 0 for all samples
+will not be evaluated.
 }
 \examples{
 dnam <- t(matrix(sort(c(runif(20))), ncol = 1))

@@ -1,13 +1,19 @@
-#' @title Evaluate correlation of DNA methylation region and target gene expression
+#' @title Evaluate correlation of DNA methylation region and
+#' target gene expression
 #' @description This function evaluate the correlation of the DNA methylation
 #' region and target gene expression using spearman rank correlation test.
-#' Note that genes with RNA expression equal to 0 for  all samples will not be evaluated.
-#' @return A data frame with the following information: regionID, target gene, correlation pvalue and estimate between
+#' Note that genes with RNA expression equal to 0 for all samples
+#' will not be evaluated.
+#' @return A data frame with the following information: regionID, target gene,
+#' correlation pvalue and estimate between
 #' DNA methylation and target gene expression, FDR corrected p-values.
-#' @param links A dataframe with the following columns: regionID (DNA methylation) and target (target gene)
-#' @param dnam DNA methylation matrix (rows are regions and columns are samples). Samples should be in the
+#' @param links A dataframe with the following columns:
+#' regionID (DNA methylation) and target (target gene)
+#' @param dnam DNA methylation matrix (rows are regions and columns are samples).
+#' Samples should be in the
 #' same order as gene expression.
-#' @param exp Gene expression matrix (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
+#' @param exp Gene expression matrix (rows are genes, columns are samples)
+#' log2-normalized (log2(exp + 1)).
 #' Samples should be in the same order as the DNA methylation matrix.
 #' @param filter.results Filter results using min.cor.pval and min.cor.estimate thresholds
 #' @param min.cor.pval Filter of significant correlations (default: 0.05)
@@ -161,7 +167,10 @@ cor_region_dnam_target_gene <- function(
 
     if(filter.results){
         correlation.df <- correlation.df %>%
-            dplyr::filter(.data$met_exp_cor_fdr <= min.cor.pval & abs(.data$met_exp_cor_estimate) >= min.cor.estimate)
+            dplyr::filter(
+                .data$met_exp_cor_fdr <= min.cor.pval &
+                    abs(.data$met_exp_cor_estimate) >= min.cor.estimate
+            )
     }
 
     if(!missing(file.out)) readr::write_tsv(x = correlation.df, path = file.out)

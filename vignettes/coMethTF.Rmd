@@ -350,12 +350,17 @@ If estimate < 0, increasing values of the variable correspond to decreased targe
 
 The following columns are provided for the results of fitting **Model 1** to triplet data:
 
-* `pval_met`: p-value for DNA methylation variable
-* `pval_rna.tf` : p-value for TF expression
-* `pval_met.rna.tf`: : p-value for DNA methylation by  TF interaction
-* `estimate_met`: estimate for DNA methylation variable
-* `estimate_rna.tf`: estimate  for TF expression
-* `estimate_met.rna.tf`: estimate for DNA methylation by  TF interaction
+* direct effect of methylation:  
+  + `pval_met`: p-value for DNA methylation variable
+  + `estimate_met`: estimated DNA methylation effect
+
+* direct effect of TF: 
+  + `pval_rna.tf` : p-value for TF expression
+  + `estimate_rna.tf`: estimated TF effect
+  
+* synergistic effects of methylation and TF: 
+  + `pval_met.rna.tf`: : p-value for DNA methylation by TF interaction
+  + `estimate_met.rna.tf`: estimated DNA methylation by TF interaction effect
 
 ```{R interaction_model_results}
 dim(results.interaction.model)
@@ -370,13 +375,17 @@ results.interaction.model %>% dplyr::select(
 
 The following columns are provided for the results of fitting **Model 2** (quartile model) to triplet data:
 
-* `quant_pval_metGrp`: p-value for DNA methylation variable
-* `quant_pval_rna.tf` : p-value for TF expression
-* `quant_pval_metGrp:rna.tf`: : p-value for DNA methylation by  TF interaction
-* `quant_estimates_metGrp`: estimate for DNA methylation variable
-* `quant_estimates_rna.tf`: estimate  for TF expression
-* `quant_estimates_metGrp:rna.tf`: estimate for DNA methylation by  TF interaction
+* direct effect of methylation:  
+  + `quant_pval_metGrp`: p-value for binary DNA methylation variable
+  + `quant_estimates_metGrp`: estimated DNA methylation effect
 
+* direct effect of TF: 
+  + `quant_pval_rna.tf` : p-value for TF expression
+  + `quant_estimates_rna.tf`: estimated TF effect
+  
+* synergistic effects of methylation and TF: 
+  + `quant_pval_metGrp:rna.tf`: : p-value for DNA methylation by TF interaction
+  + `quant_estimates_metGrp:rna.tf`: estimated DNA methylation by TF interaction effect
 
 ```{R}
 # Results for quartile model

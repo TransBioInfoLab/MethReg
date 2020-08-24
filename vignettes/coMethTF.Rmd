@@ -437,10 +437,10 @@ results.stratified.model %>% head
 
 ## 4.3 Visualization of data  
 
-The functions `plot_interaction_model` and  `plot_stratified_model` 
+The functions `plot_interaction_model` 
 will create figures to visualize the data, 
 in a way that corresponds to the linear model we considered above. 
-It requires the output from the function `interaction_model`/`stratified_model` (a dataframe),
+It requires the output from the function `interaction_model` (a dataframe),
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
@@ -452,22 +452,10 @@ plots <- plot_interaction_model(
 )
 ```
 
-```{R, fig.height = 14, fig.width = 14, eval = TRUE}
+```{R, fig.height = 8, fig.width = 10, eval = TRUE}
 plots[[29]]
 ```
 
-
-```{R plot_stratified_model, eval=TRUE, message=FALSE, results="hide", warning=FALSE}
-plots <- plot_stratified_model(
-    triplet.results = results.stratified.model, 
-    dnam = dna.met.chr21.se, 
-    exp = gene.exp.chr21.se
-)
-```
-
-```{R, fig.height = 14, fig.width = 14, eval = TRUE}
-plots[[29]]
-```
 
 The first row of the figures shows pairwise associations between DNA methylation, 
 TF and target gene expression levels. 

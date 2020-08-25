@@ -426,9 +426,9 @@ get_plot_results_aux <- function(
             vjust = 1,
             color = 'blue',
             label = paste0(
-                x, " ", y,
-                " (rlm) = ",formatC(rlm.res$rlm.val, digits = 2, format = "e"),
-                "\npval (rlm) = ",  formatC(rlm.res$rlm.p.value, digits = 2, format = "e"))
+                #gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
+                "RLM estimate = ",formatC(rlm.res$rlm.val, digits = 2, format = "e"),
+                "\nRLM P-value = ",  formatC(rlm.res$rlm.p.value, digits = 2, format = "e"))
         )
     } else {
         # lower Annotation
@@ -447,9 +447,9 @@ get_plot_results_aux <- function(
             vjust = 1,
             color = 'blue',
             label = paste0(
-                x, " ", y,
-                " (rlm) = ",formatC(rlm.res.low$rlm.val, digits = 2, format = "e"),
-                "\npval (rlm) = ",  formatC(rlm.res.low$rlm.p.value, digits = 2, format = "e"))
+                # gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
+                "RLM estimate = ",formatC(rlm.res.low$rlm.val, digits = 2, format = "e"),
+                "\nRLM P-value  = ",  formatC(rlm.res.low$rlm.p.value, digits = 2, format = "e"))
         )
 
         rlm.res.high <- get_rlm_val_pval(df %>% dplyr::filter(grepl("high",df[[facet.by]])), x , y)
@@ -467,9 +467,9 @@ get_plot_results_aux <- function(
             vjust = 1,
             color = 'blue',
             label = paste0(
-                x, " ", y,
-                " (rlm) = ",formatC(rlm.res.high$rlm.val, digits = 2, format = "e"),
-                "\npval (rlm) = ",  formatC(rlm.res.high$rlm.p.value, digits = 2, format = "e"))
+                #gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
+                "RLM estimate = ",formatC(rlm.res.high$rlm.val, digits = 2, format = "e"),
+                "\nRLM P-value = ",  formatC(rlm.res.high$rlm.p.value, digits = 2, format = "e"))
         )
     }
     return(p)

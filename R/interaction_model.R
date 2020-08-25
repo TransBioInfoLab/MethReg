@@ -10,6 +10,8 @@
 #' @param exp A log2 (gene expression count + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
+#' @param use_tf_enrichment_scores Calculate normalized enrichment scores for each TF across all samples
+#' and uses in the learner models instead of TF gene expression.
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
@@ -99,11 +101,12 @@
 #' data("dna.met.chr21")
 #' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 #' data("gene.exp.chr21.log2")
-#' triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
-#'                       "TF" = rownames(gene.exp.chr21.log2)[11:20],
-#'                       "target" = rownames(gene.exp.chr21.log2)[1:10])
+#' triplet <- data.frame(
+#'     "regionID" = rownames(dna.met.chr21)[1:10],
+#'     "TF" = rownames(gene.exp.chr21.log2)[11:20],
+#'     "target" = rownames(gene.exp.chr21.log2)[1:10]
+#' )
 #' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
-#'
 #' # select those that are significant in both models
 #' # results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
 #' }
@@ -115,7 +118,8 @@ interaction_model <- function(
     triplet,
     dnam,
     exp,
-    cores = 1
+    cores = 1,
+    use_tf_enrichment_scores = FALSE
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -149,6 +153,16 @@ interaction_model <- function(
             .data$regionID %in% rownames(dnam)
     )
 
+
+    tf_es <- NULL
+    if(use_tf_enrichment_scores){
+        tf_es <- get_tf_ES(exp)
+        triplet <- triplet %>% dplyr::filter(
+            .data$TF %in% rownames(tf_es)
+        )
+    }
+
+
     # Remove cases where target is also the TF if it exists
     triplet <- triplet %>% dplyr::filter(
         .data$TF != .data$target
@@ -161,6 +175,7 @@ interaction_model <- function(
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
 
+
     parallel <- register_cores(cores)
 
     ret <- plyr::adply(
@@ -168,7 +183,13 @@ interaction_model <- function(
         .margins = 1,
         .fun = function(row.triplet){
 
-            data <- make_df_from_triple(exp, dnam, row.triplet)
+            data <- make_df_from_triple(
+                exp = exp,
+                dnam = dnam,
+                row.triplet = row.triplet,
+                tf_es = tf_es,
+                use_tf_enrichment_scores = use_tf_enrichment_scores
+            )
 
             quant.met <-  quantile(data$met,na.rm = TRUE)
             quant.diff <- data.frame("met.q4_minus_q1" = quant.met[4] - quant.met[2])
@@ -229,6 +250,14 @@ interaction_model <- function(
     #if(filter.by.tf.no.diff){
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
+
+    # Since we used enrichment scores in the linear model
+    # we will rename the output
+    if(use_tf_enrichment_scores) {
+        colnames(ret) <- gsub("rna.tf","es.tf",colnames(ret))
+    }
+
+    message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
     ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
 }
 
@@ -253,10 +282,21 @@ interaction_quant_model_no_results <- function(){
         "quant_estimate_metGrp:rna.tf" = NA) %>% as.data.frame()
 }
 
-make_df_from_triple <- function(exp, dnam, row.triplet){
+make_df_from_triple <- function(
+    exp,
+    dnam,
+    row.triplet,
+    tf_es,
+    use_tf_enrichment_scores
+){
     rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
     met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
-    rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
+
+    if(use_tf_enrichment_scores){
+        rna.tf <- tf_es[rownames(tf_es) == row.triplet$TF, , drop = FALSE]
+    } else {
+        rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
+    }
 
     data <- data.frame(
         rna.target = rna.target %>% as.numeric,

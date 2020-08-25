@@ -5,7 +5,13 @@
 \title{Fits linear models with interaction to triplet data (Target, TF, DNAm), where DNAm
 can be a continuous variable (for all samples) or a binary variable (samples in Q1 or Q4)}
 \usage{
-interaction_model(triplet, dnam, exp, cores = 1)
+interaction_model(
+  triplet,
+  dnam,
+  exp,
+  cores = 1,
+  use_tf_enrichment_scores = FALSE
+)
 }
 \arguments{
 \item{triplet}{Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)}
@@ -16,6 +22,9 @@ interaction_model(triplet, dnam, exp, cores = 1)
 rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
+
+\item{use_tf_enrichment_scores}{Calculate normalized enrichment scores for each TF across all samples
+and uses in the learner models instead of TF gene expression.}
 }
 \value{
 A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
@@ -119,7 +128,6 @@ triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
                       "TF" = rownames(gene.exp.chr21.log2)[11:20],
                       "target" = rownames(gene.exp.chr21.log2)[1:10])
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
-
 # select those that are significant in both models
 # results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
 }

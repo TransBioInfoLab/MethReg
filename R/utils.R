@@ -463,3 +463,44 @@ make_se_from_gene_matrix <- function (
     )
     return(se)
 }
+
+
+#' @title Calculate enrichment scores for each TF across all samples using
+#' \code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
+#' @param exp Gene expression matrix with gene expression counts,
+#' row as ENSG gene IDS and column as samples
+#' @param rna A matrix containing a gene expression matrix with genes
+#'  in rows and samples in columns.
+#' @examples
+#' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
+#' tf_es <- get_tf_ES(gene.exp.chr21.log2)
+#' @return A matrix of normalized enrichment scores for each TF across all samples
+#' @noRd
+get_tf_ES <- function(exp){
+    check_package("dorothea")
+    check_package("viper")
+
+    data(dorothea_hs, package = "dorothea")
+    regulons = dorothea_hs %>%
+        filter(.data$confidence %in% c("A", "B"))
+
+    if(all(grepl("ENSG",rownames(exp)))){
+        rownames(exp) <- coMethTF:::map_ensg_to_symbol(rownames(exp))
+    }
+
+    tf_activities <- dorothea::run_viper(
+        input = exp,
+        regulons = regulons,
+        options =  list(
+            method = "scale",
+            minsize = 4,
+            eset.filter = FALSE,
+            cores = 1,
+            verbose = FALSE
+        )
+    )
+    rownames(tf_activities) <- coMethTF:::map_symbol_to_ensg(rownames(tf_activities))
+    tf_activities
+
+}
+

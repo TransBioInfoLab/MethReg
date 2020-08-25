@@ -142,7 +142,7 @@ stratified_model <- function(
         .margins = 1,
         .fun = function(row.triplet){
 
-            data <- make_df_from_triple(exp, dnam, row.triplet)
+            data <- get_triplet_data(exp, dnam, row.triplet)
 
             low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
             upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]

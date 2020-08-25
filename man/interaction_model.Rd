@@ -124,9 +124,11 @@ results <- interaction_model(triplet, dnam, exp)
 data("dna.met.chr21")
 dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 data("gene.exp.chr21.log2")
-triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
-                      "TF" = rownames(gene.exp.chr21.log2)[11:20],
-                      "target" = rownames(gene.exp.chr21.log2)[1:10])
+triplet <- data.frame(
+    "regionID" = rownames(dna.met.chr21)[1:10],
+    "TF" = rownames(gene.exp.chr21.log2)[11:20],
+    "target" = rownames(gene.exp.chr21.log2)[1:10]
+)
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
 # select those that are significant in both models
 # results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]

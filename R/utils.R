@@ -485,21 +485,27 @@ get_tf_ES <- function(exp){
         filter(.data$confidence %in% c("A", "B"))
 
     if(all(grepl("ENSG",rownames(exp)))){
-        rownames(exp) <- coMethTF:::map_ensg_to_symbol(rownames(exp))
+        rownames(exp) <- map_ensg_to_symbol(rownames(exp))
     }
 
-    tf_activities <- dorothea::run_viper(
-        input = exp,
-        regulons = regulons,
-        options =  list(
-            method = "scale",
-            minsize = 4,
-            eset.filter = FALSE,
-            cores = 1,
-            verbose = FALSE
+    tf_activities <- tryCatch({
+        tf_activities <- dorothea::run_viper(
+            input = exp,
+            regulons = regulons,
+            options =  list(
+                method = "scale",
+                minsize = 4,
+                eset.filter = FALSE,
+                cores = 1,
+                verbose = FALSE
+            )
         )
-    )
-    rownames(tf_activities) <- coMethTF:::map_symbol_to_ensg(rownames(tf_activities))
+        rownames(tf_activities) <- map_symbol_to_ensg(rownames(tf_activities))
+        tf_activities
+    }, error = function(e) {
+        message(e)
+        return(NULL)
+    })
     tf_activities
 
 }

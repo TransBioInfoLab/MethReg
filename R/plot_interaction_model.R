@@ -31,7 +31,7 @@
 #'
 #' exp.tf <- runif(20,min = 0,max = 10) %>%
 #'   matrix(ncol = 1) %>%  t
-#' rownames(exp.tf) <- c("ENSG00000232888")
+#' rownames(exp.tf) <- c("ENSG00000101412")
 #' colnames(exp.tf) <- paste0("Samples",1:20)
 #'
 #' exp <- rbind(exp.tf, exp.target)
@@ -39,7 +39,7 @@
 #' triplet <- data.frame(
 #'    "regionID" =  c("chr3:203727581-203728580"),
 #'    "target" = "ENSG00000232886",
-#'    "TF" = "ENSG00000232888"
+#'    "TF" = "ENSG00000101412"
 #')
 #'
 #' results <- interaction_model(triplet = triplet, dnam = dnam, exp = exp)
@@ -51,11 +51,13 @@
 #'
 #' \dontrun{
 #' data("dna.met.chr21")
-#' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+#' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 #' data("gene.exp.chr21.log2")
-#' triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
-#'                       "TF" = rownames(gene.exp.chr21.log2)[11:20],
-#'                       "target" = rownames(gene.exp.chr21.log2)[1:10])
+#' triplet <- data.frame(
+#'   "regionID" = rownames(dna.met.chr21)[1],
+#'   "TF" = "ENSG00000101412",
+#'   "target" = rownames(gene.exp.chr21.log2)[1]
+#' )
 #' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
 #' plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21.log2)
 #' # Adding color to samples
@@ -85,6 +87,13 @@ plot_interaction_model <-  function(
 
     check_data(dnam, exp, metadata)
 
+    tf_es <- NULL
+    use_tf_enrichment_scores <- any(grepl("es.tf",colnames(triplet.results)))
+    if(use_tf_enrichment_scores){
+        tf_es <- get_tf_ES(exp)
+        if(is.null(tf_es)) stop("Enrichment score calculation error")
+    }
+
     out <- plyr::alply(
         .data = triplet.results,
         .margins = 1,
@@ -95,7 +104,9 @@ plot_interaction_model <-  function(
             df <- get_triplet_data(
                 exp = exp,
                 dnam = dnam,
-                row.triplet = row.triplet
+                row.triplet = row.triplet,
+                tf_es = tf_es,
+                use_tf_enrichment_scores = use_tf_enrichment_scores
             )
 
             color <- NULL
@@ -104,7 +115,12 @@ plot_interaction_model <-  function(
                 color <- colnames(metadata)[1]
             }
 
-            plots <- get_plot_results(df, row.triplet, color)
+            plots <- get_plot_results(
+                df = df,
+                row.triplet = row.triplet,
+                color =  color,
+                use_tf_enrichment_scores = use_tf_enrichment_scores
+            )
 
             # Reformat p-values for better looking on the plots
             idx <- grep("pval|fdr|value",colnames(row.triplet))
@@ -154,24 +170,6 @@ plot_interaction_model <-  function(
         triplet.results$target
     )
     out
-}
-
-get_triplet_data <- function(
-    exp,
-    dnam,
-    row.triplet
-){
-
-    rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
-    met <- dnam[rownames(dnam) == as.character(row.triplet$regionID),,drop = FALSE]
-    rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
-
-    df <- data.frame(
-        rna.target = rna.target %>% as.numeric,
-        met = met %>% as.numeric,
-        rna.tf = rna.tf %>% as.numeric
-    )
-    return(df)
 }
 
 get_table_plot <- function(row.triplet){
@@ -251,12 +249,18 @@ get_table_plot <- function(row.triplet){
 get_plot_results <- function(
     df,
     row.triplet,
-    color
+    color,
+    use_tf_enrichment_scores = FALSE
 ){
 
     target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))
     region.lab <- "DNA methylation"
-    tf.lab <- bquote(atop("TF" ~.(row.triplet$TF_symbol %>% as.character())))
+
+    if(use_tf_enrichment_scores){
+        tf.lab <- bquote(atop("Enrichment scores TF" ~.(row.triplet$TF_symbol %>% as.character())))
+    } else {
+        tf.lab <- bquote(atop("TF" ~.(row.triplet$TF_symbol %>% as.character())))
+    }
 
     # quintile plots met
     quant <- quantile(df$met,na.rm = TRUE)
@@ -538,8 +542,8 @@ get_table_plot_results <- function(row.triplet, type){
         paste0(pattern.estimate,"|_"),"", table.plot.estimate$Variable
     )
 
-    table.plot.estimate$Variable[grep("^rna.tf$",table.plot.estimate$Variable)] <- "Direct effect of TF"
-    table.plot.estimate$Variable[grep(":rna.tf$",table.plot.estimate$Variable)] <- "Synergistic effect of DNA and TF"
+    table.plot.estimate$Variable[grep("^rna.tf$|^es.tf$",table.plot.estimate$Variable)] <- "Direct effect of TF"
+    table.plot.estimate$Variable[grep(":rna.tf$|:es.tf$",table.plot.estimate$Variable)] <- "Synergistic effect of DNA and TF"
     table.plot.estimate$Variable[grep("^met",table.plot.estimate$Variable)] <- "Direct effect of DNAm"
 
 
@@ -554,8 +558,8 @@ get_table_plot_results <- function(row.triplet, type){
         table.plot.pval$Variable
     )
 
-    table.plot.pval$Variable[grep("^rna.tf$",table.plot.pval$Variable)] <- "Direct effect of TF"
-    table.plot.pval$Variable[grep(":rna.tf$",table.plot.pval$Variable)] <- "Synergistic effect of DNA and TF"
+    table.plot.pval$Variable[grep("^rna.tf$|^es.tf$",table.plot.pval$Variable)] <- "Direct effect of TF"
+    table.plot.pval$Variable[grep(":rna.tf$|:es.tf$",table.plot.pval$Variable)] <- "Synergistic effect of DNA and TF"
     table.plot.pval$Variable[grep("^met",table.plot.pval$Variable)] <- "Direct effect of DNAm"
 
     colnames(table.plot.pval)[2] <- "P-value"

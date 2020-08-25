@@ -157,6 +157,7 @@ interaction_model <- function(
     tf_es <- NULL
     if(use_tf_enrichment_scores){
         tf_es <- get_tf_ES(exp)
+        if(is.null(tf_es)) stop("Enrichment score calculation error")
         triplet <- triplet %>% dplyr::filter(
             .data$TF %in% rownames(tf_es)
         )
@@ -183,7 +184,7 @@ interaction_model <- function(
         .margins = 1,
         .fun = function(row.triplet){
 
-            data <- make_df_from_triple(
+            data <- get_triplet_data(
                 exp = exp,
                 dnam = dnam,
                 row.triplet = row.triplet,
@@ -282,12 +283,12 @@ interaction_quant_model_no_results <- function(){
         "quant_estimate_metGrp:rna.tf" = NA) %>% as.data.frame()
 }
 
-make_df_from_triple <- function(
+get_triplet_data <- function(
     exp,
     dnam,
     row.triplet,
     tf_es,
-    use_tf_enrichment_scores
+    use_tf_enrichment_scores = FALSE
 ){
     rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
     met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]

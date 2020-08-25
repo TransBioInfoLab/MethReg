@@ -46,7 +46,7 @@ colnames(exp.target) <- paste0("Samples",1:20)
 
 exp.tf <- runif(20,min = 0,max = 10) \%>\%
   matrix(ncol = 1) \%>\%  t
-rownames(exp.tf) <- c("ENSG00000232888")
+rownames(exp.tf) <- c("ENSG00000101412")
 colnames(exp.tf) <- paste0("Samples",1:20)
 
 exp <- rbind(exp.tf, exp.target)
@@ -54,7 +54,7 @@ exp <- rbind(exp.tf, exp.target)
 triplet <- data.frame(
    "regionID" =  c("chr3:203727581-203728580"),
    "target" = "ENSG00000232886",
-   "TF" = "ENSG00000232888"
+   "TF" = "ENSG00000101412"
 )
 
 results <- interaction_model(triplet = triplet, dnam = dnam, exp = exp)
@@ -66,11 +66,13 @@ plots <- plot_interaction_model(
 
 \dontrun{
 data("dna.met.chr21")
-dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
+dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 data("gene.exp.chr21.log2")
-triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
-                      "TF" = rownames(gene.exp.chr21.log2)[11:20],
-                      "target" = rownames(gene.exp.chr21.log2)[1:10])
+triplet <- data.frame(
+  "regionID" = rownames(dna.met.chr21)[1],
+  "TF" = "ENSG00000101412",
+  "target" = rownames(gene.exp.chr21.log2)[1]
+)
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
 plots <- plot_interaction_model(results[1,], dna.met.chr21, gene.exp.chr21.log2)
 # Adding color to samples

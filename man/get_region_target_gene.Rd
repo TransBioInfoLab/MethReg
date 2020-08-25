@@ -28,17 +28,17 @@ and downstream of the region ("nearby.genes");
 or closest gene to the region ("closest.gene")}
 
 \item{promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of
-TSS to consider as promoter regions}
+TSS to consider as promoter regions. Defaults to 2000 bp.}
 
 \item{promoter.downstream.dist.tss}{Number of base pairs (bp) downstream of
-TSS to consider as promoter regions}
+TSS to consider as promoter regions. Defaults to 2000 bp.}
 
 \item{window.size}{When \code{method = "window"}, number of base pairs
 to extend the region (+- window.size/2).
 Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 
 \item{num.flanking.genes}{When \code{method = "nearby.genes"}, set the number
-of flanking genes upstream and downstream to search.
+of flanking genes upstream and downstream to search.Defaults to 5.
 For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 and 5 genes downstream of the given region.}
 

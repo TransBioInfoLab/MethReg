@@ -17,16 +17,16 @@
 #' to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
 #' @param num.flanking.genes When \code{method = "nearby.genes"}, set the number
-#' of flanking genes upstream and downstream to search.
+#' of flanking genes upstream and downstream to search.Defaults to 5.
 #' For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 #' and 5 genes downstream of the given region.
 #' @param rm.promoter.regions.from.distal.linking When performing distal linking
 #' with method = "windows" or method = "nearby.genes", if set to TRUE (default),
 #' probes in promoter regions will be removed from the input.
 #' @param promoter.upstream.dist.tss Number of base pairs (bp) upstream of
-#' TSS to consider as promoter regions
+#' TSS to consider as promoter regions. Defaults to 2000 bp.
 #' @param promoter.downstream.dist.tss Number of base pairs (bp) downstream of
-#' TSS to consider as promoter regions
+#' TSS to consider as promoter regions. Defaults to 2000 bp.
 #' @importFrom GenomicRanges findOverlaps
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite

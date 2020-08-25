@@ -9,6 +9,7 @@
 #' @param exp A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
+#' @param use_tf_enrichment_scores Calculate normalized enrichment scores for each TF across all samples
 #' @return A dataframe with \code{Region, TF, target, TF_symbol target_symbol}, results for
 #' fitting linear models to samples with low methylation (\code{DNAmlow_pval_rna.tf},
 #' \code{DNAmlow_estimate_rna.tf}), or samples with high methylation (\code{DNAmhigh_pval_rna.tf},
@@ -92,7 +93,8 @@ stratified_model <- function(
     triplet,
     dnam,
     exp,
-    cores = 1
+    cores = 1,
+    use_tf_enrichment_scores = FALSE
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -131,6 +133,16 @@ stratified_model <- function(
             .data$TF != .data$target
     )
 
+
+    tf_es <- NULL
+    if(use_tf_enrichment_scores){
+        tf_es <- get_tf_ES(exp)
+        if(is.null(tf_es)) stop("Enrichment score calculation error")
+        triplet <- triplet %>% dplyr::filter(
+            .data$TF %in% rownames(tf_es)
+        )
+    }
+
     if(nrow(triplet) == 0){
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
@@ -142,7 +154,13 @@ stratified_model <- function(
         .margins = 1,
         .fun = function(row.triplet){
 
-            data <- get_triplet_data(exp, dnam, row.triplet)
+            data <- get_triplet_data(
+                exp = exp,
+                dnam = dnam,
+                row.triplet = row.triplet,
+                tf_es = tf_es,
+                use_tf_enrichment_scores = use_tf_enrichment_scores
+            )
 
             low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
             upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
@@ -169,6 +187,10 @@ stratified_model <- function(
                 "TF.role" = classification$TF.role
             )
         }, .progress = "time", .parallel = parallel, .inform = TRUE)
+
+    if(use_tf_enrichment_scores) {
+        colnames(out) <- gsub("rna.tf","es.tf",colnames(out))
+    }
 
     return(out)
 }
@@ -245,7 +267,7 @@ stratified_model_aux_no_results <- function(pct.zeros.samples){
     list("estimate" = NA,
          "pval" = NA,
          "Model" = "Robust Linear Model",
-         "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
+         "percent_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
     )
 
 }

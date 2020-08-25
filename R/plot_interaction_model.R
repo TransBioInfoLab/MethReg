@@ -99,7 +99,11 @@ plot_interaction_model <-  function(
         .margins = 1,
         .fun = function(row.triplet,metadata){
 
-            row.triplet <- stratified_model(row.triplet,dnam,exp)
+            row.triplet <- stratified_model(
+                triplet = row.triplet,
+                dnam =  dnam, exp = exp,
+                use_tf_enrichment_scores = use_tf_enrichment_scores
+            )
 
             df <- get_triplet_data(
                 exp = exp,

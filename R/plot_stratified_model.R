@@ -98,21 +98,24 @@ plot_stratified_model <-  function(
 
     check_data(dnam, exp, metadata)
 
+    tf_es <- NULL
+    use_tf_enrichment_scores <- any(grepl("es.tf",colnames(triplet.results)))
+    if(use_tf_enrichment_scores){
+        tf_es <- get_tf_ES(exp)
+        if(is.null(tf_es)) stop("Enrichment score calculation error")
+    }
 
     out <- plyr::alply(
         .data = triplet.results,
         .margins = 1,
         .fun = function(row.triplet,metadata){
 
-            rna.target <- exp[rownames(exp) == as.character(row.triplet$target), , drop = FALSE]
-            rna.tf <- exp[rownames(exp) == as.character(row.triplet$TF), , drop = FALSE]
-            met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), , drop = FALSE]
-
-            df <- data.frame(
-                rna.target = rna.target %>% as.numeric,
-                met = met %>% as.numeric,
-                rna.tf = rna.tf %>% as.numeric,
-                stringsAsFactors = FALSE
+            df <- get_triplet_data(
+                exp = exp,
+                dnam = dnam,
+                row.triplet = row.triplet,
+                tf_es = tf_es,
+                use_tf_enrichment_scores = use_tf_enrichment_scores
             )
 
             color <- NULL
@@ -121,7 +124,12 @@ plot_stratified_model <-  function(
                 color <- colnames(metadata)[1]
             }
 
-            plots <- get_plot_results(df, row.triplet, color)
+            plots <- get_plot_results(
+                df = df,
+                row.triplet = row.triplet,
+                color =  color,
+                use_tf_enrichment_scores = use_tf_enrichment_scores
+            )
 
             # Reformat p-values for better looking on the plots
             for(idx in grep("pval|fdr|value",colnames(row.triplet))) {

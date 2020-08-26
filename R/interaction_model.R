@@ -12,6 +12,10 @@
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
 #' to be used in linear models instead of TF gene expression.
+#' @param sig.threshold Threshold to filter significant triplets.
+#' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
+#' @param fdr Uses fdr when using sig.threshold.
+#' Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
@@ -119,7 +123,9 @@ interaction_model <- function(
     dnam,
     exp,
     cores = 1,
-    tf.activity.es = NULL
+    tf.activity.es = NULL,
+    sig.threshold = 0.05,
+    fdr = TRUE
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -256,6 +262,20 @@ interaction_model <- function(
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
 
+    filters <- grep("quant_pval",colnames(ret), value = TRUE)
+
+        for(pval.col in grep("pval",colnames(ret),value = TRUE)){
+            fdr.col <- gsub("pval","fdr",pval.col)
+            ret[[fdr.col]] <- p.adjust(ret[[pval.col]], method = "fdr")
+        }
+
+    message("Filtering results to have interaction, TF or DNAm significant")
+    if(fdr){
+        ret <- ret %>% filter_at(vars(contains("quant_fdr")), any_vars(. < sig.threshold))
+    } else {
+        ret <- ret %>% filter_at(vars(contains("quant_pval")), any_vars(.< sig.threshold))
+    }
+
     # Since we used enrichment scores in the linear model
     # we will rename the output
     if(!is.null(tf.activity.es)) {
@@ -263,7 +283,7 @@ interaction_model <- function(
     }
 
     message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
-    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
+    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > sig.threshold)
 }
 
 

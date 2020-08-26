@@ -16,6 +16,8 @@
 #' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
 #' @param fdr Uses fdr when using sig.threshold.
 #' Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model
+#' @param filter.correlated.tf.exp.dna  If wilxocon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
+#' triplet will be removed.
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
@@ -125,7 +127,8 @@ interaction_model <- function(
     cores = 1,
     tf.activity.es = NULL,
     sig.threshold = 0.05,
-    fdr = TRUE
+    fdr = TRUE,
+    filter.correlated.tf.exp.dna = TRUE
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -262,12 +265,10 @@ interaction_model <- function(
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
 
-    filters <- grep("quant_pval",colnames(ret), value = TRUE)
-
-        for(pval.col in grep("pval",colnames(ret),value = TRUE)){
-            fdr.col <- gsub("pval","fdr",pval.col)
-            ret[[fdr.col]] <- p.adjust(ret[[pval.col]], method = "fdr")
-        }
+    for(pval.col in grep("pval_",colnames(ret),value = TRUE)){
+        fdr.col <- gsub("pval","fdr",pval.col)
+        ret[[fdr.col]] <- p.adjust(ret[[pval.col]], method = "fdr")
+    }
 
     message("Filtering results to have interaction, TF or DNAm significant")
     if(fdr){
@@ -283,7 +284,11 @@ interaction_model <- function(
     }
 
     message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
-    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > sig.threshold)
+    if(filter.correlated.tf.exp.dna){
+        ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
+    }
+
+    ret
 }
 
 

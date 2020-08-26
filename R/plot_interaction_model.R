@@ -90,13 +90,6 @@ plot_interaction_model <-  function(
 
     check_data(dnam, exp, metadata)
 
-    tf_es <- NULL
-    use_tf_enrichment_scores <- any(grepl("es.tf",colnames(triplet.results)))
-    if(use_tf_enrichment_scores){
-        tf_es <- get_tf_ES(exp)
-        if(is.null(tf_es)) stop("Enrichment score calculation error")
-    }
-
     out <- plyr::alply(
         .data = triplet.results,
         .margins = 1,

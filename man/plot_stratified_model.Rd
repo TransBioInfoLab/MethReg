@@ -4,7 +4,13 @@
 \alias{plot_stratified_model}
 \title{Plot stratified model results}
 \usage{
-plot_stratified_model(triplet.results, dnam, exp, metadata)
+plot_stratified_model(
+  triplet.results,
+  dnam,
+  exp,
+  metadata,
+  tf.activity.es = NULL
+)
 }
 \arguments{
 \item{triplet.results}{Output from function stratified_model
@@ -17,6 +23,9 @@ p-values and estimates of interaction}
 
 \item{metadata}{A data frame with samples as rownames and one columns that will be used to
 color the samples}
+
+\item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
+to be used in linear models instead of TF gene expression.}
 }
 \value{
 A ggplot object, includes a table with results from fitting stratified model,

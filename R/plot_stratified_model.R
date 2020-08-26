@@ -10,6 +10,8 @@
 #' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
 #' @param metadata A data frame with samples as rownames and one columns that will be used to
 #' color the samples
+#' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
+#' to be used in linear models instead of TF gene expression.
 #' @return A ggplot object, includes a table with results from fitting stratified model,
 #' and the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
@@ -81,7 +83,8 @@ plot_stratified_model <-  function(
     triplet.results,
     dnam,
     exp,
-    metadata
+    metadata,
+    tf.activity.es = NULL
 ){
 
     #---------------------------------------------------------------------------
@@ -98,13 +101,6 @@ plot_stratified_model <-  function(
 
     check_data(dnam, exp, metadata)
 
-    tf_es <- NULL
-    use_tf_enrichment_scores <- any(grepl("es.tf",colnames(triplet.results)))
-    if(use_tf_enrichment_scores){
-        tf_es <- get_tf_ES(exp)
-        if(is.null(tf_es)) stop("Enrichment score calculation error")
-    }
-
     out <- plyr::alply(
         .data = triplet.results,
         .margins = 1,
@@ -114,8 +110,7 @@ plot_stratified_model <-  function(
                 exp = exp,
                 dnam = dnam,
                 row.triplet = row.triplet,
-                tf_es = tf_es,
-                use_tf_enrichment_scores = use_tf_enrichment_scores
+                tf.es =  tf.activity.es
             )
 
             color <- NULL
@@ -128,7 +123,7 @@ plot_stratified_model <-  function(
                 df = df,
                 row.triplet = row.triplet,
                 color =  color,
-                use_tf_enrichment_scores = use_tf_enrichment_scores
+                use_tf_enrichment_scores = is.null(tf.activity.es)
             )
 
             # Reformat p-values for better looking on the plots
@@ -165,6 +160,7 @@ plot_stratified_model <-  function(
         }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
+
     names(out) <- paste0(
         triplet.results$regionID,"_TF_",triplet.results$TF,
         "_target_",triplet.results$target

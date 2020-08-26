@@ -480,7 +480,7 @@ get_tf_ES <- function(exp){
     check_package("dorothea")
     check_package("viper")
 
-    data(dorothea_hs, package = "dorothea")
+    dorothea_hs <- get(utils::data(dorothea_hs, package = "dorothea"))
     regulons = dorothea_hs %>%
         filter(.data$confidence %in% c("A", "B"))
 

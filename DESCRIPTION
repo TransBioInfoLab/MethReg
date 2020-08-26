@@ -54,7 +54,9 @@ Suggests:
     TFBSTools,
     motifmatchr,
     matrixStats,
-    biomaRt
+    biomaRt,
+    dorothea,
+    viper
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Depends: 

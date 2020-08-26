@@ -4,7 +4,13 @@
 \alias{plot_interaction_model}
 \title{Plot interaction model results}
 \usage{
-plot_interaction_model(triplet.results, dnam, exp, metadata)
+plot_interaction_model(
+  triplet.results,
+  dnam,
+  exp,
+  metadata,
+  tf.activity.es = NULL
+)
 }
 \arguments{
 \item{triplet.results}{Output from function interaction_model
@@ -17,6 +23,9 @@ p-values and estimates of interaction}
 
 \item{metadata}{A data frame with samples as rownames and one columns that will be used to
 color the samples}
+
+\item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
+to be used in linear models instead of TF gene expression.}
 }
 \value{
 A ggplot object, includes a table with results from fitting interaction model,

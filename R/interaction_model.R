@@ -10,8 +10,8 @@
 #' @param exp A log2 (gene expression count + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
-#' @param use_tf_enrichment_scores Calculate normalized enrichment scores for each TF across all samples
-#' and uses in the learner models instead of TF gene expression.
+#' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
+#' to be used in linear models instead of TF gene expression.
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
@@ -119,7 +119,7 @@ interaction_model <- function(
     dnam,
     exp,
     cores = 1,
-    use_tf_enrichment_scores = FALSE
+    tf.activity.es = NULL
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -149,17 +149,22 @@ interaction_model <- function(
 
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
-            .data$TF %in% rownames(exp) &
             .data$regionID %in% rownames(dnam)
     )
 
 
-    tf_es <- NULL
-    if(use_tf_enrichment_scores){
-        tf_es <- get_tf_ES(exp)
-        if(is.null(tf_es)) stop("Enrichment score calculation error")
+    if(!is.null(tf.activity.es)){
+
+        if(!all(grepl("^ENSG", rownames(tf.activity.es)))){
+            rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
+        }
+
         triplet <- triplet %>% dplyr::filter(
-            .data$TF %in% rownames(tf_es)
+            .data$TF %in% rownames(tf.activity.es)
+        )
+    } else {
+        triplet <- triplet %>% dplyr::filter(
+            .data$TF %in% rownames(exp)
         )
     }
 
@@ -188,8 +193,7 @@ interaction_model <- function(
                 exp = exp,
                 dnam = dnam,
                 row.triplet = row.triplet,
-                tf_es = tf_es,
-                use_tf_enrichment_scores = use_tf_enrichment_scores
+                tf.es = tf.activity.es
             )
 
             quant.met <-  quantile(data$met,na.rm = TRUE)
@@ -254,7 +258,7 @@ interaction_model <- function(
 
     # Since we used enrichment scores in the linear model
     # we will rename the output
-    if(use_tf_enrichment_scores) {
+    if(!is.null(tf.activity.es)) {
         colnames(ret) <- gsub("rna.tf","es.tf",colnames(ret))
     }
 
@@ -287,14 +291,13 @@ get_triplet_data <- function(
     exp,
     dnam,
     row.triplet,
-    tf_es,
-    use_tf_enrichment_scores = FALSE
+    tf.es
 ){
     rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
     met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
 
-    if(use_tf_enrichment_scores){
-        rna.tf <- tf_es[rownames(tf_es) == row.triplet$TF, , drop = FALSE]
+    if(!is.null(tf.es)){
+        rna.tf <- tf.es[rownames(tf.es) == row.triplet$TF, , drop = FALSE]
     } else {
         rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
     }

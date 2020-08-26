@@ -1,15 +1,25 @@
 test_that("interaction_model handles 0 cases in more than 25% of samples with zeroinflated model", {
-    dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
+
+    dnam <- c(
+        runif(10,min = 0,max = 0), # Q1
+        runif(10,min = 0.8, max = 1) # Q4
+    ) %>%  matrix(ncol = 1) %>%  t
     rownames(dnam) <- c("chr3:203727581-203728580")
     colnames(dnam) <- paste0("Samples",1:20)
 
-    exp.target <-  c(runif(10,min = 0,max = 0),
-                     runif(10,min = 0,max = 10)) %>%
-        matrix(ncol = 1) %>%  t
+    exp.target <-  c(
+        runif(10, min = 0, max = 0),
+        runif(10, min = 1, max = 5)
+    ) %>%  matrix(ncol = 1) %>%  t
     rownames(exp.target) <- c("ENSG00000232886")
     colnames(exp.target) <- paste0("Samples",1:20)
 
-    exp.tf <-  t(matrix(sort(c(runif(20))), ncol = 1))
+    exp.tf <-  c(
+        runif(5, min = 1, max = 5),
+        runif(5, min = 0, max = 0),
+        runif(5, min = 1, max = 5),
+        runif(5, min = 0, max = 0)
+    ) %>%  matrix(ncol = 1) %>%  t
     rownames(exp.tf) <- c("ENSG00000232888")
     colnames(exp.tf) <- paste0("Samples",1:20)
 
@@ -43,21 +53,23 @@ test_that("interaction_model handles 0 cases in more than 25% of samples with ze
 
 
 test_that("interaction_model performs rlm if no 0", {
-    dnam <- runif(n = 20, min = 0, max = 1) %>%
-        sort %>%
-        matrix(ncol = 1) %>%  t
+
+    dnam <- c(
+        runif(10,min = 0,max = 0), # Q1
+        runif(10,min = 0.8, max = 1) # Q4
+    ) %>%  matrix(ncol = 1) %>%  t
     rownames(dnam) <- c("chr3:203727581-203728580")
     colnames(dnam) <- paste0("Samples",1:20)
 
-    exp.target <- runif(n = 20, min = 0, max = 1) %>%
-        sort %>%
-        matrix(ncol = 1) %>%  t
+    exp.target <-  c(
+        runif(20, min = 1, max = 5)
+    ) %>%  matrix(ncol = 1) %>%  t
     rownames(exp.target) <- c("ENSG00000232886")
     colnames(exp.target) <- paste0("Samples",1:20)
 
-    exp.tf <- runif(n = 20, min = 1, max = 1) %>%
-        sort %>%
-        matrix(ncol = 1) %>%  t
+    exp.tf <-  c(
+        runif(20, min = 1, max = 5)
+    ) %>%  matrix(ncol = 1) %>%  t
     rownames(exp.tf) <- c("ENSG00000232888")
     colnames(exp.tf) <- paste0("Samples",1:20)
 

@@ -5,13 +5,7 @@
 \title{Fits linear models with interaction to triplet data (Target, TF, DNAm), where DNAm
 can be a continuous variable (for all samples) or a binary variable (samples in Q1 or Q4)}
 \usage{
-interaction_model(
-  triplet,
-  dnam,
-  exp,
-  cores = 1,
-  use_tf_enrichment_scores = FALSE
-)
+interaction_model(triplet, dnam, exp, cores = 1, tf.activity.es = NULL)
 }
 \arguments{
 \item{triplet}{Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)}
@@ -23,8 +17,8 @@ rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 
-\item{use_tf_enrichment_scores}{Calculate normalized enrichment scores for each TF across all samples
-and uses in the learner models instead of TF gene expression.}
+\item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
+to be used in linear models instead of TF gene expression.}
 }
 \value{
 A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},

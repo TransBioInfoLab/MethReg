@@ -13,6 +13,8 @@
 #' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
 #' @param metadata A data frame with samples as rownames and one columns that will be used to
 #' color the samples
+#' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
+#' to be used in linear models instead of TF gene expression.
 #' @return A ggplot object, includes a table with results from fitting interaction model,
 #' and the the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
@@ -72,7 +74,8 @@ plot_interaction_model <-  function(
     triplet.results,
     dnam,
     exp,
-    metadata
+    metadata,
+    tf.activity.es = NULL
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -102,15 +105,14 @@ plot_interaction_model <-  function(
             row.triplet <- stratified_model(
                 triplet = row.triplet,
                 dnam =  dnam, exp = exp,
-                use_tf_enrichment_scores = use_tf_enrichment_scores
+                tf.activity.es = tf.activity.es
             )
 
             df <- get_triplet_data(
                 exp = exp,
                 dnam = dnam,
                 row.triplet = row.triplet,
-                tf_es = tf_es,
-                use_tf_enrichment_scores = use_tf_enrichment_scores
+                tf.es =  tf.activity.es
             )
 
             color <- NULL
@@ -123,7 +125,7 @@ plot_interaction_model <-  function(
                 df = df,
                 row.triplet = row.triplet,
                 color =  color,
-                use_tf_enrichment_scores = use_tf_enrichment_scores
+                use_tf_enrichment_scores = is.null(tf.activity.es)
             )
 
             # Reformat p-values for better looking on the plots

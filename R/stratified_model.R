@@ -9,7 +9,8 @@
 #' @param exp A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
-#' @param use_tf_enrichment_scores Calculate normalized enrichment scores for each TF across all samples
+#' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
+#' to be used in linear models instead of TF gene expression.
 #' @return A dataframe with \code{Region, TF, target, TF_symbol target_symbol}, results for
 #' fitting linear models to samples with low methylation (\code{DNAmlow_pval_rna.tf},
 #' \code{DNAmlow_estimate_rna.tf}), or samples with high methylation (\code{DNAmhigh_pval_rna.tf},
@@ -94,7 +95,7 @@ stratified_model <- function(
     dnam,
     exp,
     cores = 1,
-    use_tf_enrichment_scores = FALSE
+    tf.activity.es = NULL
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -121,7 +122,6 @@ stratified_model <- function(
 
     triplet <- triplet %>% dplyr::filter(
         .data$target %in% rownames(exp) &
-            .data$TF %in% rownames(exp) &
             .data$regionID %in% rownames(dnam)
     )
 
@@ -130,16 +130,23 @@ stratified_model <- function(
 
     # Remove cases where target is also the TF if it exists
     triplet <- triplet %>% dplyr::filter(
-            .data$TF != .data$target
+        .data$TF != .data$target
     )
 
 
-    tf_es <- NULL
-    if(use_tf_enrichment_scores){
-        tf_es <- get_tf_ES(exp)
-        if(is.null(tf_es)) stop("Enrichment score calculation error")
+
+    if(!is.null(tf.activity.es)){
+
+        if(!all(grepl("^ENSG", rownames(tf.activity.es)))){
+            rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
+        }
+
         triplet <- triplet %>% dplyr::filter(
-            .data$TF %in% rownames(tf_es)
+            .data$TF %in% rownames(tf.activity.es)
+        )
+    } else {
+        triplet <- triplet %>% dplyr::filter(
+            .data$TF %in% rownames(exp)
         )
     }
 
@@ -158,8 +165,7 @@ stratified_model <- function(
                 exp = exp,
                 dnam = dnam,
                 row.triplet = row.triplet,
-                tf_es = tf_es,
-                use_tf_enrichment_scores = use_tf_enrichment_scores
+                tf.es = tf.activity.es
             )
 
             low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
@@ -188,7 +194,7 @@ stratified_model <- function(
             )
         }, .progress = "time", .parallel = parallel, .inform = TRUE)
 
-    if(use_tf_enrichment_scores) {
+    if(!is.null(tf.activity.es)) {
         colnames(out) <- gsub("rna.tf","es.tf",colnames(out))
     }
 
@@ -204,10 +210,10 @@ stratified_model_aux <- function(data, prefix = ""){
     if (pct.zeros.samples > 0.25) {
         results <-  tryCatch({
             pscl::zeroinfl(
-            trunc(rna.target) ~ rna.tf | 1,
-            data = data,
-            dist = "negbin",
-            EM = FALSE) %>% summary %>% coef
+                trunc(rna.target) ~ rna.tf | 1,
+                data = data,
+                dist = "negbin",
+                EM = FALSE) %>% summary %>% coef
         }, error = function(e){
             # message("Binary model: ", e)
             return(NULL)

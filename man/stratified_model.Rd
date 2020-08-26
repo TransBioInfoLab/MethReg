@@ -6,7 +6,7 @@
 samples with high DNAm or low DNAm separately, and annotates TF (activator/repressor,
 methyl-plus/methyl-minus).}
 \usage{
-stratified_model(triplet, dnam, exp, cores = 1)
+stratified_model(triplet, dnam, exp, cores = 1, tf.activity.es = NULL)
 }
 \arguments{
 \item{triplet}{Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)}
@@ -17,6 +17,9 @@ stratified_model(triplet, dnam, exp, cores = 1)
 rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
+
+\item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
+to be used in linear models instead of TF gene expression.}
 }
 \value{
 A dataframe with \code{Region, TF, target, TF_symbol target_symbol}, results for

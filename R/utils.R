@@ -469,20 +469,24 @@ make_se_from_gene_matrix <- function (
 #' \code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
 #' @param exp Gene expression matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
-#' @param rna A matrix containing a gene expression matrix with genes
-#'  in rows and samples in columns.
+#' @param min.confidence Minimun confidence score classifying regulons based on their quality
+#' from Human DoRothEA database.
 #' @examples
 #' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
 #' tf_es <- get_tf_ES(gene.exp.chr21.log2)
 #' @return A matrix of normalized enrichment scores for each TF across all samples
 #' @noRd
-get_tf_ES <- function(exp){
+get_tf_ES <- function(
+    exp,
+    min.confidence = "B"
+){
     check_package("dorothea")
     check_package("viper")
 
     dorothea_hs <- get(utils::data(dorothea_hs, package = "dorothea"))
+    confidence.set <- LETTERS[1:5][1:which(LETTERS[1:5] == min.confidence)]
     regulons = dorothea_hs %>%
-        filter(.data$confidence %in% c("A", "B"))
+        filter(.data$confidence %in% confidence.set)
 
     if(all(grepl("ENSG",rownames(exp)))){
         rownames(exp) <- map_ensg_to_symbol(rownames(exp))
@@ -501,6 +505,8 @@ get_tf_ES <- function(exp){
             )
         )
         rownames(tf_activities) <- map_symbol_to_ensg(rownames(tf_activities))
+        tf_activities <- tf_activities[!is.na(rownames(tf_activities)),]
+
         tf_activities
     }, error = function(e) {
         message(e)

@@ -20,9 +20,9 @@ cor_region_dnam_target_gene(
 \item{links}{A dataframe with the following columns:
 regionID (DNA methylation) and target (target gene)}
 
-\item{dnam}{DNA methylation matrix (rows are regions and columns are samples).
-Samples should be in the
-same order as gene expression.}
+\item{dnam}{DNA methylation matrix with regions in rows and samples
+in columns are samples. Samples should be in the
+same order as gene expression matrix (exp).}
 
 \item{exp}{Gene expression matrix (rows are genes, columns are samples)
 log2-normalized (log2(exp + 1)).
@@ -30,11 +30,11 @@ Samples should be in the same order as the DNA methylation matrix.}
 
 \item{filter.results}{Filter results using min.cor.pval and min.cor.estimate thresholds}
 
-\item{min.cor.pval}{Filter of significant correlations (default: 0.05)}
+\item{min.cor.pval}{P-value threshold filter (default: 0.05)}
 
-\item{min.cor.estimate}{Filter of significant correlations (default: not applied)}
+\item{min.cor.estimate}{Correlation estimate threshold filter (default: not applied)}
 
-\item{file.out}{If provided, name of a csv file which will be used to save the results.}
+\item{file.out}{A csv file name which will be used to save the results.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }

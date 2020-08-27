@@ -327,7 +327,10 @@ $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm 
 results.interaction.model <- interaction_model(
     triplet = triplet,
     dnam = dna.met.chr21.se[rownames(dna.met.chr21.se) %in% triplet$regionID,],
-    exp = gene.exp.chr21.se[rownames(gene.exp.chr21.se) %in% c(triplet$target,triplet$TF),]
+    exp = gene.exp.chr21.se[rownames(gene.exp.chr21.se) %in% c(triplet$target,triplet$TF),],
+    sig.threshold = 1.0,
+    fdr = FALSE,
+    filter.correlated.tf.exp.dna = FALSE
 )
 ```
 

@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# coMethTF
+# MethReg
 
 <!-- badges: start -->
 [![codecov](https://codecov.io/gl/tiagochst/methtf/branch/%5Cx6d6173746572/graph/badge.svg?token=NESBYPVF64)](https://codecov.io/gl/tiagochst/methtf)
@@ -21,15 +21,15 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 
-`coMethTF` can be used to generate testable hypothesis on the synergistic interaction of DMRs and TFs in gene regulation. 
-`coMethTF` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome.
+`MethReg` can be used to generate testable hypothesis on the synergistic interaction of DMRs and TFs in gene regulation. 
+`MethReg` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome.
 
 ## Installation
 
-You can install the released version of coMethTF from GitHub with:
+You can install the released version of MethReg from GitHub with:
 
 ``` r
-devtools::install_github("TransBioInfoLab/coMethTF")
+devtools::install_github("TransBioInfoLab/MethReg")
 ```
 
 ## Example
@@ -37,7 +37,7 @@ devtools::install_github("TransBioInfoLab/coMethTF")
 This is a basic example which shows you how to use the package:
 
 ```{r example, warning = FALSE}
-library(coMethTF)
+library(MethReg)
 #---------------------------------------
 # Data input
 #---------------------------------------

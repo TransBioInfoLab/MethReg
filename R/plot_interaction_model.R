@@ -44,7 +44,12 @@
 #'    "TF" = "ENSG00000101412"
 #')
 #'
-#' results <- interaction_model(triplet = triplet, dnam = dnam, exp = exp)
+#' results <- interaction_model(
+#'   triplet = triplet,
+#'   dnam = dnam,
+#'   exp = exp,
+#'   filter.correlated.tf.exp.dna = FALSE
+#' )
 #' plots <- plot_interaction_model(
 #'     triplet.results = results,
 #'     dnam = dnam,
@@ -161,13 +166,16 @@ plot_interaction_model <-  function(
         }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
-    names(out) <- paste0(
-        triplet.results$regionID,
-        "_TF_",
-        triplet.results$TF,
-        "_target_",
-        triplet.results$target
-    )
+
+    if(nrow(triplet.results) > 0){
+        names(out) <- paste0(
+            triplet.results$regionID,
+            "_TF_",
+            triplet.results$TF,
+            "_target_",
+            triplet.results$target
+        )
+    }
     out
 }
 

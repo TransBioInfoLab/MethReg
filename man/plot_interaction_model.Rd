@@ -66,7 +66,12 @@ triplet <- data.frame(
    "TF" = "ENSG00000101412"
 )
 
-results <- interaction_model(triplet = triplet, dnam = dnam, exp = exp)
+results <- interaction_model(
+  triplet = triplet,
+  dnam = dnam,
+  exp = exp,
+  filter.correlated.tf.exp.dna = FALSE
+)
 plots <- plot_interaction_model(
     triplet.results = results,
     dnam = dnam,

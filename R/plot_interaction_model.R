@@ -57,7 +57,7 @@
 #' data("gene.exp.chr21.log2")
 #' triplet <- data.frame(
 #'   "regionID" = rownames(dna.met.chr21)[1],
-#'   "TF" = "ENSG00000101412",
+#'   "TF" = rownames(gene.exp.chr21.log2)[2],
 #'   "target" = rownames(gene.exp.chr21.log2)[1]
 #' )
 #' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
@@ -162,11 +162,11 @@ plot_interaction_model <-  function(
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
     names(out) <- paste0(
-        out$regionID,
+        triplet.results$regionID,
         "_TF_",
-        out$TF,
+        triplet.results$TF,
         "_target_",
-        out$target
+        triplet.results$target
     )
     out
 }

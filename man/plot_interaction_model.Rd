@@ -79,7 +79,7 @@ dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 data("gene.exp.chr21.log2")
 triplet <- data.frame(
   "regionID" = rownames(dna.met.chr21)[1],
-  "TF" = "ENSG00000101412",
+  "TF" = rownames(gene.exp.chr21.log2)[2],
   "target" = rownames(gene.exp.chr21.log2)[1]
 )
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)

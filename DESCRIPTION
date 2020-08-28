@@ -1,4 +1,4 @@
-Package: coMethTF
+Package: MethReg
 Type: Package
 Title: Assessing the regulatory potential of DNA methylation regions or sites on gene transcription
 Version: 0.1.0
@@ -8,7 +8,7 @@ Authors@R: c(
     person("Lily", "Wang", email = "lily.wang@gmail.com", role = c("aut"))
       )
 Maintainer: Tiago Chedraoui Silva <tiagochst@gmail.com>
-Description: coMethTF evaluates, annotates and prioritizes DNA methylation regions 
+Description: MethReg evaluates, annotates and prioritizes DNA methylation regions 
   (or sites) with high regulatory potential, which work synergistically with transcription
   factors to regulate target gene expressions, without any additional ChIP-seq data.
 License: GPL-3

@@ -162,11 +162,11 @@ plot_interaction_model <-  function(
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
     names(out) <- paste0(
-        triplet.results$regionID,
+        out$regionID,
         "_TF_",
-        triplet.results$TF,
+        out$TF,
         "_target_",
-        triplet.results$target
+        out$target
     )
     out
 }

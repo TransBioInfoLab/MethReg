@@ -31,7 +31,15 @@ test_that("interaction_model handles 0 cases in more than 25% of samples with ze
         "TF" = "ENSG00000232888"
     )
 
-    results <- interaction_model(triplet, dnam, exp)
+    results <- interaction_model(
+        triplet = triplet,
+        dnam =  dnam,
+        exp = exp,
+        filter.correlated.tf.exp.dna = FALSE,
+        sig.threshold = 1,
+        fdr = FALSE
+    )
+
     expect_equal(results$Model.quantile, "Zero-inflated Negative Binomial Model")
     expect_equal(results$Model.interaction, "Zero-inflated Negative Binomial Model")
     expect_true("regionID" %in% colnames(results))
@@ -81,7 +89,15 @@ test_that("interaction_model performs rlm if no 0", {
         "TF" = "ENSG00000232888"
     )
 
-    results <- interaction_model(triplet, dnam, exp)
+    results <- interaction_model(
+        triplet = triplet,
+        dnam =  dnam,
+        exp = exp,
+        filter.correlated.tf.exp.dna = FALSE,
+        sig.threshold = 1,
+        fdr = FALSE
+    )
+
     expect_equal(results$Model.interaction, "Robust Linear Model")
     expect_equal(results$Model.quantile, "Robust Linear Model")
     expect_true("regionID" %in% colnames(results))

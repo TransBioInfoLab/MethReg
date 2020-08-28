@@ -1,5 +1,5 @@
 ---
-title: "coMethTF: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies"
+title: "MethReg: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies"
 author:
   - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902 at miami.edu]
   - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg at gmail.com]
@@ -14,7 +14,7 @@ bibliography: bibliography.bib
 editor_options:
   chunk_output_type: inline    
 vignette: >
-    %\VignetteIndexEntry{coMethTF: functional annotation of DMRs and DMS in epigenome-wide association studies}
+    %\VignetteIndexEntry{MethReg: functional annotation of DMRs and DMS in epigenome-wide association studies}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -37,16 +37,16 @@ also be added or removed by proteins associated with transcription
 factors [@bonder2017disease; @banovich2014methylation; @zhu2016transcription].
 
 To provide functional annotations for differentially methylated regions (DMRs) 
-and differentially methylated CpG sites (DMS), `coMethTF` performs integrative 
+and differentially methylated CpG sites (DMS), `MethReg` performs integrative 
 analyses using matched DNA methylation and gene expression along with 
-Transcription Factor Binding Sites (TFBS) data. coMethTF evaluates, prioritizes 
+Transcription Factor Binding Sites (TFBS) data. MethReg evaluates, prioritizes 
 and annotates DNA methylation regions (or sites) with high regulatory potential 
 that works synergistically with TFs to regulate target gene expressions, 
 without any additional ChIP-seq data. 
 
-The results from `coMethTF` can be used to generate testable hypothesis on the 
+The results from `MethReg` can be used to generate testable hypothesis on the 
 synergistic collaboration of DNA methylation changes and TFs in gene regulation.
-`coMethTF` can be used either to evaluate regulatory potentials of candidate 
+`MethReg` can be used either to evaluate regulatory potentials of candidate 
 regions or to search for methylation coupled TF regulatory processes in the entire genome.
 
 # 2. Installation 
@@ -54,22 +54,22 @@ regions or to search for methylation coupled TF regulatory processes in the enti
 You can install the development version of the package from GitHub using the following code:
 
 ```{r, eval = FALSE}
-devtools::install_github("TransBioInfoLab/coMethTF")
+devtools::install_github("TransBioInfoLab/MethReg")
 ```
 
 ```{r libs_load, eval = TRUE, include = FALSE}
-library(coMethTF)
+library(MethReg)
 ```
 
 After the package is successfully installed you can load its functions with:
 
 ```{r setup, eval = FALSE}
-library(coMethTF)
+library(MethReg)
 ```
 
 # 3. Dataset
 
-The input of `coMethTF` are DNA methylation and gene expression datasets measured 
+The input of `MethReg` are DNA methylation and gene expression datasets measured 
 on the same set of samples. Using additional information from the 
 JASPAR2000 database, we will then create a data frame 
 with information on the triplet: CpG (or DMR), TF and target gene. 
@@ -133,7 +133,7 @@ this matrix can also contain residuals from linear regression instead (see **Sec
 The samples are in the columns and the genes are in the rows. 
 
 ```{R}
-gene.exp.chr21 <- get(data("gene.exp.chr21.log2", package = "coMethTF"))
+gene.exp.chr21 <- get(data("gene.exp.chr21.log2", package = "MethReg"))
 gene.exp.chr21[1:5,1:5]
 ```
 
@@ -473,7 +473,7 @@ level is high, more abundant TF corresponds to increased gene expression (an act
 One possibility is that DNA methylation might enhance TF binding in this case. 
 _**This is an example where DNA methylation and TF work synergistically to affect target gene expression**_. 
 
-While the main goal of coMethTF is to prioritize methylation CpGs, also note that without stratifying by DNA methylation, the overall TF-target effects (p = 0.142) is not as significant as the association in stratified analysis in high methylation samples (p = 0.00508). _**This demonstrates that by additionally modeling DNA methylation, we can also nominate TF – target associations that might have been missed otherwise**_. 
+While the main goal of MethReg is to prioritize methylation CpGs, also note that without stratifying by DNA methylation, the overall TF-target effects (p = 0.142) is not as significant as the association in stratified analysis in high methylation samples (p = 0.00508). _**This demonstrates that by additionally modeling DNA methylation, we can also nominate TF – target associations that might have been missed otherwise**_. 
 
 If you want to highlight different group of samples, you can also use the `metadata` argument
 with a dataframe where rownames are the samples (same order as the columns of the 
@@ -509,7 +509,7 @@ careful evaluation of the statistical models and visualization of data as
 described in **Section 4** are needed to gain a good understanding of the 
 multi-omics data. 
 
-![Figure 2 - Different biological scenarios considered by `coMethTF`](scenarios.png)
+![Figure 2 - Different biological scenarios considered by `MethReg`](scenarios.png)
 
 # 6. Identifying co-methylated clusters of CpGs in DMRs and summarizing regions with multiple CpGs
 

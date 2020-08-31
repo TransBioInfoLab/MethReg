@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: c(
     person("Tiago", "Silva", email = "tiagochst@gmail.com", role = c("aut", "cre"),
       comment = c(ORCID = "0000-0003-1343-6850")),
-    person("Lily", "Wang", email = "lily.wang@gmail.com", role = c("aut"))
+    person("Lily", "Wang", email = "lily.wangg@gmail.com", role = c("aut"))
       )
 Maintainer: Tiago Chedraoui Silva <tiagochst@gmail.com>
 Description: MethReg evaluates, annotates and prioritizes DNA methylation regions 

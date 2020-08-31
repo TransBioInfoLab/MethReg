@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_region_target_gene.R
 \name{get_region_target_gene}
 \alias{get_region_target_gene}
-\title{Obtain target genes of input regions}
+\title{Obtain target genes of input regions based on distance}
 \usage{
 get_region_target_gene(
   regions.gr,

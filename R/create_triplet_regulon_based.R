@@ -1,5 +1,5 @@
-#' For an input DNA methylation region, maps candidate target genes and
-#' TFs with binding sites located nearby
+#' @title Map TF and target genes using regulon databases, and
+#' TF to the DNAm region using JASPAS2020 TFBS.
 #' @description This function wraps two other functions
 #' \code{get_region_target_gene} and \code{get_tf_in_region} from the package.
 #' This function will map a region to a target gene using three methods
@@ -13,18 +13,8 @@
 #' @param region A Granges or a named vector with
 #' regions (i.e "chr21:100002-1004000")
 #' @param genome Human genome reference "hg38" or "hg19"
-#' @param target.method How genes are mapped to regions: regions
-#' overlapping gene promoter ("genes.promoter.overlap");
-#' genes within a window around the region ("window"); or fixed number of
-#' nearby genes upstream and
-#' downstream from the region
-#' @param target.window.size When \code{method = "window"}, number of base
-#' pairs to extend the region (+- window.size/2).
-#' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
-#' @param target.num.flanking.genes Number of flanking genes upstream and
-#' downstream to search.
-#' For example, if \code{target.num.flanking.genes = 5}, it will return the
-#' 5 genes upstream and 5 genes downstream
+#' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
+#' classifying regulons based on their quality from Human DoRothEA database.
 #' @param motif.search.window.size Integer value to extend the regions.
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
@@ -35,24 +25,23 @@
 #' \dontrun{
 #' data("dna.met.chr21")
 #' dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
-#' triplet <- get_triplet(
+#' triplet <- create_triplet_regulon_based(
 #'    region = rownames(dnam.regions)[1:100],
-#'    motif.search.window.size = 50
+#'    motif.search.window.size = 50,
+#'    min.confidence = "B"
 #' )
 #' }
-#' @export
-get_triplet <- function(
+#' @noRd
+create_triplet_regulon_based <- function(
     region,
     genome = c("hg38","hg19"),
-    target.method = c("genes.promoter.overlap","window","nearby.genes"),
-    target.window.size = 500 * 10^3,
-    target.num.flanking.genes = 5,
+    min.confidence = c("A", "B","C","D", "E"),
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
     cores = 1
 ){
 
-    target.method <- match.arg(target.method)
+    min.confidence <- match.arg(min.confidence)
     genome <- match.arg(genome)
 
     if(is(region,"character") | is(region,"factor")){
@@ -63,14 +52,11 @@ get_triplet <- function(
         region.names <- make_names_from_granges(region)
     }
 
-    message("Finding target genes")
-    region.target <- get_region_target_gene(
-        regions.gr = region.gr,
-        genome = genome,
-        window.size = target.window.size,
-        method = target.method,
-        num.flanking.genes = target.num.flanking.genes
-    )
+    message("Mapping target and TF genes")
+    tf.target <- get_regulon_dorothea(min.confidence = min.confidence)
+    tf.target$target_name <- tf.target$target
+    tf.target$target <- tf.target$target_ensg
+    tf.target$TF <- tf.target$tf_ensg
 
     message("Looking for TFBS")
     region.tf <- get_tf_in_region(
@@ -80,6 +66,8 @@ get_triplet <- function(
         p.cutoff = motif.search.p.cutoff,
         cores = cores
     )
-    triplet <- dplyr::inner_join(region.target, region.tf)
+    triplet <- dplyr::inner_join(tf.target, region.tf)
+
+    triplet <- get_distance_region_target(triplet)
     return(triplet)
 }

@@ -56,7 +56,7 @@ dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
 # get_triplet incorporates two other functions:
 # 1) get_region_target_gene
 # 2) get_tf_in_region
-triplet <- get_triplet(
+triplet <- create_triplet_distance_based(
     region = rownames(dna.met.chr21),
     motif.search.window.size = 50,
     motif.search.p.cutoff = 10^-3,

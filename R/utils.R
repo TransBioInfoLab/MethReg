@@ -464,13 +464,40 @@ make_se_from_gene_matrix <- function (
     return(se)
 }
 
+#' @title Calculate enrichment scores for each TF across all samples using
+#' \code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
+#' @param exp Gene expression matrix with gene expression counts,
+#' row as ENSG gene IDS and column as samples
+#' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
+#' classifying regulons based on their quality from Human DoRothEA database.
+#' @examples
+#' regulons <- get_regulon( min.confidence = "E")
+#' tf_es <- get_tf_ES(gene.exp.chr21.log2)
+#' @return A dataframe with tf, confidence and target gene from dorothea package.
+#' @noRd
+get_regulon_dorothea <- function(
+    min.confidence = c("A", "B","C","D", "E")
+){
+    check_package("dorothea")
+    match.arg(min.confidence)
+
+    dorothea_hs <- get(utils::data(dorothea_hs, package = "dorothea"))
+    confidence.set <- LETTERS[1:5][1:which(LETTERS[1:5] == min.confidence)]
+    regulons = dorothea_hs %>%
+        filter(.data$confidence %in% confidence.set)
+
+    regulons$tf_ensg <- map_symbol_to_ensg(regulons$tf)
+    regulons$target_ensg <- map_symbol_to_ensg(regulons$target)
+
+    return(regulons)
+}
 
 #' @title Calculate enrichment scores for each TF across all samples using
 #' \code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
 #' @param exp Gene expression matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
-#' @param min.confidence Minimun confidence score classifying regulons based on their quality
-#' from Human DoRothEA database.
+#' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
+#' classifying regulons based on their quality from Human DoRothEA database.
 #' @examples
 #' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
 #' tf_es <- get_tf_ES(gene.exp.chr21.log2)
@@ -483,11 +510,7 @@ get_tf_ES <- function(
     check_package("dorothea")
     check_package("viper")
 
-    dorothea_hs <- get(utils::data(dorothea_hs, package = "dorothea"))
-    confidence.set <- LETTERS[1:5][1:which(LETTERS[1:5] == min.confidence)]
-    regulons = dorothea_hs %>%
-        filter(.data$confidence %in% confidence.set)
-
+    regulons <- get_regulon_dorothea(min.confidence = min.confidence)
     if(all(grepl("ENSG",rownames(exp)))){
         rownames(exp) <- map_ensg_to_symbol(rownames(exp))
     }
@@ -516,3 +539,80 @@ get_tf_ES <- function(
 
 }
 
+#' @title Calcule distance (in bp) between DNAm region and target gene
+#' @description Given a dataframe with a region ("regionID") and a
+#' target gene ("target"), returns a data frame with the distance included.
+#' @examples
+#' region.target <- data.frame(
+#'   "regionID" = "chr21:17511749-17511750",
+#'   "target" =  "ENSG00000215326"
+#' )
+#' region.target.with.distance <- get_distance_region_target(
+#'     region.target = region.target
+#')
+#' @noRd
+get_distance_region_target <- function(
+    region.target
+){
+
+    region.target <- na.omit(region.target)
+
+    regions.gr <- make_granges_from_names(
+        names = region.target$regionID
+    )
+
+    genes.gr <- get_gene_information(
+        genome = "hg38",
+        as.granges =  TRUE
+    )
+
+    region.target$distance_region_target <- distance(
+        regions.gr,
+        genes.gr[match(region.target$target,genes.gr$ensembl_gene_id)]
+    )
+    return(region.target)
+}
+
+
+#' @title Access to TF target gene from DMTDB
+#' @description Access DMTD for all cancer from
+#' http://bio-bigdata.hrbmu.edu.cn/DMTDB/download.jsp
+#' and filter TF and target gene for a given cancer.
+#' @param cancer A TCGA cancer identifier
+#' @noRd
+get_DMTD_target_tf <- function(
+    cancer = c(
+        "BLCA",
+        "BRCA",
+        "CESC",
+        "COAD",
+        "ESCA",
+        "HNSC",
+        "KIRC",
+        "KIRP",
+        "LGG",
+        "LIHC",
+        "LUAD",
+        "LUSC",
+        "OV",
+        "PAAD",
+        "PCPG",
+        "PRAD",
+        "SARC",
+        "SKCM",
+        "STAD",
+        "TGCT",
+        "THCA",
+        "UCEC"
+    )
+){
+
+    cancer <- match.arg(cancer)
+    url.root <- "http://bio-bigdata.hrbmu.edu.cn/DMTDB/download_loading.jsp"
+    url.options <- "?path=download/DMTD_V2/all.txt&name=All_DMTD_V2.txt"
+    url <- paste0(url.root, url.options)
+
+    database <- readr::read_tsv(url)
+    database <- database %>% filter(.data$Cancer == cancer)
+    return(database)
+}

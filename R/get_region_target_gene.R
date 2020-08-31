@@ -1,4 +1,4 @@
-#' @title Obtain target genes of input regions
+#' @title Obtain target genes of input regions based on distance
 #' @description To map an input region to genes there are three options:
 #' 1) map region to closest gene
 #' 2) map region to all genes within a window around the region

@@ -1,0 +1,70 @@
+Package: MethReg
+Type: Package
+Title: Assessing the regulatory potential of DNA methylation regions or sites on gene transcription
+Version: 0.1.0
+Authors@R: c(
+    person("Tiago", "Silva", email = "tiagochst@gmail.com", role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0003-1343-6850")),
+    person("Lily", "Wang", email = "lily.wang@gmail.com", role = c("aut"))
+      )
+Maintainer: Tiago Chedraoui Silva <tiagochst@gmail.com>
+Description: MethReg evaluates, annotates and prioritizes DNA methylation regions 
+  (or sites) with high regulatory potential, which work synergistically with transcription
+  factors to regulate target gene expressions, without any additional ChIP-seq data.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+    dplyr,
+    plyr,
+    GenomicRanges,
+    SummarizedExperiment,
+    DelayedArray,
+    ggplot2,
+    ggpubr,
+    tibble,
+    tidyr,
+    S4Vectors,
+    sesameData,
+    stringr,
+    readr,
+    knitr,
+    methods,
+    stats,
+    Matrix,
+    MASS,
+    rlang,
+    pscl,
+    IRanges,
+    sfsmisc,
+    progress
+Suggests: 
+    rmarkdown,
+    testthat (>= 2.1.0),
+    parallel,
+    downloader,
+    R.utils,
+    dbplyr,
+    RSQLite,
+    DBI,
+    doParallel,
+    reshape2,
+    prettydoc,
+    JASPAR2020,
+    TFBSTools,
+    motifmatchr,
+    matrixStats,
+    biomaRt,
+    dorothea,
+    viper
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 4.0)
+biocViews:
+  MethylationArray,
+  Regression,
+  GeneExpression,
+  Epigenetics,
+  GeneTarget,
+  Transcription

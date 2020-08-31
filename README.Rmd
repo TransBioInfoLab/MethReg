@@ -1,0 +1,94 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# MethReg
+
+<!-- badges: start -->
+[![codecov](https://codecov.io/gl/tiagochst/methtf/branch/%5Cx6d6173746572/graph/badge.svg?token=NESBYPVF64)](https://codecov.io/gl/tiagochst/methtf)
+[![license](https://img.shields.io/badge/license-GPL%20(%3E%3D%202)-blue)]()
+<!-- badges: end -->
+
+
+`MethReg` can be used to generate testable hypothesis on the synergistic interaction of DMRs and TFs in gene regulation. 
+`MethReg` can be used either to evaluate regulatory potentials of candidate regions or to search for methylation coupled TF regulatory processes in the entire genome.
+
+## Installation
+
+You can install the released version of MethReg from GitHub with:
+
+``` r
+devtools::install_github("TransBioInfoLab/MethReg")
+```
+
+## Example
+
+This is a basic example which shows you how to use the package:
+
+```{r example, warning = FALSE}
+library(MethReg)
+#---------------------------------------
+# Data input
+#---------------------------------------
+# 1) Gene expression matrix
+# 2) DNA methylation
+# With same column names
+data("dna.met.chr21")
+data("gene.exp.chr21.log2")
+all(colnames(dna.met.chr21) == colnames(gene.exp.chr21.log2))
+
+# Since we are working with regions we need to map our 450k array to regions
+dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
+```
+
+```{r map, warning = FALSE, results = "hide"}
+#---------------------------------------
+# Mapping regions
+#---------------------------------------
+# For each region get target gene and predicted TF biding to the regions
+# get_triplet incorporates two other functions:
+# 1) get_region_target_gene
+# 2) get_tf_in_region
+triplet <- create_triplet_distance_based(
+    region = rownames(dna.met.chr21),
+    motif.search.window.size = 50,
+    motif.search.p.cutoff = 10^-3,
+    target.method = "genes.promoter.overlap",
+    genome = "hg19",
+    cores = 1
+)
+```
+
+```{r model, warning = FALSE, results="hide"}
+#---------------------------------------
+# Evaluate two models: 
+#---------------------------------------
+# 1) target gene ~ TF + DNAm + TF * DNAm
+# 2) target gene ~ TF + DNAm_group + TF * DNAm_group 
+# where DNAm_group is a binary indicator if the sample belongs to: Q4 or Q1
+results <- interaction_model(
+    triplet = triplet, 
+    dnam = dna.met.chr21,
+    exp = gene.exp.chr21.log2
+)
+```
+
+```{r model_res, warning = FALSE}
+head(results)
+```
+
+# Session information
+```{R}
+sessionInfo()
+```

@@ -1,0 +1,49 @@
+image:  tiagochst/tcgabiolinksgui:latest
+
+variables:
+  KUBERNETES_MEMORY_REQUEST: 4Gi
+  KUBERNETES_MEMORY_LIMIT: 8Gi
+  CODECOV_TOKEN: "6e1249f6-ddb5-435f-8a3a-50de99d67024"
+  _R_CHECK_CRAN_INCOMING_: "false"
+  _R_CHECK_FORCE_SUGGESTS_: "true"
+  APT_PKGS: "libcurl4-openssl-dev libssh2-1-dev libssl-dev libxml2-dev zlib1g-dev git"
+  CRAN: "https://cran.rstudio.com"
+  BIOC: "https://bioconductor.org/packages/3.11/bioc"
+
+before_script:
+  - apt-get update
+  - apt-get install -y --no-install-recommends ${APT_PKGS}
+  - apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
+  - install2.r devtools
+  - R -e "remotes::install_deps(dependencies = TRUE)"
+
+
+stages:
+  - build
+  - deploy
+
+building:
+  stage: build
+  script:
+    - R -e 'remotes::install_local()'
+
+#    - R -e 'devtools::check(args = c("--as-cran"))'
+
+# To have the coverage percentage appear as a gitlab badge follow these
+# instructions:
+# https://docs.gitlab.com/ee/user/project/pipelines/settings.html#test-coverage-parsing
+# The coverage parsing string is
+# Coverage: \d+\.\d+
+
+pages:
+    stage: deploy
+    script:
+      - Rscript -e 'library(covr); codecov()'
+      - R -e 'remotes::install_local()'
+      - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
+    artifacts:
+        paths:
+            - public
+        expire_in: 30 days
+    only:
+        - master

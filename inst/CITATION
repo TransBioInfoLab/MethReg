@@ -1,0 +1,10 @@
+citHeader("To cite coMethTF in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "coMethTF: functional annotation of DMRs identified in epigenome-wide association studies",
+  author   = "Tiago C. Silva",
+  journal  = "None",
+  year     = "2020",
+  textVersion = paste("coMethTF: functional annotation of DMRs identified in epigenome-wide association studies")
+)

@@ -32,6 +32,7 @@
 #' )
 #' }
 #' @noRd
+#' @importFrom SummarizedExperiment rowRanges
 create_triplet_regulon_based <- function(
     region,
     genome = c("hg38","hg19"),
@@ -44,12 +45,15 @@ create_triplet_regulon_based <- function(
     min.confidence <- match.arg(min.confidence)
     genome <- match.arg(genome)
 
-    if(is(region,"character") | is(region,"factor")){
+    if (is(region, "character") | is(region, "factor")) {
         region.gr <- make_granges_from_names(region)
         region.names <- region
-    } else if(is(region,"GenomicRanges")){
+    } else if (is(region, "GenomicRanges")) {
         region.gr <- region
-        region.names <- make_names_from_granges(region)
+        region.names <- make_names_from_granges(region.gr)
+    } else if (is(region, "SummarizedExperiment")) {
+        region.gr <- rowRanges(region)
+        region.names <- make_names_from_granges(region.gr)
     }
 
     message("Mapping target and TF genes")
@@ -69,5 +73,9 @@ create_triplet_regulon_based <- function(
     triplet <- dplyr::inner_join(tf.target, region.tf)
 
     triplet <- get_distance_region_target(triplet)
+
+    message("Removing regions and target genes from different chromosomes")
+    triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target))
+
     return(triplet)
 }

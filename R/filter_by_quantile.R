@@ -54,7 +54,7 @@ filter_regions_by_mean_quantile_difference <- function(
 #'   calculate_q4_minus_q1
 #' @noRd
 calculate_q4_minus_q1 <- function(matrix){
-    qs <- rowQuantiles(matrix, probs =  c(0.25,0.75), drop = FALSE)
+    qs <- rowQuantiles(matrix, probs =  c(0.25,0.75), drop = FALSE,na.rm = TRUE)
     tibble::tibble("ID" = rownames(qs),"diff.mean" = rowMax(qs) - rowMins(qs))
 }
 

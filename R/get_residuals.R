@@ -92,7 +92,7 @@ get_residuals <- function(
     parallel <- register_cores(cores)
 
     cov_char <- stringr::str_c(colnames(metadata.samples), collapse = " + ")
-    form <- stringr::str_c("val ~ ", cov_char)
+    form <- stringr::str_c("exp ~ ", cov_char)
 
     if(missing(metadata.genes)) {
         message("Formula used: ", form)
@@ -103,20 +103,21 @@ get_residuals <- function(
         .data = data.matrix,
         .margins = 1,
         .fun = function(row, genes.names,metadata.genes){
-            val <- row %>% matrix
-            colnames(val) <- "val"
-            dat <- cbind(val, metadata.samples)
-            dat$val <- as.numeric(dat$val)
+            exp <- row %>% matrix
+            colnames(exp) <- "exp"
+            dat <- cbind(exp, metadata.samples)
+            dat$exp <- as.numeric(dat$exp)
             gene.name <- genes.names[parent.frame()$i[]]
             if(!is.null(metadata.genes)) {
                 if(gene.name %in% rownames(metadata.genes)){
-                    df <- data.frame(metadata.genes[gene.name,])
+                    df <- data.frame(metadata.genes[gene.name,]) %>% t
                     colnames(df) <- gene.name
                     dat <- cbind(dat, df)
                     form <- paste0(form," + ",gene.name)
-                    #message("\nFormula used: ",form)
+                    message("\nFormula used: ",form)
                 }
             }
+            print(str(dat))
             fitE <- lm(form, data = dat, na.action = na.exclude)
             rstudent(fitE)
         },

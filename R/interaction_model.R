@@ -206,7 +206,7 @@ interaction_model <- function(
             )
 
             quant.met <-  quantile(data$met,na.rm = TRUE)
-            quant.diff <- data.frame("met.q4_minus_q1" = quant.met[4] - quant.met[2])
+            quant.diff <- data.frame("met.IQR" = quant.met[4] - quant.met[2])
 
             low.cutoff <- quant.met[2]
             upper.cutoff <- quant.met[4]

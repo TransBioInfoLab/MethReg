@@ -189,7 +189,7 @@ get_table_plot <- function(row.triplet){
               "target_symbol",
               "TF",
               "TF_symbol",
-              "met.q4_minus_q1",
+              "met.IQR",
               "TF.role",
               "DNAm.effect")
         ) %>% t() %>% as_tibble(rownames = "Variable")

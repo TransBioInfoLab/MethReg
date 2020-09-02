@@ -1,4 +1,5 @@
-#' @title Map TF and target genes using regulon databases, and
+#' @title Map TF and target genes using regulon databases or
+#' any user provided target-tf, to
 #' TF to the DNAm region using JASPAS2020 TFBS.
 #' @description This function wraps two other functions
 #' \code{get_region_target_gene} and \code{get_tf_in_region} from the package.
@@ -13,13 +14,16 @@
 #' @param region A Granges or a named vector with
 #' regions (i.e "chr21:100002-1004000")
 #' @param genome Human genome reference "hg38" or "hg19"
-#' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
-#' classifying regulons based on their quality from Human DoRothEA database.
+#' @param regulons.min.confidence Minimun confidence score  ("A", "B","C","D", "E")
+#' classifying regulons based on their quality from Human DoRothEA database
+#'  \link[dorothea]{dorothea_hs}.
 #' @param motif.search.window.size Integer value to extend the regions.
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
 #' @param motif.search.p.cutoff motifmatchr pvalue cut-off. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
+#' @param tf.target A dataframe with tf and target columns. If not provided,
+#' \link[dorothea]{dorothea_hs} will be used.
 #' @return A data frame with TF, target and RegionID information.
 #' @examples
 #' \dontrun{
@@ -39,7 +43,8 @@ create_triplet_regulon_based <- function(
     min.confidence = c("A", "B","C","D", "E"),
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
-    cores = 1
+    cores = 1,
+    tf.target
 ){
 
     min.confidence <- match.arg(min.confidence)
@@ -57,7 +62,19 @@ create_triplet_regulon_based <- function(
     }
 
     message("Mapping target and TF genes")
-    tf.target <- get_regulon_dorothea(min.confidence = min.confidence)
+    if(missing(regulons)){
+        tf.target <- get_regulon_dorothea(min.confidence = min.confidence)
+    } else {
+        # check regulons input data
+        cols <- c("tf", "target")
+        if(!all(cols %in% colnames(regulons))){
+            stop("regulons must have columns tf and target")
+        }
+        tf.target <- regulons
+        tf.target$tf_ensg <- map_symbol_to_ensg(tf.target$tf)
+        tf.target$target_ensg <- map_symbol_to_ensg(tf.target$target)
+    }
+
     tf.target$target_name <- tf.target$target
     tf.target$target <- tf.target$target_ensg
     tf.target$TF <- tf.target$tf_ensg

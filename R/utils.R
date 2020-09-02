@@ -479,7 +479,7 @@ get_regulon_dorothea <- function(
     min.confidence = c("A", "B","C","D", "E")
 ){
     check_package("dorothea")
-    match.arg(min.confidence)
+    min.confidence <- match.arg(min.confidence)
 
     dorothea_hs <- get(utils::data(dorothea_hs, package = "dorothea"))
     confidence.set <- LETTERS[1:5][1:which(LETTERS[1:5] == min.confidence)]
@@ -498,6 +498,9 @@ get_regulon_dorothea <- function(
 #' row as ENSG gene IDS and column as samples
 #' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
 #' classifying regulons based on their quality from Human DoRothEA database.
+#' @param regulons DoRothEA regulons in table format. Same as \link[dorothea]{run_viper}.
+#' If not specified Bioconductor (human) dorothea regulons besed on GTEx will be.
+#' used \link[dorothea]{dorothea_hs}.
 #' @examples
 #' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
 #' tf_es <- get_tf_ES(gene.exp.chr21.log2)
@@ -505,12 +508,21 @@ get_regulon_dorothea <- function(
 #' @noRd
 get_tf_ES <- function(
     exp,
-    min.confidence = "B"
+    min.confidence = "B",
+    regulons
 ){
     check_package("dorothea")
     check_package("viper")
 
-    regulons <- get_regulon_dorothea(min.confidence = min.confidence)
+    if(missing(regulons)){
+        regulons <- get_regulon_dorothea(min.confidence = min.confidence)
+    } else {
+        cols <- c("tf", "target", "mor")
+        if(!all(cols %in% colnames(regulons))){
+            stop("regulons must have columns tf, target, and mor")
+        }
+    }
+
     if(all(grepl("ENSG",rownames(exp)))){
         rownames(exp) <- map_ensg_to_symbol(rownames(exp))
     }

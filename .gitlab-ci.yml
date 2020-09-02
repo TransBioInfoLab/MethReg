@@ -40,7 +40,7 @@ pages:
     script:
       - Rscript -e 'library(covr); codecov()'
       - R -e 'remotes::install_local()'
-      - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
+#      - R -e 'pkgdown::build_site(override = list(destination = "public"), preview=FALSE)'
     artifacts:
         paths:
             - public

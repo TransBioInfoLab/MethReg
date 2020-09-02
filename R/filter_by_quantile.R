@@ -52,8 +52,8 @@ filter_regions_by_mean_quantile_difference <- function(
 #'   matrix(nrow = 1,dimnames = list(c("row1"), LETTERS[1:10])) %>%
 #'   calculate_q4_minus_q1
 #' @noRd
-#' @importFrom matrixStats rowQuantiles rowMaxs rowMins
 calculate_q4_minus_q1 <- function(matrix){
+    check_package("matrixStats")
     qs <- matrixStats::rowQuantiles(
         x = matrix,
         probs =  c(0.25,0.75),

@@ -62,15 +62,14 @@ create_triplet_regulon_based <- function(
     }
 
     message("Mapping target and TF genes")
-    if(missing(regulons)){
+    if(missing(tf.target)){
         tf.target <- get_regulon_dorothea(min.confidence = min.confidence)
     } else {
         # check regulons input data
         cols <- c("tf", "target")
-        if(!all(cols %in% colnames(regulons))){
+        if(!all(cols %in% colnames(tf.target))){
             stop("regulons must have columns tf and target")
         }
-        tf.target <- regulons
         tf.target$tf_ensg <- map_symbol_to_ensg(tf.target$tf)
         tf.target$target_ensg <- map_symbol_to_ensg(tf.target$target)
     }

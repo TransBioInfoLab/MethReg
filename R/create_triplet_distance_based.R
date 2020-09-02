@@ -66,6 +66,9 @@ create_triplet_distance_based <- function(
     } else if(is(region,"GenomicRanges")){
         region.gr <- region
         region.names <- make_names_from_granges(region)
+    } else if(is(region,"SummarizedExperiment")){
+        region.gr <- rowRanges(region)
+        region.names <- make_names_from_granges(region.gr)
     }
 
     message("Finding target genes")

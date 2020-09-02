@@ -114,10 +114,10 @@ get_residuals <- function(
                     colnames(df) <- gene.name
                     dat <- cbind(dat, df)
                     form <- paste0(form," + ",gene.name)
-                    message("\nFormula used: ",form)
+                    #message("\nFormula used: ",form)
                 }
             }
-            print(str(dat))
+            #print(str(dat))
             fitE <- lm(form, data = dat, na.action = na.exclude)
             rstudent(fitE)
         },

@@ -40,7 +40,7 @@ filter_regions_by_mean_quantile_difference <- function(
     diff.mean <- plyr::adply(matrix,.margins = 1,.fun = function(row){
         qs <- quantile(row, probs =  c(0.25,0.75), na.rm = TRUE)
         qs.mean <- tapply(row, findInterval(row, qs), mean, rm.na = TRUE)
-        tibble::tibble("diff.mean" = diff(qs.mean))
+        tibble::tibble("diff.mean" = max(qs.mean) - min(qs.mean))
     }, .progress = "time", .parallel = parallel)
 
     tab <- plyr::count(diff.mean$diff.mean > diff.mean.th)

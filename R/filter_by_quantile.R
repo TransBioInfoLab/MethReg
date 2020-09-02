@@ -22,27 +22,35 @@ filter_regions_by_mean_quantile_difference <- function(
     diff.mean.th = 0.2,
     cores = 1
 ){
+    if(is(dnam,"SummarizedExperiment")){
+        matrix <- assay(dnam)
+    } else {
+        matrix <- dnam
+    }
+
+    # remove all NA rows
+    keep.rows <- which(rowSums(is.na(matrix)) != ncol(matrix))
+    if(length(keep.rows) < nrow(matrix)){
+        message("Removing rows with NAs for all samples")
+        matrix <- matrix[keep.rows,]
+    }
+
 
     parallel <- register_cores(cores)
-    diff_mean <- plyr::adply(dnam,.margins = 1,.fun = function(row){
-        quant.met <-  quantile(row, na.rm = TRUE)
 
-        low.cutoff <- quant.met[2]
-        upper.cutoff <- quant.met[4]
-
-        mean.q1 <- row[row <= low.cutoff] %>% mean(na.rm = TRUE)
-        mean.q4 <- row[row <= upper.cutoff] %>% mean(na.rm = TRUE)
-        data.frame("diff_mean" = mean.q4 - mean.q1, stringsAsFactors = FALSE)
+    diff.mean <- plyr::adply(matrix,.margins = 1,.fun = function(row){
+        qs <- quantile(row, probs =  c(0.25,0.75), na.rm = TRUE)
+        qs.mean <- tapply(row, findInterval(row, qs), mean)
+        tibble::tibble("diff.mean" = qs.mean[3] - qs.mean[1])
     }, .progress = "time", .parallel = parallel)
 
-
-    tab <- plyr::count(diff_mean$diff_mean > diff.mean.th)
+    tab <- plyr::count(diff.mean$diff.mean > diff.mean.th)
     colnames(tab)[1] <- "Status"
     tab$Status[which(tab$Status == FALSE)] <- "Regions below threshold"
     tab$Status[which(tab$Status == TRUE)] <- "Regions above threshold"
     print(tab)
 
-    diff.regions <- c(diff_mean %>% filter(diff_mean > 0.2) %>% pull(.data$X1) %>% as.character())
+    diff.regions <- c(diff.mean %>% filter(diff.mean > diff.mean.th) %>% pull(.data$X1) %>% as.character())
     dnam[diff.regions,,drop = FALSE]
 }
 

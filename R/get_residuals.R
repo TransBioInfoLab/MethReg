@@ -110,7 +110,7 @@ get_residuals <- function(
             gene.name <- genes.names[parent.frame()$i[]]
             if(!is.null(metadata.genes)) {
                 if(gene.name %in% rownames(metadata.genes)){
-                    df <- data.frame(metadata.genes[gene.name,])
+                    df <- data.frame(metadata.genes[gene.name,,drop = FALSE])
                     if(ncol(df) > 1) df <- df %>% t
                     colnames(df) <- gene.name
                     dat <- cbind(dat, df)

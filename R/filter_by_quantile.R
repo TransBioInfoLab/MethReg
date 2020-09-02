@@ -17,6 +17,7 @@
 #' )
 #' @return
 #' A subset of the original matrix only with the rows passing the filter threshold.
+#' @importFrom matrixStats rowQuantiles
 filter_regions_by_mean_quantile_difference <- function(
     dnam,
     diff.mean.th = 0.2,
@@ -35,22 +36,42 @@ filter_regions_by_mean_quantile_difference <- function(
         matrix <- matrix[keep.rows,]
     }
 
-    parallel <- register_cores(cores)
-
-    diff.mean <- plyr::adply(matrix,.margins = 1,.fun = function(row){
-        qs <- quantile(row, probs =  c(0.25,0.75), na.rm = TRUE)
-        qs.mean <- tapply(row, findInterval(row, qs), mean, rm.na = TRUE)
-        tibble::tibble("diff.mean" = max(qs.mean) - min(qs.mean))
-    }, .progress = "time", .parallel = parallel)
-
+    diff.mean <- calculate_q4_minus_q1(matrix)
     tab <- plyr::count(diff.mean$diff.mean > diff.mean.th)
     colnames(tab)[1] <- "Status"
     tab$Status[which(tab$Status == FALSE)] <- "Regions below threshold"
     tab$Status[which(tab$Status == TRUE)] <- "Regions above threshold"
     print(tab)
 
-    diff.regions <- c(diff.mean %>% filter(diff.mean > diff.mean.th) %>% pull(.data$X1) %>% as.character())
+    diff.regions <- c(diff.mean %>% filter(diff.mean > diff.mean.th) %>% pull(.data$ID) %>% as.character())
     dnam[diff.regions,,drop = FALSE]
+}
+
+#' @examples
+#' library(dplyr)
+#' 10 %>% rnorm %>%
+#'   matrix(nrow = 1,dimnames = list(c("row1"), LETTERS[1:10])) %>%
+#'   calculate_q4_minus_q1
+#' @noRd
+calculate_q4_minus_q1 <- function(matrix){
+    qs <- rowQuantiles(matrix, probs =  c(0.25,0.75), drop = FALSE)
+    tibble::tibble("ID" = rownames(qs),"diff.mean" = rowMax(qs) - rowMins(qs))
+}
+
+#' @examples
+#' library(dplyr)
+#' 10 %>% rnorm %>%
+#'   matrix(nrow = 1,dimnames = list(c("row1"), LETTERS[1:10])) %>%
+#'   calculate_mean_q4_minus_mean_q1
+#' @noRd
+calculate_mean_q4_minus_mean_q1 <- function(matrix, cores = 1){
+    parallel <- register_cores(cores)
+
+    plyr::adply(.data = matrix,.margins = 1,.fun = function(row){
+        qs <- quantile(row, probs =  c(0.25,0.75), na.rm = TRUE)
+        qs.mean <- tapply(row, findInterval(row, qs), mean, rm.na = TRUE)
+        tibble::tibble("diff.mean" = max(qs.mean) - min(qs.mean))
+    },.parallel = parallel, .progress = "time",.id = "ID")
 }
 
 

@@ -82,8 +82,15 @@ filter_genes_by_quantile_mean_fold_change <- function(
     cores = 1
 ){
 
+    if(is(exp,"SummarizedExperiment")){
+        matrix <- assay(exp)
+    } else {
+        matrix <- exp
+    }
+
+
     parallel <- register_cores(cores)
-    diff.genes <- plyr::adply(exp,.margins = 1,.fun = function(row){
+    diff.genes <- plyr::adply(matrix,.margins = 1,.fun = function(row){
         quant <-  quantile(row, na.rm = TRUE)
         quant.fold.change <- data.frame("q4_div_q1" = quant[4] / quant[2])
 

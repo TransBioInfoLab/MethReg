@@ -283,8 +283,8 @@ interaction_model <- function(
         colnames(ret) <- gsub("rna.tf","es.tf",colnames(ret))
     }
 
-    message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
     if(filter.correlated.tf.exp.dna){
+        message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
         ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     }
 

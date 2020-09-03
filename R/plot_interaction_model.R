@@ -21,12 +21,12 @@
 #' 5) Target vs DNAm for samples in Q1 and Q4 for the TF
 #' @examples
 #' library(dplyr)
-#' dnam <- runif(20,min = 0,max = 1) %>%
+#' dnam <- runif(20, min = 0,max = 1) %>% sort %>%
 #'   matrix(ncol = 1) %>%  t
 #' rownames(dnam) <- c("chr3:203727581-203728580")
 #' colnames(dnam) <- paste0("Samples",1:20)
 #'
-#' exp.target <-  runif(20,min = 0,max = 10) %>%
+#' exp.target <-  runif(20,min = 0,max = 10) %>% sort %>%
 #'   matrix(ncol = 1) %>%  t
 #' rownames(exp.target) <- c("ENSG00000232886")
 #' colnames(exp.target) <- paste0("Samples",1:20)
@@ -48,6 +48,7 @@
 #'   triplet = triplet,
 #'   dnam = dnam,
 #'   exp = exp,
+#'   fdr = FALSE,
 #'   filter.correlated.tf.exp.dna = FALSE
 #' )
 #' plots <- plot_interaction_model(
@@ -307,7 +308,7 @@ get_plot_results <- function(
     )
 
 
-    tf.target.plot <- get_plot_results_aux(
+    tf.target.plot <- get_scatter_plot_results(
         df,
         x = "rna.tf",
         y = "rna.target",
@@ -316,16 +317,23 @@ get_plot_results <- function(
         ylab = target.lab
     )
 
-    dnam.target.plot <- get_plot_results_aux(
+    #dnam.target.plot <- get_scatter_plot_results(
+    #    df,
+    #    x = "met",
+    #    y = "rna.target",
+    #    color = color,
+    #    ylab = target.lab,
+    #    xlab = region.lab
+    #)
+
+    dnam.target.plot <- get_histogram_plot_results(
         df,
-        x = "met",
-        y = "rna.target",
-        color = color,
-        ylab = target.lab,
-        xlab = region.lab
+        x = "rna.target",
+        facet.by = "DNAm.group",
+        xlab = target.lab
     )
 
-    dnam.tf.plot <- get_plot_results_aux(
+    dnam.tf.plot <- get_scatter_plot_results(
         df,
         x = "met",
         y = "rna.tf",
@@ -334,7 +342,7 @@ get_plot_results <- function(
         xlab = region.lab
     )
 
-    tf.target.quantile.plot <- get_plot_results_aux(
+    tf.target.quantile.plot <- get_scatter_plot_results(
         df[!is.na(df$DNAm.group),],
         x = "rna.tf",
         xlab = tf.lab,
@@ -344,7 +352,7 @@ get_plot_results <- function(
         color = color
     )
 
-    dnam.target.quantile.plot <- get_plot_results_aux(
+    dnam.target.quantile.plot <- get_scatter_plot_results(
         df[!is.na(df$TF.group),],
         x = "met",
         y = "rna.target",
@@ -365,14 +373,41 @@ get_plot_results <- function(
     )
 }
 
+#' @noRd
+#' @examples
+#' df <- data.frame(
+#'    x = runif(20),
+#'    group = c(rep("2",10),rep("1",10))
+#' )
+#' get_histogram_plot_results(df = df, x =  "x",color = "group", xlab = "expr")
+get_histogram_plot_results <- function(
+    df,
+    x,
+    facet.by,
+    xlab
+){
+
+    df <- na.omit(df)
+    df[[facet.by]] <-  ifelse(grepl("low",df[[facet.by]]),"DNAm.low","DNAm.high")
+    p <- ggpubr::gghistogram(
+        na.omit(df),
+        x = x,
+        add = "mean",
+        rug = TRUE,
+        fill = facet.by,
+        palette = c("#00AFBB", "#E7B800"),
+        add_density = FALSE
+    ) + xlab(xlab) + ggplot2::theme(legend.title = ggplot2::element_blank())
+    p
+}
 
 #' @importFrom sfsmisc f.robftest
 #' @importFrom stats as.formula
 #' @noRd
 #' @examples
 #' df <- data.frame(x = runif(20),y = runif(20))
-#' get_plot_results_aux(df, "x","y",NULL, xlab = "x", ylab = "y")
-get_plot_results_aux <- function(
+#' get_scatter_plot_results(df, "x","y",NULL, xlab = "x", ylab = "y")
+get_scatter_plot_results <- function(
     df,
     x,
     y,

@@ -12,12 +12,12 @@
 #' @export
 #' @examples
 #' data("dna.met.chr21")
-#' dna.met.chr21.filtered <- filter_regions_by_mean_quantile_difference(
+#' dna.met.chr21.filtered <- filter_regions_by_quantile_difference(
 #'   dna.met.chr21
 #' )
 #' @return
 #' A subset of the original matrix only with the rows passing the filter threshold.
-filter_regions_by_mean_quantile_difference <- function(
+filter_regions_by_quantile_difference <- function(
     dnam,
     diff.mean.th = 0.2,
     cores = 1
@@ -35,7 +35,7 @@ filter_regions_by_mean_quantile_difference <- function(
         matrix <- matrix[keep.rows,]
     }
 
-    diff.mean <- calculate_q4_minus_q1(matrix)
+    diff.mean <- calculate_IQR(matrix)
     tab <- plyr::count(diff.mean$diff.mean > diff.mean.th)
     colnames(tab)[1] <- "Status"
     tab$Status[which(tab$Status == FALSE)] <- "Regions below threshold"
@@ -50,19 +50,13 @@ filter_regions_by_mean_quantile_difference <- function(
 #' library(dplyr)
 #' 10 %>% rnorm %>%
 #'   matrix(nrow = 1,dimnames = list(c("row1"), LETTERS[1:10])) %>%
-#'   calculate_q4_minus_q1
+#'   calculate_IQR
 #' @noRd
-calculate_q4_minus_q1 <- function(matrix){
+calculate_IQR <- function(matrix){
     check_package("matrixStats")
-    qs <- matrixStats::rowQuantiles(
-        x = matrix,
-        probs =  c(0.25,0.75),
-        drop = FALSE,
-        na.rm = TRUE
-    )
     tibble::tibble(
-        "ID" = rownames(qs),
-        "diff.mean" = matrixStats::rowMaxs(qs) - matrixStats::rowMins(qs)
+        "ID" = rownames(matrix),
+        "diff.mean" = matrixStats::rowIQRs(matrix, na.rm = TRUE)
     )
 }
 

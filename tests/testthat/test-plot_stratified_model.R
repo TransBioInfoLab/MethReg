@@ -1,24 +1,26 @@
 test_that("plot_interaction_model return a ggplot object", {
 
-     library(dplyr)
-     dnam <- runif(20,min = 0,max = 1) %>%
-       matrix(ncol = 1) %>%  t
-     rownames(dnam) <- c("chr3:203727581-203728580")
-     colnames(dnam) <- paste0("Samples",1:20)
+    skip_on_bioc()
 
-     exp.target <-  runif(20,min = 0,max = 10) %>%
-       matrix(ncol = 1) %>%  t
-     rownames(exp.target) <- c("ENSG00000232886")
-     colnames(exp.target) <- paste0("Samples",1:20)
+    library(dplyr)
+    dnam <- runif(20,min = 0,max = 1) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(dnam) <- c("chr3:203727581-203728580")
+    colnames(dnam) <- paste0("Samples",1:20)
 
-     exp.tf <- runif(20,min = 0,max = 10) %>%
-       matrix(ncol = 1) %>%  t
-     rownames(exp.tf) <- c("ENSG00000232888")
-     colnames(exp.tf) <- paste0("Samples",1:20)
+    exp.target <-  runif(20,min = 0,max = 10) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.target) <- c("ENSG00000232886")
+    colnames(exp.target) <- paste0("Samples",1:20)
 
-     exp <- rbind(exp.tf, exp.target)
+    exp.tf <- runif(20,min = 0,max = 10) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.tf) <- c("ENSG00000232888")
+    colnames(exp.tf) <- paste0("Samples",1:20)
 
-     triplet <- data.frame(
+    exp <- rbind(exp.tf, exp.target)
+
+    triplet <- data.frame(
         "regionID" =  c("chr3:203727581-203728580"),
         "target" = "ENSG00000232886",
         "TF" = "ENSG00000232888"

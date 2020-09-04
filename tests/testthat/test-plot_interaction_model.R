@@ -1,24 +1,52 @@
 test_that("plot_interaction_model return a ggplot object", {
-    data("dna.met.chr21")
-    dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
-    data("gene.exp.chr21.log2")
+
+    skip_on_bioc()
+    library(dplyr)
+    dnam <- runif(20,min = 0,max = 1) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(dnam) <- c("chr3:203727581-203728580")
+    colnames(dnam) <- paste0("Samples",1:20)
+
+    exp.target <-  runif(20,min = 0,max = 10) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.target) <- c("ENSG00000232886")
+    colnames(exp.target) <- paste0("Samples",1:20)
+
+    exp.tf <- runif(20,min = 0,max = 10) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.tf) <- c("ENSG00000232888")
+    colnames(exp.tf) <- paste0("Samples",1:20)
+
+    exp <- rbind(exp.tf, exp.target)
+
     triplet <- data.frame(
-        "regionID" = rownames(dna.met.chr21)[1:10],
-        "TF" = rownames(gene.exp.chr21.log2)[11:20],
-        "target" = rownames(gene.exp.chr21.log2)[1:10]
+        "regionID" =  c("chr3:203727581-203728580"),
+        "target" = "ENSG00000232886",
+        "TF" = "ENSG00000232888"
     )
-    results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
+
+    results <- interaction_model(
+        triplet = triplet,
+        dnam =  dnam,
+        exp =  exp,
+        filter.correlated.tf.exp.dna = FALSE,
+        sig.threshold = 1
+    )
+
     plots <-  plots <- plot_interaction_model(
-        triplet.results = results[1,],
-        dnam = dna.met.chr21,
-        exp = gene.exp.chr21.log2
+        triplet.results = results,
+        dnam = dnam,
+        exp = exp
     )
-    # Adding color to samples
-    metadata <- clinical[,"sample_type",drop = FALSE]
+    expect_true(is(plots[[1]],"ggplot"))
+
+    metadata <- data.frame("Gender" = c(rep("Male",10),rep("Female",10)))
+    rownames(metadata) <- colnames(dnam)
+
     plots <- plot_interaction_model(
-        triplet.results = results[1,],
-        dnam = dna.met.chr21,
-        exp = gene.exp.chr21.log2,
+        triplet.results = results,
+        dnam = dnam,
+        exp = exp,
         metadata =  metadata
     )
     expect_true(is(plots[[1]],"ggplot"))

@@ -323,8 +323,10 @@ get_promoter_regions <- function(
 #' @param betaToM indicates if converting methylation beta values to mvalues
 #' @export
 #' @examples
-#' dna.met.chr21 <- get(data("dna.met.chr21"))
-#' se <- make_se_from_dnam_probes(dna.met.chr21)
+#' \dontrun{
+#'   dna.met.chr21 <- get(data("dna.met.chr21"))
+#'   se <- make_se_from_dnam_probes(dna.met.chr21)
+#' }
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @return A summarized Experiment object with DNA methylation probes mapped to
@@ -395,9 +397,11 @@ make_se_from_dnam_probes <- function (
 #' @param betaToM indicates if converting methylation beta values to mvalues
 #' @export
 #' @examples
-#' dna.met.chr21 <- get(data("dna.met.chr21"))
-#' dna.met.chr21.regions <- MethReg:::map_probes_to_regions(dna.met.chr21)
-#' dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
+#' \dontrun {
+#'   dna.met.chr21 <- get(data("dna.met.chr21"))
+#'   dna.met.chr21.regions <- MethReg:::map_probes_to_regions(dna.met.chr21)
+#'   dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
+#' }
 #' @return A summarized Experiment object
 make_se_from_dnam_regions <- function(
     dnam,

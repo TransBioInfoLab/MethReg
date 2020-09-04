@@ -29,6 +29,8 @@ genomic regions
 Transform DNA methylation array into a summarized Experiment object
 }
 \examples{
-dna.met.chr21 <- get(data("dna.met.chr21"))
-se <- make_se_from_dnam_probes(dna.met.chr21)
+\dontrun{
+  dna.met.chr21 <- get(data("dna.met.chr21"))
+  se <- make_se_from_dnam_probes(dna.met.chr21)
+}
 }

@@ -43,12 +43,12 @@ To consider covariates, RNA can also be the residuals.
 }
 \examples{
 library(dplyr)
-dnam <- runif(20,min = 0,max = 1) \%>\%
+dnam <- runif(20, min = 0,max = 1) \%>\% sort \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(dnam) <- c("chr3:203727581-203728580")
 colnames(dnam) <- paste0("Samples",1:20)
 
-exp.target <-  runif(20,min = 0,max = 10) \%>\%
+exp.target <-  runif(20,min = 0,max = 10) \%>\% sort \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(exp.target) <- c("ENSG00000232886")
 colnames(exp.target) <- paste0("Samples",1:20)
@@ -70,6 +70,7 @@ results <- interaction_model(
   triplet = triplet,
   dnam = dnam,
   exp = exp,
+  fdr = FALSE,
   filter.correlated.tf.exp.dna = FALSE
 )
 plots <- plot_interaction_model(

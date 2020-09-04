@@ -9,8 +9,14 @@
 #' @export
 #' @importFrom GenomicRanges reduce
 #' @examples
-#' data("dna.met.chr21")
-#' promoter.avg <- get_promoter_avg(dna.met.chr21, genome = "hg19", arrayType = "450k")
+#' \dontrun{
+#'   data("dna.met.chr21")
+#'   promoter.avg <- get_promoter_avg(
+#'      dnam = dna.met.chr21,
+#'      genome = "hg19",
+#'      arrayType = "450k"
+#' )
+#' }
 #' @param dnam A DNA methylation matrix
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)

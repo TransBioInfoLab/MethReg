@@ -32,6 +32,12 @@
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @return A data frame with TF, target and RegionID information.
 #' @examples
+#' regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
+#' triplet <- create_triplet_distance_based(
+#'    region = regions.names,
+#'    motif.search.window.size = 500,
+#'    target.method = "closest.gene"
+#' )
 #' \dontrun{
 #' data("dna.met.chr21")
 #' dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)

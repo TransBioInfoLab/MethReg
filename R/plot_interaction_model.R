@@ -389,15 +389,18 @@ get_histogram_plot_results <- function(
 
     df <- na.omit(df)
     df[[facet.by]] <-  ifelse(grepl("low",df[[facet.by]]),"DNAm.low","DNAm.high")
-    p <- ggpubr::gghistogram(
-        na.omit(df),
-        x = x,
-        add = "mean",
-        rug = TRUE,
-        fill = facet.by,
-        palette = c("#00AFBB", "#E7B800"),
-        add_density = FALSE
-    ) + xlab(xlab) + ggplot2::theme(legend.title = ggplot2::element_blank())
+
+    suppressWarnings({
+        p <- ggpubr::gghistogram(
+            na.omit(df),
+            x = x,
+            add = "mean",
+            rug = TRUE,
+            fill = facet.by,
+            palette = c("#00AFBB", "#E7B800"),
+            add_density = FALSE
+        ) + xlab(xlab) + ggplot2::theme(legend.title = ggplot2::element_blank())
+    })
     p
 }
 

@@ -24,8 +24,11 @@ vignette: >
 ```{r settings, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(dplyr)
+```
+
+```{r sesame, include = FALSE}
 library(sesameData)
-sesameDataCacheAll()
+# sesameDataCacheAll()
 ```
 
 # 1. Introduction

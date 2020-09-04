@@ -1,6 +1,6 @@
 test_that("get_promoter_avg throws error if not promoter regions/probes", {
     data("dna.met.chr21")
-
+    skip_on_bioc()
     expect_error(
         promoter.avg <- get_promoter_avg(
             dnam = dna.met.chr21[c("cg02858594",
@@ -12,6 +12,8 @@ test_that("get_promoter_avg throws error if not promoter regions/probes", {
 })
 
 test_that("get_promoter_avg works correctly merges regions overlapping a promoter region", {
+    skip_on_bioc()
+
     # promoter.regions <- get_promoter_regions("hg38")
     # chr1 203727581-203731580      * | ENSG00000221643            SNORA77
     dnam <- t(matrix(c(rep(0,10), rep(1,10)),ncol = 2))
@@ -25,6 +27,8 @@ test_that("get_promoter_avg works correctly merges regions overlapping a promote
 })
 
 test_that("get_promoter_avg works correctly merges regions overlapping a promoter region", {
+    skip_on_bioc()
+
     # promoter.regions <- get_promoter_regions("hg38")
     # chr1 203727581-203731580      * | ENSG00000221643            SNORA77
     dnam <- t(matrix(c(rep(0,10), rep(1,10)),ncol = 2))
@@ -40,6 +44,8 @@ test_that("get_promoter_avg works correctly merges regions overlapping a promote
 
 
 test_that("get_promoter_avg works correctly merges regions overlapping a promoter region", {
+    skip_on_bioc()
+
     # promoter.regions <- get_promoter_regions("hg38")
     # chr1 203727581-203731580      * | ENSG00000221643            SNORA77
     dnam <- t(matrix(c(rep(0,10), rep(1,10)),ncol = 2))

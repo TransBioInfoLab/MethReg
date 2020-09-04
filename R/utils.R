@@ -206,21 +206,21 @@ check_data <- function(dnam, exp, metadata){
     }
 
     if(ncol(dnam) != ncol(exp)){
-        stop("DNA methylation and gene expression do not has the same number of samples")
+        stop("DNA methylation and gene expression don't have the same number of samples")
     }
 
     if(!all(colnames(dnam) == colnames(exp))){
-        stop("DNA methylation and gene expression do not has the column names")
+        stop("DNA methylation and gene expression don't have the column names")
     }
 
     if(!missing(metadata)){
 
         if(nrow(metadata) != ncol(exp)){
-            stop("Metadata and data do not has the same number of samples")
+            stop("Metadata and data don't have the same number of samples")
         }
 
         if(all(rownames(metadata) != colnames(exp))){
-            stop("Metadata and data do not has the same number of samples")
+            stop("Metadata rownames and data columns don't have the same names of samples")
         }
     }
 

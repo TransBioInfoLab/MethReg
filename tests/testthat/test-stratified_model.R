@@ -1,11 +1,34 @@
 test_that("stratified_model works", {
-    data("dna.met.chr21")
-    dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
-    data("gene.exp.chr21.log2")
-    triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:5],
-                          "TF" = rownames(gene.exp.chr21.log2)[11:15],
-                          "target" = rownames(gene.exp.chr21.log2)[1:5])
-    results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
+    library(dplyr)
+    dnam <- runif(20,min = 0,max = 1) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(dnam) <- c("chr3:203727581-203728580")
+    colnames(dnam) <- paste0("Samples",1:20)
+
+    exp.target <-  runif(20,min = 0,max = 10) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.target) <- c("ENSG00000232886")
+    colnames(exp.target) <- paste0("Samples",1:20)
+
+    exp.tf <- runif(20,min = 0,max = 10) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.tf) <- c("ENSG00000232888")
+    colnames(exp.tf) <- paste0("Samples",1:20)
+
+    exp <- rbind(exp.tf, exp.target)
+
+    triplet <- data.frame(
+        "regionID" =  c("chr3:203727581-203728580"),
+        "target" = "ENSG00000232886",
+        "TF" = "ENSG00000232888"
+    )
+
+    results <- stratified_model(
+        triplet = triplet,
+        dnam = dnam,
+        exp =  exp
+    )
+
     expect_true("regionID" %in% colnames(results))
     expect_true("TF" %in% colnames(results))
     expect_true("target" %in% colnames(results))
@@ -18,16 +41,36 @@ test_that("stratified_model works", {
 })
 
 test_that("stratified_model handles 0 cases", {
-    data("dna.met.chr21")
-    dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
-    data("gene.exp.chr21.log2")
+    library(dplyr)
+    dnam <- runif(20,min = 0,max = 1) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(dnam) <- c("chr3:203727581-203728580")
+    colnames(dnam) <- paste0("Samples",1:20)
+
+    exp.target <-  c(1,runif(19,min = 0,max = 0)) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.target) <- c("ENSG00000232886")
+    colnames(exp.target) <- paste0("Samples",1:20)
+
+    exp.tf <- runif(20,min = 0,max = 10) %>%
+        matrix(ncol = 1) %>%  t
+    rownames(exp.tf) <- c("ENSG00000232888")
+    colnames(exp.tf) <- paste0("Samples",1:20)
+
+    exp <- rbind(exp.tf, exp.target)
+
     triplet <- data.frame(
-        "regionID" = rownames(dna.met.chr21)[1],
-        "TF" = rownames(gene.exp.chr21.log2)[11],
-        "target" = rownames(gene.exp.chr21.log2)[1]
+        "regionID" =  c("chr3:203727581-203728580"),
+        "target" = "ENSG00000232886",
+        "TF" = "ENSG00000232888"
     )
-    gene.exp.chr21.log2[1,-1] <- 0 # at least one of the two groups will have only 0 values
-    results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
+
+    results <- stratified_model(
+        triplet = triplet,
+        dnam = dnam,
+        exp =  exp
+    )
+
     expect_true(is.na(results$DNAm.effect))
     expect_true(is.na(results$TF.role))
 })

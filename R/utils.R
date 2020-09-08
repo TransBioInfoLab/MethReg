@@ -75,10 +75,17 @@ get_met_probes_info <- function(
     genome <- match.arg(genome)
     arrayType <- match.arg(arrayType)
 
+    check_package("sesameData")
+    check_package("sesame")
+
     sesameDataCacheAll()
     sesameDataGet(
-        str_c(ifelse(arrayType == "450k","HM450","EPIC"),".",
-              genome,".manifest")
+        str_c(
+            ifelse(arrayType == "450k","HM450","EPIC"),
+            ".",
+            genome,
+            ".manifest"
+        )
     )
 }
 
@@ -475,8 +482,7 @@ make_se_from_gene_matrix <- function (
 #' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
 #' classifying regulons based on their quality from Human DoRothEA database.
 #' @examples
-#' regulons <- get_regulon( min.confidence = "E")
-#' tf_es <- get_tf_ES(gene.exp.chr21.log2)
+#' regulons <- get_regulon_dorothea(min.confidence = "E")
 #' @return A dataframe with tf, confidence and target gene from dorothea package.
 #' @noRd
 get_regulon_dorothea <- function(

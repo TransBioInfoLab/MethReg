@@ -221,7 +221,8 @@ interaction_model <- function(
                 # Add information to filter TF if differenly expressed between DNAm high and DNAm low groups
                 wilcoxon.tf.q4.vs.q1 <- wilcox.test(
                     data.high.low %>% dplyr::filter(.data$metGrp == 1) %>% pull(.data$rna.tf),
-                    data.high.low %>% dplyr::filter(.data$metGrp == 0) %>% pull(.data$rna.tf)
+                    data.high.low %>% dplyr::filter(.data$metGrp == 0) %>% pull(.data$rna.tf),
+                    exact = FALSE
                 )$p.value
             })
 

@@ -136,7 +136,7 @@ plot_interaction_model <-  function(
             plots <- get_plot_results(
                 df = df,
                 row.triplet = row.triplet,
-                color =  color,
+                color = color,
                 use_tf_enrichment_scores = is.null(tf.activity.es)
             )
 
@@ -363,7 +363,7 @@ get_plot_results <- function(
         y = "rna.target",
         ylab = target.lab,
         facet.by = "DNAm.group",
-        color = color
+        color = color # ifelse(is.null(color),"met",color)
     )
 
     dnam.target.quantile.plot <- get_scatter_plot_results(
@@ -495,7 +495,7 @@ get_scatter_plot_results <- function(
                 facet.by = facet.by,
                 color = color,
                 size = 1
-            )
+            ) #+ ggplot2::theme(legend.position = "right")
         } else {
             p <- ggscatter(
                 df,

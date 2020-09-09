@@ -367,6 +367,7 @@ make_se_from_dnam_probes <- function (
     # remove masked probes
     message("oo Removing masked probes")
     rowRanges <- rowRanges[!rowRanges$MASK_general]
+    # rowRanges <- rowRanges[grep("cg",names(rowRanges))] # remove rs probes
 
     # Prepare all data matrices
     colData <- S4Vectors::DataFrame(samples = colnames(dnam))
@@ -390,8 +391,9 @@ make_se_from_dnam_probes <- function (
         assays = assay,
         rowRanges = rowRanges,
         colData = colData,
-        metadata = list("genome" = genome,
-                        "arrayType" = arrayType
+        metadata = list(
+            "genome" = genome,
+            "arrayType" = arrayType
         )
     )
     return(se)

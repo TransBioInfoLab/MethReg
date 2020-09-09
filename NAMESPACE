@@ -2,6 +2,7 @@
 
 export(cor_region_dnam_target_gene)
 export(create_triplet_distance_based)
+export(create_triplet_regulon_based)
 export(filter_genes_by_quantile_mean_fold_change)
 export(filter_regions_by_quantile_difference)
 export(get_human_tfs)

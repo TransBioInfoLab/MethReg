@@ -16,7 +16,7 @@
 #' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
 #' @param fdr Uses fdr when using sig.threshold.
 #' Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model
-#' @param filter.correlated.tf.exp.dna  If wilxocon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
+#' @param filter.correlated.tf.exp.dnam  If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 #' triplet will be removed.
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
@@ -128,7 +128,7 @@ interaction_model <- function(
     tf.activity.es = NULL,
     sig.threshold = 0.05,
     fdr = TRUE,
-    filter.correlated.tf.exp.dna = TRUE
+    filter.correlated.tf.exp.dnam = TRUE
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -171,6 +171,7 @@ interaction_model <- function(
         triplet <- triplet %>% dplyr::filter(
             .data$TF %in% rownames(tf.activity.es)
         )
+
     } else {
         triplet <- triplet %>% dplyr::filter(
             .data$TF %in% rownames(exp)
@@ -248,7 +249,7 @@ interaction_model <- function(
 
             # Create output
             interaction_model_output(
-                itx.all,
+                # itx.all,
                 pct.zeros.in.samples,
                 quant.diff,
                 itx.quant,
@@ -283,7 +284,7 @@ interaction_model <- function(
         colnames(ret) <- gsub("rna.tf","es.tf",colnames(ret))
     }
 
-    if(filter.correlated.tf.exp.dna){
+    if(filter.correlated.tf.exp.dnam){
         message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
         ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     }
@@ -336,7 +337,7 @@ get_triplet_data <- function(
 }
 
 interaction_model_output <- function(
-    itx.all,
+    # itx.all,
     pct.zeros.in.samples,
     quant.diff,
     itx.quant,
@@ -344,19 +345,19 @@ interaction_model_output <- function(
     wilcoxon.tf.q4.vs.q1
 ){
     if(is.null(itx.quant)) itx.quant <- interaction_quant_model_no_results()
-    if(is.null(itx.all)) itx.all <- interaction_all_model_no_results()
+    # if(is.null(itx.all)) itx.all <- interaction_all_model_no_results()
 
-    suppressWarnings({
-        max_p <- max(
-            itx.all %>% as.data.frame %>% pull(.data$`pval_met:rna.tf`),
-            itx.quant %>% as.data.frame %>% pull(.data$`quant_pval_metGrp:rna.tf`),
-            na.rm = TRUE)
-    })
+    #suppressWarnings({
+    #    max_p <- max(
+    #        itx.all %>% as.data.frame %>% pull(.data$`pval_met:rna.tf`),
+    #        itx.quant %>% as.data.frame %>% pull(.data$`quant_pval_metGrp:rna.tf`),
+    #        na.rm = TRUE)
+    #})
 
-    if(max_p %in% c(-Inf,Inf)) max_p <- NA
+    # if(max_p %in% c(-Inf,Inf)) max_p <- NA
 
     cbind(
-        itx.all,
+        # itx.all,
         data.frame(
             "Model interaction" =
                 ifelse(pct.zeros.in.samples > 0.25,
@@ -373,8 +374,8 @@ interaction_model_output <- function(
             "Wilcoxon_pval_tf_q4_vs_q1" = wilcoxon.tf.q4.vs.q1
         ),
         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
-        "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %"),
-        "Max_interaction_pval" = max_p
+        "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
+        # "Max_interaction_pval" = max_p
     )
 }
 

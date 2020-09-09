@@ -167,31 +167,7 @@ stratified_model <- function(
                 row.triplet = row.triplet,
                 tf.es = tf.activity.es
             )
-
-            low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
-            upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
-
-            data.low <- data %>% dplyr::filter(.data$met <= low.cutoff)
-            data.high <- data %>% dplyr::filter(.data$met >= upper.cutoff)
-
-            results.low <- stratified_model_aux(data.low,"DNAmlow")
-            results.low.pval <- results.low$pval
-            results.low.estimate <- results.low$estimate
-
-            results.high <- stratified_model_aux(data.high,"DNAmhigh")
-            results.high.pval <- results.high$pval
-            results.high.estimate <- results.high$estimate
-
-            classification <- getClassification(results.low.estimate, results.high.estimate)
-
-            tibble::tibble(
-                "DNAmlow_pval_rna.tf" = results.low.pval %>% as.numeric(),
-                "DNAmlow_estimate_rna.tf" = results.low.estimate %>% as.numeric(),
-                "DNAmhigh_pval_rna.tf" = results.high.pval %>% as.numeric(),
-                "DNAmhigh_estimate_rna.tf" = results.high.estimate %>% as.numeric(),
-                "DNAm.effect" = classification$DNAm.effect,
-                "TF.role" = classification$TF.role
-            )
+            stratified_model_results(data)
         }, .progress = "time", .parallel = parallel, .inform = TRUE)
 
     if(!is.null(tf.activity.es)) {
@@ -201,6 +177,32 @@ stratified_model <- function(
     return(out)
 }
 
+stratified_model_results <- function(data){
+    low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
+    upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
+
+    data.low <- data %>% dplyr::filter(.data$met <= low.cutoff)
+    data.high <- data %>% dplyr::filter(.data$met >= upper.cutoff)
+
+    results.low <- stratified_model_aux(data.low,"DNAmlow")
+    results.low.pval <- results.low$pval
+    results.low.estimate <- results.low$estimate
+
+    results.high <- stratified_model_aux(data.high,"DNAmhigh")
+    results.high.pval <- results.high$pval
+    results.high.estimate <- results.high$estimate
+
+    classification <- getClassification(results.low.estimate, results.high.estimate)
+
+    tibble::tibble(
+        "DNAmlow_pval_rna.tf" = results.low.pval %>% as.numeric(),
+        "DNAmlow_estimate_rna.tf" = results.low.estimate %>% as.numeric(),
+        "DNAmhigh_pval_rna.tf" = results.high.pval %>% as.numeric(),
+        "DNAmhigh_estimate_rna.tf" = results.high.estimate %>% as.numeric(),
+        "DNAm.effect" = classification$DNAm.effect,
+        "TF.role" = classification$TF.role
+    )
+}
 
 #' @importFrom MASS rlm psi.bisquare
 #' @importFrom stats coef pt
@@ -237,7 +239,8 @@ stratified_model_aux <- function(data, prefix = ""){
 
         results <- tryCatch({
 
-            rlm(rna.target ~ rna.tf,
+            MASS::rlm(
+                formula = as.formula("rna.target ~ rna.tf"),
                 data = data,
                 psi = psi.bisquare,
                 maxit = 100) %>% summary %>% coef %>% data.frame

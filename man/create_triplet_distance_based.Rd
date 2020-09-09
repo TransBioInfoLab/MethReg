@@ -3,7 +3,7 @@
 \name{create_triplet_distance_based}
 \alias{create_triplet_distance_based}
 \title{Map DNAm to target genes using distance approaches, and
-TF to the DNAm region using JASPAS2020 TFBS.}
+TF to the DNAm region using JASPAR2020 TFBS.}
 \usage{
 create_triplet_distance_based(
   region,
@@ -25,8 +25,7 @@ regions (i.e "chr21:100002-1004000")}
 \item{target.method}{How genes are mapped to regions: regions
 overlapping gene promoter ("genes.promoter.overlap");
 genes within a window around the region ("window"); or fixed number of
-nearby genes upstream and
-downstream from the region}
+nearby genes upstream and downstream from the region}
 
 \item{target.window.size}{When \code{method = "window"}, number of base
 pairs to extend the region (+- window.size/2).

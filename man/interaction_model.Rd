@@ -13,7 +13,7 @@ interaction_model(
   tf.activity.es = NULL,
   sig.threshold = 0.05,
   fdr = TRUE,
-  filter.correlated.tf.exp.dna = TRUE
+  filter.correlated.tf.exp.dnam = TRUE
 )
 }
 \arguments{
@@ -35,7 +35,7 @@ Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary
 \item{fdr}{Uses fdr when using sig.threshold.
 Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model}
 
-\item{filter.correlated.tf.exp.dna}{If wilxocon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
+\item{filter.correlated.tf.exp.dnam}{If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 triplet will be removed.}
 }
 \value{

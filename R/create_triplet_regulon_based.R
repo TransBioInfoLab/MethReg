@@ -1,13 +1,8 @@
 #' @title Map TF and target genes using regulon databases or
-#' any user provided target-tf, to
-#' TF to the DNAm region using JASPAS2020 TFBS.
+#' any user provided target-tf. Maps
+#' TF to the DNAm region with TFBS using JASPAR2020 TFBS.
 #' @description This function wraps two other functions
 #' \code{get_region_target_gene} and \code{get_tf_in_region} from the package.
-#' This function will map a region to a target gene using three methods
-#' (mapping to the closest gene,
-#' mapping to any gene within a given window of distance, or mapping to a
-#' fixed number of nearby genes upstream or downstream).
-#' To find TFs binding to the region, JASPAR2020 is used.
 #'
 #' @importFrom tidyr separate
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
@@ -35,8 +30,8 @@
 #'    min.confidence = "B"
 #' )
 #' }
-#' @noRd
 #' @importFrom SummarizedExperiment rowRanges
+#' @export
 create_triplet_regulon_based <- function(
     region,
     genome = c("hg38","hg19"),

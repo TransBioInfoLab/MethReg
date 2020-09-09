@@ -85,8 +85,13 @@ plot_interaction_model <-  function(
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
+
     if(missing(exp)) stop("Please set exp argument with gene expression matrix")
-    if(missing(triplet.results)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
+
+    if(missing(triplet.results)) {
+        stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
+    }
+
     if(!all(c("regionID","TF","target") %in% colnames(triplet.results))) {
         stop("triplet must have the following columns names: regionID, TF, target")
     }
@@ -101,11 +106,6 @@ plot_interaction_model <-  function(
         .margins = 1,
         .fun = function(row.triplet,metadata){
 
-            row.triplet <- stratified_model(
-                triplet = row.triplet,
-                dnam =  dnam, exp = exp,
-                tf.activity.es = tf.activity.es
-            )
 
             df <- get_triplet_data(
                 exp = exp,
@@ -114,11 +114,24 @@ plot_interaction_model <-  function(
                 tf.es =  tf.activity.es
             )
 
+            row.triplet <- cbind(
+                row.triplet,
+                stratified_model_results(
+                    df
+                )
+            )
+
             color <- NULL
             if(!missing(metadata)){
                 df <- cbind(df,metadata)
                 color <- colnames(metadata)[1]
             }
+
+            # Reformat p-values for better looking on the plots
+            idx <- grep("pval|fdr|value",colnames(row.triplet))
+            row.triplet[,idx] <- format.pval(row.triplet[,idx],digits = 3)
+            idx <- grep("estimate|median|minus",colnames(row.triplet))
+            row.triplet[,idx] <- format(row.triplet[,idx],digits = 3)
 
             plots <- get_plot_results(
                 df = df,
@@ -126,12 +139,6 @@ plot_interaction_model <-  function(
                 color =  color,
                 use_tf_enrichment_scores = is.null(tf.activity.es)
             )
-
-            # Reformat p-values for better looking on the plots
-            idx <- grep("pval|fdr|value",colnames(row.triplet))
-            row.triplet[,idx] <- format.pval(row.triplet[,idx],digits = 3)
-            idx <- grep("estimate|median|minus",colnames(row.triplet))
-            row.triplet[,idx] <- format(row.triplet[,idx],digits = 3)
 
             table.plots <- get_table_plot(row.triplet)
 
@@ -144,11 +151,11 @@ plot_interaction_model <-  function(
                             ggarrange(
                                 table.plots$table.plot.metadata,
                                 #table.plots$table.plot.wilcoxon,
-                                table.plots$table.plot.lm.all,
+                                #table.plots$table.plot.lm.all,
                                 table.plots$table.plot.lm.quant,
                                 table.plots$table.plot.lm.dna.low,
                                 table.plots$table.plot.lm.dna.high,
-                                heights = c(0.8,0.5,0.5,0.25,0.25),
+                                heights = c(0.8,0.5,0.25,0.25),
                                 ncol = 1),
                             ggarrange(
                                 ggarrange(
@@ -205,13 +212,13 @@ get_table_plot <- function(row.triplet){
         "TF role",
         "DNAm effect"
     )
+
     table.plot.metadata <- ggtexttable(
         tab,
         rows = NULL,
         cols = NULL,
         theme = ttheme("mGreen", base_size = base_size)
     )
-
 
     tab <- row.triplet %>%
         dplyr::select(
@@ -229,7 +236,7 @@ get_table_plot <- function(row.triplet){
     )
 
     # Get results for linear model with all samples
-    table.plot.lm.all <- get_table_plot_results(row.triplet, type = "all")
+    #table.plot.lm.all <- get_table_plot_results(row.triplet, type = "all")
 
     # Get results for linear model with DNAm high samples
     table.plot.lm.quant <- get_table_plot_results(row.triplet, type = "quantile")
@@ -242,7 +249,7 @@ get_table_plot <- function(row.triplet){
 
     table.plot.list <- list(
         "table.plot.metadata" = table.plot.metadata,
-        "table.plot.lm.all" = table.plot.lm.all,
+        #"table.plot.lm.all" = table.plot.lm.all,
         "table.plot.lm.quantile" = table.plot.lm.quant,
         "table.plot.wilcoxon" = table.plot.wilcoxon,
         "table.plot.lm.dna.low" = table.plot.lm.dna.low,
@@ -326,12 +333,19 @@ get_plot_results <- function(
     #    xlab = region.lab
     #)
 
-    dnam.target.plot <- get_histogram_plot_results(
+    dnam.target.plot <- get_box_plot_results(
         df,
-        x = "rna.target",
+        y = "rna.target",
         facet.by = "DNAm.group",
-        xlab = target.lab
+        ylab = target.lab
     )
+
+    # dnam.target.plot <- get_histogram_plot_results(
+    #     df,
+    #    x = "rna.target",
+    #    facet.by = "DNAm.group",
+    #    xlab = target.lab
+    # )
 
     dnam.tf.plot <- get_scatter_plot_results(
         df,
@@ -377,9 +391,9 @@ get_plot_results <- function(
 #' @examples
 #' df <- data.frame(
 #'    x = runif(20),
-#'    group = c(rep("2",10),rep("1",10))
+#'    group = c(rep("low",10),rep("high",10))
 #' )
-#' get_histogram_plot_results(df = df, x =  "x",color = "group", xlab = "expr")
+#' get_histogram_plot_results(df = df, x =  "x",facet.by = "group", xlab = "expr")
 get_histogram_plot_results <- function(
     df,
     x,
@@ -400,6 +414,42 @@ get_histogram_plot_results <- function(
             palette = c("#00AFBB", "#E7B800"),
             add_density = FALSE
         ) + xlab(xlab) + ggplot2::theme(legend.title = ggplot2::element_blank())
+    })
+    p
+}
+
+#' @noRd
+#' @examples
+#' df <- data.frame(
+#'    exp = runif(20),
+#'    group = c(rep("low",10),rep("high",10))
+#' )
+#' get_box_plot_results(df = df, y =  "exp",facet.by = "group", ylab = "expr")
+get_box_plot_results <- function(
+    df,
+    y,
+    facet.by,
+    ylab
+){
+
+    df <- na.omit(df)
+    df[[facet.by]] <-  ifelse(grepl("low",df[[facet.by]]),"DNAm.low","DNAm.high")
+
+    suppressWarnings({
+        p <- ggpubr::ggboxplot(
+            data = na.omit(df),
+            x = facet.by,
+            y = y,
+            add = "jitter",
+            color = facet.by,
+            palette = c("#477dbf", "#d04042"),
+            add_density = FALSE
+        ) + ylab(ylab) +
+            ggplot2::theme(legend.title = ggplot2::element_blank()) +
+            xlab("") +
+            ggpubr::stat_compare_means(label.y = max(df[[y]]) * 1.1) +
+            ggplot2::guides( color = FALSE) +
+            ggplot2::ylim(min(df[[y]]),max(df[[y]]) * 1.2)
     })
     p
 }
@@ -470,7 +520,7 @@ get_scatter_plot_results <- function(
         p <- p + ggplot2::annotate(
             geom = "text",
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]], na.rm = TRUE),
+            y = max(df[[y]] * 1.2, na.rm = TRUE),
             hjust = 0,
             vjust = 1,
             color = 'blue',
@@ -485,7 +535,7 @@ get_scatter_plot_results <- function(
 
         ann_text.low <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]], na.rm = TRUE),
+            y = max(df[[y]] * 1.2, na.rm = TRUE),
             facet.by = factor(grep("low",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.low) <- c(x,y,facet.by)
@@ -504,7 +554,7 @@ get_scatter_plot_results <- function(
         rlm.res.high <- get_rlm_val_pval(df %>% dplyr::filter(grepl("high",df[[facet.by]])), x , y)
         ann_text.high <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]], na.rm = TRUE),
+            y = max(df[[y]] * 1.2, na.rm = TRUE),
             facet.by = factor(grep("high",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.high) <- c(x,y,facet.by)
@@ -529,25 +579,31 @@ get_rlm_val_pval <- function(df, x, y){
     suppressMessages({
         suppressWarnings({
             rls <- MASS::rlm(
-                as.formula(paste0(y, "~",x)),
+                formula = as.formula(paste0(y, "~",x)),
                 data = df,
                 psi = psi.bisquare,
-                maxit = 100)
-            rlm.val <- rls %>% summary %>% coef %>% data.frame
-            rlm.val <- rlm.val[-1,1]
+                maxit = 100
+            )
+            rlm <- rls %>% summary %>% coef %>% data.frame
+            rlm.val <- rlm[-1,1]
         })
     })
+
     rlm.p.value <- tryCatch({
-        ftest <- sfsmisc::f.robftest(rls)
-        ftest$p.value
+        degrees.freedom.value <- nrow(df) - 2
+        pval <- 2 * (1 - pt( abs(rlm$t.value[-1]), df = degrees.freedom.value))
+        pval
+        #ftest <- sfsmisc::f.robftest(rls)
+        #ftest$p.value
     }, error = function(e){
-        # message(e);
+        #message(e);
         return("NA")
     })
 
     return(
-        list(rlm.p.value = rlm.p.value,
-             rlm.val = rlm.val
+        list(
+            rlm.p.value = rlm.p.value,
+            rlm.val = rlm.val
         )
     )
 }
@@ -565,7 +621,7 @@ get_table_plot_results <- function(row.triplet, type){
         pattern.estimate <- "^quant_estimate"
         pattern.pval <- "^quant_pval"
         title <- "Target ~ TF + \nDNAm Quant. Group +\n TF * DNAm Quant. Group"
-        theme.color <- "mOrange"
+        theme.color <- "mGreen"
     } else if(type == "DNAmlow"){
         pattern.estimate <- "^DNAmlow_estimate"
         pattern.pval <- "^DNAmlow_pval"
@@ -575,7 +631,7 @@ get_table_plot_results <- function(row.triplet, type){
         pattern.estimate <- "^DNAmhigh_estimate"
         pattern.pval <- "^DNAmhigh_pval"
         title <- "Target ~ TF\nDNAm high samples"
-        theme.color <- "mBlue"
+        theme.color <- "mRed"
     }
 
     col.idx <- grep(pattern.estimate,colnames(row.triplet),value = TRUE)

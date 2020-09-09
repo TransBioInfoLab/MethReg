@@ -1,5 +1,5 @@
 #' @title Map DNAm to target genes using distance approaches, and
-#' TF to the DNAm region using JASPAS2020 TFBS.
+#' TF to the DNAm region using JASPAR2020 TFBS.
 #' @description This function wraps two other functions
 #' \code{get_region_target_gene} and \code{get_tf_in_region} from the package.
 #' This function will map a region to a target gene using three methods
@@ -16,8 +16,7 @@
 #' @param target.method How genes are mapped to regions: regions
 #' overlapping gene promoter ("genes.promoter.overlap");
 #' genes within a window around the region ("window"); or fixed number of
-#' nearby genes upstream and
-#' downstream from the region
+#' nearby genes upstream and downstream from the region
 #' @param target.window.size When \code{method = "window"}, number of base
 #' pairs to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)

@@ -277,7 +277,12 @@ subset_by_non_promoter_regions <- function(
         upstream = upstream,
         downstream = downstream
     )
-    promoter.regions <- IRanges::subsetByOverlaps(regions.gr, promoter.gr)
+    promoter.regions <- IRanges::subsetByOverlaps(
+        regions.gr,
+        promoter.gr,
+        ignore.strand = TRUE
+    )
+
     message("o Remove promoter regions")
     GenomicRanges::setdiff(regions.gr, promoter.regions)
 }

@@ -422,7 +422,7 @@ get_histogram_plot_results <- function(
 #' @examples
 #' df <- data.frame(
 #'    exp = runif(20),
-#'    group = c(rep("low",10),rep("high",10))
+#'    group = c(rep("high",10),rep("low",10))
 #' )
 #' get_box_plot_results(df = df, y =  "exp",facet.by = "group", ylab = "expr")
 get_box_plot_results <- function(
@@ -433,7 +433,10 @@ get_box_plot_results <- function(
 ){
 
     df <- na.omit(df)
-    df[[facet.by]] <-  ifelse(grepl("low",df[[facet.by]]),"DNAm.low","DNAm.high")
+    df[[facet.by]] <- factor(
+        ifelse(grepl("low",df[[facet.by]]),"DNAm.low","DNAm.high"),
+        levels = c("DNAm.low","DNAm.high")
+    )
 
     suppressWarnings({
         p <- ggpubr::ggboxplot(
@@ -486,7 +489,7 @@ get_scatter_plot_results <- function(
                 size = 1
             )
         }
-    } else{
+    } else {
         if(!is.null(color)){
             p <- ggscatter(
                 df,
@@ -514,13 +517,14 @@ get_scatter_plot_results <- function(
             p <- p + geom_smooth(method = MASS::rlm, se = FALSE)
         })
     })
+
     if(missing(facet.by)){
         rlm.res <- get_rlm_val_pval(df, x, y)
 
         p <- p + ggplot2::annotate(
             geom = "text",
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.2, na.rm = TRUE),
+            y = max(df[[y]] * 1.4, na.rm = TRUE),
             hjust = 0,
             vjust = 1,
             color = 'blue',
@@ -535,10 +539,11 @@ get_scatter_plot_results <- function(
 
         ann_text.low <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.2, na.rm = TRUE),
+            y = max(df[[y]] * 1.4, na.rm = TRUE),
             facet.by = factor(grep("low",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.low) <- c(x,y,facet.by)
+
         # higher Annotation
         p <- p + ggplot2::geom_text(
             data = ann_text.low,
@@ -554,7 +559,7 @@ get_scatter_plot_results <- function(
         rlm.res.high <- get_rlm_val_pval(df %>% dplyr::filter(grepl("high",df[[facet.by]])), x , y)
         ann_text.high <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.2, na.rm = TRUE),
+            y = max(df[[y]] * 1.4, na.rm = TRUE),
             facet.by = factor(grep("high",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.high) <- c(x,y,facet.by)

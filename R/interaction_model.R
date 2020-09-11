@@ -122,6 +122,7 @@
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare
 #' @importFrom stats wilcox.test
+#' @importFrom dplyr group_by summarise
 interaction_model <- function(
     triplet,
     dnam,
@@ -270,7 +271,7 @@ interaction_model <- function(
     #if(filter.by.tf.no.diff){
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
-
+    message("Performing FDR correction for triplets p-values per region")
     ret$ID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
     for(pval.col in grep("pval_",colnames(ret),value = TRUE)){
         fdr.col <- gsub("pval","fdr",pval.col)

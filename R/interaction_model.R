@@ -276,8 +276,8 @@ interaction_model <- function(
         ret[[fdr.col]] <- p.adjust(ret[[pval.col]], method = "fdr")
     }
 
-    message("Filtering results to have interaction, TF or DNAm significant")
     if(filter.triplet.by.sig.term){
+        message("Filtering results to have interaction, TF or DNAm significant")
         if(fdr){
             ret <- ret %>% filter_at(vars(contains("quant_fdr")), any_vars(. < sig.threshold))
         } else {

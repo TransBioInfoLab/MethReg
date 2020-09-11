@@ -689,20 +689,20 @@ calculate_stage_wise_adjustment <- function(results){
         "gene" = gsub("[[:punct:]]", "_", results$regionID)
     )
 
-    pScreen.pval.stageRObj <- stageRTx(
+    pScreen.pval.stageRObj <- stageR::stageRTx(
         pScreen = pScreen.pval,
         pConfirmation = pConfirmation,
         pScreenAdjusted = FALSE,
         tx2gene = triplet2region
     )
 
-    pScreen.pval.stageRObj <- stageWiseAdjustment(
+    pScreen.pval.stageRObj <- stageR::stageWiseAdjustment(
         object = pScreen.pval.stageRObj,
         method = "dte",
         alpha = 0.05
     )
 
-    padj <- getAdjustedPValues(
+    padj <- stageR::getAdjustedPValues(
         pScreen.pval.stageRObj,
         onlySignificantGenes = FALSE,
         order = FALSE

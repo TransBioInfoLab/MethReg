@@ -125,8 +125,11 @@ map_symbol_to_ensg <- function(
 #' @title Get human genome information from biomaRt
 #' @param genome Human genome of reference. Options: hg38, hg19.
 #' @noRd
-get_gene_information_biomart <- function(genome = "hg38"){
+get_gene_information_biomart <- function(
+    genome = c("hg38","hg19")
+){
     check_package("biomaRt")
+    genome <- match.arg(genome)
     tries <- 0L
     msg <- character()
     while (tries < 3L) {
@@ -157,7 +160,8 @@ get_gene_information_biomart <- function(genome = "hg38"){
                 "chromosome_name",
                 "strand",
                 "end_position",
-                "start_position"
+                "start_position",
+                "gene_biotype"
             )
             db.datasets <- biomaRt::listDatasets(ensembl)
             description <- db.datasets[db.datasets$dataset == "hsapiens_gene_ensembl", ]$description

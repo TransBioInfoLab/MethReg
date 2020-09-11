@@ -18,6 +18,8 @@
 #' Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model
 #' @param filter.correlated.tf.exp.dnam  If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 #' triplet will be removed.
+#' @param filter.triplet.by.sig.term Filter significant triplets ?
+#' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
@@ -128,7 +130,8 @@ interaction_model <- function(
     tf.activity.es = NULL,
     sig.threshold = 0.05,
     fdr = TRUE,
-    filter.correlated.tf.exp.dnam = TRUE
+    filter.correlated.tf.exp.dnam = TRUE,
+    filter.triplet.by.sig.term = TRUE
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -161,7 +164,6 @@ interaction_model <- function(
             .data$regionID %in% rownames(dnam)
     )
 
-
     if(!is.null(tf.activity.es)){
 
         if(!all(grepl("^ENSG", rownames(tf.activity.es)))){
@@ -178,7 +180,6 @@ interaction_model <- function(
         )
     }
 
-
     # Remove cases where target is also the TF if it exists
     triplet <- triplet %>% dplyr::filter(
         .data$TF != .data$target
@@ -190,14 +191,16 @@ interaction_model <- function(
 
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
-
+    message("Evaluating ", nrow(triplet), " triplets")
 
     parallel <- register_cores(cores)
 
     ret <- plyr::adply(
         .data = triplet,
         .margins = 1,
-        .fun = function(row.triplet){
+        .fun = function(
+            row.triplet
+        ){
 
             data <- get_triplet_data(
                 exp = exp,
@@ -261,7 +264,8 @@ interaction_model <- function(
         .progress = "time",
         .parallel = parallel,
         .inform = TRUE,
-        .paropts = list(.errorhandling = 'pass'))
+        .paropts = list(.errorhandling = 'pass')
+    )
 
     #if(filter.by.tf.no.diff){
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
@@ -273,10 +277,12 @@ interaction_model <- function(
     }
 
     message("Filtering results to have interaction, TF or DNAm significant")
-    if(fdr){
-        ret <- ret %>% filter_at(vars(contains("quant_fdr")), any_vars(. < sig.threshold))
-    } else {
-        ret <- ret %>% filter_at(vars(contains("quant_pval")), any_vars(.< sig.threshold))
+    if(filter.triplet.by.sig.term){
+        if(fdr){
+            ret <- ret %>% filter_at(vars(contains("quant_fdr")), any_vars(. < sig.threshold))
+        } else {
+            ret <- ret %>% filter_at(vars(contains("quant_pval")), any_vars(.< sig.threshold))
+        }
     }
 
     # Since we used enrichment scores in the linear model

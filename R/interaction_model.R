@@ -271,10 +271,15 @@ interaction_model <- function(
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
 
+    ret$ID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
     for(pval.col in grep("pval_",colnames(ret),value = TRUE)){
         fdr.col <- gsub("pval","fdr",pval.col)
-        ret[[fdr.col]] <- p.adjust(ret[[pval.col]], method = "fdr")
+        fdr.by.region <- ret %>%
+            group_by(.data$regionID) %>%
+            summarise("fdr.by.region" = p.adjust(.data[[pval.col]], method = "fdr"), ID)
+        ret[[fdr.col]] <-  fdr.by.region$fdr.by.region[match(ret$ID,fdr.by.region$ID)]
     }
+    ret$ID <- NULL
 
     if(filter.triplet.by.sig.term){
         message("Filtering results to have interaction, TF or DNAm significant")

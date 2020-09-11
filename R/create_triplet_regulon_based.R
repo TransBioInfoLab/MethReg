@@ -27,7 +27,7 @@
 #' triplet <- create_triplet_regulon_based(
 #'    region = rownames(dnam.regions)[1:100],
 #'    motif.search.window.size = 50,
-#'    min.confidence = "B"
+#'    regulons.min.confidence = "B"
 #' )
 #' }
 #' @importFrom SummarizedExperiment rowRanges
@@ -35,14 +35,14 @@
 create_triplet_regulon_based <- function(
     region,
     genome = c("hg38","hg19"),
-    min.confidence = c("A", "B","C","D", "E"),
+    regulons.min.confidence = c("A", "B","C","D", "E"),
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
     cores = 1,
     tf.target
 ){
 
-    min.confidence <- match.arg(min.confidence)
+    regulons.min.confidence <- match.arg(regulons.min.confidence)
     genome <- match.arg(genome)
 
     if (is(region, "character") | is(region, "factor")) {
@@ -58,7 +58,7 @@ create_triplet_regulon_based <- function(
 
     message("Mapping target and TF genes")
     if(missing(tf.target)){
-        tf.target <- get_regulon_dorothea(min.confidence = min.confidence)
+        tf.target <- get_regulon_dorothea(min.confidence = regulons.min.confidence)
     } else {
         # check regulons input data
         cols <- c("tf", "target")

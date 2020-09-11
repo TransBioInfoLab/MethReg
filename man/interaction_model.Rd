@@ -3,7 +3,7 @@
 \name{interaction_model}
 \alias{interaction_model}
 \title{Fits linear models with interaction to triplet data (Target, TF, DNAm), where DNAm
-can be a continuous variable (for all samples) or a binary variable (samples in Q1 or Q4)}
+is a binary variable (samples in Q1 or Q4)}
 \usage{
 interaction_model(
   triplet,
@@ -46,18 +46,13 @@ Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary
 A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 
-Model 1 (considering DNAm values as a continuous variable) generates \code{pval_met}, \code{pval_rna.tf},
-\code{pval_met.rna.tf} and \code{estimates_met}, \code{estimates_rna.tf}, \code{estimates_met.rna.tf}.
-
-Model 2 (considering DNAm values as a binary variable) generates \code{quant_pval_metGrp},
+Model considering DNAm values as a binary variable generates \code{quant_pval_metGrp},
 \code{quant_pval_rna.tf}, \code{quant_pval_metGrp.rna.tf},
 \code{quant_estimates_metGrp}, \code{quant_estimates_rna.tf}, \code{quant_estimates_metGrp.rna.tf}.
 
 \code{Model.interaction} indicates which model (robust linear model or zero inflated model)
 was used to fit Model 1, and \code{Model.quantile} indicates which model(robust linear model or zero
 inflated model) was used to fit Model 2.
-
-\code{Max_interaction_pval} is the max(quant_estimate_metGrp:rna.tf, pval_met:rna.tf).
 }
 \description{
 Evaluates regulatory potential of DNA methylation (DNAm) on gene expression,
@@ -71,11 +66,9 @@ This function fits the linear model
 
 \code{log2(RNA target) ~ log2(TF) + DNAm + log2(TF) * DNAm}
 
-to triplet data in two ways:
+to triplet data as follow:
 
-Model 1 : by considering \code{DNAm} as a continuous variable
-
-Model 2:  by considering \code{DNAm} as a binary variable - we defined a binary group for
+Model by considering \code{DNAm} as a binary variable - we defined a binary group for
 DNA methylation values (high = 1, low = 0). That is, samples with the highest
 DNAm levels (top 25 percent) has high = 1, samples with lowest
 DNAm levels (bottom 25 percent) has high = 0. Note that in this
@@ -146,7 +139,5 @@ triplet <- data.frame(
     "target" = rownames(gene.exp.chr21.log2)[1:10]
 )
 results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
-# select those that are significant in both models
-# results <- results[results$`pval_met:rna.tf`< 0.05 & results$`quant_pval_metGrp:rna.tf`< 0.05 ,]
 }
 }

@@ -649,3 +649,73 @@ get_DMTD_target_tf <- function(
     database <- database %>% filter(.data$Cancer == cancer)
     return(database)
 }
+
+
+#' @examples
+#' \dontrun{
+#' data("dna.met.chr21")
+#' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
+#' data("gene.exp.chr21.log2")
+#' triplet <- data.frame(
+#'     "regionID" = rownames(dna.met.chr21)[1:10],
+#'     "TF" = rownames(gene.exp.chr21.log2)[11:20],
+#'     "target" = rownames(gene.exp.chr21.log2)[1:10]
+#' )
+#' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
+#' calculate_stage_wise_adjustment(results)
+#' }
+#' @noRd
+calculate_stage_wise_adjustment <- function(results){
+    check_package("stageR")
+    interactiol.col <- grep("quant_pval_metGrp:",colnames(results),value = TRUE)
+    min.pval <- results %>%
+        dplyr::group_by(.data$regionID) %>%
+        dplyr::summarise(min(.data[[interactiol.col]]))
+    pScreen.pval <- min.pval[[2]]
+    names(pScreen.pval) <- gsub("[[:punct:]]", "_", min.pval$regionID)
+    results$ID <- paste0(
+        gsub("[[:punct:]]", "_", results$regionID),
+        "_TF_",results$TF_symbol,
+        "_target_",results$target
+    )
+
+    pConfirmation <- results[,interactiol.col] %>% as.matrix  ## LW: change to p-values
+    rownames(pConfirmation) <-  results$ID
+    colnames(pConfirmation) <- "transcript"
+
+    triplet2region <- data.frame(
+        row.names = results$ID,
+        "transcript" = results$ID,
+        "gene" = gsub("[[:punct:]]", "_", results$regionID)
+    )
+
+    pScreen.pval.stageRObj <- stageRTx(
+        pScreen = pScreen.pval,
+        pConfirmation = pConfirmation,
+        pScreenAdjusted = FALSE,
+        tx2gene = triplet2region
+    )
+
+    pScreen.pval.stageRObj <- stageWiseAdjustment(
+        object = pScreen.pval.stageRObj,
+        method = "dte",
+        alpha = 0.05
+    )
+
+    padj <- getAdjustedPValues(
+        pScreen.pval.stageRObj,
+        onlySignificantGenes = FALSE,
+        order = FALSE
+    )
+    colnames(padj) <- c(
+        "regionID",
+        "tripletID",
+        "region_stage_wise_adj_pval",
+        "triplet_stage_wise_adj_pval"
+    )
+    padj
+}
+
+
+
+

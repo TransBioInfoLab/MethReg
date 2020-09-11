@@ -9,7 +9,7 @@ TF to the DNAm region with TFBS using JASPAR2020 TFBS.}
 create_triplet_regulon_based(
   region,
   genome = c("hg38", "hg19"),
-  min.confidence = c("A", "B", "C", "D", "E"),
+  regulons.min.confidence = c("A", "B", "C", "D", "E"),
   motif.search.window.size = 0,
   motif.search.p.cutoff = 1e-08,
   cores = 1,
@@ -22,6 +22,10 @@ regions (i.e "chr21:100002-1004000")}
 
 \item{genome}{Human genome reference "hg38" or "hg19"}
 
+\item{regulons.min.confidence}{Minimun confidence score  ("A", "B","C","D", "E")
+classifying regulons based on their quality from Human DoRothEA database
+ \link[dorothea]{dorothea_hs}.}
+
 \item{motif.search.window.size}{Integer value to extend the regions.
 For example, a value of 50 will
 extend 25 bp upstream and 25 downstream the region. Default is no increase}
@@ -32,10 +36,6 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 
 \item{tf.target}{A dataframe with tf and target columns. If not provided,
 \link[dorothea]{dorothea_hs} will be used.}
-
-\item{regulons.min.confidence}{Minimun confidence score  ("A", "B","C","D", "E")
-classifying regulons based on their quality from Human DoRothEA database
- \link[dorothea]{dorothea_hs}.}
 }
 \value{
 A data frame with TF, target and RegionID information.
@@ -51,7 +51,7 @@ dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
 triplet <- create_triplet_regulon_based(
    region = rownames(dnam.regions)[1:100],
    motif.search.window.size = 50,
-   min.confidence = "B"
+   regulons.min.confidence = "B"
 )
 }
 }

@@ -305,20 +305,10 @@ We will perform analyses using the 3 datasets described above in Section 3:
 
 ## 4.1 Analysis using model with methylation by TF interaction
 
-The function `interaction_model` assess the regulatory impact of DNA methylation on TF regulation of target genes via two approaches: 
+The function `interaction_model` assess the regulatory impact of DNA methylation on TF regulation of target genes via the following approach: 
 
-**Model 1** (considering DNAm values as a continuous variable) - we fit a model with TF by DNA methylation interaction using all samples.
 
-$$log_2(RNA target)  \sim log_2(TF) + DNAm + log_2(TF) * DNAm$$
-**_Interpretation_ :**    Note that Model 1 partitions the effects of DNA methylation and TF on target gene expressions into three categories: 
-
-* `log_2(TF)` - models direct effect of TF on target gene expression; 
-* `DNAm` - models direct effect of DNA methylation on target gene expression; 
-* `log_2(TF) × DNAm` interaction term - models synergistic effect of TF and DNA methylation, that is, how effect of TF on target gene expression is modified by DNA methylation. 
-
-To identify the cases where DNAm collaborate with TFs to influence gene expression, we're typically interested in those triplets with significant `log_2(TF) × DNAm` interaction term, although the cases for which `log_2(TF)` or `DNAm` are significant can also be interesting.     
-
-**Model 2** (considering DNAm values as a binary variable) - we define a binary variable 
+**considering DNAm values as a binary variable** - we define a binary variable 
 `DNAm Group` for DNA methylation values (high = 1, low = 0). That is, samples with the 
 highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0.  
 
@@ -336,7 +326,6 @@ results.interaction.model <- interaction_model(
     filter.correlated.tf.exp.dna = FALSE
 )
 ```
-
  
 ```{R interaction_model, message = FALSE, results = "hide", eval = FALSE}
 results.interaction.model <- interaction_model(
@@ -354,32 +343,7 @@ of the variable corresponds to increased outcome values (target gene expression)
 If estimate < 0, increasing values of the variable correspond to decreased target gene expression levels.
 
 
-The following columns are provided for the results of fitting **Model 1** to triplet data:
-
-* direct effect of methylation:  
-  + `pval_met`: p-value for DNA methylation variable
-  + `estimate_met`: estimated DNA methylation effect
-
-* direct effect of TF: 
-  + `pval_rna.tf` : p-value for TF expression
-  + `estimate_rna.tf`: estimated TF effect
-  
-* synergistic effects of methylation and TF: 
-  + `pval_met.rna.tf`: : p-value for DNA methylation by TF interaction
-  + `estimate_met.rna.tf`: estimated DNA methylation by TF interaction effect
-
-```{R interaction_model_results}
-dim(results.interaction.model)
-colnames(results.interaction.model)
-
-# Results for full model (with all samples)
-results.interaction.model %>% dplyr::select(
-    c(1,4,5,grep("quant",colnames(results.interaction.model),invert = TRUE))
-    ) %>% head
-```
-
-
-The following columns are provided for the results of fitting **Model 2** (quartile model) to triplet data:
+The following columns are provided for the results of fitting **quartile model** to triplet data:
 
 * direct effect of methylation:  
   + `quant_pval_metGrp`: p-value for binary DNA methylation variable
@@ -398,18 +362,6 @@ The following columns are provided for the results of fitting **Model 2** (quart
 results.interaction.model %>% dplyr::select(
   c(1,4,5,grep("quant",colnames(results.interaction.model)))
   ) %>% head
-```
-
-To select significant DNAm by TF interaction from both models, you can subset the results
-using the p-value from each linear model.
-
-```{r, include = TRUE, eval = TRUE}
-results.sig <- results.interaction.model %>% 
-  dplyr::filter(Max_interaction_pval < 0.05)
-```
-
-```{R}
-head(results.sig)
 ```
 
 ## 4.2 Stratified analysis by high and low DNA methylation levels

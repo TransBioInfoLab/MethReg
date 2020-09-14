@@ -794,6 +794,30 @@ calculate_fdr_per_region_adjustment <- function(results){
     results
 }
 
+#' @examples
+#' \dontrun{
+#' data("dna.met.chr21")
+#' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
+#' data("gene.exp.chr21.log2")
+#' triplet <- data.frame(
+#'     "regionID" = rownames(dna.met.chr21)[1:10],
+#'     "TF" = rownames(gene.exp.chr21.log2)[11:20],
+#'     "target" = rownames(gene.exp.chr21.log2)[1:10]
+#' )
+#' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
+#' results <- calculate_fdr_per_region_adjustment(results)
+#' }
+#' @noRd
+calculate_fdr_adjustment <- function(results){
+
+    for(pval.col in grep("quant_pval_",colnames(results),value = TRUE)){
+        fdr.col <- gsub("pval","fdr",pval.col)
+        results[[fdr.col]] <- p.adjust(results[[pval.col]], method = "fdr")
+        results <- results %>% relocate(fdr.col, .after = pval.col)
+    }
+    results
+}
+
 
 #' @examples
 #' \dontrun{

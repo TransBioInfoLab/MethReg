@@ -270,16 +270,19 @@ interaction_model <- function(
     ret$tripletID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
 
     if(stage.wise.analysis){
+        message("Performing Stage wise correction for triplets")
         sta <- calculate_stage_wise_adjustment(ret)
         ret <- dplyr::left_join(ret, sta, by = c("tripletID"))
     } else {
         message("Performing FDR correction for triplets p-values per region")
-        ret$tripletID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
         for(pval.col in grep("pval_",colnames(ret),value = TRUE)){
             fdr.col <- gsub("pval","fdr",pval.col)
             fdr.by.region <- ret %>%
                 group_by(.data$regionID) %>%
-                summarise("fdr.by.region" = p.adjust(.data[[pval.col]], method = "fdr"), "ID" = .data$tripletID)
+                summarise(
+                    "fdr.by.region" = p.adjust(.data[[pval.col]], method = "fdr"),
+                    "tripletID" = .data$tripletID
+                )
             ret[[fdr.col]] <-  fdr.by.region$fdr.by.region[match(ret$tripletID,fdr.by.region$tripletID)]
         }
     }

@@ -30,10 +30,11 @@ test_that("plot_interaction_model return a ggplot object", {
         dnam =  dnam,
         exp =  exp,
         filter.correlated.tf.exp.dna = FALSE,
-        sig.threshold = 1
+        sig.threshold = 1,
+        filter.triplet.by.sig.term = FALSE
     )
 
-    plots <-  plots <- plot_interaction_model(
+    plots <- plot_interaction_model(
         triplet.results = results,
         dnam = dnam,
         exp = exp

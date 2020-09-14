@@ -267,31 +267,25 @@ interaction_model <- function(
     #if(filter.by.tf.no.diff){
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
-    ret$tripletID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
 
     if(stage.wise.analysis){
         message("Performing Stage wise correction for triplets")
-        sta <- calculate_stage_wise_adjustment(ret)
-        ret <- dplyr::left_join(ret, sta, by = c("tripletID"))
+        ret <- calculate_stage_wise_adjustment(ret)
     } else {
         message("Performing FDR correction for triplets p-values per region")
-        for(pval.col in grep("pval_",colnames(ret),value = TRUE)){
-            fdr.col <- gsub("pval","fdr",pval.col)
-            fdr.by.region <- ret %>%
-                group_by(.data$regionID) %>%
-                summarise(
-                    "fdr.by.region" = p.adjust(.data[[pval.col]], method = "fdr"),
-                    "tripletID" = .data$tripletID
-                )
-            ret[[fdr.col]] <-  fdr.by.region$fdr.by.region[match(ret$tripletID,fdr.by.region$tripletID)]
-        }
+        ret <- calculate_fdr_per_region_adjustment(ret)
+
+
     }
-    ret$tripletID <- NULL
 
     if(filter.triplet.by.sig.term){
         message("Filtering results to have interaction, TF or DNAm significant")
         if(fdr){
-            ret <- ret %>% filter_at(vars(contains("quant_fdr")), any_vars(. < sig.threshold))
+            if(!stage.wise.analysis){
+                ret <- ret %>% filter_at(vars(contains("quant_fdr")), any_vars(. < sig.threshold))
+            } else {
+                ret <- ret %>% filter_at(vars(contains("quant_triplet_stage_wise_")), any_vars(. < sig.threshold))
+            }
         } else {
             ret <- ret %>% filter_at(vars(contains("quant_pval")), any_vars(.< sig.threshold))
         }
@@ -305,7 +299,7 @@ interaction_model <- function(
 
     if(filter.correlated.tf.exp.dnam){
         message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
-        ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
+        ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > sig.threshold)
     }
 
     ret

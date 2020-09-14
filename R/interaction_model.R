@@ -129,6 +129,8 @@ interaction_model <- function(
     stage.wise.analysis = FALSE
 ){
 
+    if(stage.wise.analysis) check_package("stageR")
+
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
     if(missing(exp)) stop("Please set exp argument with gene expression matrix")
 

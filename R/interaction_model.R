@@ -20,6 +20,8 @@
 #' triplet will be removed.
 #' @param filter.triplet.by.sig.term Filter significant triplets ?
 #' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
+#' @param stage.wise.analysis A boolean indicating if stagewise analysis should be performed
+#' to correct for multiple comparisons. If set to FALSE FDR analysis is performed.
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
@@ -123,7 +125,8 @@ interaction_model <- function(
     sig.threshold = 0.05,
     fdr = TRUE,
     filter.correlated.tf.exp.dnam = TRUE,
-    filter.triplet.by.sig.term = TRUE
+    filter.triplet.by.sig.term = TRUE,
+    stage.wise.analysis = FALSE
 ){
 
     if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -262,16 +265,23 @@ interaction_model <- function(
     #if(filter.by.tf.no.diff){
     #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
     #}
-    message("Performing FDR correction for triplets p-values per region")
-    ret$ID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
-    for(pval.col in grep("pval_",colnames(ret),value = TRUE)){
-        fdr.col <- gsub("pval","fdr",pval.col)
-        fdr.by.region <- ret %>%
-            group_by(.data$regionID) %>%
-            summarise("fdr.by.region" = p.adjust(.data[[pval.col]], method = "fdr"), "ID" = .data$ID)
-        ret[[fdr.col]] <-  fdr.by.region$fdr.by.region[match(ret$ID,fdr.by.region$ID)]
+    ret$tripletID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
+
+    if(stage.wise.analysis){
+        sta <- calculate_stage_wise_adjustment(ret)
+        ret <- dplyr::left_join(ret, sta, by = c("tripletID"))
+    } else {
+        message("Performing FDR correction for triplets p-values per region")
+        ret$tripletID <- paste0(gsub("[[:punct:]]", "_", ret$regionID),"_TF_",ret$TF_symbol,"_target_",ret$target)
+        for(pval.col in grep("pval_",colnames(ret),value = TRUE)){
+            fdr.col <- gsub("pval","fdr",pval.col)
+            fdr.by.region <- ret %>%
+                group_by(.data$regionID) %>%
+                summarise("fdr.by.region" = p.adjust(.data[[pval.col]], method = "fdr"), "ID" = .data$tripletID)
+            ret[[fdr.col]] <-  fdr.by.region$fdr.by.region[match(ret$tripletID,fdr.by.region$tripletID)]
+        }
     }
-    ret$ID <- NULL
+    ret$tripletID <- NULL
 
     if(filter.triplet.by.sig.term){
         message("Filtering results to have interaction, TF or DNAm significant")

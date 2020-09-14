@@ -14,7 +14,8 @@ interaction_model(
   sig.threshold = 0.05,
   fdr = TRUE,
   filter.correlated.tf.exp.dnam = TRUE,
-  filter.triplet.by.sig.term = TRUE
+  filter.triplet.by.sig.term = TRUE,
+  stage.wise.analysis = FALSE
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ triplet will be removed.}
 
 \item{filter.triplet.by.sig.term}{Filter significant triplets ?
 Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model}
+
+\item{stage.wise.analysis}{A boolean indicating if stagewise analysis should be performed
+to correct for multiple comparisons. If set to FALSE FDR analysis is performed.}
 }
 \value{
 A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},

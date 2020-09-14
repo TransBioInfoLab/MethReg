@@ -666,26 +666,32 @@ get_DMTD_target_tf <- function(
 #' }
 #' @noRd
 calculate_stage_wise_adjustment <- function(results){
+
     check_package("stageR")
+
     interactiol.col <- grep("quant_pval_metGrp:",colnames(results),value = TRUE)
+
     min.pval <- results %>%
         dplyr::group_by(.data$regionID) %>%
         dplyr::summarise(min(.data[[interactiol.col]]))
-    pScreen.pval <- min.pval[[2]]
-    names(pScreen.pval) <- gsub("[[:punct:]]", "_", min.pval$regionID)
-    results$ID <- paste0(
+
+    results$tripletID <- paste0(
         gsub("[[:punct:]]", "_", results$regionID),
         "_TF_",results$TF_symbol,
         "_target_",results$target
     )
 
+    # Preparing StageR input
+    pScreen.pval <- min.pval[[2]]
+    names(pScreen.pval) <- gsub("[[:punct:]]", "_", min.pval$regionID)
+
     pConfirmation <- results[,interactiol.col] %>% as.matrix  ## LW: change to p-values
-    rownames(pConfirmation) <-  results$ID
+    rownames(pConfirmation) <-  results$tripletID
     colnames(pConfirmation) <- "transcript"
 
     triplet2region <- data.frame(
-        row.names = results$ID,
-        "transcript" = results$ID,
+        row.names = results$tripletID,
+        "transcript" = results$tripletID,
         "gene" = gsub("[[:punct:]]", "_", results$regionID)
     )
 
@@ -707,13 +713,15 @@ calculate_stage_wise_adjustment <- function(results){
         onlySignificantGenes = FALSE,
         order = FALSE
     )
+
     colnames(padj) <- c(
         "regionID",
         "tripletID",
         "region_stage_wise_adj_pval",
         "triplet_stage_wise_adj_pval"
     )
-    padj
+    padj$regionID <- NULL
+    return(padj)
 }
 
 

@@ -54,13 +54,15 @@ regions or to search for methylation coupled TF regulatory processes in the enti
 
 # 2. Installation 
 
-You can install the development version of the package from Bioconductor using the following code:
+`MethReg` is a Bioconductor package and can be installed through BiocManager::install().
 
 ```{r, eval = FALSE}
-BiocManager::install("MethReg")
+if (!"BiocManager" %in% rownames(installed.packages()))
+     install.packages("BiocManager")
+BiocManager::install("MethReg", dependencies = TRUE)
 ```
 
-After the package is successfully installed you can load its functions with:
+After the package is installed, it can be loaded into R workspace by
 
 ```{r setup, eval = TRUE}
 library(MethReg)

@@ -57,6 +57,7 @@ Suggests:
     dorothea,
     viper
 VignetteBuilder: knitr
+BugReports: https://github.com/TransBioInfoLab/MethReg/
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 4.0)

@@ -9,7 +9,11 @@ for 38 samples (only chromosome 21) retrieved from GDC using TCGAbiolinks}
 A log2 (FPKM-UQ + 1) gene expression matrix with 38 samples,
 includes Ensembl IDs in the rows and TCGA sample identifiers in the columns
 }
+\usage{
+gene.exp.chr21.log2
+}
 \description{
 TCGA-COAD gene expression matrix (log2 (FPKM-UQ + 1))
 for 38 samples (only chromosome 21) retrieved from GDC using TCGAbiolinks
 }
+\keyword{datasets}

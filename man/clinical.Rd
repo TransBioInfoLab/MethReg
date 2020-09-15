@@ -9,7 +9,11 @@ retrieved from GDC using TCGAbiolinks}
 A matrix: 38 samples (rows) and variables (columns)
 patient, sample, gender and sample_type
 }
+\usage{
+clinical
+}
 \description{
 TCGA-COAD clinical matrix for 38 samples
 retrieved from GDC using TCGAbiolinks
 }
+\keyword{datasets}

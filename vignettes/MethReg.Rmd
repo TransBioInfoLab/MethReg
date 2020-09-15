@@ -54,19 +54,15 @@ regions or to search for methylation coupled TF regulatory processes in the enti
 
 # 2. Installation 
 
-You can install the development version of the package from GitHub using the following code:
+You can install the development version of the package from Bioconductor using the following code:
 
 ```{r, eval = FALSE}
-devtools::install_github("TransBioInfoLab/MethReg")
-```
-
-```{r libs_load, eval = TRUE, include = FALSE}
-library(MethReg)
+BiocManager::install("MethReg")
 ```
 
 After the package is successfully installed you can load its functions with:
 
-```{r setup, eval = FALSE}
+```{r setup, eval = TRUE}
 library(MethReg)
 ```
 
@@ -82,7 +78,8 @@ For illustration, we will use chromosome 21 data from 38 TCGA-COAD (colon cancer
 ## 3.1 Input DNA methylation dataset
 
 The DNA methylation dataset is a matrix with methylation beta or M-values. 
-If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, this matrix would contain residuals from fitting linear regression 
+If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
+this matrix would contain residuals from fitting linear regression 
 instead (see details **Section 7** "Controlling effects from confounding variables" below). 
 
 The samples are in the columns and methylation regions or probes are in the rows.   
@@ -91,10 +88,12 @@ The samples are in the columns and methylation regions or probes are in the rows
 
 We will analyze all CpGs on chromosome 21 in this vignette. 
 
-However, oftentimes, the methylation data can also be, for example, **differentially methylated sites** (DMS) or **differentially methylated regions** (DMRs) obtained in an epigenome-wide association study (EWAS) study.
+However, oftentimes, the methylation data can also be, for example, 
+**differentially methylated sites** (DMS) or **differentially methylated regions** (DMRs)
+obtained in an epigenome-wide association study (EWAS) study.
 
 ```{R warning=FALSE}
-dna.met.chr21 <- get(data("dna.met.chr21"))
+data("dna.met.chr21")
 ```
 
 ```{R}
@@ -102,8 +101,8 @@ dna.met.chr21[1:5,1:5]
 ```
 
 We will first create a SummarizedExperiment object with the function
-`make_se_from_dnam_probes`. This function will use the Sesame package to map the array
-probes into genomic regions.
+`make_se_from_dnam_probes`. This function will use the Sesame package 
+to map the array probes into genomic regions.
 
 ```{R}
 dna.met.chr21.se <- make_se_from_dnam_probes(
@@ -122,42 +121,47 @@ SummarizedExperiment::rowRanges(dna.met.chr21.se)[1:4,1:4]
 
 ### 3.1.2 Analysis of DMRs
 
-Differentially Methylated Regions (DMRs) associated with phenotypes such as tumor stage can be obtained from R packages such as `coMethDMR`, `comb-p`, `DMRcate` and many others. The methylation levels in multiple CpGs within the DMRs need to be 
-summarized (e.g. using medians), then the analysis for DMR will proceed in the same way 
-as those for CpGs. See **Section 6** "Identifying co-methylated clusters and summarizing regions using medians for DMRs" below for more details.   
+Differentially Methylated Regions (DMRs) associated with phenotypes such 
+as tumor stage can be obtained from R packages such as 
+`coMethDMR`, `comb-p`, `DMRcate` and many others. 
+The methylation levels in multiple CpGs within the DMRs need to be 
+summarized (e.g. using medians), then the analysis for 
+DMR will proceed in the same way 
+as those for CpGs. See **Section 6** "Identifying co-methylated clusters 
+and summarizing regions using medians for DMRs" below for more details.   
 
 
 ## 3.2 Input gene expression dataset
 
-The gene expression dataset is a matrix with log2 transformed and normalized gene expression values. 
+The gene expression dataset is a matrix with log2 transformed and 
+normalized gene expression values. 
 If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
-this matrix can also contain residuals from linear regression instead (see **Section 7** "Controlling effects from confounding variables" below).
+this matrix can also contain residuals from linear regression instead 
+(see **Section 7** "Controlling effects from confounding variables" below).
 
 The samples are in the columns and the genes are in the rows. 
 
 ```{R}
-gene.exp.chr21 <- get(data("gene.exp.chr21.log2", package = "MethReg"))
-gene.exp.chr21[1:5,1:5]
+data("gene.exp.chr21.log2")
+gene.exp.chr21.log2[1:5,1:5]
 ```
 
 We will also create a SummarizedExperiment object for the gene expression data.
 This object will contain the genomic information for each gene.
 
 ```{R}
-gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21)
+gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21.log2)
 gene.exp.chr21.se
 SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 ```
 
-```{R, include = FALSE, results = "hide"}
-rm(dna.met.chr21)
-rm(gene.exp.chr21)
-gc()
-```
-
 ## 3.3 Creating triplet dataset
 
-To create the triplet dataset of CpGs, target genes and TFs, we first link each CpG with target gene (_CpG region-target gene_ dataset). Next, we link each CpG with TFs that have binding sites nearby (_CpG region-TF_ dataset). Finally, we merge the two datasets by CpGs. 
+To create the triplet dataset of CpGs, target genes and TFs, we first link 
+each CpG with target gene (_CpG region-target gene_ dataset). 
+Next, we link each CpG with TFs that have binding sites 
+nearby (_CpG region-TF_ dataset). 
+Finally, we merge the two datasets by CpGs. 
 
 ### Mapping Regions to the target gene
 
@@ -234,7 +238,9 @@ region.target.window
 
 ### Mapping Regions to TF
 
-In this section, **regions** refer to the regions where CpGs are located. The function `get_tf_in_region` uses `motifmatchr` [@motifmatchr] to scan these regions for occurrences of motifs in the JASPAR database.
+In this section, **regions** refer to the regions where CpGs are located. 
+The function `get_tf_in_region` uses `motifmatchr` [@motifmatchr] to scan 
+these regions for occurrences of motifs in the JASPAR database.
 
 JASPAR 2020 is an open-access database of curated, non-redundant transcription 
 factor (TF)-binding profiles [@JASPAR2020; @fornes2020jaspar], which contains 
@@ -266,7 +272,8 @@ gc()
 
 ### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
 
-We create the triplet dataset by merging the _CpG region-target gene_ dataset and the _CpG region-TF_ dataset. 
+We create the triplet dataset by merging the _CpG region-target gene_ 
+dataset and the _CpG region-TF_ dataset. 
 
 ```{R, message = FALSE, warning = FALSE}
 # Merging the results from the previous sections (region and target, and region and TF)
@@ -289,14 +296,19 @@ The triplet is a data frame with the following columns:
 head(triplet)
 ```
 
-Note that there may be multiple rows for a CpG region, when multiple target gene and/or TFs are found close to it. 
+Note that there may be multiple rows for a CpG region, when multiple 
+target gene and/or TFs are found close to it. 
 
 # 4. Evaluating the regulatory potential of CpGs (or DMRs) 
 
-Because TF binding to DNA can be influenced by (or influences) DNA methylation levels nearby [@yin2017impact], 
-target gene expression levels are often resulted from the synergistic effects of both TF and DNA methylation. In other words, TF activities in gene regulation is often affected by DNA methylation. 
+Because TF binding to DNA can be influenced by (or influences) 
+DNA methylation levels nearby [@yin2017impact], 
+target gene expression levels are often resulted from the synergistic effects 
+of both TF and DNA methylation. In other words, TF activities in gene 
+regulation is often affected by DNA methylation. 
 
-Our goal then is to highlight DNA methylation regions (or CpGs) where these synergistic DNAm and TF collaborations occur. 
+Our goal then is to highlight DNA methylation regions (or CpGs) where 
+these synergistic DNAm and TF collaborations occur. 
 We will perform analyses using the 3 datasets described above in Section 3:
 
 * An input DNA methylation matrix
@@ -305,14 +317,17 @@ We will perform analyses using the 3 datasets described above in Section 3:
 
 ## 4.1 Analysis using model with methylation by TF interaction
 
-The function `interaction_model` assess the regulatory impact of DNA methylation on TF regulation of target genes via the following approach: 
+The function `interaction_model` assess the regulatory impact of 
+DNA methylation on TF regulation of target genes via the following approach: 
 
 
 **considering DNAm values as a binary variable** - we define a binary variable 
-`DNAm Group` for DNA methylation values (high = 1, low = 0). That is, samples with the 
-highest DNAm levels (top 25 percent) has high = 1, samples with lowest DNAm levels (bottom 25 pecent) has high = 0.  
+`DNAm Group` for DNA methylation values (high = 1, low = 0). 
+That is, samples with the  highest DNAm levels (top 25 percent) has high = 1, 
+samples with lowest DNAm levels (bottom 25 pecent) has high = 0.  
 
-Note that in this implementation, only samples with DNAm values in the first and last quartiles are considered.
+Note that in this implementation, only samples with DNAm values in 
+the first and last quartiles are considered.
 
 $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm Group}$$
  
@@ -366,22 +381,17 @@ results.interaction.model %>% dplyr::select(
 
 ## 4.2 Stratified analysis by high and low DNA methylation levels
 
-For triplets with significant `log_2(TF) × DNAm` interaction effect identified above, we can further assess how gene regulation by TF changes when DNAm is high or low. To this end, the function 
+For triplets with significant `log_2(TF) × DNAm` interaction effect identified 
+above, we can further assess how gene regulation by TF changes when DNAm 
+is high or low. To this end, the function 
 `stratified_model` fits two separate models (see below) to only 
-samples with the highest DNAm levels (top 25 percent), and then to only samples with 
-lowest DNAm levels (bottom 25 percent), separately.
+samples with the highest DNAm levels (top 25 percent), and then to
+only samples with lowest DNAm levels (bottom 25 percent), separately.
 
 $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 
-```{R, message = FALSE, results = "hide", include = FALSE}
-results.stratified.model <- stratified_model(
-    triplet = triplet,
-    dnam = dna.met.chr21.se[rownames(dna.met.chr21.se) %in% triplet$regionID,],
-    exp = gene.exp.chr21.se[rownames(gene.exp.chr21.se) %in% c(triplet$target,triplet$TF),]
-)
-```
 
-```{R stratified_model, message = FALSE, results = "hide", eval = FALSE}
+```{R stratified_model, message = FALSE, results = "hide", eval = TRUE}
 results.stratified.model <- stratified_model(
     triplet = triplet,
     dnam = dna.met.chr21.se,
@@ -423,12 +433,18 @@ gene expression levels vary by DNA methylation levels. When TF by methylation
 interaction is significant (Section 4.1), we expect the association between TF 
 and target gene expression vary depending on whether DNA methylation is low or high. 
 
-In this example, when DNA methylation is low, target gene expression is relatively independent of the amount of TF available. On the other hand, when DNA methylation 
+In this example, when DNA methylation is low, target gene expression is relatively 
+independent of the amount of TF available. On the other hand, when DNA methylation 
 level is high, more abundant TF corresponds to increased gene expression (an activator TF). 
 One possibility is that DNA methylation might enhance TF binding in this case. 
 _**This is an example where DNA methylation and TF work synergistically to affect target gene expression**_. 
 
-While the main goal of MethReg is to prioritize methylation CpGs, also note that without stratifying by DNA methylation, the overall TF-target effects (p = 0.142) is not as significant as the association in stratified analysis in high methylation samples (p = 0.00508). _**This demonstrates that by additionally modeling DNA methylation, we can also nominate TF – target associations that might have been missed otherwise**_. 
+While the main goal of MethReg is to prioritize methylation CpGs, also 
+note that without stratifying by DNA methylation, the overall TF-target 
+effects (p = 0.142) is not as significant as the association in stratified 
+analysis in high methylation samples (p = 0.00508). 
+_**This demonstrates that by additionally modeling DNA methylation,**_
+**_we can also nominate TF – target associations that might have been missed otherwise**_. 
 
 If you want to highlight different group of samples, you can also use the `metadata` argument
 with a dataframe where rownames are the samples (same order as the columns of the 
@@ -466,109 +482,20 @@ multi-omics data.
 
 ![Figure 2 - Different biological scenarios considered by `MethReg`](scenarios.png)
 
-# 6. Identifying co-methylated clusters of CpGs in DMRs and summarizing regions with multiple CpGs
-
-Given regions for DMRs, the R package [coMethDMR](https://github.com/TransBioInfoLab/coMethDMR) 
-can be used to identify co-methylated regions [@gomez2019comethdmr]. 
-To install it, please use the following command:
-
-```{R, eval = FALSE}
-devtools::install_github("TransBioInfoLab/coMethDMR")
-```
-
-We can then summarize methylation levels from multiple CpGs within each region using median. 
-
-```{r, eval = FALSE, include = TRUE, message = FALSE, results = "hide"}
-library(coMethDMR)
-library(dplyr)
-```
-
-For illustration, we will use probe clusters in predefined genomic regions 
-from the `coMethDMR` R package here. 
-
-```{R cluster_probes, eval = FALSE}
-probes.cluster <- coMethDMR::getPredefinedCluster(
-  arrayType = "450k",
-  clusterType = "regions"
-)
-```
-
-```{R, eval = FALSE}
-message("Number of clusters: ",length(probes.cluster))
-probes.cluster %>% head
-```
-
-For real data analysis, please replace `probes.cluster` with probes in DMRs 
-identified in epigenome-wide association study. The  `coMethDMR::GetCpGsInAllRegion` 
-function can be used to extract probes within the DMRs. 
-
-Here are the sample scripts for this task:   
-```{r, eval = FALSE}
-probes.cluster <- coMethDMR::GetCpGsInAllRegion(
-    regionName_char = c("chr21:37432493-37432782",
-                        "chr21:18884682-18885210", 
-                        "chr21:27107799-27107982"),
-      arrayType = "450k"
-)
-probes.cluster
-```
-
-Next we find co-methylated regions within the DMRs.
-```{R cometh, eval = FALSE}
-data("dna.met.chr21")
-# only keep DNAm values for the probes obtained above
-dna.met.chr21 <- dna.met.chr21[rownames(dna.met.chr21) %in% unique(unlist(probes.cluster)),]
-```
-
-```{R,eval = FALSE}
-coMeth_ls <- coMethDMR::CoMethAllRegions(
-    dnam = dna.met.chr21,
-    betaToM = TRUE,
-    method = "spearman",
-    minPairwiseCorr = 0.2,
-    CpGs_ls = probes.cluster,
-    arrayType = "450k",
-    returnAllCpGs = FALSE,
-    output = "CpGs",
-    nCores_int = 1
-)
-```
 
 
-```{R, eval = FALSE}
-message("Number of co-methylated cluster: ",length(coMeth_ls))
-coMeth_ls %>% head
-```
-
-Finally, we compute median methylation of co-methylated regions. 
-
-```{R, eval = FALSE, results = "hide"}
-median.df.tumor <- plyr::ldply(
-    coMeth_ls[!duplicated(names(coMeth_ls))],
-    function(probes){
-        matrixStats::colMedians(dna.met.chr21[probes,])
-        }, .progress = "time",.parallel = FALSE
-)
-```
-
-```{R, eval = FALSE}
-rownames(median.df.tumor) <- median.df.tumor$.id
-median.df.tumor$.id <- NULL
-colnames(median.df.tumor) <- colnames(dna.met.chr21)
-dim(median.df.tumor)
-head(median.df.tumor)
-```
-
-The analysis described in **Section 3.3** and **Section 4** can then be performed 
-for DMRs using `median.df.tumor`, in the same way as those for dataset `dna.met.chr21`. 
-
-# 7. Controlling effects from confounding variables
+# 6. Controlling effects from confounding variables
 
 Both gene expressions and DNA methylation levels can be affected by age, sex, 
-shifting in cell types, batch effects and other confounding (or covariate) variables. In this section, we illustrate analysis workflow that reduces confounding effects, by first extracting the residual data with the function `get_residuals`, before fitting the models discussed above in Section 4. 
+shifting in cell types, batch effects and other confounding (or covariate) variables. 
+In this section, we illustrate analysis workflow that reduces confounding effects,
+by first extracting the residual data with the function `get_residuals`, 
+before fitting the models discussed above in Section 4. 
 
 The `get_residuals` function will use gene expression (or DNA methylation data) 
-and phenotype data as input. To remove confounding effects in gene expression data, we use the `get_residuals` function which extract residuals after fitting the following model for gene expression data: 
+and phenotype data as input. To remove confounding effects in gene expression data, 
+we use the `get_residuals` function which extract residuals after fitting the
+following model for gene expression data: 
 $$log_2(RNA target) \sim covariate_{1} + covariate_{2} + ... + covariate_{N}$$
 or the following model for methylation data: 
 
@@ -602,7 +529,8 @@ dna.met.chr21.residuals <- get_residuals(dna.met.chr21, metadata) %>% as.matrix(
 dna.met.chr21.residuals[1:5,1:5]
 ```
 
-The models described in **Section 4.1** can then be applied to these residuals data using the `interaction_model` function:  
+The models described in **Section 4.1** can then be applied to these residuals 
+data using the `interaction_model` function:  
 
 ```{R, message = FALSE, results = "hide", eval = FALSE}
 results <- interaction_model(
@@ -612,9 +540,9 @@ results <- interaction_model(
 )
 ```
 
-# 8. Session information
+# 7. Session information
 ```{R,size = 'tiny'}
 sessionInfo()
 ```
 
-# 9. Bibliography
+# 8. Bibliography

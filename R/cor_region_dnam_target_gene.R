@@ -21,13 +21,9 @@
 #' P-value threshold filter (default: 0.05)
 #' @param min.cor.estimate
 #' Correlation estimate threshold filter (default: not applied)
-#' @param file.out
-#' A csv file name which will be used to save the results.
-#' @param cores Number of CPU cores to be used. Default 1.
 #' @importFrom plyr adply
 #' @importFrom tibble tibble
 #' @importFrom stats p.adjust cor.test
-#' @import dplyr
 #' @export
 #' @examples
 #' dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
@@ -89,41 +85,45 @@ cor_region_dnam_target_gene <- function(
     filter.results = TRUE,
     min.cor.pval = 0.05,
     min.cor.estimate = 0.0,
-    file.out,
     cores = 1
 ){
 
-    #--------------------------------------------------
+    #-------------------------------------------------------------------------
     # Checking input
-    if(missing(exp)) stop("Please set an R matrix/SE to exp argument")
-    if(missing(dnam)) stop("Please set an R matrix/SE to dnam argument")
-    if(is.null(exp)) stop("Please set an R matrix/SE to exp argument")
-    if(is.null(dnam)) stop("Please set an R matrix/SE to dnam argument")
+    #-------------------------------------------------------------------------
+    if (missing(exp) || is.null(exp)) {
+        stop("Please set an R matrix/SE to exp argument")
+    }
 
-    if(is(dnam,"SummarizedExperiment")){
+    if (missing(dnam) || is.null(dnam)) {
+        stop("Please set an R matrix/SE to dnam argument")
+    }
+
+    if (is(dnam,"SummarizedExperiment")) {
         dnam <- assay(dnam)
     }
 
-    if(!is(dnam,"matrix")){
+    if (!is(dnam,"matrix")){
         stop("dnam input is wrong")
     }
 
-    if(is(exp,"SummarizedExperiment")){
+    if (is(exp,"SummarizedExperiment")) {
         exp <- assay(exp)
     }
 
-    if(!is(exp,"matrix")){
+    if (!is(exp,"matrix")) {
         stop("exp input is wrong")
     }
 
-    if(ncol(dnam) != ncol(exp)) {
+    if (ncol(dnam) != ncol(exp)) {
         stop("exp and dnam does not have the same size")
     }
 
-    if(!all(c("target","regionID") %in% colnames(links))) {
+    if (!all(c("target","regionID") %in% colnames(links))) {
         stop("links object must have target and regionID columns")
     }
-    #--------------------------------------------------
+    #-------------------------------------------------------------------------
+
     message("Removing genes with RNA expression equal to 0/NA for all samples")
     exp <- filter_genes_zero_expression(exp = exp, max.samples.percentage = 100)
 
@@ -180,10 +180,6 @@ cor_region_dnam_target_gene <- function(
                 .data$met_exp_cor_fdr <= min.cor.pval &
                     abs(.data$met_exp_cor_estimate) >= min.cor.estimate
             )
-    }
-
-    if(!missing(file.out)) {
-        readr::write_tsv(x = correlation.df, path = file.out)
     }
 
     return(correlation.df)

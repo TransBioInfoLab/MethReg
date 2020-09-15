@@ -9,11 +9,14 @@ methyl-plus/methyl-minus).}
 stratified_model(triplet, dnam, exp, cores = 1, tf.activity.es = NULL)
 }
 \arguments{
-\item{triplet}{Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)}
+\item{triplet}{Data frame with columns for
+DNA methylation region (regionID), TF  (TF), and target gene  (target)}
 
-\item{dnam}{DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)}
+\item{dnam}{DNA methylation matrix or SummarizedExperiment
+(columns: samples in the same order as \code{exp} matrix, rows: regions/probes)}
 
-\item{exp}{A log2 (gene expression + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
+\item{exp}{A matrix or SummarizedExperiment
+(columns: samples in the same order as \code{dnam} matrix,
 rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
@@ -30,7 +33,8 @@ fitting linear models to samples with low methylation (\code{DNAmlow_pval_rna.tf
 \description{
 Should be used after fitting \code{interaction_model}, and only
 for triplet data with significant \code{TF*DNAm} interaction. This analysis
-examines in more details on how TF activities differ in samples with high DNAm or low DNAm values.
+examines in more details on how TF activities differ in
+samples with high DNAm or low DNAm values.
 }
 \details{
 This function fits linear model

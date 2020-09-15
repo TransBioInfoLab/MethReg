@@ -12,7 +12,6 @@ cor_region_dnam_target_gene(
   filter.results = TRUE,
   min.cor.pval = 0.05,
   min.cor.estimate = 0,
-  file.out,
   cores = 1
 )
 }
@@ -33,10 +32,6 @@ Samples should be in the same order as the DNA methylation matrix.}
 \item{min.cor.pval}{P-value threshold filter (default: 0.05)}
 
 \item{min.cor.estimate}{Correlation estimate threshold filter (default: not applied)}
-
-\item{file.out}{A csv file name which will be used to save the results.}
-
-\item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \value{
 A data frame with the following information: regionID, target gene,

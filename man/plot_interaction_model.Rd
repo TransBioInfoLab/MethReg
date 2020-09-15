@@ -17,9 +17,11 @@ plot_interaction_model(
 with Region ID, TF  (column name: TF),  and target gene  (column name: target),
 p-values and estimates of interaction}
 
-\item{dnam}{DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)}
+\item{dnam}{DNA methylation matrix or SummarizedExperiment object
+(columns: samples same order as met, rows: regions/probes)}
 
-\item{exp}{gene expression matrix (columns: samples same order as met, rows: genes)}
+\item{exp}{gene expression matrix or a SummarizedExperiment object
+(columns: samples same order as met, rows: genes)}
 
 \item{metadata}{A data frame with samples as rownames and one columns that will be used to
 color the samples}

@@ -20,13 +20,14 @@ calculate_stage_wise_adjustment <- function(results){
         results$tripletID <- create_triplet_ID(results)
     }
 
-    interactiol.col <- grep("quant_pval_metGrp:",colnames(results),value = TRUE)
+    interactiol.col <- grep("quant_fdr_metGrp:",colnames(results),value = TRUE)
+    print(interactiol.col)
     results <- stage_wise_adjustment(results, interactiol.col)
 
-    dnam.col <- grep("quant_pval_metGrp$",colnames(results),value = TRUE)
+    dnam.col <- grep("quant_fdr_metGrp$",colnames(results),value = TRUE)
     results <- stage_wise_adjustment(results, dnam.col)
 
-    tf.col <- grep("quant_pval_rna.tf$|quant_pval_es.tf$",colnames(results),value = TRUE)
+    tf.col <- grep("quant_fdr_rna.tf$|quant_fdr_es.tf$",colnames(results),value = TRUE)
     results <- stage_wise_adjustment(results, tf.col)
 
     return(results)
@@ -83,8 +84,8 @@ stage_wise_adjustment <- function(
     colnames(padj) <- c(
         "regionID",
         "tripletID",
-        gsub("pval","region_stage_wise_adj_pval",col),
-        gsub("pval","triplet_stage_wise_adj_pval",col)
+        gsub("fdr","region_stage_wise_adj_fdr",col),
+        gsub("fdr","triplet_stage_wise_adj_fdr",col)
     )
     padj$regionID <- NULL
 

@@ -6,8 +6,10 @@
 #' @param triplet.results Output from function stratified_model
 #' with Region ID, TF  (column name: TF),  and target gene  (column name: target),
 #' p-values and estimates of interaction
-#' @param dnam DNA methylation matrix  (columns: samples same order as met, rows: regions/probes)
-#' @param exp gene expression matrix (columns: samples same order as met, rows: genes)
+#' @param dnam DNA methylation matrix  or SummarizedExperiment object
+#'  (columns: samples same order as met, rows: regions/probes)
+#' @param exp A gene expression matrix or SummarizedExperiment object
+#'  (columns: samples same order as met, rows: genes)
 #' @param metadata A data frame with samples as rownames and one columns that will be used to
 #' color the samples
 #' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples

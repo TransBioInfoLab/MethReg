@@ -27,10 +27,10 @@
 #' TSS to consider as promoter regions. Defaults to 2000 bp.
 #' @param promoter.downstream.dist.tss Number of base pairs (bp) downstream of
 #' TSS to consider as promoter regions. Defaults to 2000 bp.
-#' @importFrom GenomicRanges findOverlaps
+#' @import GenomicRanges
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom tidyr unite
-#' @importFrom dplyr select
+#' @importFrom dplyr select filter bind_rows
 #' @importFrom methods is
 #' @examples
 #' library(GenomicRanges)
@@ -228,7 +228,7 @@ get_region_target_gene_by_promoter_overlap <- function(
     colnames(neargenes)[4] <- "target_gene_name"
     colnames(neargenes)[5] <- "target"
 
-    regionID <- regions.gr %>% as.data.frame %>% dplyr::select(1:3)
+    regionID <- regions.gr %>% data.frame %>% dplyr::select(1:3)
     regionID <- paste0(regionID[[1]],":",regionID[[2]],"-",regionID[[3]])
     out <- dplyr::bind_cols(
         data.frame("regionID" = regionID, stringsAsFactors = FALSE),
@@ -323,7 +323,7 @@ get_region_target_gene_nearby.genes <- function(
     )
 
     closest.genes <- tibble::tibble(
-        genes.gr[nearest.idx %>% subjectHits] %>% as.data.frame(), # nearest gene to the region
+        genes.gr[nearest.idx %>% subjectHits] %>% data.frame(), # nearest gene to the region
         "ID" = names(regions.gr)[nearest.idx %>% queryHits], # region being evaluated
         "Distance" = get_region_gene_distance(nearest.idx, regions.gr, genes.gr)
     )
@@ -387,7 +387,7 @@ get_region_target_gene_nearby.genes_aux <- function(
     pb <- progress::progress_bar$new(total = num.flanking.genes)
     evaluating <- nearest.idx %>% queryHits
     # we will start our search from the nearest gene from the region
-    idx <- nearest.idx %>% as.data.frame()
+    idx <- nearest.idx %>% data.frame()
 
     ret <- NULL
     # 2) check precede and overlapping genes recursively
@@ -428,7 +428,7 @@ get_region_target_gene_nearby.genes_aux <- function(
         ret <- rbind(
             ret, # keep old results
             tibble::tibble(
-                genes.gr[idx$subjectHits] %>% as.data.frame(),
+                genes.gr[idx$subjectHits] %>% data.frame(),
                 "ID" = names(regions.gr)[evaluating],
                 "Distance" = ifelse(
                     start(regions.gr[evaluating]) < start(genes.gr[idx$subjectHits]), 1,-1) *
@@ -445,7 +445,7 @@ get_region_target_gene_nearby.genes_aux <- function(
     return(ret)
 }
 
-#' @importFrom dplyr group_by
+#' @importFrom dplyr group_by do
 #' @importFrom plyr .
 get_region_target_gene_nearby.genes_addPos <- function(
     ret,
@@ -488,5 +488,5 @@ get_region_target_gene_nearby.genes_addPos <- function(
         return(out)
     }
 
-    ret %>% group_by(.data$ID) %>% do(f(.))
+    ret %>% group_by(.data$ID) %>% dplyr::do(f(.))
 }

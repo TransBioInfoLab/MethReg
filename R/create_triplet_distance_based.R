@@ -9,7 +9,7 @@
 #' To find TFs binding to the region, JASPAR2020 is used.
 #'
 #' @importFrom tidyr separate
-#' @importFrom GenomicRanges makeGRangesFromDataFrame
+#' @import GenomicRanges
 #' @param region A Granges or a named vector with
 #' regions (i.e "chr21:100002-1004000")
 #' @param genome Human genome reference "hg38" or "hg19"

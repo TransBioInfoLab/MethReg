@@ -6,8 +6,10 @@
 #' direct effect of TF on gene expression, as well as an interaction term that evaluates
 #' the synergistic effect of DNAm and TF on gene expression.
 #' @param triplet Data frame with columns for DNA methylation region (regionID), TF  (TF), and target gene  (target)
-#' @param dnam DNA methylation matrix  (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
-#' @param exp A log2 (gene expression count + 1) matrix (columns: samples in the same order as \code{dnam} matrix,
+#' @param dnam DNA methylation matrix or SummarizedExperiment object
+#' (columns: samples in the same order as \code{exp} matrix, rows: regions/probes)
+#' @param exp A matrix or SummarizedExperiment object object
+#'  (columns: samples in the same order as \code{dnam},
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples

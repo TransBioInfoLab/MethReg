@@ -117,7 +117,7 @@
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare
 #' @importFrom stats wilcox.test
-#' @importFrom dplyr group_by summarise
+#' @importFrom dplyr group_by summarise filter_at contains vars any_vars
 interaction_model <- function(
     triplet,
     dnam,

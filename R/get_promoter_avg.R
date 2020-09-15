@@ -17,7 +17,7 @@
 #'      arrayType = "450k"
 #' )
 #' }
-#' @param dnam A DNA methylation matrix
+#' @param dnam A DNA methylation matrix or a SummarizedExperiment object
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
 #' @param cores A integer number to use multiple cores. Default 1 core.

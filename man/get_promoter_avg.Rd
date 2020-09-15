@@ -15,7 +15,7 @@ get_promoter_avg(
 )
 }
 \arguments{
-\item{dnam}{A DNA methylation matrix}
+\item{dnam}{A DNA methylation matrix or a SummarizedExperiment object}
 
 \item{genome}{Human genome of reference hg38 or hg19}
 

@@ -1,9 +1,10 @@
 #' @title Get residuals from regression model
 #' @description Compute studentized residuals from fitting linear regression models to expression values
 #' in a data matrix
-#' @param data.matrix A matrix with samples as columns and features (gene, probes)
-#' as rows. Note that expression values should typically be log2(x+1) transformed
-#' before fitting linear regression models.
+#' @param data.matrix A matrix or SummarizedExperiment object
+#' with samples as columns and features (gene, probes)
+#' as rows. Note that expression values should typically be log2(expx + 1)
+#' transformed before fitting linear regression models.
 #' @param metadata.samples A data frame with samples as rows and columns the covariates.
 #' No NA values are allowed, otherwise residual of the corresponding sample will be NA.
 #' @param metadata.genes A data frame with genes (covariates) as rows and samples as columns.
@@ -62,30 +63,33 @@ get_residuals <- function(
     cores = 1
 ){
 
-    if(missing(data.matrix)) stop("Please data.matrix argument with a matrix/SE")
-    if(is.null(data.matrix)) stop("Please data.matrix argument with a matrix/SE")
+    if (missing(data.matrix) || is.null(data.matrix)) {
+        stop("Please data.matrix argument with a matrix/SE")
+    }
 
-    if(is(data.matrix,"SummarizedExperiment")){
+    if (is(data.matrix,"SummarizedExperiment")) {
         data.matrix <- assay(data.matrix)
     }
 
+    if (is.null(metadata.samples)) {
+        stop("Please set metadata argument with metadata information")
+    }
 
-    if(is.null(metadata.samples)) stop("Please set metadata argument with metadata information")
-    if(!all(colnames(data.matrix) == rownames(metadata.samples))) {
+    if (!all(colnames(data.matrix) == rownames(metadata.samples))) {
         stop("data.matrix columns names should be the same as metadata row names")
     }
 
-    if(any(is.na(metadata.samples))){
+    if (any(is.na(metadata.samples))) {
         message("There are NA's within the metadata, residuals for those samples will be NA.")
     }
 
-    if(!missing(metadata.genes)) {
+    if (!missing(metadata.genes)) {
 
-        if(ncol(metadata.genes) != ncol(data.matrix)){
+        if (ncol(metadata.genes) != ncol(data.matrix)) {
             stop("metadata.genes and data.matrix should have the number of columns")
         }
 
-        if(!all(colnames(metadata.genes) == colnames(data.matrix))){
+        if (!all(colnames(metadata.genes) == colnames(data.matrix))) {
             stop("metadata.genes columns names should be the same as data.matrix columns names")
         }
     }
@@ -94,11 +98,12 @@ get_residuals <- function(
     cov_char <- stringr::str_c(colnames(metadata.samples), collapse = " + ")
     form <- stringr::str_c("exp ~ ", cov_char)
 
-    if(missing(metadata.genes)) {
+    if (missing(metadata.genes)) {
         message("Formula used: ", form)
     } else {
         message("Formula used: ", form, " + gene.covariate")
     }
+
     resid <- plyr::adply(
         .data = data.matrix,
         .margins = 1,
@@ -108,10 +113,10 @@ get_residuals <- function(
             dat <- cbind(exp, metadata.samples)
             dat$exp <- as.numeric(dat$exp)
             gene.name <- genes.names[parent.frame()$i[]]
-            if(!is.null(metadata.genes)) {
-                if(gene.name %in% rownames(metadata.genes)){
+            if (!is.null(metadata.genes)) {
+                if (gene.name %in% rownames(metadata.genes)){
                     df <- data.frame(metadata.genes[gene.name,,drop = FALSE])
-                    if(ncol(df) > 1) df <- df %>% t
+                    if (ncol(df) > 1) df <- df %>% t
                     colnames(df) <- gene.name
                     dat <- cbind(dat, df)
                     form <- paste0(form," + ",gene.name)

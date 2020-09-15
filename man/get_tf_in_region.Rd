@@ -10,7 +10,8 @@ get_tf_in_region(
   window.size = 0,
   genome = c("hg19", "hg38"),
   p.cutoff = 1e-08,
-  cores = 1
+  cores = 1,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -22,11 +23,14 @@ For example, a value of 50 will
 extend 25 bp upstream and 25 bp downstream the region.
 The default is not to increase the scanned region.}
 
-\item{genome}{Human genome of reference "hg38" or "hg19"}
+\item{genome}{Human genome of reference "hg38" or "hg19".}
 
 \item{p.cutoff}{motifmatchr p.cutoff. Default 1e-8.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
+
+\item{verbose}{A logical argument indicating if
+messages output should be provided.}
 }
 \value{
 A data frame with the following information: regionID, TF symbol, TF ensembl ID

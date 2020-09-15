@@ -81,16 +81,11 @@
 #'    "TF" = "ENSG00000232888"
 #')
 #'
-#' results <- stratified_model(triplet = triplet,dnam = dnam, exp = exp)
-#' \dontrun{
-#' data("dna.met.chr21")
-#' dna.met.chr21 <- map_probes_to_regions(dna.met.chr21)
-#' data("gene.exp.chr21.log2")
-#' triplet <- data.frame("regionID" = rownames(dna.met.chr21)[1:10],
-#'                       "TF" = rownames(gene.exp.chr21.log2)[11:20],
-#'                       "target" = rownames(gene.exp.chr21.log2)[1:10])
-#' results <- stratified_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
-#' }
+#' results <- stratified_model(
+#'   triplet = triplet,
+#'   dnam = dnam,
+#'   exp = exp
+#' )
 #' @export
 #' @importFrom tibble tibble
 #' @importFrom rlang .data

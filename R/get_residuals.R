@@ -1,7 +1,7 @@
 #' @title Get residuals from regression model
 #' @description Compute studentized residuals from fitting linear regression models to expression values
 #' in a data matrix
-#' @param data.matrix A matrix or SummarizedExperiment object
+#' @param data A matrix or SummarizedExperiment object
 #' with samples as columns and features (gene, probes)
 #' as rows. Note that expression values should typically be log2(expx + 1)
 #' transformed before fitting linear regression models.
@@ -41,42 +41,42 @@
 #' colnames(cnv) <- colnames(gene.exp.chr21.log2)
 #'
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.chr21.log2[1:3,],
+#'    data = gene.exp.chr21.log2[1:3,],
 #'    metadata.samples = metadata,
 #'    metadata.genes = cnv
 #' )
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.chr21.log2[1:3,],
+#'    data = gene.exp.chr21.log2[1:3,],
 #'    metadata.samples = metadata,
 #'    metadata.genes = cnv[1:2,]
 #' )
 #' gene.exp.residuals <- get_residuals(
-#'    data.matrix = gene.exp.chr21.log2[1:3,],
+#'    data = gene.exp.chr21.log2[1:3,],
 #'    metadata.samples = metadata
 #' )
 #' @export
 #' @importFrom stats rstudent na.exclude na.omit
 get_residuals <- function(
-    data.matrix,
+    data,
     metadata.samples = NULL,
     metadata.genes = NULL,
     cores = 1
 ){
 
-    if (missing(data.matrix) || is.null(data.matrix)) {
-        stop("Please data.matrix argument with a matrix/SE")
+    if (missing(data) || is.null(data)) {
+        stop("Please data argument with a matrix/SE")
     }
 
-    if (is(data.matrix,"SummarizedExperiment")) {
-        data.matrix <- assay(data.matrix)
+    if (is(data,"SummarizedExperiment")) {
+        data <- assay(data)
     }
 
     if (is.null(metadata.samples)) {
         stop("Please set metadata argument with metadata information")
     }
 
-    if (!all(colnames(data.matrix) == rownames(metadata.samples))) {
-        stop("data.matrix columns names should be the same as metadata row names")
+    if (!all(colnames(data) == rownames(metadata.samples))) {
+        stop("data columns names should be the same as metadata row names")
     }
 
     if (any(is.na(metadata.samples))) {
@@ -85,12 +85,12 @@ get_residuals <- function(
 
     if (!missing(metadata.genes)) {
 
-        if (ncol(metadata.genes) != ncol(data.matrix)) {
-            stop("metadata.genes and data.matrix should have the number of columns")
+        if (ncol(metadata.genes) != ncol(data)) {
+            stop("metadata.genes and data should have the number of columns")
         }
 
-        if (!all(colnames(metadata.genes) == colnames(data.matrix))) {
-            stop("metadata.genes columns names should be the same as data.matrix columns names")
+        if (!all(colnames(metadata.genes) == colnames(data))) {
+            stop("metadata.genes columns names should be the same as data columns names")
         }
     }
     parallel <- register_cores(cores)
@@ -105,7 +105,7 @@ get_residuals <- function(
     }
 
     resid <- plyr::adply(
-        .data = data.matrix,
+        .data = data,
         .margins = 1,
         .fun = function(row, genes.names,metadata.genes){
             exp <- row %>% matrix
@@ -127,14 +127,14 @@ get_residuals <- function(
             fitE <- lm(form, data = dat, na.action = na.exclude)
             rstudent(fitE)
         },
-        genes = rownames(data.matrix),
+        genes = rownames(data),
         metadata.genes = metadata.genes,
         .progress = "time",
         .inform = TRUE,
         .id = NULL,
         .parallel = parallel)
 
-    rownames(resid) <- rownames(data.matrix)
-    colnames(resid) <- colnames(data.matrix)
+    rownames(resid) <- rownames(data)
+    colnames(resid) <- colnames(data)
     return(resid %>% as.matrix())
 }

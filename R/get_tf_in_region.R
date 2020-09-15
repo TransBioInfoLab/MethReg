@@ -16,9 +16,11 @@
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 bp downstream the region.
 #' The default is not to increase the scanned region.
-#' @param genome Human genome of reference "hg38" or "hg19"
+#' @param genome Human genome of reference "hg38" or "hg19".
 #' @param p.cutoff motifmatchr p.cutoff. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
+#' @param verbose A logical argument indicating if
+#' messages output should be provided.
 #' @examples
 #'  regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
 #'  region.tf <- get_tf_in_region(
@@ -40,8 +42,9 @@ get_tf_in_region <- function(
     window.size = 0,
     genome = c("hg19","hg38"),
     p.cutoff = 1e-8,
-    cores = 1)
-{
+    cores = 1,
+    verbose = FALSE
+) {
 
     check_package("JASPAR2020")
     check_package("TFBSTools")
@@ -59,8 +62,9 @@ get_tf_in_region <- function(
     region.gr <- region.gr + (window.size/2)
     # region <- resize(region,width = 50,fix = "center")
 
-    if (min(IRanges::width(region.gr)) < 8)
+    if (min(IRanges::width(region.gr)) < 8) {
         stop("Minimun region size is 8, please set window.size argument")
+    }
 
     genome <- match.arg(genome)
 
@@ -72,8 +76,8 @@ get_tf_in_region <- function(
     names(PFMatrixList) <- motifs.names
     PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]
 
-    message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
-    message("This may take a while...")
+    verbose && message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
+    verbose && message("This may take a while...")
     suppressWarnings({
         motif.matrix <- motifmatchr::matchMotifs(
             pwms = PFMatrixList,
@@ -97,7 +101,7 @@ get_tf_in_region <- function(
         motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
     }
 
-    message("Preparing output")
+    verbose && message("Preparing output")
     motifs.probes.df <- plyr::alply(
         colnames(motif.matrix),
         .margins = 1,

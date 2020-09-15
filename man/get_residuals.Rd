@@ -4,17 +4,13 @@
 \alias{get_residuals}
 \title{Get residuals from regression model}
 \usage{
-get_residuals(
-  data.matrix,
-  metadata.samples = NULL,
-  metadata.genes = NULL,
-  cores = 1
-)
+get_residuals(data, metadata.samples = NULL, metadata.genes = NULL, cores = 1)
 }
 \arguments{
-\item{data.matrix}{A matrix with samples as columns and features (gene, probes)
-as rows. Note that expression values should typically be log2(x+1) transformed
-before fitting linear regression models.}
+\item{data}{A matrix or SummarizedExperiment object
+with samples as columns and features (gene, probes)
+as rows. Note that expression values should typically be log2(expx + 1)
+transformed before fitting linear regression models.}
 
 \item{metadata.samples}{A data frame with samples as rows and columns the covariates.
 No NA values are allowed, otherwise residual of the corresponding sample will be NA.}
@@ -62,17 +58,17 @@ rownames(cnv) <- rownames(gene.exp.chr21.log2)
 colnames(cnv) <- colnames(gene.exp.chr21.log2)
 
 gene.exp.residuals <- get_residuals(
-   data.matrix = gene.exp.chr21.log2[1:3,],
+   data = gene.exp.chr21.log2[1:3,],
    metadata.samples = metadata,
    metadata.genes = cnv
 )
 gene.exp.residuals <- get_residuals(
-   data.matrix = gene.exp.chr21.log2[1:3,],
+   data = gene.exp.chr21.log2[1:3,],
    metadata.samples = metadata,
    metadata.genes = cnv[1:2,]
 )
 gene.exp.residuals <- get_residuals(
-   data.matrix = gene.exp.chr21.log2[1:3,],
+   data = gene.exp.chr21.log2[1:3,],
    metadata.samples = metadata
 )
 }

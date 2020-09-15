@@ -1,4 +1,4 @@
-test_that("cor_region_dnam_target_gene correlation signal is correct", {
+test_that("cor_dnam_target_gene correlation signal is correct", {
     dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
     rownames(dnam) <- c("chr3:203727581-203728580")
     colnames(dnam) <- paste0("Samples",1:20)
@@ -14,7 +14,7 @@ test_that("cor_region_dnam_target_gene correlation signal is correct", {
     )
 
     # Correalted DNAm and gene expression, display only significant associations
-    results.cor.pos <- cor_region_dnam_target_gene(
+    results.cor.pos <- cor_dnam_target_gene(
         links = links,
         dnam = dnam,
         exp = exp,
@@ -36,7 +36,7 @@ test_that("cor_region_dnam_target_gene correlation signal is correct", {
     )
 
     # Correalted DNAm and gene expression, display only significant associations
-    results.cor.neg <- cor_region_dnam_target_gene(
+    results.cor.neg <- cor_dnam_target_gene(
         links = links,
         dnam = dnam,
         exp = exp,
@@ -65,7 +65,7 @@ test_that("cor_region_dnam_target_gene filter results", {
     )
 
     # Correalted DNAm and gene expression, display only significant associations
-    results.cor.pos <- cor_region_dnam_target_gene(
+    results.cor.pos <- cor_dnam_target_gene(
         links = links,
         dnam = dnam,
         exp = exp,
@@ -76,7 +76,7 @@ test_that("cor_region_dnam_target_gene filter results", {
     expect_true(nrow(results.cor.pos) == 0)
 })
 
-test_that("cor_region_dnam_target_gene checks input", {
+test_that("cor_dnam_target_gene checks input", {
 
     dnam <- t(matrix(sort(c(runif(20))), ncol = 1))
     rownames(dnam) <- c("chr3:203727581-203728580")
@@ -92,11 +92,11 @@ test_that("cor_region_dnam_target_gene checks input", {
         "target" = "ENSG00000232886"
     )
     # Correalted DNAm and gene expression, display only significant associations
-    expect_error(cor_region_dnam_target_gene())
-    expect_error(cor_region_dnam_target_gene(links = links))
-    expect_error(cor_region_dnam_target_gene(links = links,dnam = dnam))
-    expect_error(cor_region_dnam_target_gene(links = links,exp = exp))
-    expect_error(cor_region_dnam_target_gene(links = links,dnam, "error", exp = exp))
+    expect_error(cor_dnam_target_gene())
+    expect_error(cor_dnam_target_gene(links = links))
+    expect_error(cor_dnam_target_gene(links = links,dnam = dnam))
+    expect_error(cor_dnam_target_gene(links = links,exp = exp))
+    expect_error(cor_dnam_target_gene(links = links,dnam, "error", exp = exp))
 })
 
 

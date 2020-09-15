@@ -7,9 +7,19 @@ Authors@R: c(
       comment = c(ORCID = "0000-0003-1343-6850")),
     person("Lily", "Wang", email = "lily.wangg@gmail.com", role = c("aut"))
       )
-Description: MethReg evaluates, annotates and prioritizes DNA methylation regions 
-  (or sites) with high regulatory potential, which work synergistically with transcription
-  factors to regulate target gene expressions, without any additional ChIP-seq data.
+Description: Epigenome-wide association studies (EWAS) detects a large number 
+  of DNA methylation differences, often hundreds of differentially methylated 
+  regions and thousands of CpGs, that are significantly associated with a disease, 
+  many are located in non-coding regions. 
+  Therefore, there is a critical need to better understand the functional impact of 
+  these CpG methylations and to further prioritize the significant changes. 
+  MethReg is an R package for integrative modeling of DNA methylation, 
+  target gene expression and transcription factor binding sites data, 
+  to systematically identify and rank functional CpG methylations. 
+  MethReg evaluates, prioritizes and annotates CpG sites with high regulatory 
+  potential using matched methylation and gene expression data, 
+  along with external TF-target interaction databases based on manually curation, 
+  ChIP-seq experiments or gene regulatory network analysis. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

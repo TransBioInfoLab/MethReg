@@ -8,7 +8,7 @@ levels above a threshold}
 filter_regions_by_quantile_difference(dnam, diff.mean.th = 0.2, cores = 1)
 }
 \arguments{
-\item{dnam}{DNA methylation matrix}
+\item{dnam}{DNA methylation matrix or SumarizedExperiment object}
 
 \item{diff.mean.th}{Threshold for difference in mean DNAm levels for samples in Q4 and Q1}
 

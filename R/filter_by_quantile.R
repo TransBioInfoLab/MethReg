@@ -4,7 +4,7 @@
 #' For each region, compares the mean DNA methylation (DNAm) levels
 #' in samples with high DNAm  (Q4) vs. low DNAm (Q1) and requires
 #' the difference to be above a threshold.
-#' @param dnam DNA methylation matrix
+#' @param dnam DNA methylation matrix or SumarizedExperiment object
 #' @param diff.mean.th
 #' Threshold for difference in mean DNAm levels for samples in Q4 and Q1
 #' @param cores
@@ -82,7 +82,7 @@ calculate_mean_q4_minus_mean_q1 <- function(matrix, cores = 1){
 #' levels in samples in high expression (Q4)
 #' vs. samples with low gene expression (Q1),
 #' and requires the fold change to be above a certain threshold.
-#' @param exp Gene expression matrix
+#' @param exp Gene expression matrix or SumarizedExperiment object
 #' @param fold.change
 #' Threshold for fold change of mean gene
 #' expression levels in samples with high
@@ -146,7 +146,7 @@ filter_genes_by_quantile_mean_fold_change <- function(
 
 #' @title Remove genes with gene expression level equal to 0 in a
 #' substantial percentage of the samples
-#' @param exp Gene expression matrix
+#' @param exp Gene expression matrix or SumarizedExperiment object
 #' @param max.samples.percentage Max percentage of samples with gene
 #' expression as 0, for genes to be selected.
 #' If max.samples.percentage 100, remove genes with 0 for 100% samples.
@@ -156,8 +156,12 @@ filter_genes_by_quantile_mean_fold_change <- function(
 #' @noRd
 #' @return A subset of the original matrix only with the rows
 #' passing the filter threshold.
-filter_genes_zero_expression <- function(exp, max.samples.percentage = 0.25){
-    if(is(exp,"SummarizedExperiment")){
+filter_genes_zero_expression <- function(
+    exp,
+    max.samples.percentage = 0.25
+){
+
+    if (is(exp,"SummarizedExperiment")) {
         matrix <- assay(exp)
     } else {
         matrix <- exp

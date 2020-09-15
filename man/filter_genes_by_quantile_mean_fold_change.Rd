@@ -7,7 +7,7 @@
 filter_genes_by_quantile_mean_fold_change(exp, fold.change = 1.5, cores = 1)
 }
 \arguments{
-\item{exp}{Gene expression matrix}
+\item{exp}{Gene expression matrix or SumarizedExperiment object}
 
 \item{fold.change}{Threshold for fold change of mean gene
 expression levels in samples with high

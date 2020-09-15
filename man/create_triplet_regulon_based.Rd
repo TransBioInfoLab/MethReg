@@ -9,7 +9,7 @@ TF to the DNAm region with TFBS using JASPAR2020 TFBS.}
 create_triplet_regulon_based(
   region,
   genome = c("hg38", "hg19"),
-  regulons.min.confidence = c("A", "B", "C", "D", "E"),
+  regulons.min.confidence = "B",
   motif.search.window.size = 0,
   motif.search.p.cutoff = 1e-08,
   cores = 1,
@@ -24,7 +24,7 @@ regions (i.e "chr21:100002-1004000")}
 
 \item{regulons.min.confidence}{Minimun confidence score  ("A", "B","C","D", "E")
 classifying regulons based on their quality from Human DoRothEA database
- \link[dorothea]{dorothea_hs}.}
+ \link[dorothea]{dorothea_hs}. The default minimun confidence score is "B".}
 
 \item{motif.search.window.size}{Integer value to extend the regions.
 For example, a value of 50 will

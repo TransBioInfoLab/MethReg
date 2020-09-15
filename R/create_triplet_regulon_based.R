@@ -11,7 +11,7 @@
 #' @param genome Human genome reference "hg38" or "hg19"
 #' @param regulons.min.confidence Minimun confidence score  ("A", "B","C","D", "E")
 #' classifying regulons based on their quality from Human DoRothEA database
-#'  \link[dorothea]{dorothea_hs}.
+#'  \link[dorothea]{dorothea_hs}. The default minimun confidence score is "B".
 #' @param motif.search.window.size Integer value to extend the regions.
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
@@ -35,14 +35,18 @@
 create_triplet_regulon_based <- function(
     region,
     genome = c("hg38","hg19"),
-    regulons.min.confidence = c("A", "B","C","D", "E"),
+    regulons.min.confidence = "B",
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
     cores = 1,
     tf.target
 ){
 
-    regulons.min.confidence <- match.arg(regulons.min.confidence)
+    min.confidence <- match.arg(
+        arg = min.confidence,
+        choices =   c("A", "B", "C", "D", "E")
+    )
+
     genome <- match.arg(genome)
 
     if (is(region, "character") | is(region, "factor")) {

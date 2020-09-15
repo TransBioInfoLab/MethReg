@@ -30,8 +30,9 @@ get_regulon_dorothea <- function(
 #' \code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
 #' @param exp Gene expression matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
-#' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
+#' @param min.confidence Minimun confidence score ("A", "B","C","D", "E")
 #' classifying regulons based on their quality from Human DoRothEA database.
+#' The default minimun confidence score is "B"
 #' @param regulons DoRothEA regulons in table format. Same as \link[dorothea]{run_viper}.
 #' If not specified Bioconductor (human) dorothea regulons besed on GTEx will be.
 #' used \link[dorothea]{dorothea_hs}.
@@ -47,6 +48,11 @@ get_tf_ES <- function(
 ){
     check_package("dorothea")
     check_package("viper")
+
+    min.confidence <- match.arg(
+        arg = min.confidence,
+        choices =   c("A", "B", "C", "D", "E")
+    )
 
     if(missing(regulons)){
         regulons <- get_regulon_dorothea(min.confidence = min.confidence)

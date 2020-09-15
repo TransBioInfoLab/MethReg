@@ -119,7 +119,7 @@
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare
 #' @importFrom stats wilcox.test
-#' @importFrom dplyr group_by summarise filter_at contains vars any_vars
+#' @importFrom dplyr group_by summarise filter_at contains vars any_vars pull filter
 interaction_model <- function(
     triplet,
     dnam,
@@ -217,7 +217,7 @@ interaction_model <- function(
             low.cutoff <- quant.met[2]
             upper.cutoff <- quant.met[4]
 
-            data.high.low <- data %>% dplyr::filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
+            data.high.low <- data %>% filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
 
             pct.zeros.in.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
@@ -225,8 +225,8 @@ interaction_model <- function(
             suppressWarnings({
                 # Add information to filter TF if differenly expressed between DNAm high and DNAm low groups
                 wilcoxon.tf.q4.vs.q1 <- wilcox.test(
-                    data.high.low %>% dplyr::filter(.data$metGrp == 1) %>% pull(.data$rna.tf),
-                    data.high.low %>% dplyr::filter(.data$metGrp == 0) %>% pull(.data$rna.tf),
+                    data.high.low %>% filter(.data$metGrp == 1) %>% pull(.data$rna.tf),
+                    data.high.low %>% filter(.data$metGrp == 0) %>% pull(.data$rna.tf),
                     exact = FALSE
                 )$p.value
             })

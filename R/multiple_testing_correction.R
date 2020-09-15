@@ -118,6 +118,7 @@ stage_wise_adjustment <- function(
 #' results <- calculate_fdr_per_region_adjustment(results)
 #' }
 #' @noRd
+#' @importFrom dplyr relocate
 calculate_fdr_per_region_adjustment <- function(results){
 
     if(!"tripletID" %in% colnames(results)){

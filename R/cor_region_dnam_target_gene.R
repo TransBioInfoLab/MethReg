@@ -21,6 +21,7 @@
 #' P-value threshold filter (default: 0.05)
 #' @param min.cor.estimate
 #' Correlation estimate threshold filter (default: not applied)
+#' @param cores Number of CPU cores to be used. Default 1.
 #' @importFrom plyr adply
 #' @importFrom tibble tibble
 #' @importFrom stats p.adjust cor.test

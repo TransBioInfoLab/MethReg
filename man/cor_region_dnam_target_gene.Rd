@@ -32,6 +32,8 @@ Samples should be in the same order as the DNA methylation matrix.}
 \item{min.cor.pval}{P-value threshold filter (default: 0.05)}
 
 \item{min.cor.estimate}{Correlation estimate threshold filter (default: not applied)}
+
+\item{cores}{Number of CPU cores to be used. Default 1.}
 }
 \value{
 A data frame with the following information: regionID, target gene,

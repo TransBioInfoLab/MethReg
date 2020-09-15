@@ -1,52 +1,57 @@
+
 #' @examples
-#' \dontrun{
-#' data("dna.met.chr21")
-#' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
-#' data("gene.exp.chr21.log2")
-#' triplet <- data.frame(
-#'     "regionID" = rownames(dna.met.chr21)[1:10],
-#'     "TF" = rownames(gene.exp.chr21.log2)[11:20],
-#'     "target" = rownames(gene.exp.chr21.log2)[1:10]
+#' results <- data.frame(
+#'   "regionID" = c("chr3:203727581-203728580","chr4:203727581-203728580"),
+#'   "TF" = c("ENSG00000232886","ENSG00000232887"),
+#'   "target" = c("ENSG00000232889","ENSG00000242887"),
+#'   "quant_pval_metGrp" = c(0.96,0.96),
+#'   "quant_pval_rna.tf" = c(0.2, 0.2),
+#'   "quant_pval_metGrp:rna.tf" = c(0.2, 0.2)
 #' )
-#' results <- interaction_model(triplet, dna.met.chr21, gene.exp.chr21.log2)
-#' calculate_stage_wise_adjustment(results)
-#' }
+#' results <- calculate_stage_wise_adjustment(results)
 #' @noRd
 calculate_stage_wise_adjustment <- function(results){
 
+    check_package("stageR")
+
+    interactiol.col <- grep("quant_pval_metGrp:|quant_pval_metGrp\\.",colnames(results),value = TRUE)
+    results <- stage_wise_adjustment(results, interactiol.col)
+
+    dnam.col <- grep("quant_pval_metGrp$",colnames(results),value = TRUE)
+    results <- stage_wise_adjustment(results, dnam.col)
+
+    tf.col <- grep("quant_pval_rna.tf$|quant_pval_es.tf$",colnames(results),value = TRUE)
+    results <- stage_wise_adjustment(results, tf.col)
+
+    return(results)
+}
+
+
+#' @examples
+#' results <- data.frame(
+#'   "regionID" = c("chr3:203727581-203728580","chr4:203727581-203728580"),
+#'   "TF" = c("ENSG00000232886","ENSG00000232887"),
+#'   "target" = c("ENSG00000232889","ENSG00000242887"),
+#'   "quant_pval_metGrp" = c(0.96,0.96),
+#'   "quant_pval_rna.tf" = c(0.2, 0.2),
+#'   "quant_pval_metGrp:rna.tf" = c(0.2, 0.2)
+#' )
+#' results <- stage_wise_adjustment(results,"quant_pval_metGrp.rna.tf")
+#' @noRd
+stage_wise_adjustment <- function(
+    results,
+    col
+){
     check_package("stageR")
 
     if(!"tripletID" %in% colnames(results)){
         results$tripletID <- create_triplet_ID(results)
     }
 
-    interactiol.col <- grep("quant_fdr_metGrp:",colnames(results),value = TRUE)
-    print(interactiol.col)
-    results <- stage_wise_adjustment(results, interactiol.col)
-
-    dnam.col <- grep("quant_fdr_metGrp$",colnames(results),value = TRUE)
-    results <- stage_wise_adjustment(results, dnam.col)
-
-    tf.col <- grep("quant_fdr_rna.tf$|quant_fdr_es.tf$",colnames(results),value = TRUE)
-    results <- stage_wise_adjustment(results, tf.col)
-
-    return(results)
-}
-
-stage_wise_adjustment <- function(
-    results,
-    col
-){
 
     min.pval <- results %>%
         dplyr::group_by(.data$regionID) %>%
         dplyr::summarise(min(.data[[col]]))
-
-    results$tripletID <- paste0(
-        gsub("[[:punct:]]", "_", results$regionID),
-        "_TF_",results$TF_symbol,
-        "_target_",results$target
-    )
 
     # Preparing StageR input
     pScreen.pval <- min.pval[[2]]
@@ -80,16 +85,12 @@ stage_wise_adjustment <- function(
         onlySignificantGenes = FALSE,
         order = FALSE
     )
+    # padj: geneID", "txID" ,"gene" ,"transcript"
+    # equivalento to: region, triplet, region pval, triplet.pval
 
-    colnames(padj) <- c(
-        "regionID",
-        "tripletID",
-        gsub("fdr","region_stage_wise_adj_fdr",col),
-        gsub("fdr","triplet_stage_wise_adj_fdr",col)
-    )
-    padj$regionID <- NULL
-
-    results <- dplyr::left_join(results, padj, by = c("tripletID"))
+    results[[gsub("pval", "region_stage_wise_adj_pval", col)]] <- padj[[3]][match(results$tripletID, padj[[2]])]
+    results[[gsub("pval", "triplet_stage_wise_adj_pval", col)]] <- padj[[4]][match(results$tripletID, padj[[2]])]
+    results$tripletID <- NULL
     results <- results %>%
         relocate(
             c(
@@ -98,7 +99,6 @@ stage_wise_adjustment <- function(
             ),
             .after = col
         )
-    results$tripletID <- NULL
 
     return(results)
 }

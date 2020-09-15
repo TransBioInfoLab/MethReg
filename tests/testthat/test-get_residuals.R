@@ -13,17 +13,17 @@ test_that("get_residuals works", {
     rownames(cnv) <- rownames(gene.exp.chr21.log2)
     colnames(cnv) <- colnames(gene.exp.chr21.log2)
     gene.exp.residuals <- get_residuals(
-        data.matrix = gene.exp.chr21.log2[1:3,],
+        data = gene.exp.chr21.log2[1:3,],
         metadata.samples = metadata,
         metadata.genes = cnv
     )
     gene.exp.residuals <- get_residuals(
-        data.matrix = gene.exp.chr21.log2[1:3,],
+        data = gene.exp.chr21.log2[1:3,],
         metadata.samples = metadata,
         metadata.genes = cnv[1:2,]
     )
     gene.exp.residuals <- get_residuals(
-        data.matrix = gene.exp.chr21.log2[1:3,],
+        data = gene.exp.chr21.log2[1:3,],
         metadata.samples = metadata
     )
 })

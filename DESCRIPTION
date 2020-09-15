@@ -49,6 +49,7 @@ Imports:
     progress
 Suggests: 
     rmarkdown,
+    BiocStyle,
     testthat (>= 2.1.0),
     parallel,
     downloader,
@@ -67,7 +68,8 @@ Suggests:
     dorothea,
     viper,
     stageR,
-    BiocFileCache
+    BiocFileCache,
+    png
 VignetteBuilder: knitr
 BugReports: https://github.com/TransBioInfoLab/MethReg/issues/
 RoxygenNote: 7.1.1

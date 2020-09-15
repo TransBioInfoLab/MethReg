@@ -1,11 +1,16 @@
 ---
 title: "MethReg: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies"
 author:
-  - Tiago Chedraoui Silva^[University of Miami Miller School of Medicine, txs902 at miami.edu]
-  - Lily Wang^[University of Miami Miller School of Medicine, lily.wangg at gmail.com]
+  - name: Tiago Chedraoui Silva
+    affiliation: University of Miami Miller School of Medicine
+    email: txs902 at miami.edu
+  - name: Lily Wang
+    affiliation: University of Miami Miller School of Medicine
+    email: lily.wangg at gmail.com
+package: MethReg
 output: 
-  prettydoc::html_pretty:
-    theme: leonids
+    BiocStyle::html_document:
+    toc_float: true
     toc: true
     df_print: paged
     code_download: false
@@ -19,10 +24,32 @@ vignette: >
     %\VignetteEncoding{UTF-8}
 ---
   
-<style> body {text-align: justify} </style>
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+body {text-align: justify}
+</style>  
+  
+```{css, echo = FALSE, eval = TRUE}
+.whiteCode {
+  background-color: white;
+  border-color: #337ab7;
+  border: 1px solid;
+}
+```
+
+
+```{r, include=TRUE, eval = TRUE, echo = FALSE}
+htmltools::includeHTML("github.html")
+```
+  
   
 ```{r settings, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(width = 100)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>",class.source = "whiteCode")
 library(dplyr)
 ```
 
@@ -31,7 +58,7 @@ library(sesameData)
 # sesameDataCacheAll()
 ```
 
-# 1. Introduction
+# Introduction
 
 Transcription factors (TFs) are proteins that facilitate the transcription of 
 DNA into RNA. A number of recent studies have observed that the binding of TFs 
@@ -52,9 +79,9 @@ synergistic collaboration of DNA methylation changes and TFs in gene regulation.
 `MethReg` can be used either to evaluate regulatory potentials of candidate 
 regions or to search for methylation coupled TF regulatory processes in the entire genome.
 
-# 2. Installation 
+# Installation 
 
-`MethReg` is a Bioconductor package and can be installed through BiocManager::install().
+`MethReg` is a Bioconductor package and can be installed through `BiocManager::install()`.
 
 ```{r, eval = FALSE}
 if (!"BiocManager" %in% rownames(installed.packages()))
@@ -68,7 +95,7 @@ After the package is installed, it can be loaded into R workspace by
 library(MethReg)
 ```
 
-# 3. Dataset
+# Dataset
 
 The input of `MethReg` are DNA methylation and gene expression datasets measured 
 on the same set of samples. Using additional information from the 
@@ -77,16 +104,17 @@ with information on the triplet: CpG (or DMR), TF and target gene.
 
 For illustration, we will use chromosome 21 data from 38 TCGA-COAD (colon cancer) samples.
 
-## 3.1 Input DNA methylation dataset
+## Input DNA methylation dataset
 
-The DNA methylation dataset is a matrix with methylation beta or M-values. 
+The DNA methylation dataset is a matrix or SummarizedExperiment object with 
+methylation beta or M-values. 
 If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
 this matrix would contain residuals from fitting linear regression 
 instead (see details **Section 7** "Controlling effects from confounding variables" below). 
 
 The samples are in the columns and methylation regions or probes are in the rows.   
 
-### 3.1.1 Analysis for individual CpGs data
+### Analysis for individual CpGs data
 
 We will analyze all CpGs on chromosome 21 in this vignette. 
 
@@ -121,7 +149,7 @@ SummarizedExperiment::rowRanges(dna.met.chr21.se)[1:4,1:4]
 ```
 
 
-### 3.1.2 Analysis of DMRs
+### Analysis of DMRs
 
 Differentially Methylated Regions (DMRs) associated with phenotypes such 
 as tumor stage can be obtained from R packages such as 
@@ -133,7 +161,7 @@ as those for CpGs. See **Section 6** "Identifying co-methylated clusters
 and summarizing regions using medians for DMRs" below for more details.   
 
 
-## 3.2 Input gene expression dataset
+## Input gene expression dataset
 
 The gene expression dataset is a matrix with log2 transformed and 
 normalized gene expression values. 
@@ -157,7 +185,7 @@ gene.exp.chr21.se
 SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 ```
 
-## 3.3 Creating triplet dataset
+## Creating triplet dataset
 
 To create the triplet dataset of CpGs, target genes and TFs, we first link 
 each CpG with target gene (_CpG region-target gene_ dataset). 
@@ -175,7 +203,9 @@ In this section, **regions** refer to the regions where CpGs are located. The fu
 (default size = 500 kbp around the region, i.e. +- 250 kbp from start or end of the region) (`method = "window"`) [@reese2019epigenome].
 
 
-![Figure 1 - Different target linking strategies](mapping_target_strategies.png)
+```{r plot, fig.cap = "Different target linking strategies", echo = FALSE}
+png::readPNG("mapping_target_strategies.png") %>% grid::grid.raster()
+```
 
 For the analysis of probes in gene promoter region, we recommend setting `method = "genes.promoter.overlap"`, or 
 `method = "closest.gene"`. 
@@ -252,7 +282,7 @@ The argument `window.size` will be used to extend the region when scanning
 for the motifs, for example, a `window.size` of `50` will add `25` bp 
 upstream and `25` bp downstream of the original region.
 
-```{R, results = "hide"}
+```{R, results = "hide", message = FALSE, warning = FALSE}
 region.tf <- get_tf_in_region(
     region = probes.gr, 
     genome = "hg38", 
@@ -301,7 +331,7 @@ head(triplet)
 Note that there may be multiple rows for a CpG region, when multiple 
 target gene and/or TFs are found close to it. 
 
-# 4. Evaluating the regulatory potential of CpGs (or DMRs) 
+# Evaluating the regulatory potential of CpGs (or DMRs) 
 
 Because TF binding to DNA can be influenced by (or influences) 
 DNA methylation levels nearby [@yin2017impact], 
@@ -317,7 +347,7 @@ We will perform analyses using the 3 datasets described above in Section 3:
 * An input Gene expression matrix
 * The created triplet data frame with expression values for DNA methylation region, TF, and target gene
 
-## 4.1 Analysis using model with methylation by TF interaction
+## Analysis using model with methylation by TF interaction
 
 The function `interaction_model` assess the regulatory impact of 
 DNA methylation on TF regulation of target genes via the following approach: 
@@ -381,9 +411,9 @@ results.interaction.model %>% dplyr::select(
   ) %>% head
 ```
 
-## 4.2 Stratified analysis by high and low DNA methylation levels
+## Stratified analysis by high and low DNA methylation levels
 
-For triplets with significant `log_2(TF) × DNAm` interaction effect identified 
+For triplets with significant $log_2(TF) × DNAm$ interaction effect identified 
 above, we can further assess how gene regulation by TF changes when DNAm 
 is high or low. To this end, the function 
 `stratified_model` fits two separate models (see below) to only 
@@ -393,7 +423,7 @@ only samples with lowest DNAm levels (bottom 25 percent), separately.
 $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 
 
-```{R stratified_model, message = FALSE, results = "hide", eval = TRUE}
+```{R stratified_model, message = FALSE, warning = FALSE, results = "hide", eval = TRUE}
 results.stratified.model <- stratified_model(
     triplet = triplet,
     dnam = dna.met.chr21.se,
@@ -405,7 +435,7 @@ results.stratified.model <- stratified_model(
 results.stratified.model %>% head
 ```
 
-## 4.3 Visualization of data  
+## Visualization of data  
 
 The functions `plot_interaction_model` 
 will create figures to visualize the data, 
@@ -422,7 +452,7 @@ plots <- plot_interaction_model(
 )
 ```
 
-```{R, fig.height = 8, fig.width = 10, eval = TRUE}
+```{R, fig.height = 8, fig.width = 10, eval = TRUE, fig.cap = "Plort example of a triplet result."}
 plots[[29]]
 ```
 
@@ -473,7 +503,7 @@ plots <- plot_stratified_model(
 plots[[1]]
 ```
 
-# 5. Results interpretation
+# Results interpretation
 
 Shown below are some expected results from fitting Models 1 & 2 described in 
 **Section 4.1** above, depending on TF binding preferences. Please note that 
@@ -482,11 +512,12 @@ careful evaluation of the statistical models and visualization of data as
 described in **Section 4** are needed to gain a good understanding of the 
 multi-omics data. 
 
-![Figure 2 - Different biological scenarios considered by `MethReg`](scenarios.png)
+```{r scenarios, fig.cap =  "Different biological scenarios considered by MethReg", echo = FALSE}
+png::readPNG("scenarios.png")  %>% grid::grid.raster()
+```
 
 
-
-# 6. Controlling effects from confounding variables
+# Controlling effects from confounding variables
 
 Both gene expressions and DNA methylation levels can be affected by age, sex, 
 shifting in cell types, batch effects and other confounding (or covariate) variables. 
@@ -542,9 +573,9 @@ results <- interaction_model(
 )
 ```
 
-# 7. Session information
+# Session information
 ```{R,size = 'tiny'}
 sessionInfo()
 ```
 
-# 8. Bibliography
+# Bibliography

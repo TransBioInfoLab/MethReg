@@ -24,6 +24,8 @@
 #' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
 #' @param stage.wise.analysis A boolean indicating if stagewise analysis should be performed
 #' to correct for multiple comparisons. If set to FALSE FDR analysis is performed.
+#' @param verbose A logical argument indicating if
+#' messages output should be provided.
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'
@@ -128,33 +130,34 @@ interaction_model <- function(
     fdr = TRUE,
     filter.correlated.tf.exp.dnam = TRUE,
     filter.triplet.by.sig.term = TRUE,
-    stage.wise.analysis = FALSE
+    stage.wise.analysis = FALSE,
+    verbose = FALSE
 ){
 
-    if(stage.wise.analysis) check_package("stageR")
+    if (stage.wise.analysis) check_package("stageR")
 
-    if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
-    if(missing(exp)) stop("Please set exp argument with gene expression matrix")
+    if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
+    if (missing(exp)) stop("Please set exp argument with gene expression matrix")
 
-    if(is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
-    if(is(exp,"SummarizedExperiment")) exp <- assay(exp)
+    if (is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+    if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
 
     check_data(dnam, exp)
 
-    if(!all(grepl("ENSG", rownames(exp)))){
+    if (!all(grepl("ENSG", rownames(exp)))) {
         stop("exp must have the following row names as ENSEMBL IDs (i.e. ENSG00000239415)")
     }
 
-    if(missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
+    if (missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
 
-    if(!all(c("regionID","TF","target") %in% colnames(triplet))) {
+    if (!all(c("regionID","TF","target") %in% colnames(triplet))) {
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
-    message("Removing genes with RNA expression equal to 0 for all samples from triplets")
+    verbose && message("Removing genes with RNA expression equal to 0 for all samples from triplets")
     exp <- filter_genes_zero_expression_all_samples(exp)
 
-    message("Removing triplet with no DNA methylation information for more than 25% of the samples")
+    verbose && message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
     dnam <- dnam[regions.keep,,drop = FALSE]
 
@@ -163,9 +166,9 @@ interaction_model <- function(
             .data$regionID %in% rownames(dnam)
     )
 
-    if(!is.null(tf.activity.es)){
+    if (!is.null(tf.activity.es)) {
 
-        if(!all(grepl("^ENSG", rownames(tf.activity.es)))){
+        if (!all(grepl("^ENSG", rownames(tf.activity.es)))) {
             rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
         }
 
@@ -184,13 +187,13 @@ interaction_model <- function(
         .data$TF != .data$target
     )
 
-    if(nrow(triplet) == 0){
+    if (nrow(triplet) == 0) {
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
 
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
-    message("Evaluating ", nrow(triplet), " triplets")
+    verbose && message("Evaluating ", nrow(triplet), " triplets")
 
     parallel <- register_cores(cores)
 
@@ -228,25 +231,19 @@ interaction_model <- function(
                 )$p.value
             })
 
-            # message("\no Model: Interaction all samples")
-            if(pct.zeros.in.samples > 0.25){
-                # message("-> Using Zero-inflated Negative Binomial Model")
+            if (pct.zeros.in.samples > 0.25) {
                 itx.all <- interaction_model_zeroinfl(data)
             } else {
-                # message("-> Using Robust Fitting of Linear Models")
                 itx.all <- interaction_model_rlm(data)
             }
 
-            # message("o Quantile model: using data in Q4 and Q1 only")
             pct.zeros.in.quant.samples <- sum(
                 data.high.low$rna.target == 0,
                 na.rm = TRUE) / nrow(data.high.low)
 
-            if(pct.zeros.in.quant.samples > 0.25){
-                # message("-> Using Zero-inflated Negative Binomial Model")
+            if (pct.zeros.in.quant.samples > 0.25) {
                 itx.quant <- interaction_model_quant_zeroinfl(data.high.low)
             } else {
-                # message("-> Using Robust Fitting of Linear Models")
                 itx.quant <- interaction_model_quant_rlm(data.high.low)
             }
 
@@ -266,41 +263,36 @@ interaction_model <- function(
         .paropts = list(.errorhandling = 'pass')
     )
 
-    #if(filter.by.tf.no.diff){
-    #    ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > 0.05)
-    #}
-
-    if(stage.wise.analysis){
-        message("Performing Stage wise correction for triplets")
+    if (stage.wise.analysis) {
+        verbose && message("Performing Stage wise correction for triplets")
         ret <- calculate_stage_wise_adjustment(ret)
     } else {
-        message("Performing FDR correction for triplets p-values per region")
+        verbose && message("Performing FDR correction for triplets p-values per region")
         ret <- calculate_fdr_per_region_adjustment(ret)
-
-
     }
 
-    if(filter.triplet.by.sig.term){
-        message("Filtering results to have interaction, TF or DNAm significant")
-        if(fdr){
-            if(!stage.wise.analysis){
+    if (filter.triplet.by.sig.term) {
+        verbose &&  message("Filtering results to have interaction, TF or DNAm significant")
+
+        if (fdr) {
+            if (!stage.wise.analysis) {
                 ret <- ret %>% filter_at(vars(contains("quant_fdr")), any_vars(. < sig.threshold))
             } else {
                 ret <- ret %>% filter_at(vars(contains("quant_triplet_stage_wise_")), any_vars(. < sig.threshold))
             }
         } else {
-            ret <- ret %>% filter_at(vars(contains("quant_pval")), any_vars(.< sig.threshold))
+            ret <- ret %>% filter_at(vars(contains("quant_pval")), any_vars(. < sig.threshold))
         }
     }
 
     # Since we used enrichment scores in the linear model
     # we will rename the output
-    if(!is.null(tf.activity.es)) {
+    if (!is.null(tf.activity.es)) {
         colnames(ret) <- gsub("rna.tf","es.tf",colnames(ret))
     }
 
-    if(filter.correlated.tf.exp.dnam){
-        message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
+    if (filter.correlated.tf.exp.dnam) {
+        verbose && message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
         ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > sig.threshold)
     }
 
@@ -315,7 +307,8 @@ interaction_all_model_no_results <- function(){
         "pval_met:rna.tf" = NA,
         "estimate_met" = NA,
         "estimate_rna.tf" = NA,
-        "estimate_met:rna.tf" = NA) %>% as.data.frame()
+        "estimate_met:rna.tf" = NA
+    ) %>% as.data.frame()
 }
 
 interaction_quant_model_no_results <- function(){
@@ -325,7 +318,8 @@ interaction_quant_model_no_results <- function(){
         "quant_pval_metGrp:rna.tf" = NA,
         "quant_estimate_metGrp" = NA,
         "quant_estimate_rna.tf" = NA,
-        "quant_estimate_metGrp:rna.tf" = NA) %>% as.data.frame()
+        "quant_estimate_metGrp:rna.tf" = NA
+    ) %>% as.data.frame()
 }
 
 get_triplet_data <- function(
@@ -337,7 +331,7 @@ get_triplet_data <- function(
     rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
     met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
 
-    if(!is.null(tf.es)){
+    if (!is.null(tf.es)) {
         rna.tf <- tf.es[rownames(tf.es) == row.triplet$TF, , drop = FALSE]
     } else {
         rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
@@ -359,17 +353,7 @@ interaction_model_output <- function(
     pct.zeros.in.quant.samples,
     wilcoxon.tf.q4.vs.q1
 ){
-    if(is.null(itx.quant)) itx.quant <- interaction_quant_model_no_results()
-    # if(is.null(itx.all)) itx.all <- interaction_all_model_no_results()
-
-    #suppressWarnings({
-    #    max_p <- max(
-    #        itx.all %>% as.data.frame %>% pull(.data$`pval_met:rna.tf`),
-    #        itx.quant %>% as.data.frame %>% pull(.data$`quant_pval_metGrp:rna.tf`),
-    #        na.rm = TRUE)
-    #})
-
-    # if(max_p %in% c(-Inf,Inf)) max_p <- NA
+    if (is.null(itx.quant)) itx.quant <- interaction_quant_model_no_results()
 
     cbind(
         # itx.all,
@@ -377,7 +361,8 @@ interaction_model_output <- function(
             "Model interaction" =
                 ifelse(pct.zeros.in.samples > 0.25,
                        "Zero-inflated Negative Binomial Model",
-                       "Robust Linear Model")
+                       "Robust Linear Model"
+                )
         ),
         quant.diff,
         itx.quant,
@@ -385,12 +370,12 @@ interaction_model_output <- function(
             "Model quantile" =
                 ifelse(pct.zeros.in.quant.samples > 0.25,
                        "Zero-inflated Negative Binomial Model",
-                       "Robust Linear Model"),
+                       "Robust Linear Model"
+                ),
             "Wilcoxon_pval_tf_q4_vs_q1" = wilcoxon.tf.q4.vs.q1
         ),
         "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
-        # "Max_interaction_pval" = max_p
     )
 }
 
@@ -398,27 +383,30 @@ interaction_model_output <- function(
 interaction_model_rlm <- function(data){
     rlm.bisquare <- tryCatch({
         # 2) fit linear model: target RNA ~ DNAm + RNA TF
-        rlm (
+        rlm(
             rna.target ~ met + rna.tf + rna.tf * met,
             data = data,
             psi = MASS::psi.bisquare,
-            maxit = 100) %>% summary %>% coef %>% data.frame
-    }, error = function(e){
+            maxit = 100
+        ) %>% summary %>% coef %>% data.frame
+    }, error = function(e) {
         # message("Continuous model: ", e)
         return(NULL)
     })
 
-    # if(is.null(rlm.bisquare)) return(interaction_model_no_results())
-    if(is.null(rlm.bisquare)) return(interaction_all_model_no_results())
-    # if(is.null(rlm.bisquare)) return(NULL)
+    # if (is.null(rlm.bisquare)) return(interaction_model_no_results())
+    if (is.null(rlm.bisquare)) return(interaction_all_model_no_results())
+    # if (is.null(rlm.bisquare)) return(NULL)
 
-    if(!"met:rna.tf" %in% rownames(rlm.bisquare)){
+    if (!"met:rna.tf" %in% rownames(rlm.bisquare)) {
         rlm.bisquare <- rbind(
             rlm.bisquare,
-            data.frame(row.names = "met:rna.tf",
-                       "Value" = NA,
-                       "Std..Error" = NA,
-                       "t.value" = NA)
+            data.frame(
+                row.names = "met:rna.tf",
+                "Value" = NA,
+                "Std..Error" = NA,
+                "t.value" = NA
+            )
         )
     }
 
@@ -444,11 +432,11 @@ interaction_model_zeroinfl <- function(data){
                 dist = "negbin",
                 EM = FALSE) %>% summary %>% coef
         })
-    }, error = function(e){
+    }, error = function(e) {
         # message("Continuous model: ", e)
         return(NULL)
     })
-    if(is.null(zinb)) return(interaction_all_model_no_results())
+    if (is.null(zinb)) return(interaction_all_model_no_results())
 
     zinb <- zinb$count %>% data.frame
 
@@ -467,13 +455,14 @@ interaction_model_quant_zeroinfl <- function(data){
                 trunc(rna.target) ~ metGrp + rna.tf + metGrp * rna.tf | 1,
                 data = data,
                 dist = "negbin",
-                EM = FALSE) %>% summary %>% coef
+                EM = FALSE
+            ) %>% summary %>% coef
         })
-    }, error = function(e){
+    }, error = function(e) {
         # message("Continuous model: ", e)
         return(NULL)
     })
-    if(is.null(zinb.quant)) return(interaction_quant_model_no_results())
+    if (is.null(zinb.quant)) return(interaction_quant_model_no_results())
 
     zinb.quant <- zinb.quant$count %>% data.frame
     quant.pval <- zinb.quant[c(-1,-5),4,drop = FALSE] %>%
@@ -490,36 +479,36 @@ interaction_model_quant_zeroinfl <- function(data){
 }
 
 
-
 interaction_model_quant_rlm <- function(data){
     rlm.bisquare.quant <- tryCatch({
         suppressWarnings({
-            rlm (
+            rlm(
                 rna.target ~ metGrp + rna.tf + metGrp * rna.tf,
                 data = data,
                 psi = MASS::psi.bisquare,
-                maxit = 100) %>% summary %>% coef %>% data.frame
+                maxit = 100
+            ) %>% summary %>% coef %>% data.frame
         })
-    }, error = function(e){
+    }, error = function(e) {
         #message("Binary model: ", e)
         return(NULL)
     })
 
-    if(is.null(rlm.bisquare.quant)) return(interaction_quant_model_no_results())
+    if (is.null(rlm.bisquare.quant)) return(interaction_quant_model_no_results())
 
     # if the interaction is NA, it is removed from the data frame,
     # we have to re add it
-    if(!"metGrp:rna.tf" %in% rownames(rlm.bisquare.quant)){
+    if (!"metGrp:rna.tf" %in% rownames(rlm.bisquare.quant)) {
         rlm.bisquare.quant <- rbind(
             rlm.bisquare.quant,
-            data.frame(row.names = "metGrp:rna.tf",
-                       "Value" = NA,
-                       "Std..Error" = NA,
-                       "t.value" = NA)
+            data.frame(
+                row.names = "metGrp:rna.tf",
+                "Value" = NA,
+                "Std..Error" = NA,
+                "t.value" = NA
+            )
         )
     }
-
-    # if(is.null(rlm.bisquare.quant)) return(interaction_model_no_results())
 
     degrees.freedom.value <- nrow(data) - 4
     rlm.bisquare.quant$pval <- 2 * (1 - pt( abs(rlm.bisquare.quant$t.value),
@@ -534,6 +523,7 @@ interaction_model_quant_rlm <- function(data){
         t %>%
         as.data.frame()
     colnames(quant.estimate) <- paste0("quant_estimate_",colnames(quant.estimate))
+
     return(cbind(quant.pval, quant.estimate))
 }
 

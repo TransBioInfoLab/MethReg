@@ -14,7 +14,7 @@
 NULL
 
 #' TCGA-COAD clinical matrix for 38 samples
-#' retrieved from GDC using TCGAbiolinks
+#' retrieved from GDC using \link[TCGAbiolinks]{TCGAbiolinks}
 #' @docType data
 #' @name clinical
 #' @format A matrix: 38 samples (rows) and variables (columns)
@@ -22,7 +22,7 @@ NULL
 "clinical"
 
 #' TCGA-COAD DNA methylation matrix (beta-values) for 38 samples (only chr21)
-#' retrieved from GDC using TCGAbiolinks.
+#' retrieved from GDC using \link[TCGAbiolinks]{TCGAbiolinks}
 #' @docType data
 #' @name dna.met.chr21
 #' @format A beta-value matrix with 38 samples, includes CpG IDs in the rows and

@@ -4,13 +4,16 @@
 \alias{make_se_from_gene_matrix}
 \title{Transform gene expression matrix into a Summarized Experiment object}
 \usage{
-make_se_from_gene_matrix(exp, genome = c("hg38", "hg19"))
+make_se_from_gene_matrix(exp, genome = c("hg38", "hg19"), verbose = FALSE)
 }
 \arguments{
 \item{exp}{Gene expression matrix with gene expression counts,
 row as ENSG gene IDS and column as samples}
 
 \item{genome}{Human genome of reference: hg38 or hg19}
+
+\item{verbose}{A logical argument indicating if
+messages output should be provided.}
 }
 \value{
 A summarized Experiment object

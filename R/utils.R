@@ -141,11 +141,13 @@ get_gene_information_biomart <- function(
             )
             mirror <- list(NULL, "useast", "uswest", "asia")[[tries + 1]]
             ensembl <- tryCatch({
-                message(ifelse(is.null(mirror),
-                               paste0("Accessing ",
-                                      host, " to get gene information"),
-                               paste0("Accessing ",
-                                      host, " (mirror ", mirror, ")")))
+                message(
+                    ifelse(
+                        is.null(mirror),
+                        paste0("Accessing ", host, " to get gene information"),
+                        paste0("Accessing ", host, " (mirror ", mirror, ")")
+                    )
+                )
                 biomaRt::useEnsembl(
                     "ensembl",
                     dataset = "hsapiens_gene_ensembl",
@@ -184,8 +186,12 @@ get_gene_information_biomart <- function(
 }
 
 #' @noRd
-get_gene_information <- function(genome = "hg38", as.granges = FALSE){
-    if(genome == "hg19"){
+get_gene_information <- function(
+    genome = "hg38",
+    as.granges = FALSE
+){
+
+    if (genome == "hg19") {
         gene.location <- gene.location.hg19
     } else {
         gene.location <- gene.location.hg38
@@ -199,7 +205,8 @@ get_gene_information <- function(genome = "hg38", as.granges = FALSE){
             makeGRangesFromDataFrame(
                 seqnames.field = "chromosome_name",
                 start.field = "start_position",
-                end.field = "end_position", keep.extra.columns = TRUE)
+                end.field = "end_position", keep.extra.columns = TRUE
+            )
     }
 
     return(gene.location)
@@ -208,29 +215,29 @@ get_gene_information <- function(genome = "hg38", as.granges = FALSE){
 
 check_data <- function(dnam, exp, metadata){
 
-    if(!is(dnam,"matrix")) {
+    if (!is(dnam,"matrix")) {
         stop("DNA methylation should be a matrix object")
     }
 
-    if(!is(exp,"matrix")) {
+    if (!is(exp,"matrix")) {
         stop("Gene expression data should be a matrix object")
     }
 
-    if(ncol(dnam) != ncol(exp)){
+    if (ncol(dnam) != ncol(exp)) {
         stop("DNA methylation and gene expression don't have the same number of samples")
     }
 
-    if(!all(colnames(dnam) == colnames(exp))){
+    if (!all(colnames(dnam) == colnames(exp))) {
         stop("DNA methylation and gene expression don't have the column names")
     }
 
-    if(!missing(metadata)){
+    if (!missing(metadata)) {
 
-        if(nrow(metadata) != ncol(exp)){
+        if (nrow(metadata) != ncol(exp)) {
             stop("Metadata and data don't have the same number of samples")
         }
 
-        if(all(rownames(metadata) != colnames(exp))){
+        if (all(rownames(metadata) != colnames(exp))) {
             stop("Metadata rownames and data columns don't have the same names of samples")
         }
     }
@@ -242,8 +249,11 @@ check_data <- function(dnam, exp, metadata){
 #' @noRd
 check_package <- function(package){
     if (!requireNamespace(package, quietly = TRUE)) {
-        stop(package, " package is needed for this function to work. Please install it.",
-             call. = FALSE)
+        stop(
+            package,
+            " package is needed for this function to work. Please install it.",
+            call. = FALSE
+        )
     }
 }
 
@@ -309,7 +319,6 @@ subset_by_promoter_regions <- function(
         downstream = downstream
     )
     promoter.regions <- IRanges::subsetByOverlaps(regions.gr, promoter.gr)
-    message("o Remove promoter regions")
     return(promoter.regions)
 }
 
@@ -337,6 +346,8 @@ get_promoter_regions <- function(
 #' @param genome Human genome of reference: hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
 #' @param betaToM indicates if converting methylation beta values to mvalues
+#' @param verbose A logical argument indicating if
+#' messages output should be provided.
 #' @export
 #' @examples
 #' \dontrun{
@@ -351,7 +362,8 @@ make_se_from_dnam_probes <- function (
     dnam,
     genome = c("hg38","hg19"),
     arrayType = c("450k","EPIC"),
-    betaToM = FALSE
+    betaToM = FALSE,
+    verbose = FALSE
 ) {
     genome <- match.arg(genome)
     arrayType <- match.arg(arrayType)
@@ -359,10 +371,10 @@ make_se_from_dnam_probes <- function (
     check_package("SummarizedExperiment")
     check_package("S4Vectors")
 
-    message("o Creating a SummarizedExperiment from DNA methylation input")
+    verbose && message("o Creating a SummarizedExperiment from DNA methylation input")
 
     # Get probes annotation
-    message("oo Fetching probes metadata")
+    verbose && message("oo Fetching probes metadata")
     annotation <- get_met_probes_info(genome = genome, arrayType = arrayType)
     strand(annotation) <- "*" # don't add strand info for CpGs
 
@@ -374,7 +386,7 @@ make_se_from_dnam_probes <- function (
     }
 
     # remove masked probes
-    message("oo Removing masked probes")
+    verbose && message("oo Removing masked probes")
     rowRanges <- rowRanges[!rowRanges$MASK_general]
     # rowRanges <- rowRanges[grep("cg",names(rowRanges))] # remove rs probes
 
@@ -395,7 +407,7 @@ make_se_from_dnam_probes <- function (
     rownames(dnam) <- regions.name
 
     # Create SummarizedExperiment
-    message("oo Preparing SummarizedExperiment object")
+    verbose && message("oo Preparing SummarizedExperiment object")
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = assay,
         rowRanges = rowRanges,
@@ -413,6 +425,8 @@ make_se_from_dnam_probes <- function (
 #' @param dnam DNA methylation matrix with beta-values or m-values as data,
 #' row as genomic regions and column as samples
 #' @param betaToM indicates if converting methylation beta values to mvalues
+#' @param verbose A logical argument indicating if
+#' messages output should be provided.
 #' @export
 #' @examples
 #' \dontrun{
@@ -423,13 +437,14 @@ make_se_from_dnam_probes <- function (
 #' @return A summarized Experiment object
 make_se_from_dnam_regions <- function(
     dnam,
-    betaToM = FALSE
+    betaToM = FALSE,
+    verbose = FALSE
 ) {
 
     check_package("SummarizedExperiment")
     check_package("S4Vectors")
 
-    message("o Creating a SummarizedExperiment from DNA methylation input")
+    verbose && message("o Creating a SummarizedExperiment from DNA methylation input")
 
     # Prepare all data matrices
     rowRanges <- dnam %>% rownames() %>% make_granges_from_names()
@@ -442,7 +457,7 @@ make_se_from_dnam_regions <- function(
     }
 
     # Create SummarizedExperiment
-    message("oo Preparing SummarizedExperiment object")
+    verbose && message("oo Preparing SummarizedExperiment object")
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = assay,
         rowRanges = rowRanges,
@@ -455,6 +470,8 @@ make_se_from_dnam_regions <- function(
 #' @param exp Gene expression matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
 #' @param genome Human genome of reference: hg38 or hg19
+#' @param verbose A logical argument indicating if
+#' messages output should be provided.
 #' @export
 #' @examples
 #' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
@@ -462,7 +479,8 @@ make_se_from_dnam_regions <- function(
 #' @return A summarized Experiment object
 make_se_from_gene_matrix <- function (
     exp,
-    genome = c("hg38","hg19")
+    genome = c("hg38","hg19"),
+    verbose = FALSE
 ) {
     # Data checking
     genome <- match.arg(genome)
@@ -471,7 +489,7 @@ make_se_from_gene_matrix <- function (
         stop("Please the gene expression matrix should receive ENSEMBLE IDs (ENSG)")
     }
 
-    message("o Creating a SummarizedExperiment from gene expression input")
+    verbose && message("o Creating a SummarizedExperiment from gene expression input")
     gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
     rowRanges <- gene.info[match(exp %>% rownames(),gene.info$ensembl_gene_id),]
     names(rowRanges) <- rowRanges$ensembl_gene_id

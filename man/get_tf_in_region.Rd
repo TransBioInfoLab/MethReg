@@ -46,7 +46,6 @@ by default is 0 (do not extend)
                  genome = "hg38"
  )
 \dontrun{
-
  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
  regions.gr <- make_granges_from_names(regions.names)
  region.tf <- get_tf_in_region(

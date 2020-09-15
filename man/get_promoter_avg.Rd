@@ -10,7 +10,8 @@ get_promoter_avg(
   arrayType,
   cores = 1,
   upstream.dist.tss = 2000,
-  downstream.dist.tss = 2000
+  downstream.dist.tss = 2000,
+  verbose = FALSE
 )
 }
 \arguments{

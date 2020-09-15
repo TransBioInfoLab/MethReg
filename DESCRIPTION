@@ -55,9 +55,11 @@ Suggests:
     matrixStats,
     biomaRt,
     dorothea,
-    viper
+    viper,
+    stageR,
+    BiocFileCache
 VignetteBuilder: knitr
-BugReports: https://github.com/TransBioInfoLab/MethReg/
+BugReports: https://github.com/TransBioInfoLab/MethReg/issues/
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 4.0)

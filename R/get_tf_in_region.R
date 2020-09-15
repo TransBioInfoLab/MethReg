@@ -26,7 +26,6 @@
 #'                  genome = "hg38"
 #'  )
 #' \dontrun{
-#'
 #'  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
 #'  regions.gr <- make_granges_from_names(regions.names)
 #'  region.tf <- get_tf_in_region(
@@ -49,10 +48,10 @@ get_tf_in_region <- function(
 
     parallel <- register_cores(cores)
 
-    if(is(region,"character") | is(region,"factor")){
+    if (is(region,"character") | is(region,"factor")) {
         region.gr <- make_granges_from_names(region)
         region.names <- region
-    } else if(is(region,"GenomicRanges")){
+    } else if (is(region,"GenomicRanges")) {
         region.gr <- region
         region.names <- make_names_from_granges(region)
     }
@@ -88,12 +87,12 @@ get_tf_in_region <- function(
     # remove motifs not found in any regions
     motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
 
-    if(ncol(motif.matrix) == 0){
+    if (ncol(motif.matrix) == 0) {
         message("No motifs found")
         return(NULL)
     }
 
-    if(is(motif.matrix, "lgCMatrix")){
+    if (is(motif.matrix, "lgCMatrix")) {
         motif.matrix <- motif.matrix[!duplicated(rownames(motif.matrix)),]
         motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
     }
@@ -119,6 +118,3 @@ get_tf_in_region <- function(
     return(motifs.probes.df %>% unique)
 
 }
-
-
-

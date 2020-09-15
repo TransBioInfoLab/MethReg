@@ -4,7 +4,7 @@
 \name{clinical}
 \alias{clinical}
 \title{TCGA-COAD clinical matrix for 38 samples
-retrieved from GDC using TCGAbiolinks}
+retrieved from GDC using \link[TCGAbiolinks]{TCGAbiolinks}}
 \format{
 A matrix: 38 samples (rows) and variables (columns)
 patient, sample, gender and sample_type
@@ -14,6 +14,6 @@ clinical
 }
 \description{
 TCGA-COAD clinical matrix for 38 samples
-retrieved from GDC using TCGAbiolinks
+retrieved from GDC using \link[TCGAbiolinks]{TCGAbiolinks}
 }
 \keyword{datasets}

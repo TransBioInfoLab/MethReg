@@ -1,7 +1,7 @@
 #' @title Evaluate correlation of DNA methylation region and
 #' target gene expression
 #' @description This function evaluate the correlation of the DNA methylation
-#' region and target gene expression using spearman rank correlation test.
+#' and target gene expression using spearman rank correlation test.
 #' Note that genes with RNA expression equal to 0 for all samples
 #' will not be evaluated.
 #' @return A data frame with the following information: regionID, target gene,
@@ -9,11 +9,11 @@
 #' DNA methylation and target gene expression, FDR corrected p-values.
 #' @param links A dataframe with the following columns:
 #' regionID (DNA methylation) and target (target gene)
-#' @param dnam DNA methylation matrix with regions in rows and samples
-#' in columns are samples. Samples should be in the
-#' same order as gene expression matrix (exp).
-#' @param exp Gene expression matrix (rows are genes, columns are samples)
-#' log2-normalized (log2(exp + 1)).
+#' @param dnam DNA methylation matrix or SummarizedExperiment object
+#' with regions/cpgs in rows and samples in columns are samples.
+#' Samples should be in the same order as gene expression matrix (exp).
+#' @param exp Gene expression matrix  or SummarizedExperiment object
+#' (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
 #' Samples should be in the same order as the DNA methylation matrix.
 #' @param filter.results
 #' Filter results using min.cor.pval and min.cor.estimate thresholds
@@ -40,7 +40,7 @@
 #' )
 #'
 #' # Correlated DNAm and gene expression, display only significant associations
-#' results.cor.pos <- cor_region_dnam_target_gene(
+#' results.cor.pos <- cor_dnam_target_gene(
 #'    links = links,
 #'    dnam = dnam,
 #'    exp = exp,
@@ -48,38 +48,7 @@
 #'    min.cor.pval = 0.05,
 #'    min.cor.estimate = 0.0
 #')
-#' \dontrun{
-#' # Load data
-#' data("gene.exp.chr21.log2")
-#' data("dna.met.chr21")
-#' dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
-#'
-#' # Map example region to closest gene
-#' links <- get_region_target_gene(
-#'   regions.gr = dna.met.chr21,
-#'   genome = "hg19",
-#'   method = "closest.gene"
-#' )
-#'
-#' # Samples in met and exp datasets should be in the same order.
-#' identical (colnames (dna.met.chr21), colnames(gene.exp.chr21.log2))
-#'
-#' # Correalted DNAm and gene expression, display only significant associations
-#' results <- cor_region_dnam_target_gene(
-#'   links = links,
-#'   dnam = dna.met.chr21,
-#'   exp = gene.exp.chr21.log2
-#' )
-#'
-#' # display all associations
-#' results.all <- cor_region_dnam_target_gene(
-#'    links = links,
-#'    dnam = dna.met.chr21,
-#'    exp = gene.exp.chr21.log2,
-#'    filter.results = FALSE
-#' )
-#' }
-cor_region_dnam_target_gene <- function(
+cor_dnam_target_gene <- function(
     links,
     dnam,
     exp,
@@ -104,7 +73,7 @@ cor_region_dnam_target_gene <- function(
         dnam <- assay(dnam)
     }
 
-    if (!is(dnam,"matrix")){
+    if (!is(dnam,"matrix")) {
         stop("dnam input is wrong")
     }
 
@@ -134,7 +103,7 @@ cor_region_dnam_target_gene <- function(
 
     links <- links[links$target %in% rownames(exp),]
     links <- links[links$regionID %in% rownames(dnam),]
-    if(nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
+    if (nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
 
     # reducing object sizes in case we will make it parallel
     exp <- exp[rownames(exp) %in% links$target,,drop = FALSE]
@@ -150,10 +119,12 @@ cor_region_dnam_target_gene <- function(
                 exp <- exp[link$target,]
                 dnam <- dnam[rownames(dnam) == link$regionID,]
                 suppressWarnings({
-                    res <- cor.test(exp %>% as.numeric,
-                                    dnam %>% as.numeric,
-                                    method = "spearman",
-                                    exact = TRUE)
+                    res <- cor.test(
+                        x = exp %>% as.numeric,
+                        y = dnam %>% as.numeric,
+                        method = "spearman",
+                        exact = TRUE
+                    )
                 })
                 return(
                     tibble(
@@ -163,11 +134,17 @@ cor_region_dnam_target_gene <- function(
                 )
             }, error = function(e){
                 return(
-                    tibble("met_exp_cor_pvalue" = NA,
-                           "met_exp_cor_estimate" = NA)
+                    tibble(
+                        "met_exp_cor_pvalue" = NA,
+                        "met_exp_cor_estimate" = NA
+                    )
                 )
             })
-        },.progress = "time",.parallel = parallel,.inform = TRUE)
+        },
+        .progress = "time",
+        .parallel = parallel,
+        .inform = TRUE
+    )
 
     correlation.df <- na.omit(correlation.df)
     correlation.df$met_exp_cor_fdr <- p.adjust(
@@ -175,7 +152,7 @@ cor_region_dnam_target_gene <- function(
         method = "fdr"
     )
 
-    if(filter.results){
+    if (filter.results) {
         correlation.df <- correlation.df %>%
             dplyr::filter(
                 .data$met_exp_cor_fdr <= min.cor.pval &

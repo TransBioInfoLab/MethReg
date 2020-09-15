@@ -65,13 +65,13 @@ create_triplet_distance_based <- function(
     target.method <- match.arg(target.method)
     genome <- match.arg(genome)
 
-    if(is(region,"character") | is(region,"factor")){
+    if (is(region,"character") | is(region,"factor")) {
         region.gr <- make_granges_from_names(region)
         region.names <- region
-    } else if(is(region,"GenomicRanges")){
+    } else if (is(region,"GenomicRanges")) {
         region.gr <- region
         region.names <- make_names_from_granges(region)
-    } else if(is(region,"SummarizedExperiment")){
+    } else if (is(region,"SummarizedExperiment")) {
         region.gr <- rowRanges(region)
         region.names <- make_names_from_granges(region.gr)
     }

@@ -98,12 +98,12 @@ get_region_target_gene <- function(
     method <- match.arg(method)
     genome <- match.arg(genome)
 
-    if(is(regions.gr,"SummarizedExperiment")) {
+    if (is(regions.gr,"SummarizedExperiment")) {
         regions.gr <- SummarizedExperiment::rowRanges(regions.gr)
     }
 
-    if(!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
-    if(method != "genes.promoter.overlap" & rm.promoter.regions.from.distal.linking){
+    if (!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
+    if (method != "genes.promoter.overlap" & rm.promoter.regions.from.distal.linking) {
         message("Removing regions overlapping promoter regions")
         regions.gr <- subset_by_non_promoter_regions(
             regions.gr = regions.gr,
@@ -113,7 +113,7 @@ get_region_target_gene <- function(
         )
     }
 
-    if(method == "genes.promoter.overlap"){
+    if (method == "genes.promoter.overlap") {
         message("Mapping regions to the closest gene")
         out <- get_region_target_gene_by_promoter_overlap(
             regions.gr = regions.gr,
@@ -121,16 +121,16 @@ get_region_target_gene <- function(
             upstream = promoter.upstream.dist.tss,
             downstream = promoter.downstream.dist.tss
         )
-    } else if(method == "window"){
+    } else if (method == "window") {
         message("Mapping regions to genes within a window of size: ", window.size, " bp")
         out <- get_region_target_gene_window(regions.gr, genome, window.size)
-    } else if(method == "nearby.genes"){
+    } else if (method == "nearby.genes") {
         out <- get_region_target_gene_nearby.genes(
             regions.gr = regions.gr,
             genome = genome,
             num.flanking.genes = num.flanking.genes
         )
-    } else if(method == "closest.gene"){
+    } else if (method == "closest.gene") {
         out <- get_region_target_gene_closest(
             regions.gr = regions.gr,
             genome = genome
@@ -157,7 +157,6 @@ get_region_target_gene_closest <- function(
     hits <- nearest(regions.gr,gene.info)
     nearest.genes <- gene.info[hits] %>% as.data.frame(row.names = NULL)
     distance <- distanceToNearest(regions.gr,gene.info)
-
 
     nearest.genes <- dplyr::bind_cols(
         nearest.genes[,c(
@@ -254,32 +253,21 @@ get_region_target_gene_window <- function(
         ":",
         regions.gr[queryHits(overlap)] %>% start,
         "-",
-        regions.gr[queryHits(overlap)] %>% end)
-
-
-    regionID.extended <- paste0(
-        regions.gr.extend[queryHits(overlap)] %>% seqnames %>% as.character(),
-        ":",
-        regions.gr.extend[queryHits(overlap)] %>% start,
-        "-",
-        regions.gr.extend[queryHits(overlap)] %>% end
+        regions.gr[queryHits(overlap)] %>% end
     )
+
 
     genes.overlapping <- geneAnnot[subjectHits(overlap)] %>% as.data.frame(row.names = NULL)
     colnames(genes.overlapping) <- paste0("gene_",colnames(genes.overlapping))
-
     colnames(genes.overlapping)[grep("ensembl_gene_id",colnames(genes.overlapping))] <- "target"
     colnames(genes.overlapping)[grep("external_gen",colnames(genes.overlapping))] <- "target_gene_name"
     genes.overlapping <- genes.overlapping[,grep("target",colnames(genes.overlapping))]
 
     out <- dplyr::bind_cols(
-        data.frame("regionID" = regionID,stringsAsFactors = FALSE),
-        #data.frame("regionID.extended" = regionID.extended %>% as.character(),
-        #           "window.extended.width" = window.width,
-        #           "Distance region-gene" = distance(regions.gr[queryHits(overlap)],
-        #                                             geneAnnot[subjectHits(overlap)]),
-        #           stringsAsFactors = FALSE),
-        genes.overlapping)  %>% tibble::as_tibble()
+        data.frame(
+            "regionID" = regionID,stringsAsFactors = FALSE),
+        genes.overlapping
+    )  %>% tibble::as_tibble()
     out
 }
 
@@ -354,7 +342,7 @@ get_region_target_gene_nearby.genes <- function(
                  "ensembl_gene_id",
                  grep("external_gene_", colnames(ret), value = TRUE),
                  "Distance")
-    ]
+               ]
 
     message("Identifying gene position for each region")
     ret <- get_region_target_gene_nearby.genes_addPos(ret, num.flanking.genes)
@@ -422,7 +410,7 @@ get_region_target_gene_nearby.genes_aux <- function(
         idx <- idx[
             !paste0(genes.gr[idx$subjectHits]$ensembl_gene_id, names(regions.gr)[idx$evaluating]) %in%
                 paste0(ret$ensembl_gene_id, ret$ID),
-        ]
+            ]
         evaluating <- evaluating[idx$queryHits]
 
         ret <- rbind(

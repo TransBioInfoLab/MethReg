@@ -75,17 +75,17 @@ on target gene expression.
 }
 \examples{
 library(dplyr)
-dnam <- runif(20,min = 0,max = 1) \%>\%
+dnam <- runif (20,min = 0,max = 1) \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(dnam) <- c("chr3:203727581-203728580")
 colnames(dnam) <- paste0("Samples",1:20)
 
-exp.target <-  runif(20,min = 0,max = 10) \%>\%
+exp.target <-  runif (20,min = 0,max = 10) \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(exp.target) <- c("ENSG00000232886")
 colnames(exp.target) <- paste0("Samples",1:20)
 
-exp.tf <- runif(20,min = 0,max = 10) \%>\%
+exp.tf <- runif (20,min = 0,max = 10) \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(exp.tf) <- c("ENSG00000232888")
 colnames(exp.tf) <- paste0("Samples",1:20)

@@ -86,20 +86,20 @@ plot_interaction_model <-  function(
     tf.activity.es = NULL
 ){
 
-    if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
+    if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
 
-    if(missing(exp)) stop("Please set exp argument with gene expression matrix")
+    if (missing(exp)) stop("Please set exp argument with gene expression matrix")
 
-    if(missing(triplet.results)) {
+    if (missing(triplet.results)) {
         stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
     }
 
-    if(!all(c("regionID","TF","target") %in% colnames(triplet.results))) {
+    if (!all(c("regionID","TF","target") %in% colnames(triplet.results))) {
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
-    if(is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
-    if(is(exp,"SummarizedExperiment")) exp <- assay(exp)
+    if (is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+    if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
 
     check_data(dnam, exp, metadata)
 
@@ -124,7 +124,7 @@ plot_interaction_model <-  function(
             )
 
             color <- NULL
-            if(!missing(metadata)){
+            if (!missing(metadata)) {
                 df <- cbind(df,metadata)
                 color <- colnames(metadata)[1]
             }
@@ -177,7 +177,7 @@ plot_interaction_model <-  function(
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
 
-    if(nrow(triplet.results) > 0){
+    if (nrow(triplet.results) > 0) {
         names(out) <- paste0(
             triplet.results$regionID,
             "_TF_",
@@ -233,7 +233,7 @@ get_table_plot <- function(row.triplet){
     table.plot.wilcoxon <- ggtexttable(
         tab,
         rows = NULL,
-        cols = c("Wilcoxon","P-Values"),,
+        cols = c("Wilcoxon","P-Values"),
         theme = ttheme("mGreen", base_size = base_size)
     )
 
@@ -273,7 +273,7 @@ get_plot_results <- function(
     target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))
     region.lab <- "DNA methylation"
 
-    if(use_tf_enrichment_scores){
+    if (use_tf_enrichment_scores) {
         tf.lab <- bquote(atop("Enrichment scores TF" ~.(row.triplet$TF_symbol %>% as.character())))
     } else {
         tf.lab <- bquote(atop("TF" ~.(row.triplet$TF_symbol %>% as.character())))
@@ -474,8 +474,8 @@ get_scatter_plot_results <- function(
     ylab,
     facet.by
 ){
-    if(missing(facet.by)){
-        if(!is.null(color)){
+    if (missing(facet.by)) {
+        if (!is.null(color)) {
             p <- ggscatter(
                 df,
                 x = x,
@@ -492,7 +492,7 @@ get_scatter_plot_results <- function(
             )
         }
     } else {
-        if(!is.null(color)){
+        if (!is.null(color)) {
             p <- ggscatter(
                 df,
                 x = x,
@@ -520,7 +520,7 @@ get_scatter_plot_results <- function(
         })
     })
 
-    if(missing(facet.by)){
+    if (missing(facet.by)) {
         rlm.res <- get_rlm_val_pval(df, x, y)
 
         p <- p + ggplot2::annotate(
@@ -619,22 +619,22 @@ get_table_plot_results <- function(row.triplet, type){
 
     base.size <- 9
 
-    if(type == "all"){
+    if (type == "all") {
         pattern.estimate <- "^estimate"
         pattern.pval <- "^pval"
         title <- "Target ~ TF + DNAm +\n TF * DNAm"
         theme.color <- "mOrange"
-    } else if(type == "quantile"){
+    } else if (type == "quantile") {
         pattern.estimate <- "^quant_estimate"
         pattern.pval <- "^quant_pval"
         title <- "Target ~ TF + \nDNAm Quant. Group +\n TF * DNAm Quant. Group"
         theme.color <- "mGreen"
-    } else if(type == "DNAmlow"){
+    } else if (type == "DNAmlow") {
         pattern.estimate <- "^DNAmlow_estimate"
         pattern.pval <- "^DNAmlow_pval"
         title <- "Target ~ TF\nDNAm low samples"
         theme.color <- "mBlue"
-    } else if(type == "DNAmhigh"){
+    } else if (type == "DNAmhigh") {
         pattern.estimate <- "^DNAmhigh_estimate"
         pattern.pval <- "^DNAmhigh_pval"
         title <- "Target ~ TF\nDNAm high samples"

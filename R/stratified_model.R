@@ -58,17 +58,17 @@
 #'
 #' @examples
 #' library(dplyr)
-#' dnam <- runif(20,min = 0,max = 1) %>%
+#' dnam <- runif (20,min = 0,max = 1) %>%
 #'   matrix(ncol = 1) %>%  t
 #' rownames(dnam) <- c("chr3:203727581-203728580")
 #' colnames(dnam) <- paste0("Samples",1:20)
 #'
-#' exp.target <-  runif(20,min = 0,max = 10) %>%
+#' exp.target <-  runif (20,min = 0,max = 10) %>%
 #'   matrix(ncol = 1) %>%  t
 #' rownames(exp.target) <- c("ENSG00000232886")
 #' colnames(exp.target) <- paste0("Samples",1:20)
 #'
-#' exp.tf <- runif(20,min = 0,max = 10) %>%
+#' exp.tf <- runif (20,min = 0,max = 10) %>%
 #'   matrix(ncol = 1) %>%  t
 #' rownames(exp.tf) <- c("ENSG00000232888")
 #' colnames(exp.tf) <- paste0("Samples",1:20)
@@ -102,18 +102,18 @@ stratified_model <- function(
     tf.activity.es = NULL
 ){
 
-    if(missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
-    if(missing(exp)) stop("Please set exp argument with gene expression matrix")
+    if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
+    if (missing(exp)) stop("Please set exp argument with gene expression matrix")
 
-    if(is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
-    if(is(exp,"SummarizedExperiment")) exp <- assay(exp)
+    if (is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+    if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
 
-    if(!all(grepl("ENSG", rownames(exp)))){
+    if (!all(grepl("ENSG", rownames(exp)))) {
         stop("exp must have the following row names as ENSEMBL IDs (i.e. ENSG00000239415)")
     }
 
-    if(missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
-    if(!all(c("regionID","TF","target") %in% colnames(triplet))) {
+    if (missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
+    if (!all(c("regionID","TF","target") %in% colnames(triplet))) {
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
@@ -139,9 +139,9 @@ stratified_model <- function(
 
 
 
-    if(!is.null(tf.activity.es)){
+    if (!is.null(tf.activity.es)) {
 
-        if(!all(grepl("^ENSG", rownames(tf.activity.es)))){
+        if (!all(grepl("^ENSG", rownames(tf.activity.es)))) {
             rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
         }
 
@@ -154,7 +154,7 @@ stratified_model <- function(
         )
     }
 
-    if(nrow(triplet) == 0){
+    if (nrow(triplet) == 0) {
         stop("We were not able to find the same rows from triple in the data, please check the input.")
     }
 
@@ -174,7 +174,7 @@ stratified_model <- function(
             stratified_model_results(data)
         }, .progress = "time", .parallel = parallel, .inform = TRUE)
 
-    if(!is.null(tf.activity.es)) {
+    if (!is.null(tf.activity.es)) {
         colnames(out) <- gsub("rna.tf","es.tf",colnames(out))
     }
 
@@ -225,7 +225,7 @@ stratified_model_aux <- function(data, prefix = ""){
             return(NULL)
         })
 
-        if(is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
+        if (is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
 
         results <- results$count %>% data.frame
 
@@ -254,7 +254,7 @@ stratified_model_aux <- function(data, prefix = ""){
             return(NULL)
         })
 
-        if(is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
+        if (is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
 
         degrees.freedom.value <- nrow(data) - 2
         results$pval <- 2 * (1 - pt( abs(results$t.value), df = degrees.freedom.value) )
@@ -289,16 +289,16 @@ getClassification <- function(low.estimate, high.estimate){
 
     estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
 
-    if(any(is.na(estimate.vector))){
+    if (any(is.na(estimate.vector))) {
         return(list("DNAm.effect" = NA,"TF.role" = NA))
     }
 
     slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]
     TF.role <- ifelse(slope_estimate > 0, "Activator", "Repressor")
 
-    if(TF.role == "Repressor") {
+    if (TF.role == "Repressor") {
 
-        if(low.estimate < high.estimate) {
+        if (low.estimate < high.estimate) {
             dnam.effect <- "Attenuating"
         } else {
             dnam.effect <- "Enhancing"
@@ -306,7 +306,7 @@ getClassification <- function(low.estimate, high.estimate){
 
     } else {
 
-        if(low.estimate < high.estimate) {
+        if (low.estimate < high.estimate) {
             dnam.effect <- "Enhancing"
         } else {
             dnam.effect <- "Attenuating"

@@ -15,7 +15,8 @@ interaction_model(
   fdr = TRUE,
   filter.correlated.tf.exp.dnam = TRUE,
   filter.triplet.by.sig.term = TRUE,
-  stage.wise.analysis = FALSE
+  stage.wise.analysis = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -47,6 +48,9 @@ Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary
 
 \item{stage.wise.analysis}{A boolean indicating if stagewise analysis should be performed
 to correct for multiple comparisons. If set to FALSE FDR analysis is performed.}
+
+\item{verbose}{A logical argument indicating if
+messages output should be provided.}
 }
 \value{
 A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},

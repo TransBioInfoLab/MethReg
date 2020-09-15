@@ -116,7 +116,7 @@ plot_stratified_model <-  function(
             )
 
             color <- NULL
-            if(!missing(metadata)){
+            if(!missing(metadata)) {
                 df <- cbind(df,metadata)
                 color <- colnames(metadata)[1]
             }
@@ -129,12 +129,12 @@ plot_stratified_model <-  function(
             )
 
             # Reformat p-values for better looking on the plots
-            for(idx in grep("pval|fdr|value",colnames(row.triplet))) {
+            for (idx in grep("pval|fdr|value",colnames(row.triplet))) {
                 row.triplet[,idx] <- format.pval(
                     row.triplet[,idx]  %>% as.data.frame(),
                     digits = 3)
             }
-            for(idx in grep("estimate|median|minus",colnames(row.triplet))) {
+            for (idx in grep("estimate|median|minus",colnames(row.triplet))) {
                 row.triplet[,idx] <- format(
                     row.triplet[,idx]  %>% as.data.frame(),
                     digits = 3)

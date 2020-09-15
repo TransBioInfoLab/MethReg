@@ -25,6 +25,8 @@
 #' to consider as promoter regions
 #' @param downstream.dist.tss Number of base pairs (bp) downstream of TSS
 #' to consider as promoter regions
+#' @param verbose A logical argument indicating if
+#' messages output should be provided.
 get_promoter_avg <- function(
     dnam,
     genome,

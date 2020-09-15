@@ -28,6 +28,9 @@ to consider as promoter regions}
 
 \item{downstream.dist.tss}{Number of base pairs (bp) downstream of TSS
 to consider as promoter regions}
+
+\item{verbose}{A logical argument indicating if
+messages output should be provided.}
 }
 \value{
 A RangedSummarizedExperiment with promoter region and

@@ -19,7 +19,7 @@ bibliography: bibliography.bib
 editor_options:
   chunk_output_type: inline    
 vignette: >
-    %\VignetteIndexEntry{MethReg: functional annotation of DMRs and DMS in epigenome-wide association studies}
+    %\VignetteIndexEntry{MethReg: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -36,7 +36,7 @@ body {text-align: justify}
 ```{css, echo = FALSE, eval = TRUE}
 .whiteCode {
   background-color: white;
-  border-color: #337ab7;
+  border-color: #337ab7 !important;
   border: 1px solid;
 }
 ```
@@ -477,31 +477,6 @@ effects (p = 0.142) is not as significant as the association in stratified
 analysis in high methylation samples (p = 0.00508). 
 _**This demonstrates that by additionally modeling DNA methylation,**_
 **_we can also nominate TF – target associations that might have been missed otherwise**_. 
-
-If you want to highlight different group of samples, you can also use the `metadata` argument
-with a dataframe where rownames are the samples (same order as the columns of the 
-DNAm and gene expression), and the columns highlight the groups. Here is an example: 
-
-```{R, message = TRUE, results = "hide",eval = FALSE}
-data("clinical")
-metadata <- clinical[,c("sample_type"),drop = FALSE]
-```
-
-
-
-```{R eval=FALSE, message=FALSE, warning=FALSE, results="hide"}
-plots <- plot_stratified_model(
-        triplet.results = results.stratified.model[29 ,], 
-        dnam = dna.met.chr21.se, 
-        exp = gene.exp.chr21.se,
-        metadata = metadata
-)
-```
-
-
-```{R, fig.height = 14, fig.width = 14, eval = FALSE}
-plots[[1]]
-```
 
 # Results interpretation
 

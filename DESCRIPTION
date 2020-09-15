@@ -1,7 +1,7 @@
 Package: MethReg
 Type: Package
 Title: Assessing the regulatory potential of DNA methylation regions or sites on gene transcription
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(
     person("Tiago", "Silva", email = "tiagochst@gmail.com", role = c("aut", "cre"),
       comment = c(ORCID = "0000-0003-1343-6850")),
@@ -54,12 +54,8 @@ Suggests:
     parallel,
     downloader,
     R.utils,
-    dbplyr,
-    RSQLite,
-    DBI,
     doParallel,
     reshape2,
-    prettydoc,
     JASPAR2020,
     TFBSTools,
     motifmatchr,
@@ -69,7 +65,8 @@ Suggests:
     viper,
     stageR,
     BiocFileCache,
-    png
+    png,
+    htmltools
 VignetteBuilder: knitr
 BugReports: https://github.com/TransBioInfoLab/MethReg/issues/
 RoxygenNote: 7.1.1

@@ -151,7 +151,9 @@ get_gene_information_biomart <- function(
                 biomaRt::useEnsembl(
                     "ensembl",
                     dataset = "hsapiens_gene_ensembl",
-                    host = host, mirror = mirror)
+                    host = host,
+                    mirror = mirror
+                )
             }, error = function(e) {
                 message(e)
                 return(NULL)

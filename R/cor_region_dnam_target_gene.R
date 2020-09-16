@@ -101,10 +101,17 @@ cor_dnam_target_gene <- function(
     regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
     dnam <- dnam[regions.keep,, drop = FALSE]
 
-    pair.dnam.target <- pair.dnam.target[pair.dnam.target$target %in% rownames(exp),]
-    pair.dnam.target <- pair.dnam.target[pair.dnam.target$regionID %in% rownames(dnam),]
-    if (nrow(pair.dnam.target) == 0) stop("pair.dnam.target not found in data. Please check rownames and pair.dnam.target provided.")
+    pair.dnam.target <- pair.dnam.target %>%
+        dplyr:: filter(.data$target %in% rownames(exp))
+    pair.dnam.target <- pair.dnam.target %>%
+        dplyr::filter(.data$regionID %in% rownames(dnam))
 
+    if (nrow(pair.dnam.target) == 0) {
+        stop(
+            "pair.dnam.target not found in data. ",
+            "Please check rownames and pair.dnam.target provided."
+        )
+    }
     # reducing object sizes in case we will make it parallel
     exp <- exp[rownames(exp) %in% pair.dnam.target$target,,drop = FALSE]
     dnam <- dnam[rownames(dnam) %in% pair.dnam.target$regionID,, drop = FALSE]

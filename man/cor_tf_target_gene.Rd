@@ -21,8 +21,9 @@ TF and target (target gene)}
 (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
 Samples should be in the same order as the tf.activity.es matrix}
 
-\item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
-to be used in linear models instead of TF gene expression. See \code{\link{get_tf_ES}}.}
+\item{tf.activity.es}{A matrix with normalized enrichment
+scores for each TF across all samples to be used in linear models instead
+of TF gene expression. See \code{\link{get_tf_ES}}.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 

@@ -9,8 +9,9 @@
 #' TF and target gene expression, FDR corrected p-values.
 #' @param pair.tf.target A dataframe with the following columns:
 #' TF and target (target gene)
-#' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
-#' to be used in linear models instead of TF gene expression. See \code{\link{get_tf_ES}}.
+#' @param tf.activity.es A matrix with normalized enrichment
+#' scores for each TF across all samples to be used in linear models instead
+#' of TF gene expression. See \code{\link{get_tf_ES}}.
 #' @param exp Gene expression matrix  or SummarizedExperiment object
 #' (rows are genes, columns are samples) log2-normalized (log2(exp + 1)).
 #' Samples should be in the same order as the tf.activity.es matrix
@@ -76,23 +77,35 @@ cor_tf_target_gene <- function(
     #-------------------------------------------------------------------------
 
     verbose && message("Removing genes with RNA expression equal to 0/NA for all samples")
+
     exp <- filter_genes_zero_expression(exp = exp, max.samples.percentage = 100)
 
-    pair.tf.target <- pair.tf.target[pair.tf.target$target %in% rownames(exp),, drop = FALSE]
+    pair.tf.target <- pair.tf.target %>%
+        dplyr::filter(.data$target %in% rownames(exp))
+
     if (missing(tf.activity.es)){
-        pair.tf.target <- pair.tf.target[pair.tf.target$TF %in% rownames(exp),, drop = FALSE]
+        pair.tf.target <- pair.tf.target %>%
+            dplyr::filter(.data$TF %in% rownames(exp))
     } else {
-        pair.tf.target <- pair.tf.target[pair.tf.target$TF %in% rownames(tf.activity.es),, drop = FALSE]
+        pair.tf.target <- pair.tf.target %>%
+            dplyr::filter(.data$TF %in% rownames(tf.activity.es))
     }
 
-    if (nrow(pair.tf.target) == 0) stop("pair.tf.target not found in data. Please check rownames and pair.tf.target provided.")
-
+    if (nrow(pair.tf.target) == 0) {
+        stop(
+            "pair.tf.target not found in data.",
+            "Please check rownames and pair.tf.target provided."
+        )
+    }
     # reducing object sizes in case we will make it parallel
     if (!missing(tf.activity.es)){
-        tf.activity.es <- tf.activity.es[rownames(tf.activity.es) %in% pair.tf.target$TF,,drop = FALSE]
-        exp <- exp[rownames(exp) %in% pair.tf.target$target,,drop = FALSE]
+        idx <- rownames(tf.activity.es) %in% pair.tf.target$TF
+        tf.activity.es <- tf.activity.es[idx,,drop = FALSE]
+        idx <- rownames(exp) %in% pair.tf.target$target
+        exp <- exp[idx,,drop = FALSE]
     } else {
-        exp <- exp[rownames(exp) %in% c(pair.tf.target$target,pair.tf.target$TF),,drop = FALSE]
+        idx <- rownames(exp) %in% c(pair.tf.target$target,pair.tf.target$TF)
+        exp <- exp[idx,,drop = FALSE]
     }
 
     parallel <- register_cores(cores)

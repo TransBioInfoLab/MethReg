@@ -74,6 +74,11 @@ create_triplet_distance_based <- function(
     } else if (is(region,"SummarizedExperiment")) {
         region.gr <- rowRanges(region)
         region.names <- make_names_from_granges(region.gr)
+    } else {
+        stop(
+            "region input is a ", class(region),
+            ". Expecting a charcter, GRanges or SE"
+        )
     }
 
     message("Finding target genes")

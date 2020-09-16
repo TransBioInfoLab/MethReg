@@ -40,7 +40,7 @@ get_regulon_dorothea <- function(
 #' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
 #' tf_es <- get_tf_ES(gene.exp.chr21.log2)
 #' @return A matrix of normalized enrichment scores for each TF across all samples
-#' @noRd
+#' @export
 get_tf_ES <- function(
     exp,
     min.confidence = "B",

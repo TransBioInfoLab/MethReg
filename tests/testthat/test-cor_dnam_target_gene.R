@@ -8,14 +8,14 @@ test_that("cor_dnam_target_gene correlation signal is correct", {
     colnames(exp) <- paste0("Samples",1:20)
 
     # Map example region to closest gene
-    links <- data.frame(
+    pair.dnam.target <- data.frame(
         "regionID" =  c("chr3:203727581-203728580"),
         "target" = "ENSG00000232886"
     )
 
     # Correalted DNAm and gene expression, display only significant associations
     results.cor.pos <- cor_dnam_target_gene(
-        links = links,
+        pair.dnam.target = pair.dnam.target,
         dnam = dnam,
         exp = exp,
         filter.results = FALSE
@@ -30,14 +30,14 @@ test_that("cor_dnam_target_gene correlation signal is correct", {
     colnames(exp) <- paste0("Samples",1:20)
 
     # Map example region to closest gene
-    links <- data.frame(
+    pair.dnam.target <- data.frame(
         "regionID" =  c("chr3:203727581-203728580"),
         "target" = "ENSG00000232886"
     )
 
     # Correalted DNAm and gene expression, display only significant associations
     results.cor.neg <- cor_dnam_target_gene(
-        links = links,
+        pair.dnam.target = pair.dnam.target,
         dnam = dnam,
         exp = exp,
         filter.results = FALSE
@@ -59,19 +59,18 @@ test_that("cor_region_dnam_target_gene filter results", {
     colnames(exp) <- paste0("Samples",1:20)
 
     # Map example region to closest gene
-    links <- data.frame(
+    pair.dnam.target <- data.frame(
         "regionID" =  c("chr3:203727581-203728580"),
         "target" = "ENSG00000232886"
     )
 
     # Correalted DNAm and gene expression, display only significant associations
     results.cor.pos <- cor_dnam_target_gene(
-        links = links,
+        pair.dnam.target = pair.dnam.target,
         dnam = dnam,
         exp = exp,
         filter.results = TRUE
     )
-
 
     expect_true(nrow(results.cor.pos) == 0)
 })
@@ -87,16 +86,16 @@ test_that("cor_dnam_target_gene checks input", {
     colnames(exp) <- paste0("Samples",1:20)
 
     # Map example region to closest gene
-    links <- data.frame(
+    pair.dnam.target <- data.frame(
         "regionID" =  c("chr3:203727581-203728580"),
         "target" = "ENSG00000232886"
     )
     # Correalted DNAm and gene expression, display only significant associations
     expect_error(cor_dnam_target_gene())
-    expect_error(cor_dnam_target_gene(links = links))
-    expect_error(cor_dnam_target_gene(links = links,dnam = dnam))
-    expect_error(cor_dnam_target_gene(links = links,exp = exp))
-    expect_error(cor_dnam_target_gene(links = links,dnam, "error", exp = exp))
+    expect_error(cor_dnam_target_gene(pair.dnam.target = pair.dnam.target))
+    expect_error(cor_dnam_target_gene(pair.dnam.target = pair.dnam.target,dnam = dnam))
+    expect_error(cor_dnam_target_gene(pair.dnam.target = pair.dnam.target,exp = exp))
+    expect_error(cor_dnam_target_gene(pair.dnam.target = pair.dnam.target,dnam, "error", exp = exp))
 })
 
 

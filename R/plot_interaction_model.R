@@ -224,7 +224,7 @@ get_table_plot <- function(row.triplet){
 
     tab <- row.triplet %>%
         dplyr::select(
-            c("Wilcoxon_pval_tf_q4_vs_q1")
+            c("Wilcoxon_pval_tf_q4met_vs_q1met")
         ) %>% t() %>% as_tibble(rownames = "Variable")
 
     tab$Variable <- c(

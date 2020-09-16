@@ -13,7 +13,7 @@
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
-#' to be used in linear models instead of TF gene expression.
+#' to be used in linear models instead of TF gene expression. See \code{\link{get_tf_ES}}.
 #' @param sig.threshold Threshold to filter significant triplets.
 #' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
 #' @param fdr Uses fdr when using sig.threshold.
@@ -220,22 +220,31 @@ interaction_model <- function(
             data.high.low <- data %>% filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
 
-            pct.zeros.in.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
+            # pct.zeros.in.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
 
             suppressWarnings({
                 # Add information to filter TF if differenly expressed between DNAm high and DNAm low groups
-                wilcoxon.tf.q4.vs.q1 <- wilcox.test(
+                wilcoxon.tf.q4met.vs.q1met <- wilcox.test(
                     data.high.low %>% filter(.data$metGrp == 1) %>% pull(.data$rna.tf),
                     data.high.low %>% filter(.data$metGrp == 0) %>% pull(.data$rna.tf),
                     exact = FALSE
                 )$p.value
             })
 
-            if (pct.zeros.in.samples > 0.25) {
-                itx.all <- interaction_model_zeroinfl(data)
-            } else {
-                itx.all <- interaction_model_rlm(data)
-            }
+            suppressWarnings({
+                # Add information to filter Target if differently expressed between DNAm high and DNAm low groups
+                wilcoxon.target.q4met.vs.q1met <- wilcox.test(
+                    data.high.low %>% filter(.data$metGrp == 1) %>% pull(.data$rna.target),
+                    data.high.low %>% filter(.data$metGrp == 0) %>% pull(.data$rna.target),
+                    exact = FALSE
+                )$p.value
+            })
+
+            #if (pct.zeros.in.samples > 0.25) {
+            #    itx.all <- interaction_model_zeroinfl(data)
+            #} else {
+            #    itx.all <- interaction_model_rlm(data)
+            #}
 
             pct.zeros.in.quant.samples <- sum(
                 data.high.low$rna.target == 0,
@@ -250,11 +259,12 @@ interaction_model <- function(
             # Create output
             interaction_model_output(
                 # itx.all,
-                pct.zeros.in.samples,
+                #pct.zeros.in.samples,
                 quant.diff,
                 itx.quant,
                 pct.zeros.in.quant.samples,
-                wilcoxon.tf.q4.vs.q1
+                wilcoxon.target.q4met.vs.q1met = wilcoxon.target.q4met.vs.q1met,
+                wilcoxon.tf.q4met.vs.q1met = wilcoxon.tf.q4met.vs.q1met
             )
         },
         .progress = "time",
@@ -293,7 +303,7 @@ interaction_model <- function(
 
     if (filter.correlated.tf.exp.dnam) {
         verbose && message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
-        ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4_vs_q1 > sig.threshold)
+        ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4met_vs_q1met > sig.threshold)
     }
 
     ret
@@ -347,23 +357,24 @@ get_triplet_data <- function(
 
 interaction_model_output <- function(
     # itx.all,
-    pct.zeros.in.samples,
+    #pct.zeros.in.samples,
     quant.diff,
     itx.quant,
     pct.zeros.in.quant.samples,
-    wilcoxon.tf.q4.vs.q1
+    wilcoxon.target.q4met.vs.q1met,
+    wilcoxon.tf.q4met.vs.q1met
 ){
     if (is.null(itx.quant)) itx.quant <- interaction_quant_model_no_results()
 
     cbind(
         # itx.all,
-        data.frame(
-            "Model interaction" =
-                ifelse(pct.zeros.in.samples > 0.25,
-                       "Zero-inflated Negative Binomial Model",
-                       "Robust Linear Model"
-                )
-        ),
+        # data.frame(
+        #     "Model interaction" =
+        #        ifelse(pct.zeros.in.samples > 0.25,
+        #               "Zero-inflated Negative Binomial Model",
+        #               "Robust Linear Model"
+        #        )
+        # ),
         quant.diff,
         itx.quant,
         data.frame(
@@ -372,9 +383,10 @@ interaction_model_output <- function(
                        "Zero-inflated Negative Binomial Model",
                        "Robust Linear Model"
                 ),
-            "Wilcoxon_pval_tf_q4_vs_q1" = wilcoxon.tf.q4.vs.q1
+            "Wilcoxon_target_q4met_vs_q1met" = wilcoxon.target.q4met.vs.q1met,
+            "Wilcoxon_pval_tf_q4met_vs_q1met" = wilcoxon.tf.q4met.vs.q1met
         ),
-        "% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
+        #"% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
     )
 }

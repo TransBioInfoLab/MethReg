@@ -7,7 +7,7 @@
 #' @return A data frame with the following information: regionID, target gene,
 #' correlation pvalue and estimate between
 #' DNA methylation and target gene expression, FDR corrected p-values.
-#' @param links A dataframe with the following columns:
+#' @param pair.dnam.target A dataframe with the following columns:
 #' regionID (DNA methylation) and target (target gene)
 #' @param dnam DNA methylation matrix or SummarizedExperiment object
 #' with regions/cpgs in rows and samples in columns are samples.
@@ -34,14 +34,14 @@
 #' rownames(exp) <- c("ENSG00000232886")
 #' colnames(exp) <- paste0("Samples",1:20)
 #'
-#' links <- data.frame(
+#' pair.dnam.target <- data.frame(
 #'    "regionID" =  c("chr3:203727581-203728580"),
 #'    "target" = "ENSG00000232886"
 #' )
 #'
 #' # Correlated DNAm and gene expression, display only significant associations
 #' results.cor.pos <- cor_dnam_target_gene(
-#'    links = links,
+#'    pair.dnam.target = pair.dnam.target,
 #'    dnam = dnam,
 #'    exp = exp,
 #'    filter.results = TRUE,
@@ -49,7 +49,7 @@
 #'    min.cor.estimate = 0.0
 #')
 cor_dnam_target_gene <- function(
-    links,
+    pair.dnam.target,
     dnam,
     exp,
     filter.results = TRUE,
@@ -89,8 +89,8 @@ cor_dnam_target_gene <- function(
         stop("exp and dnam does not have the same size")
     }
 
-    if (!all(c("target","regionID") %in% colnames(links))) {
-        stop("links object must have target and regionID columns")
+    if (!all(c("target","regionID") %in% colnames(pair.dnam.target))) {
+        stop("pair.dnam.target object must have target and regionID columns")
     }
     #-------------------------------------------------------------------------
 
@@ -101,23 +101,23 @@ cor_dnam_target_gene <- function(
     regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
     dnam <- dnam[regions.keep,, drop = FALSE]
 
-    links <- links[links$target %in% rownames(exp),]
-    links <- links[links$regionID %in% rownames(dnam),]
-    if (nrow(links) == 0) stop("links not found in data. Please check rownames and links provided.")
+    pair.dnam.target <- pair.dnam.target[pair.dnam.target$target %in% rownames(exp),]
+    pair.dnam.target <- pair.dnam.target[pair.dnam.target$regionID %in% rownames(dnam),]
+    if (nrow(pair.dnam.target) == 0) stop("pair.dnam.target not found in data. Please check rownames and pair.dnam.target provided.")
 
     # reducing object sizes in case we will make it parallel
-    exp <- exp[rownames(exp) %in% links$target,,drop = FALSE]
-    dnam <- dnam[rownames(dnam) %in% links$regionID,, drop = FALSE]
+    exp <- exp[rownames(exp) %in% pair.dnam.target$target,,drop = FALSE]
+    dnam <- dnam[rownames(dnam) %in% pair.dnam.target$regionID,, drop = FALSE]
 
     parallel <- register_cores(cores)
 
     correlation.df <- plyr::adply(
-        .data = links,
+        .data = pair.dnam.target,
         .margins = 1,
-        .fun = function(link){
+        .fun = function(pair){
             tryCatch({
-                exp <- exp[link$target,]
-                dnam <- dnam[rownames(dnam) == link$regionID,]
+                exp <- exp[pair$target,]
+                dnam <- dnam[rownames(dnam) == pair$regionID,]
                 suppressWarnings({
                     res <- cor.test(
                         x = exp %>% as.numeric,

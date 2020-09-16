@@ -296,11 +296,6 @@ head(region.tf)
 dim(region.tf)
 ```
 
-```{R, include = FALSE, results = "hide"}
-rm(probes.gr)
-gc()
-```
-
 
 ### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
 
@@ -310,11 +305,6 @@ dataset and the _CpG region-TF_ dataset.
 ```{R, message = FALSE, warning = FALSE}
 # Merging the results from the previous sections (region and target, and region and TF)
 triplet <- dplyr::inner_join(region.target.closest, region.tf)
-```
-
-```{R}
-# Since our data has only chr21 we will only keep TFs on chr21.
-triplet <- triplet[triplet$TF %in% rownames(gene.exp.chr21.se),]
 ```
 
 The triplet is a data frame with the following columns:
@@ -363,22 +353,14 @@ the first and last quartiles are considered.
 
 $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm Group}$$
  
-```{R, message = FALSE, results = "hide", include = FALSE}
-results.interaction.model <- interaction_model(
-    triplet = triplet,
-    dnam = dna.met.chr21.se[rownames(dna.met.chr21.se) %in% triplet$regionID,],
-    exp = gene.exp.chr21.se[rownames(gene.exp.chr21.se) %in% c(triplet$target,triplet$TF),],
-    sig.threshold = 1.0,
-    fdr = FALSE,
-    filter.correlated.tf.exp.dna = FALSE
-)
-```
- 
-```{R interaction_model, message = FALSE, results = "hide", eval = FALSE}
+```{R interaction_model, message = FALSE, results = "hide", eval = TRUE}
 results.interaction.model <- interaction_model(
     triplet = triplet, 
     dnam = dna.met.chr21.se,
-    exp = gene.exp.chr21.se
+    exp = gene.exp.chr21.se,
+    sig.threshold = 1.0,
+    fdr = FALSE,
+    filter.correlated.tf.exp.dnam = FALSE
 )
 ```
 
@@ -446,14 +428,14 @@ the DNA methylation matrix and the gene expression matrix as input.
 
 ```{R plot_interaction_model, eval = TRUE, message = FALSE, results = "hide", warning = FALSE}
 plots <- plot_interaction_model(
-    triplet.results = results.interaction.model, 
+    triplet.results = results.interaction.model[29,], 
     dnam = dna.met.chr21.se, 
     exp = gene.exp.chr21.se
 )
 ```
 
 ```{R, fig.height = 8, fig.width = 10, eval = TRUE, fig.cap = "Plort example of a triplet result."}
-plots[[29]]
+plots
 ```
 
 

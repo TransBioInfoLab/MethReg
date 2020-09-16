@@ -6,7 +6,7 @@
 target gene expression}
 \usage{
 cor_dnam_target_gene(
-  links,
+  pair.dnam.target,
   dnam,
   exp,
   filter.results = TRUE,
@@ -16,7 +16,7 @@ cor_dnam_target_gene(
 )
 }
 \arguments{
-\item{links}{A dataframe with the following columns:
+\item{pair.dnam.target}{A dataframe with the following columns:
 regionID (DNA methylation) and target (target gene)}
 
 \item{dnam}{DNA methylation matrix or SummarizedExperiment object
@@ -54,14 +54,14 @@ exp <- dnam
 rownames(exp) <- c("ENSG00000232886")
 colnames(exp) <- paste0("Samples",1:20)
 
-links <- data.frame(
+pair.dnam.target <- data.frame(
    "regionID" =  c("chr3:203727581-203728580"),
    "target" = "ENSG00000232886"
 )
 
 # Correlated DNAm and gene expression, display only significant associations
 results.cor.pos <- cor_dnam_target_gene(
-   links = links,
+   pair.dnam.target = pair.dnam.target,
    dnam = dnam,
    exp = exp,
    filter.results = TRUE,

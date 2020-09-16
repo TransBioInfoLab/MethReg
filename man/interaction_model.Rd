@@ -32,7 +32,7 @@ rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 \item{cores}{Number of CPU cores to be used. Default 1.}
 
 \item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
-to be used in linear models instead of TF gene expression.}
+to be used in linear models instead of TF gene expression. See \code{\link{get_tf_ES}}.}
 
 \item{sig.threshold}{Threshold to filter significant triplets.
 Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model}

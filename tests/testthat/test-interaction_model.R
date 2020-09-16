@@ -41,7 +41,6 @@ test_that("interaction_model handles 0 cases in more than 25% of samples with ze
     )
 
     expect_equal(results$Model.quantile, "Zero-inflated Negative Binomial Model")
-    expect_equal(results$Model.interaction, "Zero-inflated Negative Binomial Model")
     expect_true("regionID" %in% colnames(results))
     expect_true("TF" %in% colnames(results))
     expect_true("target" %in% colnames(results))
@@ -92,7 +91,6 @@ test_that("interaction_model performs rlm if no 0", {
         fdr = FALSE
     )
 
-    expect_equal(results$Model.interaction, "Robust Linear Model")
     expect_equal(results$Model.quantile, "Robust Linear Model")
     expect_true("regionID" %in% colnames(results))
     expect_true("TF" %in% colnames(results))

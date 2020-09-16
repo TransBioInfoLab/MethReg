@@ -21,15 +21,12 @@
 #' \link[dorothea]{dorothea_hs} will be used.
 #' @return A data frame with TF, target and RegionID information.
 #' @examples
-#' \dontrun{
-#' data("dna.met.chr21")
-#' dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
 #' triplet <- create_triplet_regulon_based(
-#'    region = rownames(dnam.regions)[1:100],
+#'    region = c("chr1:69591-69592", "chr1:898803-898804"),
 #'    motif.search.window.size = 50,
-#'    regulons.min.confidence = "B"
+#'    regulons.min.confidence = "B",
+#'      motif.search.p.cutoff = 0.05
 #' )
-#' }
 #' @importFrom SummarizedExperiment rowRanges
 #' @export
 create_triplet_regulon_based <- function(
@@ -42,8 +39,8 @@ create_triplet_regulon_based <- function(
     tf.target
 ){
 
-    min.confidence <- match.arg(
-        arg = min.confidence,
+    regulons.min.confidence <- match.arg(
+        arg = regulons.min.confidence,
         choices =   c("A", "B", "C", "D", "E")
     )
 
@@ -86,6 +83,10 @@ create_triplet_regulon_based <- function(
         cores = cores
     )
     triplet <- dplyr::inner_join(tf.target, region.tf)
+
+    if(nrow(triplet) == 0){
+        stop("No triplets found")
+    }
 
     triplet <- get_distance_region_target(triplet)
 

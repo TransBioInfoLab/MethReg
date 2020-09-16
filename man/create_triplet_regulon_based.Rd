@@ -45,13 +45,10 @@ This function wraps two other functions
 \code{get_region_target_gene} and \code{get_tf_in_region} from the package.
 }
 \examples{
-\dontrun{
-data("dna.met.chr21")
-dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
 triplet <- create_triplet_regulon_based(
-   region = rownames(dnam.regions)[1:100],
+   region = c("chr1:69591-69592", "chr1:898803-898804"),
    motif.search.window.size = 50,
-   regulons.min.confidence = "B"
+   regulons.min.confidence = "B",
+     motif.search.p.cutoff = 0.05
 )
-}
 }

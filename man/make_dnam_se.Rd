@@ -33,6 +33,7 @@ genomic regions
 Transform DNA methylation array into a summarized Experiment object
 }
 \examples{
+library(dplyr)
 dnam <- runif(20, min = 0,max = 1) \%>\% sort \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(dnam) <- c("chr3:203727581-203728580")

@@ -387,12 +387,12 @@ get_histogram_plot_results <- function(
     xlab
 ){
 
-    df <- na.omit(df)
+    df <- df[!is.na(df[[facet.by]]),]
     df[[facet.by]] <-  ifelse(grepl("low",df[[facet.by]]),"DNAm.low","DNAm.high")
 
     suppressWarnings({
         p <- ggpubr::gghistogram(
-            na.omit(df),
+            df,
             x = x,
             add = "mean",
             rug = TRUE,
@@ -418,7 +418,7 @@ get_box_plot_results <- function(
     ylab
 ){
 
-    df <- na.omit(df)
+    df <- df[!is.na(df[[facet.by]]),]
     df[[facet.by]] <- factor(
         ifelse(grepl("low",df[[facet.by]]),"DNAm.low","DNAm.high"),
         levels = c("DNAm.low","DNAm.high")
@@ -426,7 +426,7 @@ get_box_plot_results <- function(
 
     suppressWarnings({
         p <- ggpubr::ggboxplot(
-            data = na.omit(df),
+            data = df,
             x = facet.by,
             y = y,
             add = "jitter",

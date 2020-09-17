@@ -108,6 +108,6 @@ get_promoter_avg <- function(
             promoter.matrix <-  rbind(promoter.matrix, non.unique.promoter)
         }
     }
-    se <- promoter.matrix %>% as.matrix %>% make_se_from_dnam_regions()
+    se <- promoter.matrix %>% as.matrix %>% make_dnam_se()
     return(se)
 }

@@ -138,11 +138,11 @@ dna.met.chr21[1:5,1:5]
 ```
 
 We will first create a SummarizedExperiment object with the function
-`make_se_from_dnam_probes`. This function will use the Sesame package 
+`make_dnam_se`. This function will use the Sesame package 
 to map the array probes into genomic regions.
 
 ```{R}
-dna.met.chr21.se <- make_se_from_dnam_probes(
+dna.met.chr21.se <- make_dnam_se(
   dnam = dna.met.chr21,
   genome = "hg38",
   arrayType = "450k"
@@ -187,7 +187,7 @@ We will also create a SummarizedExperiment object for the gene expression data.
 This object will contain the genomic information for each gene.
 
 ```{R}
-gene.exp.chr21.se <- make_se_from_gene_matrix(gene.exp.chr21.log2)
+gene.exp.chr21.se <- make_exp_se(gene.exp.chr21.log2)
 gene.exp.chr21.se
 SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 ```

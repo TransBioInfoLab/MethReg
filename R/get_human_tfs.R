@@ -42,3 +42,77 @@ get_lambert_tf <- function(
     }
     ans
 }
+
+
+
+#' @title Access to TF target gene from DMTDB
+#' @description Access DMTD for all cancer from
+#' http://bio-bigdata.hrbmu.edu.cn/DMTDB/download.jsp
+#' and filter TF and target gene for a given cancer.
+#' @param cancer A TCGA cancer identifier
+#' @noRd
+get_DMTD_target_tf <- function(
+    cancer = c(
+        "BLCA",
+        "BRCA",
+        "CESC",
+        "COAD",
+        "ESCA",
+        "HNSC",
+        "KIRC",
+        "KIRP",
+        "LGG",
+        "LIHC",
+        "LUAD",
+        "LUSC",
+        "OV",
+        "PAAD",
+        "PCPG",
+        "PRAD",
+        "SARC",
+        "SKCM",
+        "STAD",
+        "TGCT",
+        "THCA",
+        "UCEC"
+    )
+){
+
+    cancer <- match.arg(cancer)
+    database <- get_DMTD() %>% readr::read_tsv() %>% filter(.data$Cancer == cancer)
+    return(database)
+}
+
+
+#' @title Download supplemental file from Lambert et al 2018
+#' @description Download supplemental file from Lambert et al 2018 (PMID: 29425488)
+#' @param bfc A BiocFileCache instance
+#' @return A named vector with the url for the local file
+#' @examples
+#' if (interactive()) file.url <- get_lambert_tf()
+#' @noRd
+get_DMTD <- function(
+    bfc = BiocFileCache::BiocFileCache(ask = FALSE)
+) {
+
+    check_package("BiocFileCache")
+    url.root <- "http://bio-bigdata.hrbmu.edu.cn/DMTDB/download_loading.jsp"
+    url.options <- "?path=download/DMTD_V2/all.txt&name=All_DMTD_V2.txt"
+    url <- paste0(url.root, url.options)
+
+    # check if url is being tracked
+    res <- BiocFileCache::bfcquery(bfc, url)
+
+    if (BiocFileCache::bfccount(res) == 0L) {
+        # if it is not in cache, add
+        ans <- BiocFileCache::bfcadd(bfc, rname = "DMTD_V2", fpath = url)
+    } else {
+        # if it is in cache, get path to load
+        ans <- BiocFileCache::bfcrpath(bfc, rnames = "DMTD_V2")
+    }
+    ans
+}
+
+
+
+

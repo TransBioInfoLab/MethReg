@@ -37,14 +37,6 @@
 #'    motif.search.window.size = 500,
 #'    target.method = "closest.gene"
 #' )
-#' \dontrun{
-#' data("dna.met.chr21")
-#' dnam.regions <- make_se_from_dnam_probes(dna.met.chr21)
-#' triplet <- create_triplet_distance_based(
-#'    region = rownames(dnam.regions)[1:100],
-#'    motif.search.window.size = 50
-#' )
-#' }
 #' @export
 create_triplet_distance_based <- function(
     region,

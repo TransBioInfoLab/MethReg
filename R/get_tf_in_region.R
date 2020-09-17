@@ -27,15 +27,6 @@
 #'                  region = regions.names,
 #'                  genome = "hg38"
 #'  )
-#' \dontrun{
-#'  regions.names <- c("chr1:79592-79592","chr4:43162198-43162198")
-#'  regions.gr <- make_granges_from_names(regions.names)
-#'  region.tf <- get_tf_in_region(
-#'                  region = regions.gr,
-#'                  window.size = 25,
-#'                  genome = "hg38"
-#'  )
-#' }
 #' @export
 get_tf_in_region <- function(
     region,

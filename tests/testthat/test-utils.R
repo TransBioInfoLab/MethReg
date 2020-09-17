@@ -45,9 +45,12 @@ test_that("get_gene_information returns Granges or dataframes", {
 })
 
 
-test_that("make_se_from_dnam_probes returns a SE with regions", {
-    dna.met.chr21 <- get(data("dna.met.chr21"))
-    se <- make_se_from_dnam_probes(dna.met.chr21)
+test_that("make_dnam_se returns a SE with regions", {
+    dnam <- runif(20, min = 0,max = 1) %>% sort %>%
+        matrix(ncol = 1) %>%  t
+    rownames(dnam) <- c("cg25518092")
+    se <- make_dnam_se(dna.met.chr21)
+
     expect_s4_class(se,"SummarizedExperiment")
     expect_true(is(se,"SummarizedExperiment"))
     expect_true(all(grepl("chr21",rownames(se))))
@@ -55,8 +58,11 @@ test_that("make_se_from_dnam_probes returns a SE with regions", {
 
 test_that("make_se_from_dnam_regions returns a SE with regions", {
     dna.met.chr21 <- get(data("dna.met.chr21"))
-    dna.met.chr21.regions <- map_probes_to_regions(dna.met.chr21)
-    se <- make_se_from_dnam_regions(dna.met.chr21.regions)
+    dnam <- runif(20, min = 0,max = 1) %>% sort %>%
+        matrix(ncol = 1) %>%  t
+    rownames(dnam) <- c("chr21:203727581-203728580")
+    colnames(dnam) <- paste0("Samples",1:20)
+    se <- make_dnam_se(dnam)
     expect_s4_class(se,"SummarizedExperiment")
     expect_true(is(se,"SummarizedExperiment"))
     expect_true(all(grepl("chr21",rownames(se))))
@@ -64,7 +70,7 @@ test_that("make_se_from_dnam_regions returns a SE with regions", {
 
 test_that("make_se_from_dnam_regions returns a SE with ENSG as rownames", {
     gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
-    se <- make_se_from_gene_matrix(gene.exp.chr21.log2)
+    se <- make_exp_se(gene.exp.chr21.log2)
     expect_s4_class(se,"SummarizedExperiment")
     expect_true(is(se,"SummarizedExperiment"))
     expect_true(all(grepl("ENSG",rownames(se))))

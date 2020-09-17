@@ -57,7 +57,7 @@ map_probes_to_regions <- function(
 
     probe.info <- get_met_probes_info(genome, arrayType)
 
-    if(rm.masked.probes){
+    if (rm.masked.probes) {
         # Remove probes that should be masked
         probe.info <- probe.info[!probe.info$MASK_general,]
         # Keep non-masked probes
@@ -268,7 +268,7 @@ register_cores <- function(cores){
     check_package("doParallel")
 
     parallel <- FALSE
-    if (cores > 1){
+    if (cores > 1) {
         if (cores > parallel::detectCores()) cores <- parallel::detectCores()
         doParallel::registerDoParallel(cores)
         parallel = TRUE
@@ -344,7 +344,7 @@ get_promoter_regions <- function(
 
 #' @title Transform DNA methylation array into a summarized Experiment object
 #' @param dnam DNA methylation matrix with beta-values or m-values as data,
-#' row as cpgs and column as samples
+#' row as cpgs "cg07946458" or regions ("chr1:232:245") and column as samples
 #' @param genome Human genome of reference: hg38 or hg19
 #' @param arrayType DNA methylation array type (450k or EPIC)
 #' @param betaToM indicates if converting methylation beta values to mvalues
@@ -352,15 +352,17 @@ get_promoter_regions <- function(
 #' messages output should be provided.
 #' @export
 #' @examples
-#' \dontrun{
-#'   dna.met.chr21 <- get(data("dna.met.chr21"))
-#'   se <- make_se_from_dnam_probes(dna.met.chr21)
-#' }
+#' dnam <- runif(20, min = 0,max = 1) %>% sort %>%
+#'   matrix(ncol = 1) %>%  t
+#' rownames(dnam) <- c("chr3:203727581-203728580")
+#' colnames(dnam) <- paste0("Samples",1:20)
+#'  se <- make_dnam_se(dnam)
+#'
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @return A summarized Experiment object with DNA methylation probes mapped to
 #' genomic regions
-make_se_from_dnam_probes <- function (
+make_dnam_se <- function(
     dnam,
     genome = c("hg38","hg19"),
     arrayType = c("450k","EPIC"),
@@ -376,29 +378,34 @@ make_se_from_dnam_probes <- function (
     verbose && message("o Creating a SummarizedExperiment from DNA methylation input")
 
     # Get probes annotation
-    verbose && message("oo Fetching probes metadata")
-    annotation <- get_met_probes_info(genome = genome, arrayType = arrayType)
-    strand(annotation) <- "*" # don't add strand info for CpGs
+    # Prepare all data matrices
+    if (any(grepl("chr", dnam %>% rownames()))) {
+        rowRanges <- dnam %>% rownames() %>% make_granges_from_names()
+        colData <- S4Vectors::DataFrame(samples = colnames(dnam))
+    } else {
+        verbose && message("oo Fetching probes metadata")
+        annotation <- get_met_probes_info(genome = genome, arrayType = arrayType)
+        strand(annotation) <- "*" # don't add strand info for CpGs
 
-    # Keep only annotation with information in the methylation array
-    rowRanges <- annotation[names(annotation) %in% rownames(dnam),, drop = FALSE]
-    if(length(rowRanges) == 0){
-        message("We were not able to map the rownames to cpgs probes identifiers. Please, check your input.")
-        return(NULL)
+        # Keep only annotation with information in the methylation array
+        rowRanges <- annotation[names(annotation) %in% rownames(dnam),, drop = FALSE]
+        if (length(rowRanges) == 0) {
+            message("We were not able to map the rownames to cpgs probes identifiers. Please, check your input.")
+            return(NULL)
+        }
+
+        # remove masked probes
+        verbose && message("oo Removing masked probes")
+        rowRanges <- rowRanges[!rowRanges$MASK_general]
+        # rowRanges <- rowRanges[grep("cg",names(rowRanges))] # remove rs probes
+        dnam <- dnam[rownames(dnam) %in% names(rowRanges), , drop = FALSE]
+        dnam <- dnam[names(rowRanges), , drop = FALSE]
     }
-
-    # remove masked probes
-    verbose && message("oo Removing masked probes")
-    rowRanges <- rowRanges[!rowRanges$MASK_general]
-    # rowRanges <- rowRanges[grep("cg",names(rowRanges))] # remove rs probes
-
     # Prepare all data matrices
     colData <- S4Vectors::DataFrame(samples = colnames(dnam))
-    dnam <- dnam[rownames(dnam) %in% names(rowRanges), , drop = FALSE]
-    dnam <- dnam[names(rowRanges), , drop = FALSE]
     assay <- data.matrix(dnam)
 
-    if (betaToM){
+    if (betaToM) {
         ### Compute M values
         assay <- log2(assay / (1 - assay))
     }
@@ -422,52 +429,6 @@ make_se_from_dnam_probes <- function (
     return(se)
 }
 
-
-#' @title Transform DNA methylation array into a summarized Experiment object
-#' @param dnam DNA methylation matrix with beta-values or m-values as data,
-#' row as genomic regions and column as samples
-#' @param betaToM indicates if converting methylation beta values to mvalues
-#' @param verbose A logical argument indicating if
-#' messages output should be provided.
-#' @export
-#' @examples
-#' \dontrun{
-#'   dna.met.chr21 <- get(data("dna.met.chr21"))
-#'   dna.met.chr21.regions <- MethReg:::map_probes_to_regions(dna.met.chr21)
-#'   dnam.se <- make_se_from_dnam_regions(dna.met.chr21.regions)
-#' }
-#' @return A summarized Experiment object
-make_se_from_dnam_regions <- function(
-    dnam,
-    betaToM = FALSE,
-    verbose = FALSE
-) {
-
-    check_package("SummarizedExperiment")
-    check_package("S4Vectors")
-
-    verbose && message("o Creating a SummarizedExperiment from DNA methylation input")
-
-    # Prepare all data matrices
-    rowRanges <- dnam %>% rownames() %>% make_granges_from_names()
-    colData <- S4Vectors::DataFrame(samples = colnames(dnam))
-    assay <- data.matrix(dnam)
-
-    if (betaToM){
-        ### Compute M values
-        assay <- log2(assay / (1 - assay))
-    }
-
-    # Create SummarizedExperiment
-    verbose && message("oo Preparing SummarizedExperiment object")
-    se <- SummarizedExperiment::SummarizedExperiment(
-        assays = assay,
-        rowRanges = rowRanges,
-        colData = colData
-    )
-    return(se)
-}
-
 #' @title Transform gene expression matrix into a Summarized Experiment object
 #' @param exp Gene expression matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
@@ -477,9 +438,9 @@ make_se_from_dnam_regions <- function(
 #' @export
 #' @examples
 #' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
-#' gene.exp.chr21.log2.se <- make_se_from_gene_matrix(gene.exp.chr21.log2)
+#' gene.exp.chr21.log2.se <- make_exp_se(gene.exp.chr21.log2)
 #' @return A summarized Experiment object
-make_se_from_gene_matrix <- function (
+make_exp_se <- function(
     exp,
     genome = c("hg38","hg19"),
     verbose = FALSE
@@ -540,52 +501,4 @@ get_distance_region_target <- function(
     )
     return(region.target)
 }
-
-
-#' @title Access to TF target gene from DMTDB
-#' @description Access DMTD for all cancer from
-#' http://bio-bigdata.hrbmu.edu.cn/DMTDB/download.jsp
-#' and filter TF and target gene for a given cancer.
-#' @param cancer A TCGA cancer identifier
-#' @noRd
-get_DMTD_target_tf <- function(
-    cancer = c(
-        "BLCA",
-        "BRCA",
-        "CESC",
-        "COAD",
-        "ESCA",
-        "HNSC",
-        "KIRC",
-        "KIRP",
-        "LGG",
-        "LIHC",
-        "LUAD",
-        "LUSC",
-        "OV",
-        "PAAD",
-        "PCPG",
-        "PRAD",
-        "SARC",
-        "SKCM",
-        "STAD",
-        "TGCT",
-        "THCA",
-        "UCEC"
-    )
-){
-
-    cancer <- match.arg(cancer)
-    url.root <- "http://bio-bigdata.hrbmu.edu.cn/DMTDB/download_loading.jsp"
-    url.options <- "?path=download/DMTD_V2/all.txt&name=All_DMTD_V2.txt"
-    url <- paste0(url.root, url.options)
-
-    database <- readr::read_tsv(url)
-    database <- database %>% filter(.data$Cancer == cancer)
-    return(database)
-}
-
-
-
-
 

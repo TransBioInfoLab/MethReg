@@ -12,12 +12,12 @@
 #' @export
 #' @examples
 #' data("dna.met.chr21")
-#' dna.met.chr21.filtered <- filter_regions_by_quantile_difference(
+#' dna.met.chr21.filtered <- filter_dnam_by_quant_diff(
 #'   dna.met.chr21
 #' )
 #' @return
 #' A subset of the original matrix only with the rows passing the filter threshold.
-filter_regions_by_quantile_difference <- function(
+filter_dnam_by_quant_diff <- function(
     dnam,
     diff.mean.th = 0.2,
     cores = 1
@@ -92,13 +92,13 @@ calculate_mean_q4_minus_mean_q1 <- function(matrix, cores = 1){
 #' @export
 #' @examples
 #' data("gene.exp.chr21.log2")
-#' gene.exp.chr21.log2.filtered <- filter_genes_by_quantile_mean_fold_change(
+#' gene.exp.chr21.log2.filtered <- filter_exp_by_quant_mean_FC(
 #'   gene.exp.chr21.log2
 #' )
 #' @return
 #' A subset of the original matrix only with the rows passing
 #' the filter threshold.
-filter_genes_by_quantile_mean_fold_change <- function(
+filter_exp_by_quant_mean_FC <- function(
     exp,
     fold.change = 1.5,
     cores = 1

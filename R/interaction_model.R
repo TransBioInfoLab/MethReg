@@ -371,7 +371,7 @@ interaction_model_output <- function(
                        "Zero-inflated Negative Binomial Model",
                        "Robust Linear Model"
                 ),
-            "Wilcoxon_target_q4met_vs_q1met" = wilcoxon.target.q4met.vs.q1met,
+            "Wilcoxon_pval_target_q4met_vs_q1met" = wilcoxon.target.q4met.vs.q1met,
             "Wilcoxon_pval_tf_q4met_vs_q1met" = wilcoxon.tf.q4met.vs.q1met
         ),
         #"% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),

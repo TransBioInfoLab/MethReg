@@ -86,6 +86,7 @@ plot_interaction_model <-  function(
     if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
 
     check_data(dnam, exp, metadata)
+    triplet.results <- triplet.results %>% as.data.frame()
 
     out <- plyr::alply(
         .data = triplet.results,
@@ -100,12 +101,19 @@ plot_interaction_model <-  function(
                 tf.es =  tf.activity.es
             )
 
-            row.triplet <- cbind(
-                row.triplet,
-                stratified_model_results(
+            if(!any(grepl("DNAmlow_pval", colnames(row.triplet)))){
+                stratified.results <-stratified_model_results(
                     df
                 )
-            )
+                if(!is.null(tf.activity.es)){
+                    colnames(stratified.results)[1:4] <- gsub("rna","es",colnames(stratified.results)[1:4])
+                }
+
+                row.triplet <- cbind(
+                    row.triplet,
+                    stratified.results
+                )
+            }
 
             color <- NULL
             if (!missing(metadata)) {

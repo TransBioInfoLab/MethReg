@@ -23,7 +23,8 @@ SummarizedExperiment object (rowRanges will be used)}
 
 \item{method}{How genes are mapped to regions: region overlapping gene
 promoter ("genes.promoter.overlap"); or
-genes within a window around the region ("window"); or a fixed number genes upstream
+genes within a window around the region ("window");
+or a fixed number genes upstream
 and downstream of the region ("nearby.genes");
 or closest gene to the region ("closest.gene")}
 
@@ -64,9 +65,11 @@ For the analysis of probes in promoter regions (promoter analysis),
  \code{method = "genes.promoter.overlap"}.
 
  For the analysis of probes in distal regions (distal analysis),
- we recommend setting either \code{method = "window"} or \code{method = "nearby.genes"}.
+ we recommend setting either \code{method = "window"}
+ or \code{method = "nearby.genes"}.
 
- Note that because \code{method = "window"} or \code{method = "nearby.genes"} are
+ Note that because \code{method = "window"} or
+ \code{method = "nearby.genes"} are
  mainly used for analyzing distal probes,
  by default \code{rm.promoter.regions.from.distal.linking = TRUE} to
  remove probes in promoter regions.

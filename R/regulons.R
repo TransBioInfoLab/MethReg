@@ -1,4 +1,3 @@
-
 #' @title Calculate enrichment scores for each TF across all samples using
 #' \code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
 #' @param exp Gene expression matrix with gene expression counts,

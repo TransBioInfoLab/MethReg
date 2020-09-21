@@ -228,12 +228,6 @@ interaction_model <- function(
                 )$p.value
             })
 
-            #if (pct.zeros.in.samples > 0.25) {
-            #    itx.all <- interaction_model_zeroinfl(data)
-            #} else {
-            #    itx.all <- interaction_model_rlm(data)
-            #}
-
             pct.zeros.in.quant.samples <- sum(
                 data.high.low$rna.target == 0,
                 na.rm = TRUE) / nrow(data.high.low)
@@ -246,8 +240,6 @@ interaction_model <- function(
 
             # Create output
             interaction_model_output(
-                # itx.all,
-                #pct.zeros.in.samples,
                 quant.diff,
                 itx.quant,
                 pct.zeros.in.quant.samples,
@@ -355,14 +347,6 @@ interaction_model_output <- function(
     if (is.null(itx.quant)) itx.quant <- interaction_quant_model_no_results()
 
     cbind(
-        # itx.all,
-        # data.frame(
-        #     "Model interaction" =
-        #        ifelse(pct.zeros.in.samples > 0.25,
-        #               "Zero-inflated Negative Binomial Model",
-        #               "Robust Linear Model"
-        #        )
-        # ),
         quant.diff,
         itx.quant,
         data.frame(
@@ -374,7 +358,6 @@ interaction_model_output <- function(
             "Wilcoxon_pval_target_q4met_vs_q1met" = wilcoxon.target.q4met.vs.q1met,
             "Wilcoxon_pval_tf_q4met_vs_q1met" = wilcoxon.tf.q4met.vs.q1met
         ),
-        #"% 0 target genes (All samples)" = paste0(round(pct.zeros.in.samples * 100,digits = 2)," %"),
         "% of 0 target genes (Q1 and Q4)" = paste0(round(pct.zeros.in.quant.samples * 100,digits = 2)," %")
     )
 }
@@ -413,7 +396,6 @@ interaction_model_rlm <- function(data){
     degrees.freedom.value <- nrow(data) - 4
     rlm.bisquare$pval <- 2 * (1 - pt( abs(rlm.bisquare$t.value), df = degrees.freedom.value) )
 
-    #mod1 <- lm("rna ~ met + tf + met * tf", data = df)
     all.pval <- rlm.bisquare[-1,4,drop = FALSE] %>% t %>% as.data.frame()
     colnames(all.pval) <- paste0("pval_",colnames(all.pval))
 

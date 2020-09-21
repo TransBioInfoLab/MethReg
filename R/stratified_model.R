@@ -191,7 +191,12 @@ stratified_model_results <- function(data){
     results.high.pval <- results.high$pval
     results.high.estimate <- results.high$estimate
 
-    classification <- getClassification(results.low.estimate, results.high.estimate)
+    classification <- get_tf_dnam_classification(
+        low.estimate = results.low.estimate,
+        low.pval = results.low.pval,
+        high.estimate = results.high.estimate,
+        high.pval = results.high.pval
+    )
 
     tibble::tibble(
         "DNAmlow_pval_rna.tf" = results.low.pval %>% as.numeric(),
@@ -280,33 +285,111 @@ stratified_model_aux_no_results <- function(pct.zeros.samples){
 
 }
 
-getClassification <- function(low.estimate, high.estimate){
+#' @title TF and DNAm roles classifier
+#' @description
+#' This function receives the pvalue and estimate
+#' for the following linear models:
+#' 1) Target ~ TF for  DNAm low  (Q1)
+#' 2) Target ~ TF for  DNAm high (Q4)
+#' Then it will classify the TF (TF.role) as:
+#' - Repressor (Increase of TF decreases Target)
+#' - Activator (Increase of TF increases Target)
+#' - Invert (Increase of TF decreases Target for Q1 and
+#' Increase of TF increases Target for Q1; or
+#' Increase of TF decreases Target for Q4
+#' )
+#' And classify the DNA methylation effect (dnam.effect) as:
+#' - Attenuating (Attenuates TF activity - Estimate Q4 < Estimate Q1)
+#' - Enhancing (Enhances TF activity - Estimate Q4 > Estimate Q1)
+#' @noRd
+#' @examples
+#' get_tf_dnam_classification(
+#'   low.estimate = 0.2, low.pval = 0.05,
+#'   high.estimate = 0.8, high.pval = 0.05
+#' )
+#' get_tf_dnam_classification(
+#'   low.estimate = 0.8, low.pval = 0.05,
+#'   high.estimate = 0.2, high.pval = 0.05
+#' )
+#' get_tf_dnam_classification(
+#'   low.estimate = -0.8, low.pval = 0.05,
+#'   high.estimate = -0.2, high.pval = 0.05
+#' )
+#' get_tf_dnam_classification(
+#'   low.estimate = -0.2, low.pval = 0.05,
+#'   high.estimate = -0.8, high.pval = 0.05
+#' )
+#' get_tf_dnam_classification(
+#'   low.estimate = -0.8, low.pval = 0.05,
+#'   high.estimate = 0.8, high.pval = 0.05
+#' )
+#' get_tf_dnam_classification(
+#'   low.estimate = 0.8, low.pval = 0.05,
+#'   high.estimate = -0.8, high.pval = 0.05
+#' )
+#' get_tf_dnam_classification(
+#'   low.estimate = 0.8, low.pval = 1,
+#'   high.estimate = -0.2, high.pval = 1
+#' )
+#' get_tf_dnam_classification(
+#'   low.estimate = 0.8, low.pval = 1,
+#'   high.estimate = 0.2, high.pval = 0.05
+#' )
+get_tf_dnam_classification <- function(
+    low.estimate,
+    low.pval,
+    high.estimate,
+    high.pval
+){
 
+    # output
+    classification <- list("DNAm.effect" = NA, "TF.role" = NA)
+
+    pval.vct <- c(low.pval %>% as.numeric, high.pval %>% as.numeric)
+    pval.sig <- pval.vct <= 0.05
     estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
 
     if (any(is.na(estimate.vector))) {
-        return(list("DNAm.effect" = NA,"TF.role" = NA))
+        return(classification)
     }
 
-    slope_estimate <- estimate.vector[which.max(abs(estimate.vector))]
-    TF.role <- ifelse(slope_estimate > 0, "Activator", "Repressor")
+    # All estimates are not significant
+    if (!any(pval.sig)) {
+        return(classification)
+    }
 
-    if (TF.role == "Repressor") {
 
-        if (low.estimate < high.estimate) {
-            dnam.effect <- "Attenuating"
-        } else {
-            dnam.effect <- "Enhancing"
-        }
-
+    # TF role classification
+    # Activator
+    # Repressor
+    if (all(estimate.vector[pval.sig] > 0)) {
+        classification$TF.role <- "Activator"
+    } else if (all(estimate.vector[pval.sig] < 0)) {
+        classification$TF.role <- "Repressor"
     } else {
+        # One is + and the other -
+        classification$TF.role <- "Dual"
+    }
+
+    if (classification$TF.role == "Repressor") {
 
         if (low.estimate < high.estimate) {
-            dnam.effect <- "Enhancing"
-        } else {
-            dnam.effect <- "Attenuating"
+            classification$DNAm.effect <- "Attenuating"
+        } else if (low.estimate > high.estimate) {
+            classification$DNAm.effect <- "Enhancing"
         }
+
+    } else if (classification$TF.role == "Activator") {
+
+        if (low.estimate < high.estimate) {
+            classification$DNAm.effect <- "Enhancing"
+        } else if (low.estimate > high.estimate) {
+            classification$DNAm.effect <- "Attenuating"
+        }
+    } else if (classification$TF.role == "Dual") {
+        classification$DNAm.effect <- "Invert"
     }
-    return(list("DNAm.effect" = dnam.effect,"TF.role" = TF.role))
+
+    return(classification)
 }
 

@@ -15,7 +15,8 @@ filter_dnam_by_quant_diff(dnam, diff.mean.th = 0.2, cores = 1)
 \item{cores}{Number of CPU cores to be used in the analysis. Default: 1}
 }
 \value{
-A subset of the original matrix only with the rows passing the filter threshold.
+A subset of the original matrix only with the
+rows passing the filter threshold.
 }
 \description{
 For each region, compares the mean DNA methylation (DNAm) levels

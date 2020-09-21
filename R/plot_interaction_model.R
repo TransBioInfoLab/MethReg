@@ -518,7 +518,7 @@ get_scatter_plot_results <- function(
         p <- p + ggplot2::annotate(
             geom = "text",
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.4, na.rm = TRUE),
+            y = max(df[[y]] * 1.6, na.rm = TRUE),
             hjust = 0,
             vjust = 1,
             color = 'blue',
@@ -533,7 +533,7 @@ get_scatter_plot_results <- function(
 
         ann_text.low <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.4, na.rm = TRUE),
+            y = max(df[[y]] * 1.6, na.rm = TRUE),
             facet.by = factor(grep("low",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.low) <- c(x,y,facet.by)
@@ -553,7 +553,7 @@ get_scatter_plot_results <- function(
         rlm.res.high <- get_rlm_val_pval(df %>% dplyr::filter(grepl("high",df[[facet.by]])), x , y)
         ann_text.high <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.4, na.rm = TRUE),
+            y = max(df[[y]] * 1.6, na.rm = TRUE),
             facet.by = factor(grep("high",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.high) <- c(x,y,facet.by)

@@ -22,8 +22,9 @@ regions (i.e "chr21:100002-1004000")}
 
 \item{genome}{Human genome reference "hg38" or "hg19"}
 
-\item{regulons.min.confidence}{Minimun confidence score  ("A", "B","C","D", "E")
-classifying regulons based on their quality from Human DoRothEA database
+\item{regulons.min.confidence}{Minimun confidence score
+("A", "B","C","D", "E") classifying regulons based on
+their quality from Human DoRothEA database
  \link[dorothea]{dorothea_hs}. The default minimun confidence score is "B".}
 
 \item{motif.search.window.size}{Integer value to extend the regions.

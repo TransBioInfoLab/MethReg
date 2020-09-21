@@ -16,7 +16,8 @@
 #'   dna.met.chr21
 #' )
 #' @return
-#' A subset of the original matrix only with the rows passing the filter threshold.
+#' A subset of the original matrix only with the
+#' rows passing the filter threshold.
 filter_dnam_by_quant_diff <- function(
     dnam,
     diff.mean.th = 0.2,
@@ -42,7 +43,12 @@ filter_dnam_by_quant_diff <- function(
     tab$Status[which(tab$Status == TRUE)] <- "Regions above threshold"
     print(tab)
 
-    diff.regions <- c(diff.mean %>% filter(diff.mean > diff.mean.th) %>% pull(.data$ID) %>% as.character())
+    diff.regions <- c(
+        diff.mean %>%
+            filter(diff.mean > diff.mean.th) %>%
+            pull(.data$ID) %>%
+            as.character()
+    )
     dnam[diff.regions,,drop = FALSE]
 }
 

@@ -10,7 +10,8 @@
 #' @param genome Human genome of reference "hg38" or "hg19"
 #' @param method How genes are mapped to regions: region overlapping gene
 #' promoter ("genes.promoter.overlap"); or
-#' genes within a window around the region ("window"); or a fixed number genes upstream
+#' genes within a window around the region ("window");
+#' or a fixed number genes upstream
 #' and downstream of the region ("nearby.genes");
 #' or closest gene to the region ("closest.gene")
 #' @param window.size When \code{method = "window"}, number of base pairs
@@ -73,9 +74,11 @@
 #'  \code{method = "genes.promoter.overlap"}.
 #'
 #'  For the analysis of probes in distal regions (distal analysis),
-#'  we recommend setting either \code{method = "window"} or \code{method = "nearby.genes"}.
+#'  we recommend setting either \code{method = "window"}
+#'  or \code{method = "nearby.genes"}.
 #'
-#'  Note that because \code{method = "window"} or \code{method = "nearby.genes"} are
+#'  Note that because \code{method = "window"} or
+#'  \code{method = "nearby.genes"} are
 #'  mainly used for analyzing distal probes,
 #'  by default \code{rm.promoter.regions.from.distal.linking = TRUE} to
 #'  remove probes in promoter regions.
@@ -212,11 +215,13 @@ get_region_target_gene_by_promoter_overlap <- function(
 
     regions.gr <- regions.gr[queryHits(hits)]
     neargenes <- cbind(
-        neargenes[,c("seqnames",
-                     "start",
-                     "end",
-                     "external_gene_name",
-                     "ensembl_gene_id")]
+        neargenes[,c(
+            "seqnames",
+            "start",
+            "end",
+            "external_gene_name",
+            "ensembl_gene_id"
+        )]
     )
 
     colnames(neargenes)[1:3] <- c(
@@ -311,9 +316,15 @@ get_region_target_gene_nearby.genes <- function(
     )
 
     closest.genes <- tibble::tibble(
-        genes.gr[nearest.idx %>% subjectHits] %>% data.frame(), # nearest gene to the region
-        "ID" = names(regions.gr)[nearest.idx %>% queryHits], # region being evaluated
-        "Distance" = get_region_gene_distance(nearest.idx, regions.gr, genes.gr)
+        # nearest gene to the region
+        genes.gr[nearest.idx %>% subjectHits] %>% data.frame(),
+        # region being evaluated
+        "ID" = names(regions.gr)[nearest.idx %>% queryHits],
+        "Distance" = get_region_gene_distance(
+            idx = nearest.idx,
+            regions.gr = regions.gr,
+            geneAnnot = genes.gr
+        )
     )
 
     message("Identifying ",num.flanking.genes, " genes downstream to the region")
@@ -337,12 +348,12 @@ get_region_target_gene_nearby.genes <- function(
     ret <- rbind(closest.genes,precede.genes,follow.genes) %>% unique
     ret <- ret[order(ret$Distance),]
 
-    ret <- ret[,
-               c("ID",
-                 "ensembl_gene_id",
-                 grep("external_gene_", colnames(ret), value = TRUE),
-                 "Distance")
-               ]
+    ret <- ret[,c(
+        "ID",
+        "ensembl_gene_id",
+        grep("external_gene_", colnames(ret), value = TRUE),
+        "Distance"
+    )]
 
     message("Identifying gene position for each region")
     ret <- get_region_target_gene_nearby.genes_addPos(ret, num.flanking.genes)
@@ -420,10 +431,12 @@ get_region_target_gene_nearby.genes_aux <- function(
                 "ID" = names(regions.gr)[evaluating],
                 "Distance" = ifelse(
                     start(regions.gr[evaluating]) < start(genes.gr[idx$subjectHits]), 1,-1) *
-                    distance(regions.gr[evaluating],
-                             genes.gr[idx$subjectHits],
-                             select = "all",
-                             ignore.strand = TRUE)
+                    distance(
+                        regions.gr[evaluating],
+                        genes.gr[idx$subjectHits],
+                        select = "all",
+                        ignore.strand = TRUE
+                    )
             )
         )
         pb$tick()

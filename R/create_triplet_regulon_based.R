@@ -9,8 +9,9 @@
 #' @param region A Granges or a named vector with
 #' regions (i.e "chr21:100002-1004000")
 #' @param genome Human genome reference "hg38" or "hg19"
-#' @param regulons.min.confidence Minimun confidence score  ("A", "B","C","D", "E")
-#' classifying regulons based on their quality from Human DoRothEA database
+#' @param regulons.min.confidence Minimun confidence score
+#' ("A", "B","C","D", "E") classifying regulons based on
+#' their quality from Human DoRothEA database
 #'  \link[dorothea]{dorothea_hs}. The default minimun confidence score is "B".
 #' @param motif.search.window.size Integer value to extend the regions.
 #' For example, a value of 50 will
@@ -59,7 +60,9 @@ create_triplet_regulon_based <- function(
 
     message("Mapping target and TF genes")
     if(missing(tf.target)){
-        tf.target <- get_regulon_dorothea(min.confidence = regulons.min.confidence)
+        tf.target <- get_regulon_dorothea(
+            min.confidence = regulons.min.confidence
+        )
     } else {
         # check regulons input data
         cols <- c("tf", "target")

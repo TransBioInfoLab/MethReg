@@ -3,10 +3,17 @@
 \name{stratified_model}
 \alias{stratified_model}
 \title{Fits linear models to triplet data (Target, TF, DNAm) for
-samples with high DNAm or low DNAm separately, and annotates TF (activator/repressor,
-methyl-plus/methyl-minus).}
+samples with high DNAm or low DNAm separately, and annotates TF
+(activator/repressor) and DNam effect over TF activity (attenuate, enhance).}
 \usage{
-stratified_model(triplet, dnam, exp, cores = 1, tf.activity.es = NULL)
+stratified_model(
+  triplet,
+  dnam,
+  exp,
+  cores = 1,
+  tf.activity.es = NULL,
+  tf.dnam.classifier.pval.thld = 0.001
+)
 }
 \arguments{
 \item{triplet}{Data frame with columns for
@@ -21,14 +28,23 @@ rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 
-\item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
+\item{tf.activity.es}{A matrix with normalized enrichment scores
+for each TF across all samples
 to be used in linear models instead of TF gene expression.}
+
+\item{tf.dnam.classifier.pval.thld}{P-value threshold to consider
+a linear model significant
+of not. Default 0.001. This will be used to classify the TF role and DNAm
+effect.}
 }
 \value{
-A dataframe with \code{Region, TF, target, TF_symbol target_symbol}, results for
-fitting linear models to samples with low methylation (\code{DNAmlow_pval_rna.tf},
-\code{DNAmlow_estimate_rna.tf}), or samples with high methylation (\code{DNAmhigh_pval_rna.tf},
-\code{DNAmhigh_pval_rna.tf.1}), annotations for TF (\code{class.TF}) and (\code{class.TF.DNAm}).
+A dataframe with \code{Region, TF, target, TF_symbol target_symbol},
+results for
+fitting linear models to samples with low methylation
+ (\code{DNAmlow_pval_rna.tf}, \code{DNAmlow_estimate_rna.tf}),
+ or samples with high methylation (\code{DNAmhigh_pval_rna.tf},
+\code{DNAmhigh_pval_rna.tf.1}), annotations for TF (\code{class.TF})
+and (\code{class.TF.DNAm}).
 }
 \description{
 Should be used after fitting \code{interaction_model}, and only
@@ -40,37 +56,56 @@ samples with high DNAm or low DNAm values.
 This function fits linear model
 \code{log2(RNA target) = log2(TF)}
 
-to samples with highest DNAm values (top 25 percent) or lowest DNAm values (bottom 25 percent), separately.
+to samples with highest DNAm values (top 25 percent) or
+lowest DNAm values (bottom 25 percent), separately.
 
 There are two implementations of these models, depending on whether there are an excessive
 amount (i.e. more than 25 percent) of samples with zero counts in RNAseq data:
 
 \itemize{
 \item When percent of zeros in RNAseq data is less than
-25 percent, robust linear models are implemented using \code{rlm} function from \code{MASS} package. This
+25 percent, robust linear models are implemented using \code{rlm}
+function from \code{MASS} package. This
 gives outlier gene expression values reduced weight. We used \code{"psi.bisqure"}
 option in function \code{rlm} (bisquare weighting,
 https://stats.idre.ucla.edu/r/dae/robust-regression/).
 
-\item When percent of zeros in RNAseq data is more than 25 percent, zero inflated negative binomial models
+\item When percent of zeros in RNAseq data is more than 25 percent,
+zero inflated negative binomial models
 are implemented using \code{zeroinfl} function from \code{pscl} package. This assumes there are
 two processes that generated zeros (1) one where the counts are always zero
 (2) another where the count follows a negative binomial distribution.
 }
 
-To account for confounding effects from covariate variables, first use the \code{get_residuals} function to obtain
-RNA residual values which have covariate effects removed, then fit interaction model. Note that no
-log2 transformation is needed when \code{interaction_model} is applied to residuals data.
+To account for confounding effects from covariate variables,
+first use the \code{get_residuals} function to obtain
+RNA residual values which have covariate effects removed,
+then fit interaction model. Note that no
+log2 transformation is needed when \code{interaction_model}
+is applied to residuals data.
 
-This function also provides annotations for TFs. A TF is annotated as \code{activator} if
-increasing amount of TF (higher TF gene expression) corresponds to increased target gene expression. A TF
-is annotated as \code{repressor} if increasing amount of TF (higher TF gene expression) corresponds to
+This function also provides annotations for TFs. A TF is annotated as
+\code{activator} if
+increasing amount of TF (higher TF gene expression) corresponds to
+increased target gene expression. A TF
+is annotated as \code{repressor} if increasing amount of TF
+(higher TF gene expression) corresponds to
 decrease in target gene expression.
+A TF is annotated as \code{dual} if in the Q1 methylation group increasing
+amount of TF (higher TF gene expression) corresponds to
+increase in target gene expression, while in Q4 methylation group increasing
+amount of TF (higher TF gene expression) corresponds to
+decrease in target gene expression
+(or the same but changing Q1 and Q4 in the previous sentence).
 
-In addition, a region/CpG is annotated as \code{enhancing} if more TF regulation on gene transcription
-is observed in samples with high DNAm. That is,  DNA methylation enhances TF regulation on target gene expression.
-On the other hand, a region/CpG is annotated as \code{attenuating} (methyl-minus) if more TF regulation on gene
-transcription is observed in samples with low DNAm. That is, DNA methylation reduces TF regulation
+In addition, a region/CpG is annotated as \code{enhancing} if more
+TF regulation on gene transcription
+is observed in samples with high DNAm. That is,  DNA methylation
+enhances TF regulation on target gene expression.
+On the other hand, a region/CpG is annotated as \code{attenuating}
+ if more TF regulation on gene
+transcription is observed in samples with low DNAm.
+That is, DNA methylation reduces TF regulation
 on target gene expression.
 }
 \examples{

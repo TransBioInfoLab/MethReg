@@ -17,6 +17,10 @@
 #' color the samples
 #' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
 #' to be used in linear models instead of TF gene expression.
+#' @param tf.dnam.classifier.pval.thld P-value threshold to consider
+#' a linear model significant
+#' of not. Default 0.001. This will be used to classify the TF role and DNAm
+#' effect.
 #' @return A ggplot object, includes a table with results from fitting interaction model,
 #' and the the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
@@ -67,7 +71,8 @@ plot_interaction_model <-  function(
     dnam,
     exp,
     metadata,
-    tf.activity.es = NULL
+    tf.activity.es = NULL,
+    tf.dnam.classifier.pval.thld = 0.001
 ){
 
     if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -103,7 +108,8 @@ plot_interaction_model <-  function(
 
             if(!any(grepl("DNAmlow_pval", colnames(row.triplet)))){
                 stratified.results <- stratified_model_results(
-                    df
+                    df,
+                    tf.dnam.classifier.pval.thld
                 )
                 if(!is.null(tf.activity.es)){
                     colnames(stratified.results)[1:4] <- gsub("rna","es",colnames(stratified.results)[1:4])
@@ -643,7 +649,7 @@ get_table_plot_results <- function(row.triplet, type){
     )
 
     table.plot.estimate$Variable[grep("^rna.tf$|^es.tf$",table.plot.estimate$Variable)] <- "Direct effect of TF"
-    table.plot.estimate$Variable[grep(":rna.tf$|:es.tf$",table.plot.estimate$Variable)] <- "Synergistic effect of DNA and TF"
+    table.plot.estimate$Variable[grep(":rna.tf$|:es.tf$",table.plot.estimate$Variable)] <- "Synergistic effect\n of DNAm and TF"
     table.plot.estimate$Variable[grep("^met",table.plot.estimate$Variable)] <- "Direct effect of DNAm"
 
 
@@ -659,7 +665,7 @@ get_table_plot_results <- function(row.triplet, type){
     )
 
     table.plot.pval$Variable[grep("^rna.tf$|^es.tf$",table.plot.pval$Variable)] <- "Direct effect of TF"
-    table.plot.pval$Variable[grep(":rna.tf$|:es.tf$",table.plot.pval$Variable)] <- "Synergistic effect of DNA and TF"
+    table.plot.pval$Variable[grep(":rna.tf$|:es.tf$",table.plot.pval$Variable)] <- "Synergistic effect\n of DNAm and TF"
     table.plot.pval$Variable[grep("^met",table.plot.pval$Variable)] <- "Direct effect of DNAm"
 
     colnames(table.plot.pval)[2] <- "P-value"

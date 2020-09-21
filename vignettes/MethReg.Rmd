@@ -367,7 +367,8 @@ results.interaction.model <- interaction_model(
     exp = gene.exp.chr21.se,
     sig.threshold = 1.0,
     fdr = FALSE,
-    filter.correlated.tf.exp.dnam = FALSE
+    filter.correlated.tf.exp.dnam = FALSE,
+    filter.triplet.by.sig.term = FALSE
 )
 ```
 

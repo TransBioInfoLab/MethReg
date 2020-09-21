@@ -9,7 +9,8 @@ plot_interaction_model(
   dnam,
   exp,
   metadata,
-  tf.activity.es = NULL
+  tf.activity.es = NULL,
+  tf.dnam.classifier.pval.thld = 0.001
 )
 }
 \arguments{
@@ -28,6 +29,11 @@ color the samples}
 
 \item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
 to be used in linear models instead of TF gene expression.}
+
+\item{tf.dnam.classifier.pval.thld}{P-value threshold to consider
+a linear model significant
+of not. Default 0.001. This will be used to classify the TF role and DNAm
+effect.}
 }
 \value{
 A ggplot object, includes a table with results from fitting interaction model,

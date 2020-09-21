@@ -102,7 +102,7 @@ plot_interaction_model <-  function(
             )
 
             if(!any(grepl("DNAmlow_pval", colnames(row.triplet)))){
-                stratified.results <-stratified_model_results(
+                stratified.results <- stratified_model_results(
                     df
                 )
                 if(!is.null(tf.activity.es)){
@@ -164,7 +164,7 @@ plot_interaction_model <-  function(
                         )
                 })
             })
-            plot.table
+            plot.table + ggplot2::theme(plot.margin = grid::unit(c(1,2,1,2), "cm"))
         }, .progress = "time", metadata = metadata)
     attr(out,"split_type") <- NULL
     attr(out,"split_labels") <- NULL
@@ -518,7 +518,7 @@ get_scatter_plot_results <- function(
         p <- p + ggplot2::annotate(
             geom = "text",
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.6, na.rm = TRUE),
+            y = max(c(df[[y]] * 1.2, df[[y]] + 2), na.rm = TRUE),
             hjust = 0,
             vjust = 1,
             color = 'blue',
@@ -533,7 +533,7 @@ get_scatter_plot_results <- function(
 
         ann_text.low <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.6, na.rm = TRUE),
+            y = max(c(df[[y]] * 1.2, df[[y]] + 2), na.rm = TRUE),
             facet.by = factor(grep("low",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.low) <- c(x,y,facet.by)
@@ -553,7 +553,7 @@ get_scatter_plot_results <- function(
         rlm.res.high <- get_rlm_val_pval(df %>% dplyr::filter(grepl("high",df[[facet.by]])), x , y)
         ann_text.high <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
-            y = max(df[[y]] * 1.6, na.rm = TRUE),
+            y = max(c(df[[y]] * 1.2, df[[y]] + 2), na.rm = TRUE),
             facet.by = factor(grep("high",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
         )
         colnames(ann_text.high) <- c(x,y,facet.by)

@@ -18,7 +18,7 @@ processes in the entire genome.
 
 ## Installation
 
-You can install the MethReg from GitHub with:
+You can install the MethReg from Bioconductor with:
 
 ``` r
 BiocManager::install("MethReg")
@@ -42,11 +42,7 @@ all(colnames(dna.met.chr21) == colnames(gene.exp.chr21.log2))
 #> [1] TRUE
 
 # Since we are working with regions we need to map our 450k array to regions
-dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
-#> o Creating a SummarizedExperiment from DNA methylation input
-#> oo Fetching probes metadata
-#> oo Removing masked probes
-#> oo Preparing SummarizedExperiment object
+dna.met.chr21 <- make_dnam_se(dna.met.chr21)
 ```
 
 ``` r
@@ -69,8 +65,6 @@ triplet <- create_triplet_distance_based(
 #> Mapping regions to the closest gene
 #> Looking for TFBS
 #> 
-#> Evaluating 554 JASPAR Human TF motifs
-#> This may take a while...
 #> 
 #> Attaching package: 'S4Vectors'
 #> The following object is masked from 'package:base':
@@ -81,7 +75,6 @@ triplet <- create_triplet_distance_based(
 #> The following object is masked from 'package:base':
 #> 
 #>     strsplit
-#> Preparing output
 #> Joining, by = "regionID"
 ```
 
@@ -97,12 +90,6 @@ results <- interaction_model(
     dnam = dna.met.chr21,
     exp = gene.exp.chr21.log2
 )
-#> Removing genes with RNA expression equal to 0 for all samples from triplets
-#> Removing triplet with no DNA methylation information for more than 25% of the samples
-#> Evaluating 109 triplets
-#> Performing FDR correction for triplets p-values per region
-#> Filtering results to have interaction, TF or DNAm significant
-#> Filtering results to wilcoxon test TF Q1 vs Q4 not significant
 ```
 
 ``` r
@@ -114,55 +101,48 @@ head(results)
 #> 4 chr21:40692859-40692860            BRWD1 ENSG00000185658
 #> 5 chr21:43982646-43982647       AP001625.6 ENSG00000235772
 #> 6 chr21:43983587-43983588       AP001625.6 ENSG00000235772
-#>   TF_external_gene_name              TF TF_symbol target_symbol
-#> 1                  ETS2 ENSG00000157557      ETS2       RPL23P2
-#> 2                 BACH1 ENSG00000156273     BACH1    AF129075.2
-#> 3                 GABPA ENSG00000154727     GABPA    AP000255.1
-#> 4                 GABPA ENSG00000154727     GABPA         BRWD1
-#> 5                 GABPA ENSG00000154727     GABPA    AP001625.2
-#> 6                 GABPA ENSG00000154727     GABPA    AP001625.2
-#>     Model.interaction     met.IQR quant_pval_metGrp quant_pval_rna.tf
-#> 1 Robust Linear Model 0.182568764      3.953828e-05      5.958024e-03
-#> 2 Robust Linear Model 0.310379208      7.437666e-01      6.570509e-04
-#> 3 Robust Linear Model 0.080160919      2.208774e-03      5.803942e-01
-#> 4 Robust Linear Model 0.040638333      3.823862e-01      7.142112e-08
-#> 5 Robust Linear Model 0.008670064      4.434057e-01      4.977765e-02
-#> 6 Robust Linear Model 0.014175786      5.619040e-01      1.305771e-03
-#>   quant_pval_metGrp:rna.tf quant_estimate_metGrp quant_estimate_rna.tf
-#> 1             3.768097e-05            -83.041219            -2.0395999
-#> 2             7.945988e-01             -3.533136             1.3437155
-#> 3             2.305241e-03            -30.858474             0.2627746
-#> 4             4.999473e-01             -3.386762             1.3876278
-#> 5             4.663539e-01            -10.643704             1.1156152
-#> 6             5.234533e-01             -5.525037             1.2125286
-#>   quant_estimate_metGrp:rna.tf      Model.quantile Wilcoxon_pval_tf_q4_vs_q1
-#> 1                    3.8764266 Robust Linear Model                 0.5707504
-#> 2                    0.1642009 Robust Linear Model                 0.4726756
-#> 3                    1.8528803 Robust Linear Model                 0.9097219
-#> 4                    0.1522536 Robust Linear Model                 0.7913368
-#> 5                    0.5884195 Robust Linear Model                 0.2730363
-#> 6                    0.3594288 Robust Linear Model                 0.2730363
-#>   % 0 target genes (All samples) % of 0 target genes (Q1 and Q4)
-#> 1                         2.63 %                             0 %
-#> 2                         5.26 %                             5 %
-#> 3                        21.05 %                            20 %
-#> 4                            0 %                             0 %
-#> 5                         7.89 %                            10 %
-#> 6                         7.89 %                             5 %
-#>   quant_fdr_metGrp quant_fdr_rna.tf quant_fdr_metGrp:rna.tf
-#> 1     0.0001186148     1.787407e-02            0.0001130429
-#> 2     0.7437665914     6.570509e-04            0.7945988318
-#> 3     0.0022087741     5.803942e-01            0.0023052406
-#> 4     0.3823861582     7.142112e-08            0.4999473203
-#> 5     0.4434057288     4.977765e-02            0.4663538741
-#> 6     0.9778889092     2.611541e-03            0.9782246238
-#>   Wilcoxon_fdr_tf_q4_vs_q1
-#> 1                0.8561256
-#> 2                0.4726756
-#> 3                0.9097219
-#> 4                0.7913368
-#> 5                0.2730363
-#> 6                0.2730363
+#>   TF_external_gene_name              TF TF_symbol target_symbol     met.IQR
+#> 1                  ETS2 ENSG00000157557      ETS2       RPL23P2 0.182568764
+#> 2                 BACH1 ENSG00000156273     BACH1    AF129075.2 0.310379208
+#> 3                 GABPA ENSG00000154727     GABPA    AP000255.1 0.080160919
+#> 4                 GABPA ENSG00000154727     GABPA         BRWD1 0.040638333
+#> 5                 GABPA ENSG00000154727     GABPA    AP001625.2 0.008670064
+#> 6                 GABPA ENSG00000154727     GABPA    AP001625.2 0.014175786
+#>   quant_pval_metGrp quant_fdr_metGrp quant_pval_rna.tf quant_fdr_rna.tf
+#> 1      3.953828e-05     0.0001186148      5.958024e-03     1.787407e-02
+#> 2      7.437666e-01     0.7437665914      6.570509e-04     6.570509e-04
+#> 3      2.208774e-03     0.0022087741      5.803942e-01     5.803942e-01
+#> 4      3.823862e-01     0.3823861582      7.142112e-08     7.142112e-08
+#> 5      4.434057e-01     0.4434057288      4.977765e-02     4.977765e-02
+#> 6      5.619040e-01     0.9778889092      1.305771e-03     2.611541e-03
+#>   quant_pval_metGrp:rna.tf quant_fdr_metGrp:rna.tf quant_estimate_metGrp
+#> 1             3.768097e-05            0.0001130429            -83.041219
+#> 2             7.945988e-01            0.7945988318             -3.533136
+#> 3             2.305241e-03            0.0023052406            -30.858474
+#> 4             4.999473e-01            0.4999473203             -3.386762
+#> 5             4.663539e-01            0.4663538741            -10.643704
+#> 6             5.234533e-01            0.9782246238             -5.525037
+#>   quant_estimate_rna.tf quant_estimate_metGrp:rna.tf      Model.quantile
+#> 1            -2.0395999                    3.8764266 Robust Linear Model
+#> 2             1.3437155                    0.1642009 Robust Linear Model
+#> 3             0.2627746                    1.8528803 Robust Linear Model
+#> 4             1.3876278                    0.1522536 Robust Linear Model
+#> 5             1.1156152                    0.5884195 Robust Linear Model
+#> 6             1.2125286                    0.3594288 Robust Linear Model
+#>   Wilcoxon_pval_target_q4met_vs_q1met Wilcoxon_pval_tf_q4met_vs_q1met
+#> 1                          0.42735531                       0.5707504
+#> 2                          0.47267559                       0.4726756
+#> 3                          0.49466484                       0.9097219
+#> 4                          0.03763531                       0.7913368
+#> 5                          0.44952133                       0.2730363
+#> 6                          1.00000000                       0.2730363
+#>   % of 0 target genes (Q1 and Q4)
+#> 1                             0 %
+#> 2                             5 %
+#> 3                            20 %
+#> 4                             0 %
+#> 5                            10 %
+#> 6                             5 %
 ```
 
 # Session information
@@ -192,10 +172,10 @@ sessionInfo()
 #>  [9] S4Vectors_0.26.1                  sesameData_1.6.0                 
 #> [11] ExperimentHub_1.15.3              AnnotationHub_2.20.2             
 #> [13] BiocFileCache_1.12.1              dbplyr_1.4.4                     
-#> [15] BiocGenerics_0.34.0               MethReg_0.99.6                   
+#> [15] BiocGenerics_0.34.0               MethReg_0.99.11                  
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] readxl_1.3.1                  backports_1.1.9              
+#>   [1] readxl_1.3.1                  backports_1.1.10             
 #>   [3] plyr_1.8.6                    BiocParallel_1.22.0          
 #>   [5] ggplot2_3.3.2                 TFBSTools_1.26.0             
 #>   [7] digest_0.6.25                 foreach_1.5.0                

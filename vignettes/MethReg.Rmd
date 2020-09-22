@@ -202,24 +202,31 @@ Finally, we merge the two datasets by CpGs.
 
 ### Mapping Regions to the target gene
 
-In this section, **regions** refer to the regions where CpGs are located. The function `get_region_target_gene` provides three different methods to link a region to a target gene: 
+In this section, **regions** refer to the regions where CpGs are located. 
+The function `get_region_target_gene` provides three different methods to 
+link a region to a target gene: 
 
 1. Mapping the region to the closest gene (`method = "genes.promoter.overlap"`)
-2. Mapping the region to a specific number of genes upstream down/upstream of the region (`method = "nearby.genes"`) [@silva2019elmer].
+2. Mapping the region to a specific number of genes upstream down/upstream 
+of the region (`method = "nearby.genes"`) [@silva2019elmer].
 3. Mapping the region to all the genes within a window 
-(default size = 500 kbp around the region, i.e. +- 250 kbp from start or end of the region) (`method = "window"`) [@reese2019epigenome].
+(default size = 500 kbp around the region, i.e. +- 250 kbp from start or end 
+of the region) (`method = "window"`) [@reese2019epigenome].
 
 
 ```{r plot, fig.cap = "Different target linking strategies", echo = FALSE}
 png::readPNG("mapping_target_strategies.png") %>% grid::grid.raster()
 ```
 
-For the analysis of probes in gene promoter region, we recommend setting `method = "genes.promoter.overlap"`, or 
+For the analysis of probes in gene promoter region, we recommend setting 
+`method = "genes.promoter.overlap"`, or 
 `method = "closest.gene"`. 
-For the analysis of probes in distal regions, we recommend setting either `method = "window"` or `method = "nearby.genes"`. 
+For the analysis of probes in distal regions, we recommend setting either 
+`method = "window"` or `method = "nearby.genes"`. 
 Note that the distal analysis will be more time and resource consuming. 
 
-As an example, the following scripts link CpGs with the probes in gene promoter region (method 1. above)
+As an example, the following scripts link CpGs with the probes in gene 
+promoter region (method 1. above)
 
 ```{R}
 # Get CpG information
@@ -240,7 +247,9 @@ dim(region.target.closest)
 region.target.closest
 ```
 
-Alternatively, we can also link each probe with genes within 500 kb window (method 2). 
+Alternatively, we can also link each probe with genes within 
+500 kb window (method 2). 
+
 ```{R}
 # Map probes to genes within 500kb window
 region.target.window <- get_region_target_gene(

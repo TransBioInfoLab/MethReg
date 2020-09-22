@@ -29,7 +29,7 @@ regions or to search for methylation coupled TF regulatory processes in the enti
 
 ## Installation
 
-You can install the MethReg from GitHub with:
+You can install the MethReg from Bioconductor with:
 
 ``` r
 BiocManager::install("MethReg")
@@ -52,7 +52,7 @@ data("gene.exp.chr21.log2")
 all(colnames(dna.met.chr21) == colnames(gene.exp.chr21.log2))
 
 # Since we are working with regions we need to map our 450k array to regions
-dna.met.chr21 <- make_se_from_dnam_probes(dna.met.chr21)
+dna.met.chr21 <- make_dnam_se(dna.met.chr21)
 ```
 
 ```{r map, warning = FALSE, results = "hide"}

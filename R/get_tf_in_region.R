@@ -67,8 +67,8 @@ get_tf_in_region <- function(
     names(PFMatrixList) <- motifs.names
     PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]
 
-    verbose && message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
-    verbose && message("This may take a while...")
+     if(verbose)  message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
+     if(verbose)  message("This may take a while...")
     suppressWarnings({
         motif.matrix <- motifmatchr::matchMotifs(
             pwms = PFMatrixList,
@@ -92,7 +92,7 @@ get_tf_in_region <- function(
         motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
     }
 
-    verbose && message("Preparing output")
+     if(verbose)  message("Preparing output")
     motifs.probes.df <- plyr::alply(
         colnames(motif.matrix),
         .margins = 1,

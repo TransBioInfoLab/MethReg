@@ -376,7 +376,7 @@ make_dnam_se <- function(
     check_package("SummarizedExperiment")
     check_package("S4Vectors")
 
-    verbose && message("o Creating a SummarizedExperiment from DNA methylation input")
+    if(verbose)  message("o Creating a SummarizedExperiment from DNA methylation input")
 
     # Get probes annotation
     # Prepare all data matrices
@@ -384,7 +384,7 @@ make_dnam_se <- function(
         rowRanges <- dnam %>% rownames() %>% make_granges_from_names()
         colData <- S4Vectors::DataFrame(samples = colnames(dnam))
     } else {
-        verbose && message("oo Fetching probes metadata")
+        if(verbose)  message("oo Fetching probes metadata")
         annotation <- get_met_probes_info(genome = genome, arrayType = arrayType)
         strand(annotation) <- "*" # don't add strand info for CpGs
 
@@ -396,7 +396,7 @@ make_dnam_se <- function(
         }
 
         # remove masked probes
-        verbose && message("oo Removing masked probes")
+        if(verbose)  message("oo Removing masked probes")
         rowRanges <- rowRanges[!rowRanges$MASK_general]
         # rowRanges <- rowRanges[grep("cg",names(rowRanges))] # remove rs probes
         dnam <- dnam[rownames(dnam) %in% names(rowRanges), , drop = FALSE]
@@ -417,7 +417,7 @@ make_dnam_se <- function(
     rownames(dnam) <- regions.name
 
     # Create SummarizedExperiment
-    verbose && message("oo Preparing SummarizedExperiment object")
+    if(verbose)  message("oo Preparing SummarizedExperiment object")
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = assay,
         rowRanges = rowRanges,
@@ -453,7 +453,7 @@ make_exp_se <- function(
         stop("Please the gene expression matrix should receive ENSEMBLE IDs (ENSG)")
     }
 
-    verbose && message("o Creating a SummarizedExperiment from gene expression input")
+    if(verbose)  message("o Creating a SummarizedExperiment from gene expression input")
     gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
     rowRanges <- gene.info[match(exp %>% rownames(),gene.info$ensembl_gene_id),]
     names(rowRanges) <- rowRanges$ensembl_gene_id

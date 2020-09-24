@@ -181,5 +181,5 @@ calculate_fdr_adjustment <- function(results){
 #' }
 #' @noRd
 create_triplet_ID <- function(df){
-    paste0(gsub("[[:punct:]]", "_", df$regionID),"_TF_",df$TF_symbol,"_target_",df$target)
+    paste0(gsub("[[:punct:]]", "_", df$regionID),"_TF_",df$TF,"_target_",df$target)
 }

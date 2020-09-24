@@ -45,20 +45,20 @@ get_promoter_avg <- function(
     }
 
     # We will start by defining the promoter regions
-    verbose && message("o Get promoter regions for ", genome)
+     if(verbose) message("o Get promoter regions for ", genome)
     promoter.gr <- get_promoter_regions(
         genome = genome,
         upstream = upstream.dist.tss,
         downstream = downstream.dist.tss
     )
-    verbose && message("oo Number of promoter regions in ", genome, ": ", length(promoter.gr))
+    if(verbose) message("oo Number of promoter regions in ", genome, ": ", length(promoter.gr))
 
     # For each promoter region we will then
     # take the mean DNA methylation beta-values of all
     # probes within it
 
     # Get probes regions for mapping the motifs
-    verbose && message("o Get DNA methylation regions overlapping promoter regions")
+    if(verbose) message("o Get DNA methylation regions overlapping promoter regions")
 
     # If input are probes, we need to map to regions
     if(any(grepl("cg", rownames(dnam)))){
@@ -82,7 +82,7 @@ get_promoter_avg <- function(
         rownames(promoter.matrix) <- make_names_from_granges(promoter.gr[unique.hits$queryHits])
     }
 
-    verbose && message("o Get mean DNA methylation of regions overlapping each promoter region")
+    if(verbose) message("o Get mean DNA methylation of regions overlapping each promoter region")
     parallel <- register_cores(cores)
 
     # Do we have regions overlapping with multiple probes ?

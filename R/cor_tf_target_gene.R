@@ -76,7 +76,7 @@ cor_tf_target_gene <- function(
     }
     #-------------------------------------------------------------------------
 
-    verbose && message("Removing genes with RNA expression equal to 0/NA for all samples")
+     if(verbose) message("Removing genes with RNA expression equal to 0/NA for all samples")
 
     exp <- filter_genes_zero_expression(exp = exp, max.samples.percentage = 100)
 

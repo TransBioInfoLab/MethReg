@@ -142,10 +142,10 @@ interaction_model <- function(
         stop("triplet must have the following columns names: regionID, TF, target")
     }
 
-    verbose && message("Removing genes with RNA expression equal to 0 for all samples from triplets")
+     if(verbose)  message("Removing genes with RNA expression equal to 0 for all samples from triplets")
     exp <- filter_genes_zero_expression_all_samples(exp)
 
-    verbose && message("Removing triplet with no DNA methylation information for more than 25% of the samples")
+     if(verbose)  message("Removing triplet with no DNA methylation information for more than 25% of the samples")
     regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
     dnam <- dnam[regions.keep,,drop = FALSE]
 
@@ -181,7 +181,7 @@ interaction_model <- function(
 
     triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
-    verbose && message("Evaluating ", nrow(triplet), " triplets")
+     if(verbose)  message("Evaluating ", nrow(triplet), " triplets")
 
     parallel <- register_cores(cores)
 
@@ -254,15 +254,15 @@ interaction_model <- function(
     )
 
     if (stage.wise.analysis) {
-        verbose && message("Performing Stage wise correction for triplets")
+         if(verbose)  message("Performing Stage wise correction for triplets")
         ret <- calculate_stage_wise_adjustment(ret)
     } else {
-        verbose && message("Performing FDR correction for triplets p-values per region")
+         if(verbose)  message("Performing FDR correction for triplets p-values per region")
         ret <- calculate_fdr_per_region_adjustment(ret)
     }
 
     if (filter.triplet.by.sig.term) {
-        verbose &&  message("Filtering results to have interaction, TF or DNAm significant")
+         if(verbose)   message("Filtering results to have interaction, TF or DNAm significant")
 
         if (fdr) {
             if (!stage.wise.analysis) {
@@ -282,7 +282,7 @@ interaction_model <- function(
     }
 
     if (filter.correlated.tf.exp.dnam) {
-        verbose && message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
+         if(verbose)  message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
         ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4met_vs_q1met > sig.threshold)
     }
 

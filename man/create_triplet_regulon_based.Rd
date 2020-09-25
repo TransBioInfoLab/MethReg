@@ -13,7 +13,8 @@ create_triplet_regulon_based(
   motif.search.window.size = 0,
   motif.search.p.cutoff = 1e-08,
   cores = 1,
-  tf.target
+  tf.target,
+  max.distance.region.target = 10^6
 )
 }
 \arguments{
@@ -37,6 +38,9 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 
 \item{tf.target}{A dataframe with tf and target columns. If not provided,
 \link[dorothea]{dorothea_hs} will be used.}
+
+\item{max.distance.region.target}{Max distance between region and target gene.
+Default 1Mbp.}
 }
 \value{
 A data frame with TF, target and RegionID information.

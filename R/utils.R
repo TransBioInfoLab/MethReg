@@ -482,9 +482,10 @@ make_exp_se <- function(
 #')
 #' @noRd
 get_distance_region_target <- function(
-    region.target
+    region.target,
+    genome = c("hg38","hg19")
 ){
-
+    genome <- match.arg(genome)
     region.target <- na.omit(region.target)
 
     regions.gr <- make_granges_from_names(
@@ -492,7 +493,7 @@ get_distance_region_target <- function(
     )
 
     genes.gr <- get_gene_information(
-        genome = "hg38",
+        genome = genome,
         as.granges =  TRUE
     )
 

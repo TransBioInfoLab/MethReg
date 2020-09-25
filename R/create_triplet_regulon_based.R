@@ -20,6 +20,8 @@
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param tf.target A dataframe with tf and target columns. If not provided,
 #' \link[dorothea]{dorothea_hs} will be used.
+#' @param max.distance.region.target Max distance between region and target gene.
+#' Default 1Mbp.
 #' @return A data frame with TF, target and RegionID information.
 #' @examples
 #' triplet <- create_triplet_regulon_based(
@@ -37,7 +39,8 @@ create_triplet_regulon_based <- function(
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
     cores = 1,
-    tf.target
+    tf.target,
+    max.distance.region.target = 10^6
 ){
 
     regulons.min.confidence <- match.arg(
@@ -59,14 +62,14 @@ create_triplet_regulon_based <- function(
     }
 
     message("Mapping target and TF genes")
-    if(missing(tf.target)){
+    if (missing(tf.target)) {
         tf.target <- get_regulon_dorothea(
             min.confidence = regulons.min.confidence
         )
     } else {
         # check regulons input data
         cols <- c("tf", "target")
-        if(!all(cols %in% colnames(tf.target))){
+        if (!all(cols %in% colnames(tf.target))) {
             stop("regulons must have columns tf and target")
         }
         tf.target$tf_ensg <- map_symbol_to_ensg(tf.target$tf)
@@ -87,7 +90,7 @@ create_triplet_regulon_based <- function(
     )
     triplet <- dplyr::inner_join(tf.target, region.tf)
 
-    if(nrow(triplet) == 0){
+    if (nrow(triplet) == 0) {
         stop("No triplets found")
     }
 
@@ -95,6 +98,9 @@ create_triplet_regulon_based <- function(
 
     message("Removing regions and target genes from different chromosomes")
     triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target))
+
+    message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
+    triplet <- triplet %>% dplyr::filter(.data$distance_region_target < max.distance.region.target)
 
     return(triplet)
 }

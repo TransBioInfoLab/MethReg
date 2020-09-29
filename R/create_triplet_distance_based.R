@@ -94,14 +94,13 @@ create_triplet_distance_based <- function(
     )
     triplet <- dplyr::inner_join(region.target, region.tf)
 
-    # Add region to gene TSS distance
-    triplet <- get_distance_region_target(triplet)
-
     message("Removing regions and target genes from different chromosomes")
     triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target_tss))
 
     message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
     triplet <- triplet %>% dplyr::filter(.data$distance_region_target_tss < max.distance.region.target)
+
+    triplet <- triplet %>% relocate(distance_region_target_tss, .after = last_col())
 
     return(triplet)
 }

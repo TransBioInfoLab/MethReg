@@ -49,7 +49,8 @@
 #'  region.genes.promoter.overlaps <- get_region_target_gene(
 #'                       regions.gr = regions.gr,
 #'                       genome = "hg19",
-#'                       method = "genes.promoter.overlap")
+#'                       method = "genes.promoter.overlap"
+#'  )
 #'
 #'  # map to all gene within region +- 250kbp
 #'  region.window.genes <- get_region_target_gene(
@@ -139,6 +140,9 @@ get_region_target_gene <- function(
             genome = genome
         )
     }
+
+    out <- get_distance_region_target(out)
+
     return(out)
 }
 
@@ -159,7 +163,6 @@ get_region_target_gene_closest <- function(
     gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
     hits <- nearest(regions.gr,gene.info)
     nearest.genes <- gene.info[hits] %>% as.data.frame(row.names = NULL)
-    distance <- distanceToNearest(regions.gr,gene.info)
 
     nearest.genes <- dplyr::bind_cols(
         nearest.genes[,c(
@@ -169,7 +172,6 @@ get_region_target_gene_closest <- function(
             "external_gene_name",
             "ensembl_gene_id"
         )],
-        data.frame("distance_region_to_target_gene" = values(distance)[["distance"]])
     )
 
     colnames(nearest.genes)[1:3] <- c(
@@ -184,7 +186,7 @@ get_region_target_gene_closest <- function(
     regionID <- paste0(regionID[[1]],":",regionID[[2]],"-",regionID[[3]])
     out <- dplyr::bind_cols(
         data.frame("regionID" = regionID, stringsAsFactors = FALSE),
-        nearest.genes[,c("target_gene_name", "target","distance_region_to_target_gene")]
+        nearest.genes[,c("target_gene_name", "target")]
     ) %>% tibble::as_tibble()
     out
 }
@@ -319,12 +321,7 @@ get_region_target_gene_nearby.genes <- function(
         # nearest gene to the region
         genes.gr[nearest.idx %>% subjectHits] %>% data.frame(),
         # region being evaluated
-        "ID" = names(regions.gr)[nearest.idx %>% queryHits],
-        "Distance" = get_region_gene_distance(
-            idx = nearest.idx,
-            regions.gr = regions.gr,
-            geneAnnot = genes.gr
-        )
+        "ID" = names(regions.gr)[nearest.idx %>% queryHits]
     )
 
     message("Identifying ",num.flanking.genes, " genes downstream to the region")
@@ -345,32 +342,17 @@ get_region_target_gene_nearby.genes <- function(
         regions.gr = regions.gr,
         num.flanking.genes = num.flanking.genes
     )
-    ret <- rbind(closest.genes,precede.genes,follow.genes) %>% unique
-    ret <- ret[order(ret$Distance),]
+    ret <- rbind(closest.genes, precede.genes, follow.genes) %>% unique
 
     ret <- ret[,c(
         "ID",
         "ensembl_gene_id",
-        grep("external_gene_", colnames(ret), value = TRUE),
-        "Distance"
+        grep("external_gene_", colnames(ret), value = TRUE)
     )]
 
     message("Identifying gene position for each region")
-    ret <- get_region_target_gene_nearby.genes_addPos(ret, num.flanking.genes)
     colnames(ret)[1:3] <- c("regionID", "target", "target_gene_name")
     return(ret)
-}
-
-get_region_gene_distance <- function(idx, regions.gr,geneAnnot){
-    signal <- ifelse(
-        start(regions.gr[idx %>% queryHits]) < start(geneAnnot[idx  %>% subjectHits]), 1, -1
-    )
-    distance(
-        regions.gr[idx %>% queryHits],
-        geneAnnot[idx %>% subjectHits],
-        select = "all",
-        ignore.strand = TRUE) * signal
-
 }
 
 #' @importFrom progress progress_bar
@@ -429,14 +411,6 @@ get_region_target_gene_nearby.genes_aux <- function(
             tibble::tibble(
                 genes.gr[idx$subjectHits] %>% data.frame(),
                 "ID" = names(regions.gr)[evaluating],
-                "Distance" = ifelse(
-                    start(regions.gr[evaluating]) < start(genes.gr[idx$subjectHits]), 1,-1) *
-                    distance(
-                        regions.gr[evaluating],
-                        genes.gr[idx$subjectHits],
-                        select = "all",
-                        ignore.strand = TRUE
-                    )
             )
         )
         pb$tick()
@@ -446,48 +420,4 @@ get_region_target_gene_nearby.genes_aux <- function(
     return(ret)
 }
 
-#' @importFrom dplyr group_by do
-#' @importFrom plyr .
-get_region_target_gene_nearby.genes_addPos <- function(
-    ret,
-    num.flanking.genes
-){
 
-    f <- function(pairs) {
-        center <- which(abs(pairs$Distance) == min(abs(pairs$Distance)))[1]
-        pos <- setdiff(-center:(nrow(pairs) - center), 0)
-        pairs$Side <- ifelse(pos > 0, paste0("R", abs(pos)), paste0("L", abs(pos)))
-
-        out <- pairs %>%
-            dplyr::filter(
-                pairs$Side %in% c(paste0("R", seq_len(num.flanking.genes)),
-                                  paste0("L", seq_len(num.flanking.genes))
-                )
-            )
-
-        if (nrow(out) < num.flanking.genes) {
-            if (paste0("R", floor(num.flanking.genes)) %in% out$Side) {
-                cts <- length(grep("L", sort(pairs$Side), value = TRUE))
-                out <- pairs %>%
-                    dplyr::filter(
-                        .data$Side %in% c(
-                            paste0("R", seq_len(num.flanking.genes - cts)),
-                            grep("L", sort(out$Side), value = TRUE))
-                    )
-            } else {
-                cts <- length(grep("R", sort(pairs$Side), value = TRUE))
-                out <- pairs %>%
-                    dplyr::filter(
-                        pairs$Side %in%
-                            c(paste0("L", seq_len(num.flanking.genes - cts)),
-                              grep("R", sort(out$Side), value = TRUE)
-                            )
-                    )
-            }
-        }
-        out <- out[order(out$Distance), ]
-        return(out)
-    }
-
-    ret %>% group_by(.data$ID) %>% dplyr::do(f(.))
-}

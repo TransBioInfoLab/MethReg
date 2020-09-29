@@ -100,7 +100,7 @@ create_triplet_distance_based <- function(
     message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
     triplet <- triplet %>% dplyr::filter(.data$distance_region_target_tss < max.distance.region.target)
 
-    triplet <- triplet %>% relocate(distance_region_target_tss, .after = last_col())
+    triplet <- triplet %>% relocate(.data$distance_region_target_tss, .after = last_col())
 
     return(triplet)
 }

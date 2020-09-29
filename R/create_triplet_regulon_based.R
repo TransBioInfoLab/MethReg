@@ -102,5 +102,20 @@ create_triplet_regulon_based <- function(
     message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
     triplet <- triplet %>% dplyr::filter(.data$distance_region_target_tss < max.distance.region.target)
 
+    # removing cols from output
+    triplet$mor <- NULL
+    triplet$target_ensg <- NULL
+    triplet$tf_ensg <- NULL
+    triplet$tf <- NULL
+
+    triplet <- triplet %>%
+        dplyr::rename(target_symbol = .data$target_name) %>%
+        dplyr::relocate(.data$regionID, .before = dplyr::everything()) %>%
+        dplyr::relocate(.data$target_symbol, .after = .data$regionID) %>%
+        dplyr::relocate(.data$target, .after = .data$target_symbol) %>%
+        dplyr::relocate(.data$TF_symbol, .after = .data$target) %>%
+        dplyr::relocate(.data$TF, .after = .data$TF_symbol) %>%
+        dplyr::relocate(.data$distance_region_target_tss, .after = dplyr::last_col())
+
     return(triplet)
 }

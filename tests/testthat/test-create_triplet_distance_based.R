@@ -6,18 +6,18 @@ test_that("create_triplet_distance_based runs", {
         motif.search.window.size = 50,
         motif.search.p.cutoff = 1
     )
-    expect_true("TP63" %in% triplet$target_gene_name)
+    expect_true("TP63" %in% triplet$target_symbol)
     expect_true(
         all(
             c("regionID",
-              "target_gene_name",
+              "target_symbol",
               "target",
-              "TF_external_gene_name",
+              "TF_symbol",
               "TF") %in% colnames(triplet)
         )
     )
-    expect_type(triplet$TF_external_gene_name,"character")
-    expect_type(triplet$target_gene_name,"character")
+    expect_type(triplet$TF_symbol,"character")
+    expect_type(triplet$target_symbol,"character")
 })
 
 

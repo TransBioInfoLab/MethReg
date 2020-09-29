@@ -8,7 +8,7 @@ test_that("get_tf_in_region is able to scan", {
     )
     # human.tfs <- get_human_tfs()
     # expect_true(all(region.tf$TF %in% human.tfs$ensembl_gene_id))
-    expect_type(region.tf$TF_external_gene_name,"character")
+    expect_type(region.tf$TF_symbol,"character")
     expect_type(region.tf$regionID,"character")
     expect_type(region.tf$TF,"character")
 })

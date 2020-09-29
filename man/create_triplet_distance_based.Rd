@@ -13,6 +13,7 @@ create_triplet_distance_based(
   target.num.flanking.genes = 5,
   motif.search.window.size = 0,
   motif.search.p.cutoff = 1e-08,
+  max.distance.region.target = 10^6,
   cores = 1
 )
 }
@@ -41,6 +42,8 @@ For example, a value of 50 will
 extend 25 bp upstream and 25 downstream the region. Default is no increase}
 
 \item{motif.search.p.cutoff}{motifmatchr pvalue cut-off. Default 1e-8.}
+
+\item{max.distance.region.target}{Max distance between region and target gene. Default 1Mbp.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 }

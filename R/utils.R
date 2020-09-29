@@ -499,6 +499,7 @@ get_distance_region_target <- function(
         names = region.target$regionID
     )
 
+    # resize is used to keep only the TSS to calculate the distance to TSS
     genes.gr <- get_gene_information(
         genome = genome,
         as.granges =  TRUE

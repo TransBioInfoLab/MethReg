@@ -28,6 +28,7 @@
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
 #' @param motif.search.p.cutoff motifmatchr pvalue cut-off. Default 1e-8.
+#' @param max.distance.region.target Max distance between region and target gene. Default 1Mbp.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @return A data frame with TF, target and RegionID information.
 #' @examples
@@ -51,6 +52,7 @@ create_triplet_distance_based <- function(
     target.num.flanking.genes = 5,
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
+    max.distance.region.target =  10^6,
     cores = 1
 ){
 
@@ -94,6 +96,13 @@ create_triplet_distance_based <- function(
 
     # Add region to gene TSS distance
     triplet <- get_distance_region_target(triplet)
+
+    message("Removing regions and target genes from different chromosomes")
+    triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target))
+
+    message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
+    triplet <- triplet %>% dplyr::filter(.data$distance_region_target_tss < max.distance.region.target)
+
 
     return(triplet)
 }

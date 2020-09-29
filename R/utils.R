@@ -509,7 +509,7 @@ get_distance_region_target <- function(
     #    data.frame("seqnames" = "chr1","start" = 2,"end" = 2, strand = "*") %>% makeGRangesFromDataFrame
     # )
 
-    region.target$distance_region_target <- distance(
+    region.target$distance_region_target_tss <- distance(
         regions.gr,
         genes.gr[match(region.target$target,genes.gr$ensembl_gene_id)]
     )

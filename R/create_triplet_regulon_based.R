@@ -100,7 +100,7 @@ create_triplet_regulon_based <- function(
     triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target))
 
     message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
-    triplet <- triplet %>% dplyr::filter(.data$distance_region_target < max.distance.region.target)
+    triplet <- triplet %>% dplyr::filter(.data$distance_region_target_tss < max.distance.region.target)
 
     return(triplet)
 }

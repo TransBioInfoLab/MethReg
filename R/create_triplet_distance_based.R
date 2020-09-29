@@ -91,5 +91,9 @@ create_triplet_distance_based <- function(
         cores = cores
     )
     triplet <- dplyr::inner_join(region.target, region.tf)
+
+    # Add region to gene TSS distance
+    triplet <- get_distance_region_target(triplet)
+
     return(triplet)
 }

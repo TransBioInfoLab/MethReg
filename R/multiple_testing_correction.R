@@ -77,7 +77,8 @@ stage_wise_adjustment <- function(
     pScreen.pval.stageRObj <- stageR::stageWiseAdjustment(
         object = pScreen.pval.stageRObj,
         method = "dte",
-        alpha = 0.05
+        alpha = 0.05,
+        allowNA = TRUE
     )
 
     padj <- stageR::getAdjustedPValues(

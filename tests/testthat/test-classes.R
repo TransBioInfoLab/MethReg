@@ -22,7 +22,7 @@ test_that("classification for signficant results in same direction", {
     expect_equal(res$DNAm.effect,"Enhancing")
 
     res <- get_tf_dnam_classification(
-        low.estimate = 0.8, low.pval = 0.05,
+        low.estimate = 0.8, low.pval = 0.01,
         high.estimate = 0.2, high.pval = 0.05,
         pvalue.threshold = 0.05
     )
@@ -30,7 +30,7 @@ test_that("classification for signficant results in same direction", {
     expect_equal(res$DNAm.effect,"Attenuating")
 
     res <- get_tf_dnam_classification(
-        low.estimate = -0.8, low.pval = 0.05,
+        low.estimate = -0.8, low.pval = 0.01,
         high.estimate = -0.2, high.pval = 0.05,
         pvalue.threshold = 0.05
     )
@@ -39,7 +39,7 @@ test_that("classification for signficant results in same direction", {
 
     res <- get_tf_dnam_classification(
         low.estimate = -0.2, low.pval = 0.05,
-        high.estimate = -0.8, high.pval = 0.05,
+        high.estimate = -0.8, high.pval = 0.01,
         pvalue.threshold = 0.05
     )
     expect_equal(res$TF.role,"Repressor")

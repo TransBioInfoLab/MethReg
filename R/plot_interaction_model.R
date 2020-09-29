@@ -137,7 +137,7 @@ plot_interaction_model <-  function(
                 df = df,
                 row.triplet = row.triplet,
                 color = color,
-                use_tf_enrichment_scores = is.null(tf.activity.es)
+                use_tf_enrichment_scores = !is.null(tf.activity.es)
             )
 
             table.plots <- get_table_plot(row.triplet)

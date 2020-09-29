@@ -406,22 +406,13 @@ get_tf_dnam_classification <- function(
         classification$TF.role <- "Dual"
     }
 
-    if (classification$TF.role == "Repressor") {
+    if (low.pval < high.pval) {
+        classification$DNAm.effect <- "Attenuating"
+    } else {
+        classification$DNAm.effect <- "Enhancing"
+    }
 
-        if (low.estimate < high.estimate) {
-            classification$DNAm.effect <- "Attenuating"
-        } else if (low.estimate > high.estimate) {
-            classification$DNAm.effect <- "Enhancing"
-        }
-
-    } else if (classification$TF.role == "Activator") {
-
-        if (low.estimate < high.estimate) {
-            classification$DNAm.effect <- "Enhancing"
-        } else if (low.estimate > high.estimate) {
-            classification$DNAm.effect <- "Attenuating"
-        }
-    } else if (classification$TF.role == "Dual") {
+    if (classification$TF.role == "Dual") {
         classification$DNAm.effect <- "Invert"
     }
 

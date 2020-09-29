@@ -124,9 +124,11 @@ map_symbol_to_ensg <- function(
 
 #' @title Get human genome information from biomaRt
 #' @param genome Human genome of reference. Options: hg38, hg19.
+#' @param TSS add TSS information
 #' @noRd
 get_gene_information_biomart <- function(
-    genome = c("hg38","hg19")
+    genome = c("hg38","hg19"),
+    TSS = FALSE
 ){
     check_package("biomaRt")
     genome <- match.arg(genome)
@@ -158,6 +160,8 @@ get_gene_information_biomart <- function(
                 message(e)
                 return(NULL)
             })
+
+            # Column values we will recover from the database
             attributes <- c(
                 "ensembl_gene_id",
                 "external_gene_name",
@@ -167,6 +171,9 @@ get_gene_information_biomart <- function(
                 "start_position",
                 "gene_biotype"
             )
+
+            if (TSS)  attributes <- c(attributes, "transcription_start_site")
+
             db.datasets <- biomaRt::listDatasets(ensembl)
             description <- db.datasets[db.datasets$dataset == "hsapiens_gene_ensembl", ]$description
             message(paste0("Downloading genome information (try:", tries, ") Using: ", description))
@@ -469,7 +476,7 @@ make_exp_se <- function(
 }
 
 
-#' @title Calcule distance (in bp) between DNAm region and target gene
+#' @title Calcule distance (in bp) between DNAm region and target gene TSS
 #' @description Given a dataframe with a region ("regionID") and a
 #' target gene ("target"), returns a data frame with the distance included.
 #' @examples
@@ -495,7 +502,12 @@ get_distance_region_target <- function(
     genes.gr <- get_gene_information(
         genome = genome,
         as.granges =  TRUE
-    )
+    ) %>% resize(1)
+
+    # distance(
+    #    data.frame("seqnames" = "chr1","start" = 5, "end" = 8, strand = "+") %>% makeGRangesFromDataFrame %>% resize(1),
+    #    data.frame("seqnames" = "chr1","start" = 2,"end" = 2, strand = "*") %>% makeGRangesFromDataFrame
+    # )
 
     region.target$distance_region_target <- distance(
         regions.gr,

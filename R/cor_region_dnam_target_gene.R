@@ -103,14 +103,17 @@ cor_dnam_target_gene <- function(
 
     pair.dnam.target <- pair.dnam.target %>%
         dplyr:: filter(.data$target %in% rownames(exp))
+
     pair.dnam.target <- pair.dnam.target %>%
         dplyr::filter(.data$regionID %in% rownames(dnam))
 
     if (nrow(pair.dnam.target) == 0) {
+
         stop(
             "pair.dnam.target not found in data. ",
             "Please check rownames and pair.dnam.target provided."
         )
+
     }
     # reducing object sizes in case we will make it parallel
     exp <- exp[rownames(exp) %in% pair.dnam.target$target,,drop = FALSE]
@@ -122,7 +125,9 @@ cor_dnam_target_gene <- function(
         .data = pair.dnam.target,
         .margins = 1,
         .fun = function(pair){
+
             tryCatch({
+
                 exp <- exp[pair$target,]
                 dnam <- dnam[rownames(dnam) == pair$regionID,]
                 suppressWarnings({
@@ -132,20 +137,25 @@ cor_dnam_target_gene <- function(
                         method = "spearman",
                         exact = TRUE
                     )
+
                 })
+
                 return(
                     tibble(
                         "met_exp_cor_pvalue" = res$p.value,
                         "met_exp_cor_estimate" = res$estimate
                     )
                 )
+
             }, error = function(e){
+
                 return(
                     tibble(
                         "met_exp_cor_pvalue" = NA,
                         "met_exp_cor_estimate" = NA
                     )
                 )
+
             })
         },
         .progress = "time",
@@ -153,7 +163,7 @@ cor_dnam_target_gene <- function(
         .inform = TRUE
     )
 
-    correlation.df <- na.omit(correlation.df)
+    # correlation.df <- na.omit(correlation.df)
     correlation.df$met_exp_cor_fdr <- p.adjust(
         correlation.df$met_exp_cor_pvalue,
         method = "fdr"
@@ -163,7 +173,7 @@ cor_dnam_target_gene <- function(
         correlation.df <- correlation.df %>%
             dplyr::filter(
                 .data$met_exp_cor_fdr <= min.cor.pval &
-                    abs(.data$met_exp_cor_estimate) >= min.cor.estimate
+                abs(.data$met_exp_cor_estimate) >= min.cor.estimate
             )
     }
 

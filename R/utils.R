@@ -495,11 +495,16 @@ get_distance_region_target <- function(
     genome = c("hg38","hg19")
 ){
     genome <- match.arg(genome)
-    region.target <- na.omit(region.target)
 
-    regions.gr <- make_granges_from_names(
-        names = region.target$regionID
-    )
+    if ( !all( c("target","regionID") %in%  colnames(region.target))) {
+        stop("Input requires columns regionID (chrx:start:end) and target (ENSG)")
+    }
+    region.target.only <- region.target %>%
+        dplyr::filter(!is.na(.data$regionID)) %>%
+        dplyr::filter(!is.na(.data$target)) %>%
+        dplyr::select(c("target","regionID")) %>%
+        unique()
+
 
     # resize is used to keep only the TSS to calculate the distance to TSS
     genes.gr <- get_gene_information(
@@ -507,15 +512,49 @@ get_distance_region_target <- function(
         as.granges =  TRUE
     ) %>% resize(1)
 
-    # distance(
-    #    data.frame("seqnames" = "chr1","start" = 5, "end" = 8, strand = "+") %>% makeGRangesFromDataFrame %>% resize(1),
-    #    data.frame("seqnames" = "chr1","start" = 2,"end" = 2, strand = "*") %>% makeGRangesFromDataFrame
-    # )
+    # We only need to calculate the distance of genes in the input
+    genes.gr <- genes.gr[genes.gr$ensembl_gene_id %in% region.target.only$target]
 
-    region.target$distance_region_target_tss <- distance(
-        regions.gr,
-        genes.gr[match(region.target$target,genes.gr$ensembl_gene_id)]
+    # If the gene has no information the distance is NA
+    region.target.no.info <- region.target.only %>%
+        dplyr::filter(!.data$target %in% genes.gr$ensembl_gene_id)
+    region.target.no.info$distance_region_target_tss <- NA
+
+
+    # If the gene has information the distance will be calculated
+    region.target.info <- region.target.only %>%
+        dplyr::filter(.data$target %in% genes.gr$ensembl_gene_id)
+
+    regions.gr <- make_granges_from_names(
+        names = region.target.info$regionID
     )
+
+
+    idx <- match(region.target.info$target,genes.gr$ensembl_gene_id)
+    dist <- distance(
+        regions.gr,
+        genes.gr[idx]
+    )
+    region.target.info$distance_region_target_tss <- dist
+
+    # output both results together
+    region.target.only <- rbind(region.target.info, region.target.no.info)
+
+    # using target and region keys, map the distance to the original input
+    region.target$distance_region_target_tss <-
+        region.target.only$distance_region_target_tss[
+            match(
+                paste0(
+                    region.target$regionID,
+                    region.target$target
+                ),
+                paste0(
+                    region.target.only$regionID,
+                    region.target.only$target
+                )
+            )
+            ]
+
     return(region.target)
 }
 

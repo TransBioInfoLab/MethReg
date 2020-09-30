@@ -8,6 +8,31 @@ test_that("classification for non-signficant results", {
     )
     expect_equal(res$TF.role, NA)
     expect_equal(res$DNAm.effect, NA)
+
+    res <- get_tf_dnam_classification(
+        low.estimate = 0.8, low.pval = NA,
+        high.estimate = -0.2, high.pval = 1,
+        pvalue.threshold = 0.05
+    )
+    expect_equal(res$TF.role, NA)
+    expect_equal(res$DNAm.effect, NA)
+
+    res <- get_tf_dnam_classification(
+        low.estimate = -0.1, low.pval = NA,
+        high.estimate = -0.8, high.pval = 0.0001,
+        pvalue.threshold = 0.05
+    )
+    expect_equal(res$TF.role, "Repressor")
+    expect_equal(res$DNAm.effect, "Enhancing")
+
+    res <- get_tf_dnam_classification(
+        low.estimate = 0.1, low.pval = NA,
+        high.estimate = 0.8, high.pval = 0.0001,
+        pvalue.threshold = 0.05
+    )
+    expect_equal(res$TF.role, "Activator")
+    expect_equal(res$DNAm.effect, "Enhancing")
+
 })
 
 test_that("classification for signficant results in same direction", {

@@ -257,13 +257,15 @@ check_data <- function(dnam, exp, metadata){
 #' @param package Package name
 #' @noRd
 check_package <- function(package){
-    if (!requireNamespace(package, quietly = TRUE)) {
-        stop(
-            package,
-            " package is needed for this function to work. Please install it.",
-            call. = FALSE
-        )
-    }
+    suppressMessages({
+        if (!requireNamespace(package, quietly = TRUE)) {
+            stop(
+                package,
+                " package is needed for this function to work. Please install it.",
+                call. = FALSE
+            )
+        }
+    })
 }
 
 #' @title register cores

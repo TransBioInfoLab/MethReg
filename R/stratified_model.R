@@ -406,7 +406,11 @@ get_tf_dnam_classification <- function(
         classification$TF.role <- "Dual"
     }
 
-    if (low.pval < high.pval) {
+    if (is.na(low.pval)) {
+        classification$DNAm.effect <- "Enhancing"
+    } else if (is.na(high.pval)) {
+        classification$DNAm.effect <- "Attenuating"
+    } else if (low.pval < high.pval) {
         classification$DNAm.effect <- "Attenuating"
     } else {
         classification$DNAm.effect <- "Enhancing"

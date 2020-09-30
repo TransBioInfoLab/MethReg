@@ -90,7 +90,8 @@ regions.gr <- data.frame(
  region.genes.promoter.overlaps <- get_region_target_gene(
                       regions.gr = regions.gr,
                       genome = "hg19",
-                      method = "genes.promoter.overlap")
+                      method = "genes.promoter.overlap"
+ )
 
  # map to all gene within region +- 250kbp
  region.window.genes <- get_region_target_gene(

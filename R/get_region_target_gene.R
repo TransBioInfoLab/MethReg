@@ -141,7 +141,7 @@ get_region_target_gene <- function(
         )
     }
 
-    out <- get_distance_region_target(out)
+    out <- get_distance_region_target(out, genome = genome)
     out <- out %>% dplyr::rename(target_symbol = .data$target_gene_name)
 
     return(out)

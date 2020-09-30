@@ -94,7 +94,7 @@ create_triplet_regulon_based <- function(
         stop("No triplets found")
     }
 
-    triplet <- get_distance_region_target(triplet)
+    triplet <- get_distance_region_target(triplet, genome = genome)
 
     message("Removing regions and target genes from different chromosomes")
     triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target_tss))

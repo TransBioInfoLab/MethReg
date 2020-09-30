@@ -530,8 +530,19 @@ get_scatter_plot_results <- function(
             color = 'blue',
             label = paste0(
                 #gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
-                "RLM estimate = ",formatC(rlm.res$rlm.val, digits = 2, format = "e"),
-                "\nRLM p-value = ",  formatC(rlm.res$rlm.p.value, digits = 2, format = "e"))
+                "RLM estimate = ",
+                formatC(
+                    rlm.res$rlm.val,
+                    digits = 3,
+                    format =  ifelse(rlm.res$rlm.val < 10^-3, "e","f")
+                ),
+                "\nRLM p-value = ",
+                formatC(
+                    rlm.res$rlm.p.value,
+                    digits = 3,
+                    format = ifelse(rlm.res$rlm.p.value < 10^-3, "e","f")
+                )
+            )
         )
     } else {
         # lower Annotation

@@ -115,7 +115,8 @@ create_triplet_regulon_based <- function(
         dplyr::relocate(.data$target, .after = .data$target_symbol) %>%
         dplyr::relocate(.data$TF_symbol, .after = .data$target) %>%
         dplyr::relocate(.data$TF, .after = .data$TF_symbol) %>%
-        dplyr::relocate(.data$distance_region_target_tss, .after = dplyr::last_col())
+        dplyr::relocate(.data$distance_region_target_tss, .after = dplyr::last_col())  %>%
+        dplyr::relocate(contains("pos"), .after = dplyr::last_col())
 
     return(triplet)
 }

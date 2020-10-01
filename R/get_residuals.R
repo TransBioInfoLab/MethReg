@@ -71,8 +71,8 @@ get_residuals <- function(
         data <- assay(data)
     }
 
-    if (is.null(metadata.samples)) {
-        stop("Please set metadata argument with metadata information")
+    if (is.null(metadata.samples) & is.null(metadata.genes)) {
+        stop("Please set at least metadata.samples or metadata.genes argument with metadata information")
     }
 
     if (!all(colnames(data) == rownames(metadata.samples))) {
@@ -83,7 +83,7 @@ get_residuals <- function(
         message("There are NA's within the metadata, residuals for those samples will be NA.")
     }
 
-    if (!missing(metadata.genes)) {
+    if (!is.null(metadata.genes)) {
 
         if (ncol(metadata.genes) != ncol(data)) {
             stop("metadata.genes and data should have the number of columns")
@@ -92,34 +92,54 @@ get_residuals <- function(
         if (!all(colnames(metadata.genes) == colnames(data))) {
             stop("metadata.genes columns names should be the same as data columns names")
         }
+        data <- data[rownames(data) %in% rownames(metadata.genes),]
+
     }
     parallel <- register_cores(cores)
 
-    cov_char <- stringr::str_c(colnames(metadata.samples), collapse = " + ")
-    form <- stringr::str_c("exp ~ ", cov_char)
 
-    if (missing(metadata.genes)) {
+    if (is.null(metadata.genes)) {
+        cov_char <- stringr::str_c(colnames(metadata.samples), collapse = " + ")
+        form <- stringr::str_c("exp ~ ", cov_char)
         message("Formula used: ", form)
+    } else if (is.null(metadata.samples)) {
+        cov_char <- ""
+        form <- stringr::str_c("exp ~ ", cov_char)
+        message("Formula used: ", form, "gene.covariate")
     } else {
+        cov_char <- stringr::str_c(colnames(metadata.samples), collapse = " + ")
+        form <- stringr::str_c("exp ~ ", cov_char)
         message("Formula used: ", form, " + gene.covariate")
     }
 
     resid <- plyr::adply(
         .data = data,
         .margins = 1,
-        .fun = function(row, genes.names,metadata.genes){
+        .fun = function(row, genes.names, metadata.genes){
             exp <- row %>% matrix
             colnames(exp) <- "exp"
-            dat <- cbind(exp, metadata.samples)
+
+            if(!is.null(metadata.samples)){
+                dat <- cbind(exp, metadata.samples)
+            } else {
+                dat <- exp %>% as.data.frame()
+            }
             dat$exp <- as.numeric(dat$exp)
             gene.name <- genes.names[parent.frame()$i[]]
+
             if (!is.null(metadata.genes)) {
+
                 if (gene.name %in% rownames(metadata.genes)){
                     df <- data.frame(metadata.genes[gene.name,,drop = FALSE])
                     if (ncol(df) > 1) df <- df %>% t
                     colnames(df) <- gene.name
                     dat <- cbind(dat, df)
-                    form <- paste0(form," + ",gene.name)
+
+                    if(!is.null(metadata.samples)){
+                        form <- paste0(form," + ",gene.name)
+                    } else {
+                        form <- paste0(form, gene.name)
+                    }
                     #message("\nFormula used: ",form)
                 }
             }

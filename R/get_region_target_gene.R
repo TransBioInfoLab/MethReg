@@ -142,6 +142,12 @@ get_region_target_gene <- function(
     }
 
     out <- get_distance_region_target(out, genome = genome)
+
+    if (method == "nearby.genes") {
+        out <- out %>% dplyr::group_by(.data$regionID,.data$distance_direction) %>%
+            filter(.data$distance_region_target_tss <= head(sort(.data$distance_region_target_tss), num.flanking.genes))
+    }
+
     out <- out %>% dplyr::rename(target_symbol = .data$target_gene_name)
 
     return(out)
@@ -335,7 +341,7 @@ get_region_target_gene_nearby.genes <- function(
     )
 
     # 2) check follow and overlapping genes recursively
-    message("Identifying ",num.flanking.genes, " genes upstream of the region")
+    message("Identifying ", num.flanking.genes, " genes upstream of the region")
     follow.genes <- get_region_target_gene_nearby.genes_aux(
         direction.fun = GenomicRanges::follow,
         nearest.idx = nearest.idx,

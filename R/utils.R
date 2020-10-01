@@ -515,11 +515,13 @@ get_distance_region_target <- function(
     # We only need to calculate the distance of genes in the input
     genes.gr <- genes.gr[genes.gr$ensembl_gene_id %in% region.target.only$target]
 
+    # Adding new information
+    region.target.only$distance_region_target_tss <- NA
+    region.target.only$distance_direction <- NA
+
     # If the gene has no information the distance is NA
     region.target.no.info <- region.target.only %>%
         dplyr::filter(!.data$target %in% genes.gr$ensembl_gene_id)
-    region.target.no.info$distance_region_target_tss <- NA
-
 
     # If the gene has information the distance will be calculated
     region.target.info <- region.target.only %>%
@@ -535,7 +537,13 @@ get_distance_region_target <- function(
         regions.gr,
         genes.gr[idx]
     )
+
     region.target.info$distance_region_target_tss <- dist
+    region.target.info$distance_direction <- ifelse(
+        as.logical(strand(genes.gr[idx]) != "-"),
+        ifelse(start(regions.gr) < start(genes.gr[idx]), "upstream", "downstream"),
+        ifelse(start(regions.gr) < start(genes.gr[idx]), "downstream", "upstream")
+    )
 
     # output both results together
     region.target.only <- rbind(region.target.info, region.target.no.info)
@@ -554,6 +562,21 @@ get_distance_region_target <- function(
                 )
             )
             ]
+
+    region.target$distance_direction <-
+        region.target.only$distance_direction[
+            match(
+                paste0(
+                    region.target$regionID,
+                    region.target$target
+                ),
+                paste0(
+                    region.target.only$regionID,
+                    region.target.only$target
+                )
+            )
+            ]
+
 
     return(region.target)
 }

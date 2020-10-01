@@ -517,7 +517,8 @@ get_distance_region_target <- function(
 
     # Adding new information
     region.target.only$distance_region_target_tss <- NA
-    region.target.only$distance_direction <- NA
+    region.target.only$gene_pos_in_relation_to_gene <- NA
+    region.target.only$region_pos_in_relation_to_gene <- NA
 
     # If the gene has no information the distance is NA
     region.target.no.info <- region.target.only %>%
@@ -539,10 +540,14 @@ get_distance_region_target <- function(
     )
 
     region.target.info$distance_region_target_tss <- dist
-    region.target.info$distance_direction <- ifelse(
+    region.target.info$region_pos_in_relation_to_gene <- ifelse(
         as.logical(strand(genes.gr[idx]) != "-"),
         ifelse(start(regions.gr) < start(genes.gr[idx]), "upstream", "downstream"),
         ifelse(start(regions.gr) < start(genes.gr[idx]), "downstream", "upstream")
+    )
+
+    region.target.info$gene_pos_in_relation_to_gene <- ifelse(
+        start(regions.gr) < start(genes.gr[idx]), "right", "left"
     )
 
     # output both results together
@@ -563,8 +568,8 @@ get_distance_region_target <- function(
             )
             ]
 
-    region.target$distance_direction <-
-        region.target.only$distance_direction[
+    region.target$gene_pos_in_relation_to_gene <-
+        region.target.only$gene_pos_in_relation_to_gene[
             match(
                 paste0(
                     region.target$regionID,
@@ -577,6 +582,19 @@ get_distance_region_target <- function(
             )
             ]
 
+    region.target$region_pos_in_relation_to_gene <-
+        region.target.only$region_pos_in_relation_to_gene[
+            match(
+                paste0(
+                    region.target$regionID,
+                    region.target$target
+                ),
+                paste0(
+                    region.target.only$regionID,
+                    region.target.only$target
+                )
+            )
+            ]
 
     return(region.target)
 }

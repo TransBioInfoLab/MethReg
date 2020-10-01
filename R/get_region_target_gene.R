@@ -107,7 +107,9 @@ get_region_target_gene <- function(
     }
 
     if (!is(regions.gr,"GRanges")) stop("regions.gr must be a GRanges")
+
     if (method != "genes.promoter.overlap" & rm.promoter.regions.from.distal.linking) {
+
         message("Removing regions overlapping promoter regions")
         regions.gr <- subset_by_non_promoter_regions(
             regions.gr = regions.gr,
@@ -115,9 +117,14 @@ get_region_target_gene <- function(
             upstream = promoter.upstream.dist.tss,
             downstream = promoter.downstream.dist.tss
         )
+
+        if(length(regions.gr) == 0) {
+            stop("After removing promoter regions, regions.gr is empty")
+        }
     }
 
     if (method == "genes.promoter.overlap") {
+
         message("Mapping regions to the closest gene")
         out <- get_region_target_gene_by_promoter_overlap(
             regions.gr = regions.gr,
@@ -125,15 +132,20 @@ get_region_target_gene <- function(
             upstream = promoter.upstream.dist.tss,
             downstream = promoter.downstream.dist.tss
         )
+
     } else if (method == "window") {
+
         message("Mapping regions to genes within a window of size: ", window.size, " bp")
         out <- get_region_target_gene_window(regions.gr, genome, window.size)
+
     } else if (method == "nearby.genes") {
+
         out <- get_region_target_gene_nearby.genes(
             regions.gr = regions.gr,
             genome = genome,
             num.flanking.genes = num.flanking.genes
         )
+
     } else if (method == "closest.gene") {
         out <- get_region_target_gene_closest(
             regions.gr = regions.gr,
@@ -144,8 +156,13 @@ get_region_target_gene <- function(
     out <- get_distance_region_target(out, genome = genome)
 
     if (method == "nearby.genes") {
-        out <- out %>% dplyr::group_by(.data$regionID,.data$distance_direction) %>%
-            filter(.data$distance_region_target_tss <= head(sort(.data$distance_region_target_tss), num.flanking.genes))
+        out <- out %>% dplyr::group_by(.data$regionID,.data$gene_pos_in_relation_to_gene) %>%
+            filter(
+                .data$distance_region_target_tss <=
+                    (.data$distance_region_target_tss %>% sort %>% head(num.flanking.genes) %>% max)
+                )
+    } else {
+        out$gene_pos_in_relation_to_gene <- NULL
     }
 
     out <- out %>% dplyr::rename(target_symbol = .data$target_gene_name)
@@ -349,6 +366,7 @@ get_region_target_gene_nearby.genes <- function(
         regions.gr = regions.gr,
         num.flanking.genes = num.flanking.genes
     )
+
     ret <- rbind(closest.genes, precede.genes, follow.genes) %>% unique
 
     ret <- ret[,c(

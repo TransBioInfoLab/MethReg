@@ -22,7 +22,7 @@ test_that("get_region_target_gene works", {
 
    # map to all gene within region +- 250kbp
    region.nearby.genes <- get_region_target_gene(
-      regions.gr = regions.gr,
+      regions.gr = regions.gr[2:3],
       genome = "hg38",
       method = "nearby.genes",
       num.flanking.genes = 5

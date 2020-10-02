@@ -534,7 +534,7 @@ get_scatter_plot_results <- function(
                 formatC(
                     rlm.res$rlm.val,
                     digits = 3,
-                    format =  ifelse(rlm.res$rlm.val < 10^-3, "e","f")
+                    format = ifelse(abs(rlm.res$rlm.val) < 10^-3, "e","f")
                 ),
                 "\nRLM p-value = ",
                 formatC(
@@ -563,8 +563,19 @@ get_scatter_plot_results <- function(
             color = 'blue',
             label = paste0(
                 # gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
-                "RLM estimate = ",formatC(rlm.res.low$rlm.val, digits = 2, format = "e"),
-                "\nRLM p-value  = ",  formatC(rlm.res.low$rlm.p.value, digits = 2, format = "e"))
+                "RLM estimate = ",
+                formatC(
+                    rlm.res.low$rlm.val,
+                    digits = 2,
+                    format = ifelse(abs(rlm.res.low$rlm.val) < 10^-3, "e","f")
+                ),
+                "\nRLM p-value  = ",
+                formatC(
+                    rlm.res.low$rlm.p.value,
+                    digits = 2,
+                    format = ifelse(rlm.res.low$rlm.p.value < 10^-3, "e","f")
+                )
+            )
         )
 
         rlm.res.high <- get_rlm_val_pval(df %>% dplyr::filter(grepl("high",df[[facet.by]])), x , y)
@@ -583,8 +594,19 @@ get_scatter_plot_results <- function(
             color = 'blue',
             label = paste0(
                 #gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
-                "RLM estimate = ",formatC(rlm.res.high$rlm.val, digits = 2, format = "e"),
-                "\nRLM p-value = ",  formatC(rlm.res.high$rlm.p.value, digits = 2, format = "e"))
+                "RLM estimate = ",
+                formatC(
+                    rlm.res.high$rlm.val,
+                    digits = 2,
+                    format =  ifelse(abs(rlm.res.high$rlm.val) < 10^-3, "e","f")
+                    ),
+                "\nRLM p-value = ",
+                formatC(
+                    rlm.res.high$rlm.p.value,
+                    digits = 2,
+                    format = ifelse(rlm.res.high$rlm.p.value < 10^-3, "e","f")
+                    )
+                )
         )
     }
     return(p)

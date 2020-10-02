@@ -546,7 +546,7 @@ get_distance_region_target <- function(
         ifelse(start(regions.gr) < start(genes.gr[idx]), "downstream", "upstream")
     )
 
-    region.target.info$gene_pos_in_relation_to_gene <- ifelse(
+    region.target.info$gene_pos_in_relation_to_region <- ifelse(
         start(regions.gr) < start(genes.gr[idx]), "right", "left"
     )
 
@@ -568,8 +568,8 @@ get_distance_region_target <- function(
             )
             ]
 
-    region.target$gene_pos_in_relation_to_gene <-
-        region.target.only$gene_pos_in_relation_to_gene[
+    region.target$gene_pos_in_relation_to_region <-
+        region.target.only$gene_pos_in_relation_to_region[
             match(
                 paste0(
                     region.target$regionID,

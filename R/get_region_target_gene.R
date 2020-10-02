@@ -156,13 +156,13 @@ get_region_target_gene <- function(
     out <- get_distance_region_target(out, genome = genome)
 
     if (method == "nearby.genes") {
-        out <- out %>% dplyr::group_by(.data$regionID,.data$gene_pos_in_relation_to_gene) %>%
+        out <- out %>% dplyr::group_by(.data$regionID,.data$gene_pos_in_relation_to_region) %>%
             filter(
                 .data$distance_region_target_tss <=
                     (.data$distance_region_target_tss %>% sort %>% head(num.flanking.genes) %>% max)
                 )
     } else {
-        out$gene_pos_in_relation_to_gene <- NULL
+        out$gene_pos_in_relation_to_region <- NULL
     }
 
     out <- out %>% dplyr::rename(target_symbol = .data$target_gene_name)

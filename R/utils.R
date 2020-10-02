@@ -517,8 +517,8 @@ get_distance_region_target <- function(
 
     # Adding new information
     region.target.only$distance_region_target_tss <- NA
-    region.target.only$gene_pos_in_relation_to_gene <- NA
-    region.target.only$region_pos_in_relation_to_gene <- NA
+    region.target.only$target_tss_pos_in_relation_to_region <- NA
+    region.target.only$region_pos_in_relation_to_gene_tss <- NA
 
     # If the gene has no information the distance is NA
     region.target.no.info <- region.target.only %>%
@@ -540,15 +540,19 @@ get_distance_region_target <- function(
     )
 
     region.target.info$distance_region_target_tss <- dist
-    region.target.info$region_pos_in_relation_to_gene <- ifelse(
+    region.target.info$region_pos_in_relation_to_gene_tss <- ifelse(
         as.logical(strand(genes.gr[idx]) != "-"),
         ifelse(start(regions.gr) < start(genes.gr[idx]), "upstream", "downstream"),
         ifelse(start(regions.gr) < start(genes.gr[idx]), "downstream", "upstream")
     )
 
-    region.target.info$gene_pos_in_relation_to_region <- ifelse(
+    region.target.info$target_tss_pos_in_relation_to_region <- ifelse(
         start(regions.gr) < start(genes.gr[idx]), "right", "left"
     )
+
+
+    region.target.info$distance_region_target_tss <-
+        region.target.info$distance_region_target_tss * ifelse(region.target.info$region_pos_in_relation_to_gene_tss == "downstream",1, -1)
 
     # output both results together
     region.target.only <- rbind(region.target.info, region.target.no.info)
@@ -568,8 +572,8 @@ get_distance_region_target <- function(
             )
             ]
 
-    region.target$gene_pos_in_relation_to_region <-
-        region.target.only$gene_pos_in_relation_to_region[
+    region.target$target_tss_pos_in_relation_to_region <-
+        region.target.only$target_tss_pos_in_relation_to_region[
             match(
                 paste0(
                     region.target$regionID,
@@ -582,8 +586,8 @@ get_distance_region_target <- function(
             )
             ]
 
-    region.target$region_pos_in_relation_to_gene <-
-        region.target.only$region_pos_in_relation_to_gene[
+    region.target$region_pos_in_relation_to_gene_tss <-
+        region.target.only$region_pos_in_relation_to_gene_tss[
             match(
                 paste0(
                     region.target$regionID,

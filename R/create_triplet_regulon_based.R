@@ -95,12 +95,15 @@ create_triplet_regulon_based <- function(
     }
 
     triplet <- get_distance_region_target(triplet, genome = genome)
+    triplet$target_tss_pos_in_relation_to_region <- NULL
+    triplet$region_pos_in_relation_to_gene_tss <- NULL
+
 
     message("Removing regions and target genes from different chromosomes")
     triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target_tss))
 
     message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
-    triplet <- triplet %>% dplyr::filter(.data$distance_region_target_tss < max.distance.region.target)
+    triplet <- triplet %>% dplyr::filter(abs(.data$distance_region_target_tss) < max.distance.region.target)
 
     # removing cols from output
     triplet$mor <- NULL

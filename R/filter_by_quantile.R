@@ -212,3 +212,61 @@ filter_genes_zero_expression_all_samples <- function(
     }
     exp <- exp[genes.keep,,drop = FALSE]
 }
+
+
+
+#' @description  Give dnam and expression outputs the % of samples with
+#' 0 in Q1 and Q4. This function is useful if the analysis is performed using
+#' residuals. This function will add the following column to the input data
+#' "% of 0 target genes (Q1 and Q4)".
+#' @noRd
+add_percent_zero_q1_q4 <- function(
+    region.target,
+    dnam,
+    exp
+){
+
+    if (is(exp,"SummarizedExperiment")) {
+        exp <- assay(exp)
+    }
+
+    if (is(dnam,"SummarizedExperiment")) {
+        dnam <- assay(dnam)
+    }
+
+    aux <- plyr::adply(
+        unique(region.target[,c("regionID","target")]),
+        .margins = 1,
+        .fun = function(row) {
+
+            rna.target <- exp[rownames(exp) == row$target, , drop = FALSE]
+            met <- dnam[rownames(dnam) == as.character(row$regionID), ]
+
+            data <- data.frame(
+                rna.target = rna.target %>% as.numeric,
+                met = met %>% as.numeric
+            )
+
+            quant.met <-  quantile(data$met,na.rm = TRUE)
+            low.cutoff <- quant.met[2]
+            upper.cutoff <- quant.met[4]
+
+            data.high.low <- data %>%
+                filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
+            data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
+
+            pct.zeros.in.quant.samples <- sum(
+                data.high.low$rna.target == 0,
+                na.rm = TRUE) / nrow(data.high.low)
+
+            data.frame("% of 0 target genes (Q1 and Q4)" = paste0(
+                round(pct.zeros.in.quant.samples * 100,digits = 2),
+                " %")
+            )
+        }
+    )
+    region.target$`% of 0 target genes (Q1 and Q4)` <- aux$X..of.0.target.genes..Q1.and.Q4.[
+        match(paste0(region.target$regionID,region.target$target),paste0(aux$regionID,aux$target))
+        ]
+    return(region.target)
+}

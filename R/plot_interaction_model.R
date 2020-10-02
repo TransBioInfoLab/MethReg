@@ -566,13 +566,13 @@ get_scatter_plot_results <- function(
                 "RLM estimate = ",
                 formatC(
                     rlm.res.low$rlm.val,
-                    digits = 2,
+                    digits = 3,
                     format = ifelse(abs(rlm.res.low$rlm.val) < 10^-3, "e","f")
                 ),
                 "\nRLM p-value  = ",
                 formatC(
                     rlm.res.low$rlm.p.value,
-                    digits = 2,
+                    digits = 3,
                     format = ifelse(rlm.res.low$rlm.p.value < 10^-3, "e","f")
                 )
             )
@@ -597,13 +597,13 @@ get_scatter_plot_results <- function(
                 "RLM estimate = ",
                 formatC(
                     rlm.res.high$rlm.val,
-                    digits = 2,
+                    digits = 3,
                     format =  ifelse(abs(rlm.res.high$rlm.val) < 10^-3, "e","f")
                     ),
                 "\nRLM p-value = ",
                 formatC(
                     rlm.res.high$rlm.p.value,
-                    digits = 2,
+                    digits = 3,
                     format = ifelse(rlm.res.high$rlm.p.value < 10^-3, "e","f")
                     )
                 )

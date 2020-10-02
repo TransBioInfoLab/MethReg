@@ -33,6 +33,7 @@
 #' @importFrom tidyr unite
 #' @importFrom dplyr select filter bind_rows
 #' @importFrom methods is
+#' @importFrom utils head
 #' @examples
 #' library(GenomicRanges)
 #' library(dplyr)
@@ -118,7 +119,7 @@ get_region_target_gene <- function(
             downstream = promoter.downstream.dist.tss
         )
 
-        if(length(regions.gr) == 0) {
+        if (length(regions.gr) == 0) {
             stop("After removing promoter regions, regions.gr is empty")
         }
     }
@@ -152,18 +153,8 @@ get_region_target_gene <- function(
             genome = genome
         )
     }
-
     out <- get_distance_region_target(out, genome = genome)
-
-    if (method == "nearby.genes") {
-        out <- out %>% dplyr::group_by(.data$regionID,.data$target_tss_pos_in_relation_to_region) %>%
-            filter(
-                .data$distance_region_target_tss <=
-                    (.data$distance_region_target_tss %>% sort %>% head(num.flanking.genes) %>% max)
-                )
-    } else {
-        out$target_tss_pos_in_relation_to_region <- NULL
-    }
+    out$target_tss_pos_in_relation_to_region <- NULL
     out$region_pos_in_relation_to_gene_tss <- NULL
 
     out <- out %>% dplyr::rename(target_symbol = .data$target_gene_name)
@@ -349,7 +340,7 @@ get_region_target_gene_nearby.genes <- function(
         "ID" = names(regions.gr)[nearest.idx %>% queryHits]
     )
 
-    message("Identifying ",num.flanking.genes, " genes downstream to the region")
+    message("Identifying ",num.flanking.genes, " genes downstream of the region")
     precede.genes <- get_region_target_gene_nearby.genes_aux(
         direction.fun = GenomicRanges::precede,
         nearest.idx = nearest.idx,
@@ -378,6 +369,15 @@ get_region_target_gene_nearby.genes <- function(
 
     message("Identifying gene position for each region")
     colnames(ret)[1:3] <- c("regionID", "target", "target_gene_name")
+
+    ret <- get_distance_region_target(ret, genome = genome)
+
+    ret <- ret %>% dplyr::group_by(.data$regionID,.data$target_tss_pos_in_relation_to_region) %>%
+        filter(
+            abs(.data$distance_region_target_tss) <=
+                (abs(.data$distance_region_target_tss) %>% sort %>% head(num.flanking.genes) %>% max)
+        ) %>% dplyr::ungroup()
+
     return(ret)
 }
 
@@ -445,5 +445,139 @@ get_region_target_gene_nearby.genes_aux <- function(
     pb$terminate()
     return(ret)
 }
+
+
+
+#' @title Calcule distance (in bp) between DNAm region and target gene TSS
+#' @description Given a dataframe with a region ("regionID") and a
+#' target gene ("target"), returns a data frame with the distance included.
+#' @examples
+#' region.target <- data.frame(
+#'   "regionID" = "chr21:17511749-17511750",
+#'   "target" =  "ENSG00000215326"
+#' )
+#' region.target.with.distance <- get_distance_region_target(
+#'     region.target = region.target
+#')
+#' @noRd
+get_distance_region_target <- function(
+    region.target,
+    genome = c("hg38","hg19")
+){
+    genome <- match.arg(genome)
+
+    if ( !all( c("target","regionID") %in%  colnames(region.target))) {
+        stop("Input requires columns regionID (chrx:start:end) and target (ENSG)")
+    }
+    region.target.only <- region.target %>%
+        dplyr::filter(!is.na(.data$regionID)) %>%
+        dplyr::filter(!is.na(.data$target)) %>%
+        dplyr::select(c("target","regionID")) %>%
+        unique()
+
+
+    # resize is used to keep only the TSS to calculate the distance to TSS
+    genes.gr <- get_gene_information(
+        genome = genome,
+        as.granges =  TRUE
+    ) %>% resize(1)
+
+    # We only need to calculate the distance of genes in the input
+    genes.gr <- genes.gr[genes.gr$ensembl_gene_id %in% region.target.only$target]
+
+    # Adding new information
+    region.target.only <- region.target.only %>%
+        cbind(
+            data.frame(
+                "distance_region_target_tss" = NA,
+                "target_tss_pos_in_relation_to_region" = NA,
+                "region_pos_in_relation_to_gene_tss" = NA
+            )
+        )
+
+    # If the gene has no information the distance is NA
+    region.target.no.info <- region.target.only %>%
+        dplyr::filter(!.data$target %in% genes.gr$ensembl_gene_id)
+
+    # If the gene has information the distance will be calculated
+    region.target.info <- region.target.only %>%
+        dplyr::filter(.data$target %in% genes.gr$ensembl_gene_id)
+
+    regions.gr <- make_granges_from_names(
+        names = region.target.info$regionID
+    )
+
+
+    idx <- match(region.target.info$target,genes.gr$ensembl_gene_id)
+    dist <- distance(
+        regions.gr,
+        genes.gr[idx]
+    )
+
+    region.target.info$distance_region_target_tss <- dist
+    region.target.info$region_pos_in_relation_to_gene_tss <- ifelse(
+        as.logical(strand(genes.gr[idx]) != "-"),
+        ifelse(start(regions.gr) < start(genes.gr[idx]), "upstream", "downstream"),
+        ifelse(start(regions.gr) < start(genes.gr[idx]), "downstream", "upstream")
+    )
+
+    region.target.info$target_tss_pos_in_relation_to_region <- ifelse(
+        start(regions.gr) < start(genes.gr[idx]), "right", "left"
+    )
+
+
+    region.target.info$distance_region_target_tss <-
+        region.target.info$distance_region_target_tss * ifelse(region.target.info$region_pos_in_relation_to_gene_tss == "downstream",1, -1)
+
+    # output both results together
+    region.target.only <- plyr::rbind.fill(region.target.info, region.target.no.info)
+
+    # using target and region keys, map the distance to the original input
+    region.target$distance_region_target_tss <-
+        region.target.only$distance_region_target_tss[
+            match(
+                paste0(
+                    region.target$regionID,
+                    region.target$target
+                ),
+                paste0(
+                    region.target.only$regionID,
+                    region.target.only$target
+                )
+            )
+            ]
+
+    region.target$target_tss_pos_in_relation_to_region <-
+        region.target.only$target_tss_pos_in_relation_to_region[
+            match(
+                paste0(
+                    region.target$regionID,
+                    region.target$target
+                ),
+                paste0(
+                    region.target.only$regionID,
+                    region.target.only$target
+                )
+            )
+            ]
+
+    region.target$region_pos_in_relation_to_gene_tss <-
+        region.target.only$region_pos_in_relation_to_gene_tss[
+            match(
+                paste0(
+                    region.target$regionID,
+                    region.target$target
+                ),
+                paste0(
+                    region.target.only$regionID,
+                    region.target.only$target
+                )
+            )
+            ]
+
+    return(region.target)
+}
+
+
 
 

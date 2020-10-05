@@ -7,7 +7,7 @@
 get_region_target_gene(
   regions.gr,
   genome = c("hg38", "hg19"),
-  method = c("genes.promoter.overlap", "window", "nearby.genes", "closest.gene"),
+  method = c("genes.promoter.overlap", "window", "nearby.genes", "closest.gene.tss"),
   promoter.upstream.dist.tss = 2000,
   promoter.downstream.dist.tss = 2000,
   window.size = 500 * 10^3,
@@ -26,7 +26,7 @@ promoter ("genes.promoter.overlap"); or
 genes within a window around the region ("window");
 or a fixed number genes upstream
 and downstream of the region ("nearby.genes");
-or closest gene to the region ("closest.gene")}
+or closest gene tss to the region ("closest.gene.tss")}
 
 \item{promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of
 TSS to consider as promoter regions. Defaults to 2000 bp.}
@@ -53,7 +53,7 @@ regionID, Target symbol, Target ensembl ID
 }
 \description{
 To map an input region to genes there are three options:
-1) map region to closest gene
+1) map region to closest gene tss
 2) map region to all genes within a window around the region
 (default window.size = 500kbp
 (i.e. +/- 250kbp from start or end of the region)).
@@ -86,7 +86,7 @@ regions.gr <- data.frame(
        stringsAsFactors = FALSE)  \%>\%
      makeGRangesFromDataFrame
 
- # map to closest gene
+ # map to closest gene tss
  region.genes.promoter.overlaps <- get_region_target_gene(
                       regions.gr = regions.gr,
                       genome = "hg19",

@@ -1,6 +1,6 @@
 #' @title Obtain target genes of input regions based on distance
 #' @description To map an input region to genes there are three options:
-#' 1) map region to closest gene
+#' 1) map region to closest gene tss
 #' 2) map region to all genes within a window around the region
 #' (default window.size = 500kbp
 #' (i.e. +/- 250kbp from start or end of the region)).
@@ -13,7 +13,7 @@
 #' genes within a window around the region ("window");
 #' or a fixed number genes upstream
 #' and downstream of the region ("nearby.genes");
-#' or closest gene to the region ("closest.gene")
+#' or closest gene tss to the region ("closest.gene.tss")
 #' @param window.size When \code{method = "window"}, number of base pairs
 #' to extend the region (+- window.size/2).
 #' Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)
@@ -46,7 +46,7 @@
 #'        stringsAsFactors = FALSE)  %>%
 #'      makeGRangesFromDataFrame
 #'
-#'  # map to closest gene
+#'  # map to closest gene tss
 #'  region.genes.promoter.overlaps <- get_region_target_gene(
 #'                       regions.gr = regions.gr,
 #'                       genome = "hg19",
@@ -91,7 +91,7 @@ get_region_target_gene <- function(
         "genes.promoter.overlap",
         "window",
         "nearby.genes",
-        "closest.gene"
+        "closest.gene.tss"
     ),
     promoter.upstream.dist.tss = 2000,
     promoter.downstream.dist.tss = 2000,
@@ -147,8 +147,8 @@ get_region_target_gene <- function(
             num.flanking.genes = num.flanking.genes
         )
 
-    } else if (method == "closest.gene") {
-        out <- get_region_target_gene_closest(
+    } else if (method == "closest.gene.tss") {
+        out <- get_region_target_gene_closest_tss(
             regions.gr = regions.gr,
             genome = genome
         )
@@ -172,11 +172,11 @@ get_region_target_gene <- function(
 #'      makeGRangesFromDataFrame
 #' @importFrom GenomicRanges distanceToNearest
 #' @importFrom S4Vectors values
-get_region_target_gene_closest <- function(
+get_region_target_gene_closest_tss <- function(
     regions.gr,
     genome
 ){
-    gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
+    gene.info <- get_gene_information(genome = genome, as.granges = TRUE) %>% resize(1)
     hits <- nearest(regions.gr,gene.info)
     nearest.genes <- gene.info[hits] %>% as.data.frame(row.names = NULL)
 

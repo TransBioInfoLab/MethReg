@@ -76,11 +76,13 @@ cor_tf_target_gene <- function(
     }
     #-------------------------------------------------------------------------
 
-     if(verbose) message("Removing genes with RNA expression equal to 0/NA for all samples")
+     if(verbose) {
+         message("Removing genes with RNA expression equal to 0/NA for all samples")
+     }
 
     exp <- filter_genes_zero_expression(exp = exp, max.samples.percentage = 100)
 
-    pair.tf.target <- pair.tf.target %>%
+    pair.tf.target <- pair.tf.target %>% as.data.frame() %>%
         dplyr::filter(.data$target %in% rownames(exp))
 
     if (missing(tf.activity.es)){

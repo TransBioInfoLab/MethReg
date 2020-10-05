@@ -11,6 +11,9 @@ create_triplet_distance_based(
   target.method = c("genes.promoter.overlap", "window", "nearby.genes", "closest.gene"),
   target.window.size = 500 * 10^3,
   target.num.flanking.genes = 5,
+  target.promoter.upstream.dist.tss = 2000,
+  target.promoter.downstream.dist.tss = 2000,
+  target.rm.promoter.regions.from.distal.linking = TRUE,
   motif.search.window.size = 0,
   motif.search.p.cutoff = 1e-08,
   max.distance.region.target = 10^6,
@@ -36,6 +39,17 @@ Default is 500kbp (or +/- 250kbp, i.e. 250k bp from start or end of the region)}
 downstream to search.
 For example, if \code{target.num.flanking.genes = 5}, it will return the
 5 genes upstream and 5 genes downstream}
+
+\item{target.promoter.upstream.dist.tss}{Number of base pairs (bp) upstream of
+TSS to consider as promoter regions. Defaults to 2000 bp.}
+
+\item{target.promoter.downstream.dist.tss}{Number of base pairs (bp) downstream of
+TSS to consider as promoter regions. Defaults to 2000 bp.}
+
+\item{target.rm.promoter.regions.from.distal.linking}{When performing distal linking
+with method = "windows" or method = "nearby.genes", or "closest.gene.tss",
+if set to TRUE (default), probes in promoter regions will be removed
+from the input.}
 
 \item{motif.search.window.size}{Integer value to extend the regions.
 For example, a value of 50 will

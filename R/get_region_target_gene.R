@@ -22,7 +22,7 @@
 #' For example, if num.flanking.genes = 5, it will return the 5 genes upstream
 #' and 5 genes downstream of the given region.
 #' @param rm.promoter.regions.from.distal.linking When performing distal linking
-#' with method = "windows" or method = "nearby.genes", if set to TRUE (default),
+#' with method = "windows", "nearby.genes" or  "closest.gene.tss", if set to TRUE (default),
 #' probes in promoter regions will be removed from the input.
 #' @param promoter.upstream.dist.tss Number of base pairs (bp) upstream of
 #' TSS to consider as promoter regions. Defaults to 2000 bp.

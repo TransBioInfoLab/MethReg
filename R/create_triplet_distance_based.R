@@ -24,6 +24,14 @@
 #' downstream to search.
 #' For example, if \code{target.num.flanking.genes = 5}, it will return the
 #' 5 genes upstream and 5 genes downstream
+#' @param target.rm.promoter.regions.from.distal.linking When performing distal linking
+#' with method = "windows" or method = "nearby.genes", or "closest.gene.tss",
+#' if set to TRUE (default), probes in promoter regions will be removed
+#' from the input.
+#' @param target.promoter.upstream.dist.tss Number of base pairs (bp) upstream of
+#' TSS to consider as promoter regions. Defaults to 2000 bp.
+#' @param target.promoter.downstream.dist.tss Number of base pairs (bp) downstream of
+#' TSS to consider as promoter regions. Defaults to 2000 bp.
 #' @param motif.search.window.size Integer value to extend the regions.
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
@@ -50,6 +58,9 @@ create_triplet_distance_based <- function(
     ),
     target.window.size = 500 * 10^3,
     target.num.flanking.genes = 5,
+    target.promoter.upstream.dist.tss = 2000,
+    target.promoter.downstream.dist.tss = 2000,
+    target.rm.promoter.regions.from.distal.linking = TRUE,
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
     max.distance.region.target =  10^6,
@@ -81,7 +92,10 @@ create_triplet_distance_based <- function(
         genome = genome,
         window.size = target.window.size,
         method = target.method,
-        num.flanking.genes = target.num.flanking.genes
+        num.flanking.genes = target.num.flanking.genes,
+        promoter.upstream.dist.tss = target.promoter.upstream.dist.tss,
+        promoter.downstream.dist.tss = target.promoter.downstream.dist.tss,
+        rm.promoter.regions.from.distal.linking = target.rm.promoter.regions.from.distal.linking
     )
 
     message("Looking for TFBS")

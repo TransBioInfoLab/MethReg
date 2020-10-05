@@ -101,7 +101,7 @@ cor_dnam_target_gene <- function(
     regions.keep <- (rowSums(is.na(dnam)) < ncol(dnam)) %>% which %>% names
     dnam <- dnam[regions.keep,, drop = FALSE]
 
-    pair.dnam.target <- pair.dnam.target %>%
+    pair.dnam.target <- pair.dnam.target %>% as.data.frame() %>%
         dplyr:: filter(.data$target %in% rownames(exp))
 
     pair.dnam.target <- pair.dnam.target %>%

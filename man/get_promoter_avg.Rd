@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_promoter_avg.R
 \name{get_promoter_avg}
 \alias{get_promoter_avg}
-\title{Summarize promoter methylation beta values by mean or median.}
+\title{Summarize promoter DNA methylation beta values by mean.}
 \usage{
 get_promoter_avg(
   dnam,
@@ -35,10 +35,10 @@ messages output should be provided.}
 \value{
 A RangedSummarizedExperiment with promoter region and
 mean beta-values of CpGs within it.
+Metadata will provide the promoter gene region and gene informations.
 }
 \description{
-First, identify gene promoter regions (+-2Kkb around TSS). When promoters
-overlap they will be merged.
+First, identify gene promoter regions (default +-2Kkb around TSS).
 Then, for each promoter region calculate the mean DNA methylation of probes
 overlapping the region.
 }

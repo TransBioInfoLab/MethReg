@@ -1,11 +1,11 @@
-#' @title Summarize promoter methylation beta values by mean or median.
+#' @title Summarize promoter DNA methylation beta values by mean.
 #' @description
-#' First, identify gene promoter regions (+-2Kkb around TSS). When promoters
-#' overlap they will be merged.
+#' First, identify gene promoter regions (default +-2Kkb around TSS).
 #' Then, for each promoter region calculate the mean DNA methylation of probes
 #' overlapping the region.
 #' @return A RangedSummarizedExperiment with promoter region and
 #' mean beta-values of CpGs within it.
+#' Metadata will provide the promoter gene region and gene informations.
 #' @export
 #' @importFrom GenomicRanges reduce
 #' @examples
@@ -77,9 +77,11 @@ get_promoter_avg <- function(
     promoter.matrix <- NULL
     # Do we have probes mapped to unique promoter regions, if so copy probes and rename
     # probes to regions
+    unique.promoter.genes <- NULL
     if(nrow(unique.hits) > 0){
         promoter.matrix <- dnam[unique.hits$subjectHits,, drop = FALSE] %>% as.matrix()
         rownames(promoter.matrix) <- make_names_from_granges(promoter.gr[unique.hits$queryHits])
+        unique.promoter.genes <- values(promoter.gr[unique(unique.hits$queryHits)])
     }
 
     if(verbose) message("o Get mean DNA methylation of regions overlapping each promoter region")
@@ -96,7 +98,13 @@ get_promoter_avg <- function(
                 idx <- hits %>% filter(queryHits == x) %>% pull(subjectHits)
                 rows <- make_names_from_granges(probes.gr[idx])
                 Matrix::colMeans(dnam[rows,,drop = FALSE],na.rm = TRUE)
-            }, .id = NULL, .parallel = parallel , .progress = "time", .inform = TRUE)
+            }, .id = NULL,
+            .parallel = parallel ,
+            .progress = "time",
+            .inform = TRUE
+            )
+
+        non.unique.promoter.genes <- values(promoter.gr[unique(non.unique.hits$queryHits)])
 
         rownames(non.unique.promoter) <-
             promoter.gr[unique(non.unique.hits$queryHits)] %>%
@@ -105,9 +113,15 @@ get_promoter_avg <- function(
         if(is.null(promoter.matrix)) {
             promoter.matrix <- non.unique.promoter
         } else {
-            promoter.matrix <-  rbind(promoter.matrix, non.unique.promoter)
+            promoter.matrix <- rbind(promoter.matrix, non.unique.promoter)
         }
     }
     se <- promoter.matrix %>% as.matrix %>% make_dnam_se()
+    values(se) <- cbind(
+        rownames(se),
+        rbind(unique.promoter.genes, non.unique.promoter.genes)
+    )
+    colnames(values(se)) <- c("promtoer_region","gene","gene_symbol")
+
     return(se)
 }

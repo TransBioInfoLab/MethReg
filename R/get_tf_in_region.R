@@ -1,11 +1,13 @@
-#' @title Get human TFs for regions by scanning it with motifmatchr using
-#' JASPAR 2020 database
-#' @description Given a genomic region, this function uses motifmatchr
-#' and JASPAR2020
-#' to scan the region for 554 human transcription factors binding sites. There is also
-#' an option (argument \code{window.size}) to extend the scanning region
-#' before performing the search, which
-#' by default is 0 (do not extend)
+#' @title Get human TFs for regions by either scanning it with motifmatchr using
+#' JASPAR 2020 database or overlapping with TF chip-seq from user input
+#' @description Given a genomic region, this function maps TF in regions
+#' using two methods: 1) using motifmatchr nd JASPAR2020 to scan the
+#' region for 554 human transcription factors
+#' binding sites. There is also  an option (argument \code{window.size})
+#' to extend the scanning region before performing the search, which
+#' by default is 0 (do not extend).
+#' 2) Using user input  TF chip-seq to check for overlaps between region
+#' and TF peaks.
 #' @return A data frame with the following information: regionID, TF symbol, TF ensembl ID
 #' @importFrom SummarizedExperiment assay
 #' @importFrom DelayedArray colSums
@@ -21,12 +23,30 @@
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param verbose A logical argument indicating if
 #' messages output should be provided.
+#' @param TF.peaks.gr  A granges with TF peaks to be overlaped with input region
+#' Metadata column expected "id" with TF name. Default NULL.
 #' @examples
 #'  regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
 #'  region.tf <- get_tf_in_region(
 #'                  region = regions.names,
 #'                  genome = "hg38"
 #'  )
+#'
+#'  \dontrun{
+#'    library(ReMapEnrich)
+#'    demo.dir <- "~/ReMapEnrich_demo"
+#'    dir.create(demo.dir, showWarnings = FALSE, recursive = TRUE)
+#'    # Use the function DowloadRemapCatalog
+#'    remapCatalog2018hg38 <- downloadRemapCatalog(demo.dir, assembly = "hg38")
+#'    # Load the ReMap catalogue and convert it to Genomic Ranges
+#'    remapCatalog <- bedToGranges(remapCatalog2018hg38)
+#'    regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
+#'    region.tf.remap <- get_tf_in_region(
+#'                    region = regions.names,
+#'                    genome = "hg38",
+#'                    TF.peaks.gr = remapCatalog
+#'    )
+#'  }
 #' @export
 get_tf_in_region <- function(
     region,
@@ -34,6 +54,7 @@ get_tf_in_region <- function(
     genome = c("hg19","hg38"),
     p.cutoff = 1e-8,
     cores = 1,
+    TF.peaks.gr = NULL,
     verbose = FALSE
 ) {
 
@@ -59,57 +80,67 @@ get_tf_in_region <- function(
 
     genome <- match.arg(genome)
 
-    opts <- list()
-    opts[["species"]] <- 9606 # homo sapies
-    # opts[["all_versions"]] <- TRUE
-    PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, opts)
-    motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
-    names(PFMatrixList) <- motifs.names
-    PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]
+    if(is.null(TF.peaks.gr)){
+        opts <- list()
+        opts[["species"]] <- 9606 # homo sapies
+        # opts[["all_versions"]] <- TRUE
+        PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, opts)
+        motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
+        names(PFMatrixList) <- motifs.names
+        PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]
 
-     if(verbose)  message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
-     if(verbose)  message("This may take a while...")
-    suppressWarnings({
-        motif.matrix <- motifmatchr::matchMotifs(
-            pwms = PFMatrixList,
-            subject = region.gr,
-            genome = genome,
-            p.cutoff = p.cutoff
-        ) %>% SummarizedExperiment::assay()
-    })
-    rownames(motif.matrix) <- region.names
+        if(verbose)  message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
+        if(verbose)  message("This may take a while...")
+        suppressWarnings({
+            motif.matrix <- motifmatchr::matchMotifs(
+                pwms = PFMatrixList,
+                subject = region.gr,
+                genome = genome,
+                p.cutoff = p.cutoff
+            ) %>% SummarizedExperiment::assay()
+        })
+        rownames(motif.matrix) <- region.names
 
-    # remove motifs not found in any regions
-    motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
+        # remove motifs not found in any regions
+        motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
 
-    if (ncol(motif.matrix) == 0) {
-        message("No motifs found")
-        return(NULL)
+        if (ncol(motif.matrix) == 0) {
+            message("No motifs found")
+            return(NULL)
+        }
+
+        if (is(motif.matrix, "lgCMatrix")) {
+            motif.matrix <- motif.matrix[!duplicated(rownames(motif.matrix)),]
+            motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
+        }
+
+        if(verbose)  message("Preparing output")
+        motifs.probes.df <- plyr::alply(
+            colnames(motif.matrix),
+            .margins = 1,
+            function(colum.name){
+                colum <- motif.matrix[,colum.name, drop = FALSE]
+                regions <- rownames(colum)[which(colum %>% pull > 0)];
+                tfs <- colum.name
+                expand.grid(regions,tfs,stringsAsFactors = FALSE)
+            }, .progress = "time",.parallel = parallel)
+        motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
+        colnames(motifs.probes.df) <- c("regionID","TF_symbol")
+
+        motifs.probes.df$TF <- map_symbol_to_ensg(
+            motifs.probes.df$TF_symbol
+        )
+
+        motifs.probes.df <- motifs.probes.df %>% na.omit
+
+    } else {
+
+       hits <- findOverlaps(TF.peaks.gr, region.gr)
+       motifs.probes.df <- data.frame(
+           "regionID" = region.gr[subjectHits(hits)] %>% make_names_from_granges,
+           "TF_symbol" = TF.peaks.gr$id[queryHits(hits)]
+       )
+       motifs.probes.df$TF <- map_symbol_to_ensg(motifs.probes.df$TF_symbol)
     }
-
-    if (is(motif.matrix, "lgCMatrix")) {
-        motif.matrix <- motif.matrix[!duplicated(rownames(motif.matrix)),]
-        motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
-    }
-
-     if(verbose)  message("Preparing output")
-    motifs.probes.df <- plyr::alply(
-        colnames(motif.matrix),
-        .margins = 1,
-        function(colum.name){
-            colum <- motif.matrix[,colum.name, drop = FALSE]
-            regions <- rownames(colum)[which(colum %>% pull > 0)];
-            tfs <- colum.name
-            expand.grid(regions,tfs,stringsAsFactors = FALSE)
-        }, .progress = "time",.parallel = parallel)
-    motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
-    colnames(motifs.probes.df) <- c("regionID","TF_symbol")
-
-    motifs.probes.df$TF <- map_symbol_to_ensg(
-        motifs.probes.df$TF_symbol
-    )
-
-    motifs.probes.df <- motifs.probes.df %>% na.omit
     return(motifs.probes.df %>% unique)
-
 }

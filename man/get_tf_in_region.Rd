@@ -2,8 +2,8 @@
 % Please edit documentation in R/get_tf_in_region.R
 \name{get_tf_in_region}
 \alias{get_tf_in_region}
-\title{Get human TFs for regions by scanning it with motifmatchr using
-JASPAR 2020 database}
+\title{Get human TFs for regions by either scanning it with motifmatchr using
+JASPAR 2020 database or overlapping with TF chip-seq from user input}
 \usage{
 get_tf_in_region(
   region,
@@ -11,6 +11,7 @@ get_tf_in_region(
   genome = c("hg19", "hg38"),
   p.cutoff = 1e-08,
   cores = 1,
+  TF.peaks.gr = NULL,
   verbose = FALSE
 )
 }
@@ -29,6 +30,9 @@ The default is not to increase the scanned region.}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 
+\item{TF.peaks.gr}{A granges with TF peaks to be overlaped with input region
+Metadata column expected "id" with TF name. Default NULL.}
+
 \item{verbose}{A logical argument indicating if
 messages output should be provided.}
 }
@@ -36,12 +40,14 @@ messages output should be provided.}
 A data frame with the following information: regionID, TF symbol, TF ensembl ID
 }
 \description{
-Given a genomic region, this function uses motifmatchr
-and JASPAR2020
-to scan the region for 554 human transcription factors binding sites. There is also
-an option (argument \code{window.size}) to extend the scanning region
-before performing the search, which
-by default is 0 (do not extend)
+Given a genomic region, this function maps TF in regions
+using two methods: 1) using motifmatchr nd JASPAR2020 to scan the
+region for 554 human transcription factors
+binding sites. There is also  an option (argument \code{window.size})
+to extend the scanning region before performing the search, which
+by default is 0 (do not extend).
+2) Using user input  TF chip-seq to check for overlaps between region
+and TF peaks.
 }
 \examples{
  regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
@@ -49,4 +55,20 @@ by default is 0 (do not extend)
                  region = regions.names,
                  genome = "hg38"
  )
+
+ \dontrun{
+   library(ReMapEnrich)
+   demo.dir <- "~/ReMapEnrich_demo"
+   dir.create(demo.dir, showWarnings = FALSE, recursive = TRUE)
+   # Use the function DowloadRemapCatalog
+   remapCatalog2018hg38 <- downloadRemapCatalog(demo.dir, assembly = "hg38")
+   # Load the ReMap catalogue and convert it to Genomic Ranges
+   remapCatalog <- bedToGranges(remapCatalog2018hg38)
+   regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
+   region.tf.remap <- get_tf_in_region(
+                   region = regions.names,
+                   genome = "hg38",
+                   TF.peaks.gr = remapCatalog
+   )
+ }
 }

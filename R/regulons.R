@@ -26,7 +26,7 @@ get_regulon_dorothea <- function(
 }
 
 #' @title Calculate enrichment scores for each TF across all samples using
-#' \code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
+#' dorothea and viper.
 #' @param exp Gene expression matrix with gene expression counts,
 #' row as ENSG gene IDS and column as samples
 #' @param min.confidence Minimun confidence score ("A", "B","C","D", "E")

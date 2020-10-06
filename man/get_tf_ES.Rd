@@ -3,7 +3,7 @@
 \name{get_tf_ES}
 \alias{get_tf_ES}
 \title{Calculate enrichment scores for each TF across all samples using
-\code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.}
+dorothea and viper.}
 \usage{
 get_tf_ES(exp, min.confidence = "B", regulons)
 }
@@ -24,7 +24,7 @@ A matrix of normalized enrichment scores for each TF across all samples
 }
 \description{
 Calculate enrichment scores for each TF across all samples using
-\code{\link[dorothea]{dorothea}} and \code{\link[viper]{viper}}.
+dorothea and viper.
 }
 \examples{
 gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))

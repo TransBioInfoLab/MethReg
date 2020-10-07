@@ -24,7 +24,8 @@
 #' @param verbose A logical argument indicating if
 #' messages output should be provided.
 #' @param TF.peaks.gr  A granges with TF peaks to be overlaped with input region
-#' Metadata column expected "id" with TF name. Default NULL.
+#' Metadata column expected "id" with TF name. Default NULL. Note that Remap catalog
+#' can be used as shown in the examples.
 #' @examples
 #'  regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
 #'  region.tf <- get_tf_in_region(
@@ -32,7 +33,7 @@
 #'                  genome = "hg38"
 #'  )
 #'
-#'  \dontrun{
+#' \dontrun{
 #'    library(ReMapEnrich)
 #'    demo.dir <- "~/ReMapEnrich_demo"
 #'    dir.create(demo.dir, showWarnings = FALSE, recursive = TRUE)
@@ -80,7 +81,7 @@ get_tf_in_region <- function(
 
     genome <- match.arg(genome)
 
-    if(is.null(TF.peaks.gr)){
+    if (is.null(TF.peaks.gr)) {
         opts <- list()
         opts[["species"]] <- 9606 # homo sapies
         # opts[["all_versions"]] <- TRUE

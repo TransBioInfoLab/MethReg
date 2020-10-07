@@ -16,6 +16,7 @@ create_triplet_distance_based(
   target.rm.promoter.regions.from.distal.linking = TRUE,
   motif.search.window.size = 0,
   motif.search.p.cutoff = 1e-08,
+  TF.peaks.gr = NULL,
   max.distance.region.target = 10^6,
   cores = 1
 )
@@ -56,6 +57,10 @@ For example, a value of 50 will
 extend 25 bp upstream and 25 downstream the region. Default is no increase}
 
 \item{motif.search.p.cutoff}{motifmatchr pvalue cut-off. Default 1e-8.}
+
+\item{TF.peaks.gr}{A granges with TF peaks to be overlaped with input region
+Metadata column expected "id" with TF name. Default NULL. Note that Remap catalog
+can be used as shown in the examples.}
 
 \item{max.distance.region.target}{Max distance between region and target gene. Default 1Mbp.}
 

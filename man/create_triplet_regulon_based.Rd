@@ -14,6 +14,7 @@ create_triplet_regulon_based(
   motif.search.p.cutoff = 1e-08,
   cores = 1,
   tf.target,
+  TF.peaks.gr = NULL,
   max.distance.region.target = 10^6
 )
 }
@@ -38,6 +39,10 @@ extend 25 bp upstream and 25 downstream the region. Default is no increase}
 
 \item{tf.target}{A dataframe with tf and target columns. If not provided,
 \link[dorothea]{dorothea_hs} will be used.}
+
+\item{TF.peaks.gr}{A granges with TF peaks to be overlaped with input region
+Metadata column expected "id" with TF name. Default NULL. Note that Remap catalog
+can be used as shown in the examples.}
 
 \item{max.distance.region.target}{Max distance between region and target gene.
 Default 1Mbp.}

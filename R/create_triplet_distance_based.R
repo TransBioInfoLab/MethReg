@@ -36,6 +36,9 @@
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
 #' @param motif.search.p.cutoff motifmatchr pvalue cut-off. Default 1e-8.
+#' @param TF.peaks.gr  A granges with TF peaks to be overlaped with input region
+#' Metadata column expected "id" with TF name. Default NULL. Note that Remap catalog
+#' can be used as shown in the examples.
 #' @param max.distance.region.target Max distance between region and target gene. Default 1Mbp.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @return A data frame with TF, target and RegionID information.
@@ -63,6 +66,7 @@ create_triplet_distance_based <- function(
     target.rm.promoter.regions.from.distal.linking = TRUE,
     motif.search.window.size = 0,
     motif.search.p.cutoff = 1e-8,
+    TF.peaks.gr = NULL,
     max.distance.region.target =  10^6,
     cores = 1
 ){
@@ -104,7 +108,8 @@ create_triplet_distance_based <- function(
         genome = genome,
         window.size = motif.search.window.size,
         p.cutoff = motif.search.p.cutoff,
-        cores = cores
+        cores = cores,
+        TF.peaks.gr = TF.peaks.gr
     )
     triplet <- dplyr::inner_join(region.target, region.tf)
 

@@ -17,6 +17,9 @@
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 downstream the region. Default is no increase
 #' @param motif.search.p.cutoff motifmatchr pvalue cut-off. Default 1e-8.
+#' @param TF.peaks.gr  A granges with TF peaks to be overlaped with input region
+#' Metadata column expected "id" with TF name. Default NULL. Note that Remap catalog
+#' can be used as shown in the examples.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param tf.target A dataframe with tf and target columns. If not provided,
 #' \link[dorothea]{dorothea_hs} will be used.
@@ -40,6 +43,7 @@ create_triplet_regulon_based <- function(
     motif.search.p.cutoff = 1e-8,
     cores = 1,
     tf.target,
+    TF.peaks.gr = NULL,
     max.distance.region.target = 10^6
 ){
 
@@ -86,7 +90,8 @@ create_triplet_regulon_based <- function(
         genome = genome,
         window.size = motif.search.window.size,
         p.cutoff = motif.search.p.cutoff,
-        cores = cores
+        cores = cores,
+        TF.peaks.gr = TF.peaks.gr
     )
     triplet <- dplyr::inner_join(tf.target, region.tf)
 

@@ -31,7 +31,8 @@ The default is not to increase the scanned region.}
 \item{cores}{Number of CPU cores to be used. Default 1.}
 
 \item{TF.peaks.gr}{A granges with TF peaks to be overlaped with input region
-Metadata column expected "id" with TF name. Default NULL.}
+Metadata column expected "id" with TF name. Default NULL. Note that Remap catalog
+can be used as shown in the examples.}
 
 \item{verbose}{A logical argument indicating if
 messages output should be provided.}
@@ -56,7 +57,7 @@ and TF peaks.
                  genome = "hg38"
  )
 
- \dontrun{
+\dontrun{
    library(ReMapEnrich)
    demo.dir <- "~/ReMapEnrich_demo"
    dir.create(demo.dir, showWarnings = FALSE, recursive = TRUE)

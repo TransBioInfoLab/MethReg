@@ -73,15 +73,16 @@ get_tf_in_region <- function(
     }
 
     region.gr <- region.gr + (window.size/2)
-    # region <- resize(region,width = 50,fix = "center")
-
-    if (min(IRanges::width(region.gr)) < 8) {
-        stop("Minimun region size is 8, please set window.size argument")
-    }
+    # region <- region.gr %>% resize(width(.) + window.size, fix = "center")
 
     genome <- match.arg(genome)
 
     if (is.null(TF.peaks.gr)) {
+
+        if (min(IRanges::width(region.gr)) < 8) {
+            stop("Minimun region size is 8, please set window.size argument")
+        }
+
         opts <- list()
         opts[["species"]] <- 9606 # homo sapies
         # opts[["all_versions"]] <- TRUE
@@ -136,9 +137,9 @@ get_tf_in_region <- function(
 
     } else {
 
-       hits <- findOverlaps(TF.peaks.gr, region.gr)
+       hits <- findOverlaps(TF.peaks.gr, region.gr, ignore.strand = TRUE)
        motifs.probes.df <- data.frame(
-           "regionID" = region.gr[subjectHits(hits)] %>% make_names_from_granges,
+           "regionID" = region.names[subjectHits(hits)],
            "TF_symbol" = TF.peaks.gr$id[queryHits(hits)]
        )
        motifs.probes.df$TF <- map_symbol_to_ensg(motifs.probes.df$TF_symbol)

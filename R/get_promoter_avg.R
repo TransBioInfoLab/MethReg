@@ -75,9 +75,11 @@ get_promoter_avg <- function(
     unique.hits <- hits[!hits$queryHits %in% region.with.more.than.one.probe,]
 
     promoter.matrix <- NULL
+    unique.promoter.genes <- NULL
+    non.unique.promoter.genes <- NULL
     # Do we have probes mapped to unique promoter regions, if so copy probes and rename
     # probes to regions
-    unique.promoter.genes <- NULL
+
     if(nrow(unique.hits) > 0){
         promoter.matrix <- dnam[unique.hits$subjectHits,, drop = FALSE] %>% as.matrix()
         rownames(promoter.matrix) <- make_names_from_granges(promoter.gr[unique.hits$queryHits])

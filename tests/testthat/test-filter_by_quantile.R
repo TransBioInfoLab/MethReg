@@ -21,6 +21,39 @@ test_that("filter_regions_by_mean_quantile_difference handles NAs", {
 })
 
 
+
+test_that("filter_regions_by_mean_quantile_difference handles NAs for a SE", {
+    dnam <- t(matrix(c(NA,rep(0,13),NA, rep(1,4),NA,rep(NA,10)),ncol = 3))
+    nrows <- 3; ncols <- 10
+    rowRanges <- GRanges(
+        rep(c("chr1"), c(3)),
+        IRanges(floor(runif(3, 1e5, 1e6)), width = 100),
+        strand = sample(c("+", "-"), 3, TRUE)
+    )
+    rownames(dnam) <-  c("to_be_removed","to_keep","all_na")
+
+    colData <- DataFrame(
+        Treatment = rep(c("ChIP"), 10),
+        row.names = LETTERS[1:10]
+    )
+
+    rse <- SummarizedExperiment(
+        assays = SimpleList(counts = dnam),
+        rowRanges = rowRanges,
+        colData = colData
+    )
+
+    filtered <- filter_dnam_by_quant_diff(rse, diff.mean.th = 0.2)
+    expect_true(is(filtered, "SummarizedExperiment"))
+    expect_true("to_keep" %in% rownames(filtered))
+    expect_false("to_be_removed" %in% rownames(filtered))
+    expect_false("all_na" %in% rownames(filtered))
+})
+
+
+
+
+
 test_that("filter_exp_by_quant_mean_FC remove correctly genes without variance", {
     exp <- t(matrix(c(rep(0,15), rep(1,5)),ncol = 2))
     rownames(exp) <- c("to_be_removed","to_keep")

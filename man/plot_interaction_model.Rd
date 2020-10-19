@@ -10,7 +10,10 @@ plot_interaction_model(
   exp,
   metadata,
   tf.activity.es = NULL,
-  tf.dnam.classifier.pval.thld = 0.001
+  tf.dnam.classifier.pval.thld = 0.001,
+  label.dnam = "beta-value",
+  label.exp = "expression",
+  genome = "hg38"
 )
 }
 \arguments{
@@ -34,6 +37,12 @@ to be used in linear models instead of TF gene expression.}
 a linear model significant
 of not. Default 0.001. This will be used to classify the TF role and DNAm
 effect.}
+
+\item{label.dnam}{Used for label text. Option "beta-value" and "residuals"}
+
+\item{label.exp}{Used for label text. Option "expression" and "residuals"}
+
+\item{label.tf}{Used for label text. Option "expression", "residuals", "activity"}
 }
 \value{
 A ggplot object, includes a table with results from fitting interaction model,

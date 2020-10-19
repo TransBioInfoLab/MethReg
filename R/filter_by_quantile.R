@@ -23,7 +23,9 @@ filter_dnam_by_quant_diff <- function(
     diff.mean.th = 0.2,
     cores = 1
 ){
-    if(is(dnam,"SummarizedExperiment")){
+
+    is.se <- is(dnam,"SummarizedExperiment")
+    if (is.se) {
         matrix <- assay(dnam)
     } else {
         matrix <- dnam
@@ -49,7 +51,15 @@ filter_dnam_by_quant_diff <- function(
             pull(.data$ID) %>%
             as.character()
     )
-    dnam[diff.regions,,drop = FALSE]
+    matrix <- matrix[diff.regions,,drop = FALSE]
+
+    if (is.se) {
+        dnam <- dnam[rownames(matrix),]
+        assay(dnam) <- matrix
+    } else {
+        dnam <- matrix
+    }
+    dnam
 }
 
 #' @examples

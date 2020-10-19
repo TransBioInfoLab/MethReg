@@ -21,6 +21,9 @@
 #' a linear model significant
 #' of not. Default 0.001. This will be used to classify the TF role and DNAm
 #' effect.
+#' @param label.dnam Used for label text. Option "beta-value" and "residuals"
+#' @param label.exp Used for label text. Option "expression" and "residuals"
+#' @param label.tf Used for label text. Option "expression", "residuals", "activity"
 #' @return A ggplot object, includes a table with results from fitting interaction model,
 #' and the the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
@@ -72,8 +75,15 @@ plot_interaction_model <-  function(
     exp,
     metadata,
     tf.activity.es = NULL,
-    tf.dnam.classifier.pval.thld = 0.001
+    tf.dnam.classifier.pval.thld = 0.001,
+    label.dnam = "beta-value",
+    label.exp = "expression",
+    genome = "hg38"
 ){
+
+    genome <- match.arg(genome, choices = c("hg38","hg19"))
+    label.dnam <- match.arg(label.dnam, choices = c("beta-value","residuals"))
+    label.exp <- match.arg(label.exp, choices = c("expression","residuals"))
 
     if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
 
@@ -137,10 +147,12 @@ plot_interaction_model <-  function(
                 df = df,
                 row.triplet = row.triplet,
                 color = color,
-                use_tf_enrichment_scores = !is.null(tf.activity.es)
+                use_tf_enrichment_scores = !is.null(tf.activity.es),
+                label.dnam = label.dnam,
+                label.exp = label.exp
             )
 
-            table.plots <- get_table_plot(row.triplet)
+            table.plots <- get_table_plot(row.triplet, genome)
 
             # Arrange the plots on the same page
             suppressWarnings({
@@ -153,9 +165,11 @@ plot_interaction_model <-  function(
                                 #table.plots$table.plot.wilcoxon,
                                 #table.plots$table.plot.lm.all,
                                 table.plots$table.plot.lm.quant,
-                                table.plots$table.plot.lm.dna.low,
-                                table.plots$table.plot.lm.dna.high,
-                                heights = c(0.8,0.5,0.25,0.25),
+                                table.plots$table.plot.legend,
+                                table.plots$table.plot.genome,
+                                #table.plots$table.plot.lm.dna.low,
+                                #table.plots$table.plot.lm.dna.high,
+                                heights = c(0.8,0.5,0.3,0.3),
                                 ncol = 1),
                             ggarrange(
                                 ggarrange(
@@ -187,33 +201,43 @@ plot_interaction_model <-  function(
     out
 }
 
-get_table_plot <- function(row.triplet){
+get_table_plot <- function(row.triplet, genome){
 
-    base_size <- 9
-    tab <- row.triplet %>%
-        dplyr::select(
-            c("regionID",
-              #"probeID",
-              "target",
-              "target_symbol",
-              "TF",
-              "TF_symbol",
-              "met.IQR",
-              "TF.role",
-              "DNAm.effect")
-        ) %>% t() %>% as_tibble(rownames = "Variable")
-
-    tab$Variable <- c(
+    columns <-  c(
+        "regionID",
+        "probeID",
+        "target",
+        "target_symbol",
+        "TF",
+        "TF_symbol",
+        # "met.IQR",
+        "TF.role",
+        "DNAm.effect"
+    )
+    labels <-  c(
         "Region ID",
-        #"Probe ID",
+        "Probe ID",
         "Target gene ID",
         "Target gene Symbol",
         "TF gene ID",
         "TF gene Symbol",
-        "Diff. DNAm (Q4 - Q1)",
+        # "Diff. DNAm (Q4 - Q1)",
         "TF role",
         "DNAm effect"
     )
+
+    # Add probe ID if existant
+    idx <- columns %in% colnames(row.triplet)
+    columns <- columns[idx]
+    labels <- labels[idx]
+
+    base_size <- 9
+    tab <- row.triplet %>%
+        dplyr::select(
+            columns
+        ) %>% t() %>% as_tibble(rownames = "Variable")
+
+    tab$Variable <- labels
 
     table.plot.metadata <- ggtexttable(
         tab,
@@ -249,9 +273,23 @@ get_table_plot <- function(row.triplet){
     # Get results for linear model with DNAm high samples
     table.plot.lm.dna.high <- get_table_plot_results(row.triplet, type = "DNAmhigh")
 
+    table.plot.legend <- ggtexttable(
+        data.frame("RLM: robust linear model"),
+        rows = NULL,
+        cols = c("Legend")
+    )
+
+    table.plot.genome <- ggtexttable(
+        data.frame(genome),
+        rows = NULL,
+        cols = c("Genome of reference")
+    )
+
     table.plot.list <- list(
         "table.plot.metadata" = table.plot.metadata,
         #"table.plot.lm.all" = table.plot.lm.all,
+        "table.plot.legend" = table.plot.legend,
+        "table.plot.genome" = table.plot.genome,
         "table.plot.lm.quantile" = table.plot.lm.quant,
         "table.plot.wilcoxon" = table.plot.wilcoxon,
         "table.plot.lm.dna.low" = table.plot.lm.dna.low,
@@ -267,16 +305,17 @@ get_plot_results <- function(
     df,
     row.triplet,
     color,
-    use_tf_enrichment_scores = FALSE
+    use_tf_enrichment_scores = FALSE,
+    label.dnam, label.exp
 ){
 
-    target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character())))
-    region.lab <- "DNA methylation"
+    target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character()), ~.(label.exp)))
+    region.lab <- paste("DNA methylation", label.dnam)
 
     if (use_tf_enrichment_scores) {
-        tf.lab <- bquote(atop("Enrichment scores TF" ~.(row.triplet$TF_symbol %>% as.character())))
+        tf.lab <- bquote("TF" ~.(row.triplet$TF_symbol %>% as.character()) ~" activity")
     } else {
-        tf.lab <- bquote(atop("TF" ~.(row.triplet$TF_symbol %>% as.character())))
+        tf.lab <- bquote("TF" ~.(row.triplet$TF_symbol %>% as.character()) ~.(label.exp))
     }
 
     # quintile plots met
@@ -529,9 +568,8 @@ get_scatter_plot_results <- function(
     if (missing(facet.by)) {
         rlm.res <- get_rlm_val_pval(df, x, y)
 
-        p <-  p + ggplot2::geom_text(
-            data = df,
-            family = "Times New Roman",
+        p <-  p + ggplot2::annotate(
+            geom = "text",
             x = min(df[[x]], na.rm = TRUE),
             y = max(c(df[[y]] * 1.2, df[[y]] + 2), na.rm = TRUE),
             hjust = 0,
@@ -610,14 +648,14 @@ get_scatter_plot_results <- function(
                     rlm.res.high$rlm.val,
                     digits = 3,
                     format =  ifelse(abs(rlm.res.high$rlm.val) < 10^-3, "e","f")
-                    ),
+                ),
                 "\nrlm p-value = ",
                 formatC(
                     rlm.res.high$rlm.p.value,
                     digits = 3,
                     format = ifelse(rlm.res.high$rlm.p.value < 10^-3, "e","f")
-                    )
                 )
+            )
         )
     }
     return(p)

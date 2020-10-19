@@ -193,6 +193,7 @@ get_table_plot <- function(row.triplet){
     tab <- row.triplet %>%
         dplyr::select(
             c("regionID",
+              #"probeID",
               "target",
               "target_symbol",
               "TF",
@@ -204,6 +205,7 @@ get_table_plot <- function(row.triplet){
 
     tab$Variable <- c(
         "Region ID",
+        #"Probe ID",
         "Target gene ID",
         "Target gene Symbol",
         "TF gene ID",
@@ -461,8 +463,14 @@ get_box_plot_results <- function(
 #' @importFrom stats as.formula
 #' @noRd
 #' @examples
-#' df <- data.frame(x = runif(20),y = runif(20))
+#' df <- data.frame(
+#' x = runif(20),
+#' y = runif(20),
+#' group = sample(c("high","low"),20,replace = TRUE)
+#' )
 #' get_scatter_plot_results(df, "x","y",NULL, xlab = "x", ylab = "y")
+#' get_scatter_plot_results(df, "x","y",NULL, xlab = "x", ylab = "y", facet.by = "group")
+#'
 get_scatter_plot_results <- function(
     df,
     x,
@@ -521,8 +529,9 @@ get_scatter_plot_results <- function(
     if (missing(facet.by)) {
         rlm.res <- get_rlm_val_pval(df, x, y)
 
-        p <- p + ggplot2::annotate(
-            geom = "text",
+        p <-  p + ggplot2::geom_text(
+            data = df,
+            family = "Times New Roman",
             x = min(df[[x]], na.rm = TRUE),
             y = max(c(df[[y]] * 1.2, df[[y]] + 2), na.rm = TRUE),
             hjust = 0,
@@ -530,13 +539,13 @@ get_scatter_plot_results <- function(
             color = 'blue',
             label = paste0(
                 #gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
-                "RLM estimate = ",
+                "rlm estimate = ",
                 formatC(
                     rlm.res$rlm.val,
                     digits = 3,
                     format = ifelse(abs(rlm.res$rlm.val) < 10^-3, "e","f")
                 ),
-                "\nRLM p-value = ",
+                "\nrlm p-value = ",
                 formatC(
                     rlm.res$rlm.p.value,
                     digits = 3,
@@ -551,25 +560,26 @@ get_scatter_plot_results <- function(
         ann_text.low <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
             y = max(c(df[[y]] * 1.2, df[[y]] + 2), na.rm = TRUE),
-            facet.by = factor(grep("low",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
+            facet.by = unique(factor(grep("low",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]])))
         )
         colnames(ann_text.low) <- c(x,y,facet.by)
 
         # higher Annotation
         p <- p + ggplot2::geom_text(
+            family = "Times New Roman",
             data = ann_text.low,
             hjust = 0,
             vjust = 1,
             color = 'blue',
             label = paste0(
                 # gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
-                "RLM estimate = ",
+                "rlm estimate = ",
                 formatC(
                     rlm.res.low$rlm.val,
                     digits = 3,
                     format = ifelse(abs(rlm.res.low$rlm.val) < 10^-3, "e","f")
                 ),
-                "\nRLM p-value  = ",
+                "\nrlm p-value  = ",
                 formatC(
                     rlm.res.low$rlm.p.value,
                     digits = 3,
@@ -582,25 +592,26 @@ get_scatter_plot_results <- function(
         ann_text.high <- data.frame(
             x = min(df[[x]], na.rm = TRUE),
             y = max(c(df[[y]] * 1.2, df[[y]] + 2), na.rm = TRUE),
-            facet.by = factor(grep("high",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]]))
+            facet.by = unique(factor(grep("high",df[[facet.by]],value = TRUE),levels = unique(df[[facet.by]])))
         )
         colnames(ann_text.high) <- c(x,y,facet.by)
 
         # higher Annotation
         p <- p + ggplot2::geom_text(
+            family = "Times New Roman",
             data = ann_text.high,
             hjust = 0,
             vjust = 1,
             color = 'blue',
             label = paste0(
                 #gsub("rna\\.","",y), " ~ ", gsub("rna\\.","",x),
-                "RLM estimate = ",
+                "rlm estimate = ",
                 formatC(
                     rlm.res.high$rlm.val,
                     digits = 3,
                     format =  ifelse(abs(rlm.res.high$rlm.val) < 10^-3, "e","f")
                     ),
-                "\nRLM p-value = ",
+                "\nrlm p-value = ",
                 formatC(
                     rlm.res.high$rlm.p.value,
                     digits = 3,

@@ -7,7 +7,7 @@
 #' @examples
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)
-#' @noRd
+#' @export
 make_granges_from_names <- function(names){
     names %>%
         data.frame %>%
@@ -25,7 +25,7 @@ make_granges_from_names <- function(names){
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)
 #' make_names_from_granges(regions.gr)
-#' @noRd
+#' @export
 make_names_from_granges <- function(region){
     str_c(
         region %>% seqnames %>% as.character,":",
@@ -68,6 +68,15 @@ map_probes_to_regions <- function(
     return(dnam)
 }
 
+#' Get HM450/EPIC manifest files from Sesame package
+#' @description
+#' Returns a data frame with HM450/EPIC manifest information
+#' files from Sesame package
+#' @examples
+#' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
+#' regions.gr <- make_granges_from_names(regions.names)
+#' make_names_from_granges(regions.gr)
+#' @export
 get_met_probes_info <- function(
     genome = c("hg38","hg19"),
     arrayType = c("450k","EPIC")

@@ -2,9 +2,9 @@ citHeader("To cite coMethTF in publications use:")
 
 citEntry(
   entry    = "Article",
-  title    = "coMethTF: functional annotation of DMRs identified in epigenome-wide association studies",
-  author   = "Tiago C. Silva",
-  journal  = "None",
+  title    = "MethReg: estimating regulatory potential of DNA methylation in gene transcription",
+  author   = "Tiago C. Silva, Juan I. Young, Eden R. Martin, Xi Chen, Lily Wang",
+  journal  = "Manuscript in preparation",
   year     = "2020",
-  textVersion = paste("coMethTF: functional annotation of DMRs identified in epigenome-wide association studies")
+  textVersion = paste("MethReg: estimating regulatory potential of DNA methylation in gene transcription")
 )

@@ -53,16 +53,16 @@ get_tf_ES <- function(
         choices =   c("A", "B", "C", "D", "E")
     )
 
-    if(missing(regulons)){
+    if (missing(regulons)) {
         regulons <- get_regulon_dorothea(min.confidence = min.confidence)
     } else {
         cols <- c("tf", "target", "mor")
-        if(!all(cols %in% colnames(regulons))){
+        if (!all(cols %in% colnames(regulons))) {
             stop("regulons must have columns tf, target, and mor")
         }
     }
 
-    if(all(grepl("ENSG",rownames(exp)))){
+    if (all(grepl("ENSG",rownames(exp)))) {
         rownames(exp) <- map_ensg_to_symbol(rownames(exp))
     }
 

@@ -36,16 +36,16 @@ filter_dnam_by_quant_diff <- function(
         matrix <- matrix[keep.rows,]
     }
 
-    diff.mean <- calculate_IQR(matrix)
-    tab <- plyr::count(diff.mean$diff.mean > diff.mean.th)
+    IQR <- calculate_IQR(matrix)
+    tab <- plyr::count(IQR$IQR > diff.mean.th)
     colnames(tab)[1] <- "Status"
     tab$Status[which(tab$Status == FALSE)] <- "Regions below threshold"
     tab$Status[which(tab$Status == TRUE)] <- "Regions above threshold"
     print(tab)
 
     diff.regions <- c(
-        diff.mean %>%
-            filter(diff.mean > diff.mean.th) %>%
+        IQR %>%
+            filter(IQR > diff.mean.th) %>%
             pull(.data$ID) %>%
             as.character()
     )
@@ -62,7 +62,7 @@ calculate_IQR <- function(matrix){
     check_package("matrixStats")
     tibble::tibble(
         "ID" = rownames(matrix),
-        "diff.mean" = matrixStats::rowIQRs(matrix, na.rm = TRUE)
+        "IQR" = matrixStats::rowIQRs(matrix, na.rm = TRUE)
     )
 }
 

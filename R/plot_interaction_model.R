@@ -604,7 +604,7 @@ get_scatter_plot_results <- function(
 
         # higher Annotation
         p <- p + ggplot2::geom_text(
-            family = "Times New Roman",
+            #family = "Times New Roman",
             data = ann_text.low,
             hjust = 0,
             vjust = 1,
@@ -636,7 +636,7 @@ get_scatter_plot_results <- function(
 
         # higher Annotation
         p <- p + ggplot2::geom_text(
-            family = "Times New Roman",
+            #family = "Times New Roman",
             data = ann_text.high,
             hjust = 0,
             vjust = 1,

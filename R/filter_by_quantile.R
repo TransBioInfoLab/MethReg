@@ -169,7 +169,7 @@ filter_exp_by_quant_mean_FC <- function(
 #' If max.samples.percentage 25, remove genes with 0 for more
 #' than 25% of the samples.
 #'
-#' @noRd
+#' @export
 #' @return A subset of the original matrix only with the rows
 #' passing the filter threshold.
 filter_genes_zero_expression <- function(

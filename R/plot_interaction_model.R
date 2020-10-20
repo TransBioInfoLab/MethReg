@@ -276,7 +276,7 @@ get_table_plot <- function(row.triplet, genome){
     table.plot.lm.dna.high <- get_table_plot_results(row.triplet, type = "DNAmhigh")
 
     table.plot.legend <- ggtexttable(
-        data.frame("RLM: robust linear model"),
+        data.frame("rlm: robust linear model"),
         rows = NULL,
         cols = c("Legend")
     )

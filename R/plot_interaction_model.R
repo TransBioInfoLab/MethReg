@@ -166,10 +166,9 @@ plot_interaction_model <-  function(
                                 #table.plots$table.plot.lm.all,
                                 table.plots$table.plot.lm.quant,
                                 table.plots$table.plot.legend,
-                                table.plots$table.plot.genome,
                                 #table.plots$table.plot.lm.dna.low,
                                 #table.plots$table.plot.lm.dna.high,
-                                heights = c(0.8,0.5,0.3,0.3),
+                                heights = c(0.8,0.5,0.3),
                                 ncol = 1),
                             ggarrange(
                                 ggarrange(
@@ -203,7 +202,9 @@ plot_interaction_model <-  function(
 
 get_table_plot <- function(row.triplet, genome){
 
+    row.triplet$genome <- genome
     columns <-  c(
+        "genome",
         "regionID",
         "probeID",
         "target",
@@ -215,6 +216,7 @@ get_table_plot <- function(row.triplet, genome){
         "DNAm.effect"
     )
     labels <-  c(
+        "Genome of reference",
         "Region ID",
         "Probe ID",
         "Target gene ID",

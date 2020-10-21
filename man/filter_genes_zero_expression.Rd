@@ -12,9 +12,9 @@ filter_genes_zero_expression(exp, max.samples.percentage = 0.25)
 
 \item{max.samples.percentage}{Max percentage of samples with gene
 expression as 0, for genes to be selected.
-If max.samples.percentage 100, remove genes with 0 for 100% samples.
+If max.samples.percentage 100, remove genes with 0 for 100\% samples.
 If max.samples.percentage 25, remove genes with 0 for more
-than 25% of the samples.}
+than 25\% of the samples.}
 }
 \value{
 A subset of the original matrix only with the rows

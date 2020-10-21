@@ -18,6 +18,7 @@
 #' @return
 #' A subset of the original matrix only with the
 #' rows passing the filter threshold.
+#' @importFrom SummarizedExperiment assay<-
 filter_dnam_by_quant_diff <- function(
     dnam,
     diff.mean.th = 0.2,

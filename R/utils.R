@@ -78,6 +78,8 @@ map_probes_to_regions <- function(
 #' regions.gr <- make_granges_from_names(regions.names)
 #' make_names_from_granges(regions.gr)
 #' @export
+#' @param genome Human genome of reference hg38 or hg19
+#' @param arrayType "450k" or "EPIC" array
 get_met_probes_info <- function(
     genome = c("hg38","hg19"),
     arrayType = c("450k","EPIC")

@@ -1,4 +1,4 @@
-test_that("filter_regions_by_mean_quantile_difference remove correctly regions without variance", {
+test_that("filter_dnam_by_quant_diff remove correctly regions without variance", {
     dnam <- t(matrix(c(rep(0,15), rep(1,5)),ncol = 2))
     rownames(dnam) <- c("to_be_removed","to_keep")
     colnames(dnam) <- paste0("Samples",1:10)
@@ -9,7 +9,7 @@ test_that("filter_regions_by_mean_quantile_difference remove correctly regions w
 })
 
 
-test_that("filter_regions_by_mean_quantile_difference handles NAs", {
+test_that("filter_dnam_by_quant_diff handles NAs", {
     dnam <- t(matrix(c(NA,rep(0,13),NA, rep(1,4),NA,rep(NA,10)),ncol = 3))
     rownames(dnam) <- c("to_be_removed","to_keep","all_na")
     colnames(dnam) <- paste0("Samples",1:10)
@@ -22,7 +22,7 @@ test_that("filter_regions_by_mean_quantile_difference handles NAs", {
 
 
 
-test_that("filter_regions_by_mean_quantile_difference handles NAs for a SE", {
+test_that("filter_dnam_by_quant_diff handles NAs for a SE", {
     dnam <- t(matrix(c(NA,rep(0,13),NA, rep(1,4),NA,rep(NA,10)),ncol = 3))
     nrows <- 3; ncols <- 10
     rowRanges <- GRanges(

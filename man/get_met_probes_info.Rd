@@ -6,6 +6,11 @@
 \usage{
 get_met_probes_info(genome = c("hg38", "hg19"), arrayType = c("450k", "EPIC"))
 }
+\arguments{
+\item{genome}{Human genome of reference hg38 or hg19}
+
+\item{arrayType}{"450k" or "EPIC" array}
+}
 \description{
 Returns a data frame with HM450/EPIC manifest information
 files from Sesame package

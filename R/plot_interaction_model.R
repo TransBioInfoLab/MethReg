@@ -21,9 +21,9 @@
 #' a linear model significant
 #' of not. Default 0.001. This will be used to classify the TF role and DNAm
 #' effect.
+#' @param genome Genome of reference to be added to the plot as text
 #' @param label.dnam Used for label text. Option "beta-value" and "residuals"
 #' @param label.exp Used for label text. Option "expression" and "residuals"
-#' @param label.tf Used for label text. Option "expression", "residuals", "activity"
 #' @return A ggplot object, includes a table with results from fitting interaction model,
 #' and the the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,

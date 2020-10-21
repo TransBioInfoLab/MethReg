@@ -42,7 +42,7 @@ effect.}
 
 \item{label.exp}{Used for label text. Option "expression" and "residuals"}
 
-\item{label.tf}{Used for label text. Option "expression", "residuals", "activity"}
+\item{genome}{Genome of reference to be added to the plot as text}
 }
 \value{
 A ggplot object, includes a table with results from fitting interaction model,

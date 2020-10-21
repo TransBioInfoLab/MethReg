@@ -14,6 +14,8 @@
 #' color the samples
 #' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
 #' to be used in linear models instead of TF gene expression.
+#' @param label.dnam Used for label text. Option "beta-value" and "residuals"
+#' @param label.exp Used for label text. Option "expression" and "residuals"
 #' @return A ggplot object, includes a table with results from fitting stratified model,
 #' and the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
@@ -58,8 +60,13 @@ plot_stratified_model <-  function(
     dnam,
     exp,
     metadata,
+    label.dnam = "beta-value",
+    label.exp = "expression",
     tf.activity.es = NULL
 ){
+
+    label.dnam <- match.arg(label.dnam, choices = c("beta-value","residuals"))
+    label.exp <- match.arg(label.exp, choices = c("expression","residuals"))
 
     #---------------------------------------------------------------------------
     # Input checking
@@ -97,6 +104,8 @@ plot_stratified_model <-  function(
                 df = df,
                 row.triplet = row.triplet,
                 color =  color,
+                label.dnam =label.dnam,
+                label.exp = label.exp,
                 use_tf_enrichment_scores = is.null(tf.activity.es)
             )
 

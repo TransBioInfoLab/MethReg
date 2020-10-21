@@ -21,6 +21,7 @@ make_granges_from_names <- function(names){
 #' @importFrom stringr str_c
 #' @importFrom dplyr %>%
 #' @importFrom GenomicRanges start end seqnames
+#' @param region A GenomicRanges object
 #' @examples
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)

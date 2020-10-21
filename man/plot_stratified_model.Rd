@@ -9,6 +9,8 @@ plot_stratified_model(
   dnam,
   exp,
   metadata,
+  label.dnam = "beta-value",
+  label.exp = "expression",
   tf.activity.es = NULL
 )
 }
@@ -25,6 +27,10 @@ p-values and estimates of interaction}
 
 \item{metadata}{A data frame with samples as rownames and one columns that will be used to
 color the samples}
+
+\item{label.dnam}{Used for label text. Option "beta-value" and "residuals"}
+
+\item{label.exp}{Used for label text. Option "expression" and "residuals"}
 
 \item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
 to be used in linear models instead of TF gene expression.}

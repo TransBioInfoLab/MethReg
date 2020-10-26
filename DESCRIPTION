@@ -66,7 +66,8 @@ Suggests:
     BiocFileCache,
     png,
     htmltools,
-    knitr
+    knitr,
+    jpeg
 VignetteBuilder: knitr
 BugReports: https://github.com/TransBioInfoLab/MethReg/issues/
 RoxygenNote: 7.1.1

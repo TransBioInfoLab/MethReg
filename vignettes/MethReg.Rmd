@@ -141,7 +141,7 @@ The DNA methylation dataset is a matrix or SummarizedExperiment object with
 methylation beta or M-values. 
 If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
 this matrix would contain residuals from fitting linear regression 
-instead (see details **Section 7** "Controlling effects from confounding variables" below). 
+instead (see details **Section 5** "Controlling effects from confounding variables" below). 
 
 The samples are in the columns and methylation regions or probes are in the rows.   
 
@@ -512,7 +512,7 @@ It requires the output from the function `interaction_model` (a dataframe),
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
-```{R plot_interaction_model, eval = TRUE, message = FALSE, results = "hide", warning = FALSE}
+```{R plot_interaction_model, eval = TRUE, message = FALSE, results = "hide", warning = FALSE, fig.width = 12}
 plots <- plot_interaction_model(
     triplet.results = results.interaction.model[1,], 
     dnam = dna.met.chr21.se, 
@@ -659,7 +659,7 @@ regulons.dorothea.list <- regulons.dorothea %>% na.omit() %>%
 
 
 
-```{R, message = FALSE, results = "hide"}
+```{R, message = FALSE, results = "hide", eval = FALSE}
 library(GSVA)
 rnaseq.tf.es.gsva <- gsva(
   expr = gene.exp.chr21.se %>% SummarizedExperiment::assay(), 
@@ -674,10 +674,6 @@ rnaseq.tf.es.gsva <- gsva(
   ssgsea.norm = TRUE,
   verbose = TRUE
 )
-```
-
-```{R}
-rnaseq.tf.es.gsva[1:4,1:4]
 ```
 
 # Session information

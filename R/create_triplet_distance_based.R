@@ -73,22 +73,29 @@ create_triplet_distance_based <- function(
 
     target.method <- match.arg(target.method)
     genome <- match.arg(genome)
-
+    probeID <- NULL
     if (is(region,"character") | is(region,"factor")) {
         region.gr <- make_granges_from_names(region)
-        region.names <- region
     } else if (is(region,"GenomicRanges")) {
         region.gr <- region
-        region.names <- make_names_from_granges(region)
+
+        if ("probeID" %in% colnames(values(region))) {
+            probeID <- values(region)$probeID
+        }
+
     } else if (is(region,"SummarizedExperiment")) {
         region.gr <- rowRanges(region)
-        region.names <- make_names_from_granges(region.gr)
+        if ("probeID" %in% colnames(values(region))) {
+            probeID <- values(region)$probeID
+        }
+
     } else {
         stop(
             "region input is a ", class(region),
             ". Expecting a charcter, GRanges or SE"
         )
     }
+    region.names <- make_names_from_granges(region.gr)
 
     message("Finding target genes")
     region.target <- get_region_target_gene(
@@ -119,9 +126,16 @@ create_triplet_distance_based <- function(
     message("Removing regions and target genes with ditance higher than ", max.distance.region.target, " bp")
     triplet <- triplet %>% dplyr::filter(abs(.data$distance_region_target_tss) < max.distance.region.target)
 
+
     triplet <- triplet %>%
         dplyr::relocate(.data$distance_region_target_tss, .after = dplyr::last_col()) %>%
         dplyr::relocate(contains("pos"), .after = dplyr::last_col())
+
+    if (!is.null(probeID)) {
+        triplet$probeID <- probeID[match(triplet$regionID, region.names)]
+        triplet <- triplet %>%
+            dplyr::relocate(.data$probeID, .after = "regionID")
+    }
 
     return(triplet)
 }

@@ -1,5 +1,5 @@
 ---
-title: "MethReg: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies"
+title: "MethReg: estimating regulatory potential of DNA methylation in gene transcription"
 author:
   - name: Tiago Chedraoui Silva
     affiliation: University of Miami Miller School of Medicine
@@ -19,7 +19,7 @@ bibliography: bibliography.bib
 editor_options:
   chunk_output_type: inline    
 vignette: >
-    %\VignetteIndexEntry{MethReg: estimating regulatory potential of DNA methylation changes in epigenome-wide association studies}
+    %\VignetteIndexEntry{MethReg: estimating regulatory potential of DNA methylation in gene transcription}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -102,16 +102,40 @@ After the package is installed, it can be loaded into R workspace by
 library(MethReg)
 ```
 
-# Dataset
+# MethReg workflow
 
-The input of `MethReg` are DNA methylation and gene expression datasets measured 
-on the same set of samples. Using additional information from the 
-JASPAR2000 database, we will then create a data frame 
-with information on the triplet: CpG (or DMR), TF and target gene. 
+The figure below illustrates the workflow for MethReg. 
+Given matched array DNA methylation data and RNA-seq gene expression data, 
+MethReg additionally incorporates TF binding information from ReMap2020  [@remap2020] 
+or the JASPAR2020 [@JASPAR2020; @fornes2020jaspar] database,
+and optionally additional TF-target gene interaction databases, 
+to perform both promoter and distal (enhancer) analysis. 
+
+In the unsupervised mode, MethReg analyzes all CpGs on the Illumina arrays. 
+In the supervised mode, MethReg analyzes and prioritizes differentially methylated CpGs identified in EWAS. 
+
+There are three main steps: (1) create a dataset with triplets of CpGs, TFs that bind near the CpGs, 
+and putative target genes, (2) for each triplet (CpG, TF, target gene), apply integrative 
+statistical models to DNA methylation, target gene expression, and TF expression values, 
+and (3) visualize and interpret results from statistical models to estimate individual 
+and joint impacts of DNA methylation and TF on target gene expression, as well as 
+annotate the roles of TF and CpG methylation in each triplet. 
+
+The results from 
+the statistical models will also allow us to identify a list of CpGs that work 
+synergistically with TFs to influence target gene expression.
+
+```{r workflow, fig.cap = "MethReg workflow", echo = FALSE, fig.width = 13}
+jpeg::readJPEG("workflow_methReg.jpg") %>% grid::grid.raster()
+```
+
+# Analysis illustration
+
+## Input data
 
 For illustration, we will use chromosome 21 data from 38 TCGA-COAD (colon cancer) samples.
 
-## Input DNA methylation dataset
+### Input DNA methylation dataset
 
 The DNA methylation dataset is a matrix or SummarizedExperiment object with 
 methylation beta or M-values. 
@@ -121,7 +145,7 @@ instead (see details **Section 7** "Controlling effects from confounding variabl
 
 The samples are in the columns and methylation regions or probes are in the rows.   
 
-### Analysis for individual CpGs data
+#### Analysis for individual CpGs data
 
 We will analyze all CpGs on chromosome 21 in this vignette. 
 
@@ -138,14 +162,17 @@ dna.met.chr21[1:5,1:5]
 ```
 
 We will first create a SummarizedExperiment object with the function
-`make_dnam_se`. This function will use the Sesame package 
-to map the array probes into genomic regions.
+`make_dnam_se`. This function will use the Sesame R/Bioconductor package 
+to map the array probes into genomic regions. You cen set human genome version
+(hg38 or hg19) and the array type ("450k" or "EPIC")
 
 ```{R}
 dna.met.chr21.se <- make_dnam_se(
   dnam = dna.met.chr21,
   genome = "hg38",
-  arrayType = "450k"
+  arrayType = "450k",
+  betaToM = FALSE, # transform beta to m-values 
+  verbose = FALSE # hide informative messages
 )
 ```
 
@@ -156,7 +183,7 @@ SummarizedExperiment::rowRanges(dna.met.chr21.se)[1:4,1:4]
 ```
 
 
-### Analysis of DMRs
+#### Analysis of DMRs
 
 Differentially Methylated Regions (DMRs) associated with phenotypes such 
 as tumor stage can be obtained from R packages such as 
@@ -164,17 +191,15 @@ as tumor stage can be obtained from R packages such as
 The methylation levels in multiple CpGs within the DMRs need to be 
 summarized (e.g. using medians), then the analysis for 
 DMR will proceed in the same way 
-as those for CpGs. See **Section 6** "Identifying co-methylated clusters 
-and summarizing regions using medians for DMRs" below for more details.   
+as those for CpGs. 
 
-
-## Input gene expression dataset
+### Input gene expression dataset
 
 The gene expression dataset is a matrix with log2 transformed and 
 normalized gene expression values. 
 If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
 this matrix can also contain residuals from linear regression instead 
-(see **Section 7** "Controlling effects from confounding variables" below).
+(see **Section 6** "Controlling effects from confounding variables" below).
 
 The samples are in the columns and the genes are in the rows. 
 
@@ -187,36 +212,35 @@ We will also create a SummarizedExperiment object for the gene expression data.
 This object will contain the genomic information for each gene.
 
 ```{R}
-gene.exp.chr21.se <- make_exp_se(gene.exp.chr21.log2)
+gene.exp.chr21.se <- make_exp_se(
+  exp = gene.exp.chr21.log2,
+  genome = "hg38",
+  verbose = FALSE
+)
 gene.exp.chr21.se
 SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 ```
 
-## Creating triplet dataset
-
-To create the triplet dataset of CpGs, target genes and TFs, we first link 
-each CpG with target gene (_CpG region-target gene_ dataset). 
-Next, we link each CpG with TFs that have binding sites 
-nearby (_CpG region-TF_ dataset). 
-Finally, we merge the two datasets by CpGs. 
-
-### Mapping Regions to the target gene
+###  Creating triplet dataset
+#### Creating triplet dataset using distance based approaches and JASPAR2020
 
 In this section, **regions** refer to the regions where CpGs are located. 
-The function `get_region_target_gene` provides three different methods to 
+
+The function `create_triplet_distance_based` provides three different methods to 
 link a region to a target gene: 
 
-1. Mapping the region to the closest gene (`method = "genes.promoter.overlap"`)
+1. Mapping the region to the closest gene (`target.method = "genes.promoter.overlap"`)
 2. Mapping the region to a specific number of genes upstream down/upstream 
-of the region (`method = "nearby.genes"`) [@silva2019elmer].
+of the region (`target.method = "nearby.genes"`) [@silva2019elmer].
 3. Mapping the region to all the genes within a window 
 (default size = 500 kbp around the region, i.e. +- 250 kbp from start or end 
-of the region) (`method = "window"`) [@reese2019epigenome].
+of the region) (`target.method = "window"`) [@reese2019epigenome].
 
 
 ```{r plot, fig.cap = "Different target linking strategies", echo = FALSE}
 png::readPNG("mapping_target_strategies.png") %>% grid::grid.raster()
 ```
+
 
 For the analysis of probes in gene promoter region, we recommend setting 
 `method = "genes.promoter.overlap"`, or 
@@ -225,103 +249,147 @@ For the analysis of probes in distal regions, we recommend setting either
 `method = "window"` or `method = "nearby.genes"`. 
 Note that the distal analysis will be more time and resource consuming. 
 
+
+To link regions to TF using JASPAR2020, MethReg uses `motifmatchr` [@motifmatchr] to scan 
+these regions for occurrences of motifs in the database. JASPAR2020 is an 
+open-access database of curated, non-redundant transcription 
+factor (TF)-binding profiles [@JASPAR2020; @fornes2020jaspar], which contains 
+more the 500 human TF motifs.
+
+The argument `motif.search.window.size` will be used to extend the region when scanning
+for the motifs, for example, a `motif.search.window.size` of `50` will add `25` bp 
+upstream and `25` bp downstream of the original region.
+
 As an example, the following scripts link CpGs with the probes in gene 
 promoter region (method 1. above)
 
-```{R}
-# Get CpG information
-probes.gr <- SummarizedExperiment::rowRanges(dna.met.chr21.se)
-class(probes.gr)
-```
-
-```{R}
-# Map probes to nearest gene
-region.target.closest <- get_region_target_gene(
-    regions.gr = probes.gr, 
-    genome = "hg38", 
-    method = "genes.promoter.overlap",
-    promoter.upstream.dist.tss = 2000,
-    promoter.downstream.dist.tss = 2000
+```{R, message = FALSE, results = "hide"}
+triplet.promoter <- create_triplet_distance_based(
+  region = dna.met.chr21.se,
+  target.method = "genes.promoter.overlap",
+  genome = "hg38",
+  target.promoter.upstream.dist.tss = 2000,
+  target.promoter.downstream.dist.tss = 2000,
+  motif.search.window.size = 500,
+  motif.search.p.cutoff  = 1e-08,
+  cores = 1  
 )
-dim(region.target.closest)
-region.target.closest
 ```
 
 Alternatively, we can also link each probe with genes within 
-500 kb window (method 2). 
+$500 kb$ window (method 2). 
 
-```{R}
+```{R, message = FALSE, results = "hide"}
 # Map probes to genes within 500kb window
-region.target.window <- get_region_target_gene(
-    regions.gr = probes.gr, 
+triplet.distal.window <- create_triplet_distance_based(
+  region = dna.met.chr21.se,
     genome = "hg38", 
-    method = "window",
-    window.size = 500 * 10^3,
-    rm.promoter.regions.from.distal.linking = TRUE,
-    promoter.upstream.dist.tss = 2000,
-    promoter.downstream.dist.tss = 2000
+    target.method = "window",
+    target.window.size = 500 * 10^3,
+    target.rm.promoter.regions.from.distal.linking = TRUE,
+    motif.search.window.size = 500,
+    motif.search.p.cutoff  = 1e-08,
+    cores = 1
 )
-
-dim(region.target.window)
-region.target.window
 ```
 
 For method 3, to map probes to 5 nearest upstream and downstream genes:  
 
-```{R}
+```{R, message = FALSE, results = "hide"}
 # Map probes to 5 genes upstream and 5 downstream
-region.target.nearby.genes <- get_region_target_gene(
-    regions.gr = probes.gr, 
+triplet.distal.nearby.genes <- create_triplet_distance_based(
+  region = dna.met.chr21.se,
     genome = "hg38", 
-    method = "nearby.genes",
-    num.flanking.genes = 5,
-    rm.promoter.regions.from.distal.linking = TRUE,
-    promoter.upstream.dist.tss = 2000,
-    promoter.downstream.dist.tss = 2000
+    target.method = "nearby.genes",
+    target.num.flanking.genes = 5,
+    target.window.size = 500 * 10^3,
+    target.rm.promoter.regions.from.distal.linking = TRUE,
+    motif.search.window.size = 500,
+    motif.search.p.cutoff  = 1e-08,
+    cores = 1  
 )
-
-dim(region.target.window)
-region.target.window
 ```
 
-### Mapping Regions to TF
+#### Creating triplet dataset using distance based approaches and REMAP2020
 
-In this section, **regions** refer to the regions where CpGs are located. 
-The function `get_tf_in_region` uses `motifmatchr` [@motifmatchr] to scan 
-these regions for occurrences of motifs in the JASPAR database.
 
-JASPAR 2020 is an open-access database of curated, non-redundant transcription 
-factor (TF)-binding profiles [@JASPAR2020; @fornes2020jaspar], which contains 
-more the 500 human TF motifs.
+Instead of using JASPAR2020 motifs, we will be using REMAP2020 catalogue of 
+TF peaks which can be access using the package `ReMapEnrich`.
 
-The argument `window.size` will be used to extend the region when scanning
-for the motifs, for example, a `window.size` of `50` will add `25` bp 
-upstream and `25` bp downstream of the original region.
+```{r, eval = FALSE}
+if (!"BiocManager" %in% rownames(installed.packages()))
+     install.packages("BiocManager")
+BiocManager::install("remap-cisreg/ReMapEnrich", dependencies = TRUE)
+```
 
-```{R, results = "hide", message = FALSE, warning = FALSE}
-region.tf <- get_tf_in_region(
-    region = probes.gr, 
-    genome = "hg38", 
-    window.size = 50,
-    p.cutoff = 5e-5
+To download  REMAP2020 catalogue (~1Gb) the following functions are used:
+
+```{R, eval = FALSE}
+library(ReMapEnrich)
+remapCatalog2018hg38 <- downloadRemapCatalog("/tmp/", assembly = "hg38")
+remapCatalog <- bedToGranges(remapCatalog2018hg38)
+```
+
+The function `create_triplet_distance_based` will accept any Granges with TF 
+information in the same format as the `remapCatalog` one.
+
+```{R, eval = FALSE}
+#-------------------------------------------------------------------------------
+# Triplets promoter using remap
+#-------------------------------------------------------------------------------
+triplet.promoter.remap <- create_triplet_distance_based(
+  region = dna.met.chr21.se,
+  genome = "hg19",
+  target.method =  "genes.promoter.overlap",
+  TF.peaks.gr = remapCatalog,
+  motif.search.window.size = 500,
+  max.distance.region.target = 10^6,
+) 
+```
+
+#### Creating triplet dataset using regulon-based approaches
+
+The human regulons from the dorothea database will be used as an example: 
+
+```{r, eval = FALSE}
+if (!"BiocManager" %in% rownames(installed.packages()))
+     install.packages("BiocManager")
+BiocManager::install("dorothea", dependencies = TRUE)
+```
+
+
+```{R}
+regulons.dorothea <- dorothea::dorothea_hs
+regulons.dorothea %>% head
+```
+
+Using the regulons, you can calculate enrichment scores for each TF across 
+all samples using dorothea and viper.
+
+```{R}
+rnaseq.tf.es <- get_tf_ES(
+  exp = gene.exp.chr21.se %>% SummarizedExperiment::assay(),
+  regulons = regulons.dorothea
 )
+```
+
+Finally, triplets can be identified using TF-target from regulon databases with the function `create_triplet_regulon_based`.
+
+```{R, message = FALSE, results = "hide"}
+  triplet.regulon <- create_triplet_regulon_based(
+    region = dna.met.chr21.se,
+    genome = "hg38",  
+    motif.search.window.size = 500,
+    tf.target = regulons.dorothea,
+    max.distance.region.target = 10^6 # 1Mbp
+  ) 
 ```
 
 ```{R}
-head(region.tf)
-dim(region.tf)
+triplet.regulon %>% head
 ```
 
-
-### Triplet data frame – matching DMR (or CpGs) with TFs and target genes
-
-We create the triplet dataset by merging the _CpG region-target gene_ 
-dataset and the _CpG region-TF_ dataset. 
-
-```{R, message = FALSE, warning = FALSE}
-# Merging the results from the previous sections (region and target, and region and TF)
-triplet <- dplyr::inner_join(region.target.closest, region.tf)
-```
+#### Example of triplet data frame
 
 The triplet is a data frame with the following columns:
 
@@ -331,13 +399,15 @@ The triplet is a data frame with the following columns:
 
 
 ```{R}
-head(triplet)
+str(triplet.promoter)
+triplet.promoter$distance_region_target_tss %>% range
+triplet.promoter %>% head
 ```
 
 Note that there may be multiple rows for a CpG region, when multiple 
 target gene and/or TFs are found close to it. 
 
-# Evaluating the regulatory potential of CpGs (or DMRs) 
+## Evaluating the regulatory potential of CpGs (or DMRs) 
 
 Because TF binding to DNA can be influenced by (or influences) 
 DNA methylation levels nearby [@yin2017impact], 
@@ -351,13 +421,12 @@ We will perform analyses using the 3 datasets described above in Section 3:
 
 * An input DNA methylation matrix
 * An input Gene expression matrix
-* The created triplet data frame with expression values for DNA methylation region, TF, and target gene
+* The created triplet data frame
 
-## Analysis using model with methylation by TF interaction
+### Analysis using model with methylation by TF interaction
 
 The function `interaction_model` assess the regulatory impact of 
 DNA methylation on TF regulation of target genes via the following approach: 
-
 
 **considering DNAm values as a binary variable** - we define a binary variable 
 `DNAm Group` for DNA methylation values (high = 1, low = 0). 
@@ -371,13 +440,13 @@ $$log_2(RNA target) \sim log_2(TF) + \text{DNAm Group} + log_2(TF) * \text{DNAm 
  
 ```{R interaction_model, message = FALSE, results = "hide", eval = TRUE}
 results.interaction.model <- interaction_model(
-    triplet = triplet, 
+    triplet = triplet.promoter, 
     dnam = dna.met.chr21.se,
     exp = gene.exp.chr21.se,
-    sig.threshold = 1.0,
-    fdr = FALSE,
-    filter.correlated.tf.exp.dnam = FALSE,
-    filter.triplet.by.sig.term = FALSE
+    sig.threshold = 0.05,
+    fdr = TRUE,
+    filter.correlated.tf.exp.dnam = TRUE,
+    filter.triplet.by.sig.term = TRUE
 )
 ```
 
@@ -410,7 +479,7 @@ results.interaction.model %>% dplyr::select(
   ) %>% head
 ```
 
-## Stratified analysis by high and low DNA methylation levels
+### Stratified analysis by high and low DNA methylation levels
 
 For triplets with significant $log_2(TF) × DNAm$ interaction effect identified 
 above, we can further assess how gene regulation by TF changes when DNAm 
@@ -424,7 +493,7 @@ $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 
 ```{R stratified_model, message = FALSE, warning = FALSE, results = "hide", eval = TRUE}
 results.stratified.model <- stratified_model(
-    triplet = triplet,
+    triplet = results.interaction.model,
     dnam = dna.met.chr21.se,
     exp = gene.exp.chr21.se
 )
@@ -434,7 +503,7 @@ results.stratified.model <- stratified_model(
 results.stratified.model %>% head
 ```
 
-## Visualization of data  
+### Visualization of data  
 
 The functions `plot_interaction_model` 
 will create figures to visualize the data, 
@@ -445,13 +514,13 @@ the DNA methylation matrix and the gene expression matrix as input.
 
 ```{R plot_interaction_model, eval = TRUE, message = FALSE, results = "hide", warning = FALSE}
 plots <- plot_interaction_model(
-    triplet.results = results.interaction.model[29,], 
+    triplet.results = results.interaction.model[1,], 
     dnam = dna.met.chr21.se, 
     exp = gene.exp.chr21.se
 )
 ```
 
-```{R, fig.height = 8, fig.width = 10, eval = TRUE, fig.cap = "Plort example of a triplet result."}
+```{R, fig.height = 8, fig.width = 10, eval = TRUE, fig.cap = "An example output from MethReg."}
 plots
 ```
 
@@ -475,9 +544,9 @@ note that without stratifying by DNA methylation, the overall TF-target
 effects (p = 0.142) is not as significant as the association in stratified 
 analysis in high methylation samples (p = 0.00508). 
 _**This demonstrates that by additionally modeling DNA methylation,**_
-**_we can also nominate TF – target associations that might have been missed otherwise**_. 
+_**we can also nominate TF – target associations that might have been missed otherwise**_. 
 
-# Results interpretation
+## Results interpretation
 
 Shown below are some expected results from fitting Models 1 & 2 described in 
 **Section 4.1** above, depending on TF binding preferences. Please note that 
@@ -486,7 +555,7 @@ careful evaluation of the statistical models and visualization of data as
 described in **Section 4** are needed to gain a good understanding of the 
 multi-omics data. 
 
-```{r scenarios, fig.cap =  "Different biological scenarios considered by MethReg", echo = FALSE}
+```{r scenarios, fig.cap =  "Scenarios modeled by MethReg.", echo = FALSE, fig.width=13}
 png::readPNG("scenarios.png")  %>% grid::grid.raster()
 ```
 
@@ -545,6 +614,70 @@ results <- interaction_model(
     dnam = dna.met.chr21.residuals, 
     exp = gene.exp.chr21.residuals
 )
+```
+
+# Calculating enrichment scores
+
+## Using using dorothea and viper 
+
+This example shows how to use dorothea regulons and viper to calculate 
+enrichment scores for each TF across all samples.
+
+```{R}
+regulons.dorothea <- dorothea::dorothea_hs
+regulons.dorothea %>% head
+```
+
+```{R, message = FALSE, results = "hide"}
+rnaseq.tf.es <- get_tf_ES(
+  exp = gene.exp.chr21.se %>% SummarizedExperiment::assay(),
+  regulons = regulons.dorothea
+)
+```
+
+```{R}
+rnaseq.tf.es[1:4,1:4]
+```
+
+## Using using dorothea and GSVA
+
+```{R, message = FALSE, results = "hide"}
+regulons.dorothea <- dorothea::dorothea_hs
+regulons.dorothea$tf <- MethReg:::map_symbol_to_ensg(
+  gene.symbol = regulons.dorothea$tf,
+  genome = "hg38"
+)
+regulons.dorothea$target <- MethReg:::map_symbol_to_ensg(
+  gene.symbol = regulons.dorothea$target,
+  genome = "hg38"
+)
+split_tibble <- function(tibble, col = 'col') tibble %>% split(., .[, col])
+regulons.dorothea.list <- regulons.dorothea %>% na.omit() %>% 
+  split_tibble('tf') %>% 
+  lapply(function(x){x[[3]]})
+```
+
+
+
+```{R, message = FALSE, results = "hide"}
+library(GSVA)
+rnaseq.tf.es.gsva <- gsva(
+  expr = gene.exp.chr21.se %>% SummarizedExperiment::assay(), 
+  gset.idx.list = regulons.dorothea.list, 
+  method = "gsva",
+  kcdf = "Gaussian",
+  abs.ranking = TRUE,
+  min.sz = 5,
+  max.sz = Inf,
+  parallel.sz = 1L,
+  mx.diff = TRUE,
+  ssgsea.norm = TRUE,
+  verbose = TRUE
+)
+```
+
+```{R}
+rnaseq.tf.es.gsva[1:4,1:4]
 ```
 
 # Session information

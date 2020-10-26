@@ -618,7 +618,7 @@ results <- interaction_model(
 
 # Calculating enrichment scores
 
-## Using using dorothea and viper 
+## Using dorothea and viper 
 
 This example shows how to use dorothea regulons and viper to calculate 
 enrichment scores for each TF across all samples.
@@ -639,7 +639,7 @@ rnaseq.tf.es <- get_tf_ES(
 rnaseq.tf.es[1:4,1:4]
 ```
 
-## Using using dorothea and GSVA
+## Using dorothea and GSVA
 
 ```{R, message = FALSE, results = "hide"}
 regulons.dorothea <- dorothea::dorothea_hs

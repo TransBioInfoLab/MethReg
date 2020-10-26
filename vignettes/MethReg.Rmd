@@ -512,7 +512,7 @@ It requires the output from the function `interaction_model` (a dataframe),
 the DNA methylation matrix and the gene expression matrix as input. 
 
 
-```{R plot_interaction_model, eval = TRUE, message = FALSE, results = "hide", warning = FALSE, fig.width = 12}
+```{R plot_interaction_model, eval = TRUE, message = FALSE, results = "hide", warning = FALSE}
 plots <- plot_interaction_model(
     triplet.results = results.interaction.model[1,], 
     dnam = dna.met.chr21.se, 
@@ -520,7 +520,7 @@ plots <- plot_interaction_model(
 )
 ```
 
-```{R, fig.height = 8, fig.width = 10, eval = TRUE, fig.cap = "An example output from MethReg."}
+```{R, fig.height = 8, fig.width = 13, eval = TRUE, fig.cap = "An example output from MethReg."}
 plots
 ```
 

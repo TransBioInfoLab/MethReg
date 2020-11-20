@@ -62,6 +62,7 @@ Suggests:
     biomaRt,
     dorothea,
     viper,
+    sesame,
     stageR,
     BiocFileCache,
     png,

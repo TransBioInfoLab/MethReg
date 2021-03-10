@@ -106,6 +106,7 @@
 #' @export
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare
+#' @importFrom plyr .
 #' @importFrom stats wilcox.test
 #' @importFrom dplyr group_by summarise filter_at contains vars any_vars pull filter
 interaction_model <- function(

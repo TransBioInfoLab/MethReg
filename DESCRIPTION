@@ -45,7 +45,8 @@ Imports:
     pscl,
     IRanges,
     sfsmisc,
-    progress
+    progress,
+    utils
 Suggests: 
     rmarkdown,
     BiocStyle,

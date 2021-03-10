@@ -67,7 +67,9 @@ Suggests:
     png,
     htmltools,
     knitr,
-    jpeg
+    jpeg,
+    sesame,
+    BSgenome.Hsapiens.UCSC.hg38
 VignetteBuilder: knitr
 BugReports: https://github.com/TransBioInfoLab/MethReg/issues/
 RoxygenNote: 7.1.1

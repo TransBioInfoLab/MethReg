@@ -8,6 +8,7 @@
 #' regions.names <- c("chr22:18267969-18268249","chr23:18267969-18268249")
 #' regions.gr <- make_granges_from_names(regions.names)
 #' @export
+#' @return A GRanges
 make_granges_from_names <- function(names){
     names %>%
         data.frame %>%
@@ -27,6 +28,7 @@ make_granges_from_names <- function(names){
 #' regions.gr <- make_granges_from_names(regions.names)
 #' make_names_from_granges(regions.gr)
 #' @export
+#' @return A string 
 make_names_from_granges <- function(region){
     str_c(
         region %>% seqnames %>% as.character,":",
@@ -80,6 +82,7 @@ map_probes_to_regions <- function(
 #' @export
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType "450k" or "EPIC" array
+#' @return A Granges with the DNAm array manifest
 get_met_probes_info <- function(
     genome = c("hg38","hg19"),
     arrayType = c("450k","EPIC")

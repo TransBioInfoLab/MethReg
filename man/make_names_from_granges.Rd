@@ -9,6 +9,9 @@ make_names_from_granges(region)
 \arguments{
 \item{region}{A GenomicRanges object}
 }
+\value{
+A string
+}
 \description{
 Given a GRanges returns region name such as chr22:18267969-18268249
 }

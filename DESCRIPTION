@@ -53,6 +53,7 @@ Suggests:
     parallel,
     downloader,
     R.utils,
+    utils,
     doParallel,
     reshape2,
     JASPAR2020,

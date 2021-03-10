@@ -9,6 +9,9 @@ make_granges_from_names(names)
 \arguments{
 \item{names}{A region name as "chr22:18267969-18268249" or a vector of region names.}
 }
+\value{
+A GRanges
+}
 \description{
 Given a region name such as chr22:18267969-18268249, we will create a Granges
 object

@@ -11,6 +11,9 @@ get_met_probes_info(genome = c("hg38", "hg19"), arrayType = c("450k", "EPIC"))
 
 \item{arrayType}{"450k" or "EPIC" array}
 }
+\value{
+A Granges with the DNAm array manifest
+}
 \description{
 Returns a data frame with HM450/EPIC manifest information
 files from Sesame package

@@ -312,8 +312,7 @@ get_plot_results <- function(
 ){
 
     target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character()), ~.(label.exp)))
-    region.lab <- paste("DNA methylation", label.dnam)
-
+    region.lab <- bquote(~.(row.triplet$regionID %>% as.character()) ~ "DNA methylation" ~.(label.dnam))
     if (use_tf_enrichment_scores) {
         tf.lab <- bquote("TF" ~.(row.triplet$TF_symbol %>% as.character()) ~" activity")
     } else {

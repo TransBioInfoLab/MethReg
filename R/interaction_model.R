@@ -292,16 +292,22 @@ interaction_model <- function(
   }
   
   
-  # Since we used enrichment scores in the linear model
-  # we will rename the output
-  if (!is.null(tf.activity.es)) {
-    colnames(ret) <- gsub("rna.tf","es.tf",colnames(ret))
-  }
   
   if (filter.correlated.tf.exp.dnam) {
     if(verbose)  message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
     ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4met_vs_q1met > sig.threshold)
   }
+  
+  # make the output more clear
+  #colnames(ret) <- gsub(":","_x_",colnames(ret))
+  colnames(ret) <- gsub("metGrp","DNAmGroup",colnames(ret))
+  colnames(ret) <- gsub("rna.tf","TF",colnames(ret))
+  # Since we used enrichment scores in the linear model
+  # we will rename the output
+  if (!is.null(tf.activity.es)) {
+    colnames(ret) <- gsub("rna.tf","TF.es",colnames(ret))
+  }
+  colnames(ret) <- gsub("rna.tf","TF",colnames(ret))
   
   ret
 }
@@ -320,12 +326,12 @@ interaction_all_model_no_results <- function(){
 
 interaction_quant_model_no_results <- function(){
   cbind(
-    "quant_pval_metGrp" = NA,
-    "quant_pval_rna.tf" = NA,
-    "quant_pval_metGrp:rna.tf" = NA,
-    "quant_estimate_metGrp" = NA,
-    "quant_estimate_rna.tf" = NA,
-    "quant_estimate_metGrp:rna.tf" = NA
+    "RLM_metGrp_pvalue" = NA,
+    "RLM_TF_pvalue" = NA,
+    "RLM_metGrp:rna.tf_pvalue" = NA,
+    "RLM_metGrp_estimate" = NA,
+    "RLM_TF_estimate" = NA,
+    "RLM_metGrp:TF_estimate" = NA
   ) %>% as.data.frame()
 }
 

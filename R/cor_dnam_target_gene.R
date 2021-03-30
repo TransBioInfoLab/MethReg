@@ -142,8 +142,8 @@ cor_dnam_target_gene <- function(
 
                 return(
                     tibble(
-                        "met_exp_cor_pvalue" = res$p.value,
-                        "met_exp_cor_estimate" = res$estimate
+                        "DNAm_vs_target_gene_spearman_cor_pvalue" = res$p.value,
+                        "DNAm_vs_target_gene_spearman_cor_estimate" = res$estimate
                     )
                 )
 
@@ -151,8 +151,8 @@ cor_dnam_target_gene <- function(
 
                 return(
                     tibble(
-                        "met_exp_cor_pvalue" = NA,
-                        "met_exp_cor_estimate" = NA
+                        "DNAm_vs_target_gene_spearman_cor_pvalue" = NA,
+                        "DNAm_vs_target_gene_spearman_cor_estimate" = NA
                     )
                 )
 
@@ -164,8 +164,8 @@ cor_dnam_target_gene <- function(
     )
 
     # correlation.df <- na.omit(correlation.df)
-    correlation.df$met_exp_cor_fdr <- p.adjust(
-        correlation.df$met_exp_cor_pvalue,
+    correlation.df$DNAm_vs_target_gene_spearman_cor_fdr <- p.adjust(
+        correlation.df$DNAm_vs_target_gene_spearman_cor_pvalue,
         method = "fdr"
     )
 

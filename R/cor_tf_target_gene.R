@@ -155,7 +155,6 @@ cor_tf_target_gene <- function(
         exp = exp
     )
 
-    #correlation.df <- na.omit(correlation.df)
     correlation.df$TF_vs_target_gene_spearman_cor_fdr <- p.adjust(
         correlation.df$TF_vs_target_gene_spearman_cor_pvalue,
         method = "fdr"

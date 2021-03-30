@@ -134,16 +134,16 @@ cor_tf_target_gene <- function(
                 })
                 return(
                     tibble(
-                        "tf_exp_cor_pvalue" = res$p.value,
-                        "tf_exp_cor_estimate" = res$estimate
+                        "TF_vs_target_gene_spearman_cor_pvalue" = res$p.value,
+                        "TF_vs_target_gene_spearman_cor_estimate" = res$estimate
                     )
                 )
             }, error = function(e){
                 print(e)
                 return(
                     tibble(
-                        "tf_exp_cor_pvalue" = NA,
-                        "tf_exp_cor_estimate" = NA
+                        "TF_vs_target_gene_spearman_cor_pvalue" = NA,
+                        "TF_vs_target_gene_spearman_cor_estimate" = NA
                     )
                 )
             })
@@ -156,8 +156,8 @@ cor_tf_target_gene <- function(
     )
 
     #correlation.df <- na.omit(correlation.df)
-    correlation.df$tf_exp_cor_fdr <- p.adjust(
-        correlation.df$tf_exp_cor_pvalue,
+    correlation.df$TF_vs_target_gene_spearman_cor_fdr <- p.adjust(
+        correlation.df$TF_vs_target_gene_spearman_cor_pvalue,
         method = "fdr"
     )
 

@@ -250,7 +250,7 @@ get_table_plot <- function(row.triplet, genome){
 
     tab <- row.triplet %>%
         dplyr::select(
-            c("Wilcoxon_pval_tf_q4met_vs_q1met")
+            c("TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue")
         ) %>% t() %>% as_tibble(rownames = "Variable")
 
     tab$Variable <- c(
@@ -706,18 +706,18 @@ get_table_plot_results <- function(row.triplet, type){
         title <- "Target ~ TF + DNAm +\n TF * DNAm"
         theme.color <- "mOrange"
     } else if (type == "quantile") {
-        pattern.estimate <- "^quant_estimate"
-        pattern.pval <- "^quant_pval"
+        pattern.estimate <- "^RLM_.*estimate$"
+        pattern.pval <- "^RLM_.*pvalue$"
         title <- "Target ~ TF + \nDNAm Quant. Group +\n TF * DNAm Quant. Group"
         theme.color <- "mGreen"
     } else if (type == "DNAmlow") {
-        pattern.estimate <- "^DNAmlow_estimate"
-        pattern.pval <- "^DNAmlow_pval"
+        pattern.estimate <- "^DNAm_low_.*estimate"
+        pattern.pval <- "^DNAm_low_.*pvalue"
         title <- "Target ~ TF\nDNAm low samples"
         theme.color <- "mBlue"
     } else if (type == "DNAmhigh") {
-        pattern.estimate <- "^DNAmhigh_estimate"
-        pattern.pval <- "^DNAmhigh_pval"
+        pattern.estimate <-"^DNAm_high_.*estimate"
+        pattern.pval <- "^DNAm_high_.*pvalue"
         title <- "Target ~ TF\nDNAm high samples"
         theme.color <- "mRed"
     }
@@ -728,12 +728,12 @@ get_table_plot_results <- function(row.triplet, type){
         as_tibble(rownames = "Variable")
     colnames(table.plot.estimate)[2] <- "Estimate"
     table.plot.estimate$Variable <- gsub(
-        paste0(pattern.estimate,"|_"),"", table.plot.estimate$Variable
+        paste0("_estimate"),"", table.plot.estimate$Variable
     )
 
-    table.plot.estimate$Variable[grep("^rna.tf$|^es.tf$",table.plot.estimate$Variable)] <- "Direct effect of TF"
-    table.plot.estimate$Variable[grep(":rna.tf$|:es.tf$",table.plot.estimate$Variable)] <- "Synergistic effect\n of DNAm and TF"
-    table.plot.estimate$Variable[grep("^met",table.plot.estimate$Variable)] <- "Direct effect of DNAm"
+    table.plot.estimate$Variable[grep("DNAmGroup:TF",table.plot.estimate$Variable)] <- "Synergistic effect\n of DNAm and TF"
+    table.plot.estimate$Variable[grep("DNAmGroup",table.plot.estimate$Variable)] <- "Direct effect of DNAm"
+    table.plot.estimate$Variable[grep("_TF",table.plot.estimate$Variable)] <- "Direct effect of TF"
 
 
     col.idx <- grep(pattern.pval, colnames(row.triplet), value = TRUE)
@@ -742,15 +742,15 @@ get_table_plot_results <- function(row.triplet, type){
         as_tibble(rownames = "Variable")
 
     table.plot.pval$Variable <- gsub(
-        pattern = paste0(pattern.pval,"|_"),
+        pattern = "_pvalue",
         replacement = "",
         table.plot.pval$Variable
     )
-
-    table.plot.pval$Variable[grep("^rna.tf$|^es.tf$",table.plot.pval$Variable)] <- "Direct effect of TF"
-    table.plot.pval$Variable[grep(":rna.tf$|:es.tf$",table.plot.pval$Variable)] <- "Synergistic effect\n of DNAm and TF"
-    table.plot.pval$Variable[grep("^met",table.plot.pval$Variable)] <- "Direct effect of DNAm"
-
+    
+    table.plot.pval$Variable[grep("DNAmGroup:TF",table.plot.pval$Variable)] <- "Synergistic effect\n of DNAm and TF"
+    table.plot.pval$Variable[grep("DNAmGroup",table.plot.pval$Variable)] <- "Direct effect of DNAm"
+    table.plot.pval$Variable[grep("_TF",table.plot.pval$Variable)] <- "Direct effect of TF"
+    
     colnames(table.plot.pval)[2] <- "P-value"
 
     table.plot <- merge(

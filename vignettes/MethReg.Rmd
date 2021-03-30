@@ -452,8 +452,8 @@ results.interaction.model <- interaction_model(
 
 The output of `interaction_model` function will be a data frame with the following variables:
 
-* `pval_<variable>`: p-value for a tested variable (methylation or TF), given the other variables included in the model.
-* `estimate_<variable>`: estimated effect for a variable. If estimate > 0, increasing values 
+* `<variable>_pvalue`: p-value for a tested variable (methylation or TF), given the other variables included in the model.
+* `<variable>_estimate`: estimated effect for a variable. If estimate > 0, increasing values 
 of the variable corresponds to increased outcome values (target gene expression). 
 If estimate < 0, increasing values of the variable correspond to decreased target gene expression levels.
 
@@ -461,16 +461,16 @@ If estimate < 0, increasing values of the variable correspond to decreased targe
 The following columns are provided for the results of fitting **quartile model** to triplet data:
 
 * direct effect of methylation:  
-  + `quant_pval_metGrp`: p-value for binary DNA methylation variable
-  + `quant_estimates_metGrp`: estimated DNA methylation effect
+  + `RLM_DNAmGroup_pvalue`: p-value for binary DNA methylation variable
+  + `RLM_DNAmGroup_estimate`: estimated DNA methylation effect
 
 * direct effect of TF: 
-  + `quant_pval_rna.tf` : p-value for TF expression
-  + `quant_estimates_rna.tf`: estimated TF effect
+  + `RLM_TF_pvalue` : p-value for TF expression
+  + `RLM_TF_estimate`: estimated TF effect
   
 * synergistic effects of methylation and TF: 
-  + `quant_pval_metGrp:rna.tf`: : p-value for DNA methylation by TF interaction
-  + `quant_estimates_metGrp:rna.tf`: estimated DNA methylation by TF interaction effect
+  + `RLM_DNAmGroup:TF_pvalue`: : p-value for DNA methylation by TF interaction
+  + `RLM_DNAmGroup:TF_estimate`: estimated DNA methylation by TF interaction effect
 
 ```{R}
 # Results for quartile model
@@ -500,7 +500,7 @@ results.stratified.model <- stratified_model(
 ```
 
 ```{R}
-results.stratified.model %>% head
+results.stratified.model %>% t %>% gt::gt()
 ```
 
 ### Visualization of data  

@@ -291,11 +291,9 @@ interaction_model <- function(
     }
   }
   
-  
-  
   if (filter.correlated.tf.exp.dnam) {
     if(verbose)  message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
-    ret <- ret %>% dplyr::filter(.data$Wilcoxon_pval_tf_q4met_vs_q1met > sig.threshold)
+    ret <- ret %>% dplyr::filter(.data$TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue > sig.threshold)
   }
   
   # make the output more clear

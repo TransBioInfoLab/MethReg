@@ -172,8 +172,8 @@ cor_dnam_target_gene <- function(
     if (filter.results) {
         correlation.df <- correlation.df %>%
             dplyr::filter(
-                .data$met_exp_cor_fdr <= min.cor.pval &
-                abs(.data$met_exp_cor_estimate) >= min.cor.estimate
+                .data$DNAm_vs_target_gene_spearman_cor_fdr <= min.cor.pval &
+                abs(.data$DNAm_vs_target_gene_spearman_cor_estimate) >= min.cor.estimate
             )
     }
 

@@ -25,7 +25,7 @@ p-values and estimates of interaction}
 \item{exp}{A gene expression matrix or SummarizedExperiment object
 (columns: samples same order as met, rows: genes)}
 
-\item{metadata}{A data frame with samples as rownames and one columns that will be used to
+\item{metadata}{A data frame with samples as row names and one columns that will be used to
 color the samples}
 
 \item{label.dnam}{Used for label text. Option "beta-value" and "residuals"}

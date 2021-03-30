@@ -43,10 +43,10 @@ test_that("cor_dnam_target_gene correlation signal is correct", {
         filter.results = FALSE
     )
 
-    expect_true(results.cor.neg$met_exp_cor_estimate < 0)
-    expect_true(results.cor.pos$met_exp_cor_estimate > 0)
-    expect_true(results.cor.neg$met_exp_cor_fdr < 0.05)
-    expect_true(results.cor.pos$met_exp_cor_fdr < 0.05)
+    expect_true(results.cor.neg$DNAm_vs_target_gene_spearman_cor_estimate < 0)
+    expect_true(results.cor.pos$DNAm_vs_target_gene_spearman_cor_estimate > 0)
+    expect_true(results.cor.neg$DNAm_vs_target_gene_spearman_cor_fdr < 0.05)
+    expect_true(results.cor.pos$DNAm_vs_target_gene_spearman_cor_fdr < 0.05)
 })
 
 test_that("cor_region_dnam_target_gene filter results", {

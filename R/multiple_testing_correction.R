@@ -14,13 +14,14 @@ calculate_stage_wise_adjustment <- function(results){
 
     check_package("stageR")
 
-    interactiol.col <- grep("quant_pval_metGrp:|quant_pval_metGrp\\.",colnames(results),value = TRUE)
+    interactiol.col <- grep("metGrp:.*_pvalue|metGrp\\.",colnames(results),value = TRUE)
     results <- stage_wise_adjustment(results, interactiol.col)
 
-    dnam.col <- grep("quant_pval_metGrp$",colnames(results),value = TRUE)
+    dnam.col <- grep("metGrp_pvalue",colnames(results),value = TRUE)
     results <- stage_wise_adjustment(results, dnam.col)
 
-    tf.col <- grep("quant_pval_rna.tf$|quant_pval_es.tf$",colnames(results),value = TRUE)
+    tf.col <- grep("tf_pvalue$",colnames(results),value = TRUE)
+    tf.col <- grep("metGrp",tf.col,invert = TRUE,value = TRUE)
     results <- stage_wise_adjustment(results, tf.col)
 
     return(results)

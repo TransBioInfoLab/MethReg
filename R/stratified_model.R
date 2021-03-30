@@ -231,10 +231,10 @@ stratified_model_results <- function(
     )
 
     tibble::tibble(
-        "DNAmlow_pval_rna.tf" = results.low.pval %>% as.numeric(),
-        "DNAmlow_estimate_rna.tf" = results.low.estimate %>% as.numeric(),
-        "DNAmhigh_pval_rna.tf" = results.high.pval %>% as.numeric(),
-        "DNAmhigh_estimate_rna.tf" = results.high.estimate %>% as.numeric(),
+        "DNAm_low_RLM_target_vs_TF_pvalue" = results.low.pval %>% as.numeric(),
+        "DNAm_low_RLM_target_vs_TF_estimate" = results.low.estimate %>% as.numeric(),
+        "DNAm_high_RLM_target_vs_TF_pvalue" = results.high.pval %>% as.numeric(),
+        "DNAm_high_RLM_target_vs_TF_estimate" = results.high.estimate %>% as.numeric(),
         "DNAm.effect" = classification$DNAm.effect,
         "TF.role" = classification$TF.role
     )

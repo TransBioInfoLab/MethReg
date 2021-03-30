@@ -252,7 +252,7 @@ check_data <- function(dnam, exp, metadata){
     }
 
     if (!all(colnames(dnam) == colnames(exp))) {
-        stop("DNA methylation and gene expression don't have the column names")
+        stop("DNA methylation and gene expression don't have the same column names")
     }
 
     if (!missing(metadata)) {

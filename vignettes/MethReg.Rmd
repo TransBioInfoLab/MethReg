@@ -445,8 +445,9 @@ results.interaction.model <- interaction_model(
     exp = gene.exp.chr21.se,
     sig.threshold = 0.05,
     fdr = TRUE,
+    stage.wise.analysis = FALSE,
     filter.correlated.tf.exp.dnam = TRUE,
-    filter.triplet.by.sig.term = TRUE
+    filter.triplet.by.sig.term = FALSE
 )
 ```
 
@@ -475,7 +476,7 @@ The following columns are provided for the results of fitting **quartile model**
 ```{R}
 # Results for quartile model
 results.interaction.model %>% dplyr::select(
-  c(1,4,5,grep("quant",colnames(results.interaction.model)))
+  c(1,4,5,grep("RLM",colnames(results.interaction.model)))
   ) %>% head
 ```
 
@@ -500,7 +501,7 @@ results.stratified.model <- stratified_model(
 ```
 
 ```{R}
-results.stratified.model %>% t %>% gt::gt()
+results.stratified.model %>% head
 ```
 
 ### Visualization of data  

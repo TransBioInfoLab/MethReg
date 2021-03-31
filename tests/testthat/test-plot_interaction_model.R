@@ -29,6 +29,7 @@ test_that("plot_interaction_model return a ggplot object", {
         triplet = triplet,
         dnam =  dnam,
         exp =  exp,
+        stage.wise.analysis = FALSE,
         filter.correlated.tf.exp.dna = FALSE,
         sig.threshold = 1,
         filter.triplet.by.sig.term = FALSE

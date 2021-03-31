@@ -125,8 +125,8 @@ The results from
 the statistical models will also allow us to identify a list of CpGs that work 
 synergistically with TFs to influence target gene expression.
 
-```{r workflow, fig.cap = "MethReg workflow", echo = FALSE, fig.width = 13}
-jpeg::readJPEG("workflow_methReg.jpg") %>% grid::grid.raster()
+```{r workflow, fig.cap = "Figure 2 Workflow of MethReg. Data - MethReg required inputs are: (1) array-based DNA methylation data (HM450/EPIC) with beta-values, (2) RNA-seq data with normalized counts, (3) estimated TF activities from the RNA-seq data using GSVA or VIPER  software. Creating triplets – there are multiple ways to create a CpG-TF-target gene triplet: (1) CpGs can be mapped to human TFs by using TF motifs from databases such as JASPAR or ReMap and scanning the CpGs region to identify if there is a binding site (2) CpG can be mapped to target genes using a distance-based approach, CpGs will be linked to a gene if it is on promoter region (+-1K bp away from the TSS), for a distal CpG it can be linked to either all genes within a fixed width (i.e. 500k bp), or a fixed number of genes upstream and downstream of the CpG location (3) TF-target genes can be retrieved from external databases (i.e. Cistrome Cancer; Dorothea). Using two different pairs (i.e. CpG-TF, TF-target gene), triplets can then be created. Analysis – each triplet will be evaluated using a robust linear model in which TF activity is estimated from GSVA/Viper software and DNAm.group is a binary variable used to model if the sample CpG belongs to the top 25% methylation levels or the lowest 25% methylation levels. Results – MethReg will output the prioritized triplets and classify both the TF role on the gene expression (repressor or activator) and the DNAm effect on the TF activity (Enhancing or attenuating).", echo = FALSE, fig.width = 13}
+png::readPNG("workflow_methReg.png") %>% grid::grid.raster()
 ```
 
 # Analysis illustration
@@ -556,7 +556,7 @@ careful evaluation of the statistical models and visualization of data as
 described in **Section 4** are needed to gain a good understanding of the 
 multi-omics data. 
 
-```{r scenarios, fig.cap =  "Scenarios modeled by MethReg.", echo = FALSE, fig.width=13}
+```{r scenarios, fig.cap =  "Scenarios modeled by MethReg. A and B DNA methylation decreases TF activity. In A TF is a repressor of the target gene, while in B TF is an activator. C and D DNA methylation increases TF activity. In C TF is a repressor of the target gene, while in D TF is an activator. E and F DNA methylation inverts the TF role. In E when DNA methylation levels are low the TF works as a repressor, when DNA methylation levels are high the TF acts as an activator. In F when the DNA methylation levels are low the TF works as an activator, when methylation levels are high the TF acts a repressor.", echo = FALSE, fig.width=13}
 png::readPNG("scenarios.png")  %>% grid::grid.raster()
 ```
 

@@ -15,7 +15,7 @@ interaction_model(
   fdr = TRUE,
   filter.correlated.tf.exp.dnam = TRUE,
   filter.triplet.by.sig.term = TRUE,
-  stage.wise.analysis = FALSE,
+  stage.wise.analysis = TRUE,
   verbose = FALSE
 )
 }

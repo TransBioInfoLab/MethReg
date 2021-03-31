@@ -46,9 +46,13 @@ body {text-align: justify}
    </a>
 </div>
 
-```{css, echo = FALSE, eval = TRUE}
+<link rel="stylesheet" href="styles/stackoverflow-dark.css">
+<script src="highlight.pack.js"></script>
+<script>hljs.highlightAll();</script>
+
+```{css, echo = FALSE, eval = T}
 .whiteCode {
-  background-color: white;
+  background-color: black;
   border-color: #337ab7 !important;
   border: 1px solid;
 }
@@ -61,7 +65,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>",class.source = "whiteCode"
 library(dplyr)
 ```
 
-```{r sesame, include = FALSE}
+```{r sesame, include = FALSE, eval = TRUE}
 library(sesameData)
 ```
 
@@ -138,12 +142,11 @@ For illustration, we will use chromosome 21 data from 38 TCGA-COAD (colon cancer
 ### Input DNA methylation dataset
 
 The DNA methylation dataset is a matrix or SummarizedExperiment object with 
-methylation beta or M-values. 
+methylation beta or M-values 
+(The samples are in the columns and methylation regions or probes are in the rows). 
 If there are potential confounding factors (e.g. batch effect, age, sex) in the dataset, 
 this matrix would contain residuals from fitting linear regression 
 instead (see details **Section 5** "Controlling effects from confounding variables" below). 
-
-The samples are in the columns and methylation regions or probes are in the rows.   
 
 #### Analysis for individual CpGs data
 
@@ -556,7 +559,7 @@ careful evaluation of the statistical models and visualization of data as
 described in **Section 4** are needed to gain a good understanding of the 
 multi-omics data. 
 
-```{r scenarios, fig.cap =  "Scenarios modeled by MethReg. A and B DNA methylation decreases TF activity. In A TF is a repressor of the target gene, while in B TF is an activator. C and D DNA methylation increases TF activity. In C TF is a repressor of the target gene, while in D TF is an activator. E and F DNA methylation inverts the TF role. In E when DNA methylation levels are low the TF works as a repressor, when DNA methylation levels are high the TF acts as an activator. In F when the DNA methylation levels are low the TF works as an activator, when methylation levels are high the TF acts a repressor.", echo = FALSE, fig.width=13}
+```{r scenarios, fig.cap =  "Scenarios modeled by MethReg. A and B: DNA methylation decreases TF activity. In A TF is a repressor of the target gene, while in B TF is an activator. C and D: DNA methylation increases TF activity. In C TF is a repressor of the target gene, while in D TF is an activator. E and F: DNA methylation inverts the TF role. In E when DNA methylation levels are low the TF works as a repressor, when DNA methylation levels are high the TF acts as an activator. In F when the DNA methylation levels are low the TF works as an activator, when methylation levels are high the TF acts a repressor.", echo = FALSE, fig.width=13}
 png::readPNG("scenarios.png")  %>% grid::grid.raster()
 ```
 

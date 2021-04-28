@@ -160,8 +160,6 @@ stratified_model <- function(
         .data$TF != .data$target
     )
 
-
-
     if (!is.null(tf.activity.es)) {
 
       if(any(is.na(rownames(tf.activity.es))))

@@ -156,8 +156,7 @@ interaction_model <- function(
   )
   
   if (!is.null(tf.activity.es)) {
-    tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
-    
+
     if(any(is.na(rownames(tf.activity.es))))
       tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
     

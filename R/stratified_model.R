@@ -164,6 +164,9 @@ stratified_model <- function(
 
     if (!is.null(tf.activity.es)) {
 
+      if(any(is.na(rownames(tf.activity.es))))
+        tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
+      
         if (!all(grepl("^ENSG", rownames(tf.activity.es)))) {
             rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
         }

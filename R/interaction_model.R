@@ -156,6 +156,10 @@ interaction_model <- function(
   )
   
   if (!is.null(tf.activity.es)) {
+    tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
+    
+    if(any(is.na(rownames(tf.activity.es))))
+      tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
     
     if (!all(grepl("^ENSG", rownames(tf.activity.es)))) {
       rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
@@ -339,13 +343,13 @@ get_triplet_data <- function(
   row.triplet,
   tf.es
 ){
-  rna.target <- exp[rownames(exp) == row.triplet$target, , drop = FALSE]
-  met <- dnam[rownames(dnam) == as.character(row.triplet$regionID), ]
+  rna.target <- exp[which(rownames(exp) == row.triplet$target), , drop = FALSE]
+  met <- dnam[which(rownames(dnam) == as.character(row.triplet$regionID)), , drop = FALSE]
   
   if (!is.null(tf.es)) {
-    rna.tf <- tf.es[rownames(tf.es) == row.triplet$TF, , drop = FALSE]
+    rna.tf <- tf.es[which(rownames(tf.es) == row.triplet$TF), , drop = FALSE]
   } else {
-    rna.tf <- exp[rownames(exp) == row.triplet$TF, , drop = FALSE]
+    rna.tf <- exp[which(rownames(exp) == row.triplet$TF), , drop = FALSE]
   }
   
   data <- data.frame(

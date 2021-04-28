@@ -736,7 +736,7 @@ get_table_plot_results <- function(row.triplet, type){
     table.plot.estimate$Variable[grep("_TF",table.plot.estimate$Variable)] <- "Direct effect of TF"
 
 
-    col.idx <- grep(pattern.pval, colnames(row.triplet), value = TRUE)
+    col.idx <- gsub("estimate","pvalue",col.idx)
     table.plot.pval <- row.triplet[,col.idx, drop  = FALSE] %>%
         t() %>%
         as_tibble(rownames = "Variable")

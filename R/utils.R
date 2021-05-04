@@ -303,7 +303,7 @@ register_cores <- function(cores){
 #' @title Subset regions to those not overlapping promoter regions
 #' @description Subset a granges object to those not overlapping promoter regions
 #' (default +- 2kb away from TSS)
-#' @importFrom IRanges subsetByOverlaps
+#' @importFrom IRanges subsetByOverlaps psetdiff extractList
 #' @noRd
 subset_by_non_promoter_regions <- function(
     regions.gr,
@@ -324,7 +324,9 @@ subset_by_non_promoter_regions <- function(
     )
 
     message("o Remove promoter regions")
-    GenomicRanges::setdiff(regions.gr, promoter.regions)
+    hits <- findOverlaps(regions.gr, promoter.regions)
+    grl <- extractList(promoter.regions, as(hits, "List"))
+    psetdiff(regions.gr, grl) %>% unlist
 }
 
 #' @title Subset regions to those  overlapping promoter regions

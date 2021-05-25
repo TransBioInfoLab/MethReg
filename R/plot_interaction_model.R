@@ -24,6 +24,9 @@
 #' @param genome Genome of reference to be added to the plot as text
 #' @param label.dnam Used for label text. Option "beta-value" and "residuals"
 #' @param label.exp Used for label text. Option "expression" and "residuals"
+#' @param add.tf.vs.exp.scatter.plot Add another row to the figure if the 
+#' target gene expression vs TF expression stratified by DNA methylation groups
+#' (DNAmLow - low quartile, DNAmHigh - high quartile)
 #' @return A ggplot object, includes a table with results from fitting interaction model,
 #' and the the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
@@ -58,7 +61,8 @@
 #'   dnam = dnam,
 #'   exp = exp,
 #'   fdr = FALSE,
-#'   filter.correlated.tf.exp.dna = FALSE
+#'   filter.correlated.tf.exp.dna = FALSE,
+#'   stage.wise.analysis = FALSE
 #' )
 #' plots <- plot_interaction_model(
 #'     triplet.results = results,
@@ -78,7 +82,8 @@ plot_interaction_model <-  function(
   tf.dnam.classifier.pval.thld = 0.001,
   label.dnam = "beta-value",
   label.exp = "expression",
-  genome = "hg38"
+  genome = "hg38",
+  add.tf.vs.exp.scatter.plot = FALSE
 ){
   
   genome <- match.arg(genome, choices = c("hg38","hg19"))
@@ -158,32 +163,46 @@ plot_interaction_model <-  function(
       suppressWarnings({
         suppressMessages({
           
-          plot.table <-
-            ggarrange(
-              ggarrange(
-                table.plots$table.plot.metadata,
-                #table.plots$table.plot.wilcoxon,
-                #table.plots$table.plot.lm.all,
-                table.plots$table.plot.lm.quant,
-                table.plots$table.plot.legend,
-                #table.plots$table.plot.lm.dna.low,
-                #table.plots$table.plot.lm.dna.high,
-                heights = c(0.8,0.5,0.3),
-                ncol = 1),
-              ggarrange(
-                ggarrange(
-                  plots$tf.target,
-                  plots$dnam.target,
-                  #plots$dnam.tf,
-                  ncol = 2),
-                plots$tf.target.quantile,
-                plots$dnam.target.quantile,
-                nrow = 3
-              ), ncol = 2,widths = c(1,2)
+          # Left side of the plot with all information from linear models
+          plot.tables <- ggarrange(
+            table.plots$table.plot.metadata,
+            #table.plots$table.plot.wilcoxon,
+            #table.plots$table.plot.lm.all,
+            table.plots$table.plot.lm.quant,
+            table.plots$table.plot.legend,
+            #table.plots$table.plot.lm.dna.low,
+            #table.plots$table.plot.lm.dna.high,
+            heights = c(0.8,0.5,0.3),
+            ncol = 1)
+          
+          # Right side of the plot with all scatter, box plots
+          plots.top <- ggarrange(
+            plots$tf.target,
+            plots$dnam.target,
+            #plots$dnam.tf,
+            ncol = 2
+          )
+          
+          if(add.tf.vs.exp.scatter.plot) {
+            plots <- ggarrange( 
+              plots.top,
+              plots$tf.target.quantile,
+              plots$dnam.target.quantile,
+              nrow = 3
             )
+          } else {
+            plots <- ggarrange( 
+              plots.top,
+              plots$tf.target.quantile,
+              nrow = 2
+            )
+          }
+          
+          # Tables on left, plots on right
+          plot.all <- ggarrange(plot.tables, plots, ncol = 2,widths = c(1,2))
         })
       })
-      plot.table + ggplot2::theme(plot.margin = grid::unit(c(1,2,1,2), "cm"))
+      plot.all + ggplot2::theme(plot.margin = grid::unit(c(1,2,1,2), "cm"))
     }, .progress = "time", metadata = metadata)
   attr(out,"split_type") <- NULL
   attr(out,"split_labels") <- NULL

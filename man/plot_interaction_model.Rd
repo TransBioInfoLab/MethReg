@@ -13,7 +13,8 @@ plot_interaction_model(
   tf.dnam.classifier.pval.thld = 0.001,
   label.dnam = "beta-value",
   label.exp = "expression",
-  genome = "hg38"
+  genome = "hg38",
+  add.tf.vs.exp.scatter.plot = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,10 @@ effect.}
 \item{label.exp}{Used for label text. Option "expression" and "residuals"}
 
 \item{genome}{Genome of reference to be added to the plot as text}
+
+\item{add.tf.vs.exp.scatter.plot}{Add another row to the figure if the 
+target gene expression vs TF expression stratified by DNA methylation groups
+(DNAmLow - low quartile, DNAmHigh - high quartile)}
 }
 \value{
 A ggplot object, includes a table with results from fitting interaction model,
@@ -88,7 +93,8 @@ results <- interaction_model(
   dnam = dnam,
   exp = exp,
   fdr = FALSE,
-  filter.correlated.tf.exp.dna = FALSE
+  filter.correlated.tf.exp.dna = FALSE,
+  stage.wise.analysis = FALSE
 )
 plots <- plot_interaction_model(
     triplet.results = results,

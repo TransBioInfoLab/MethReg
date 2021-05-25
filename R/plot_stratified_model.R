@@ -51,7 +51,6 @@
 #'     dnam = dnam,
 #'     exp = exp
 #' )
-#' @export
 #' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme
 #' @importFrom ggplot2 xlab ylab geom_smooth
 #' @importFrom tibble as_tibble

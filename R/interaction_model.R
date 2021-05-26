@@ -20,6 +20,8 @@
 #' Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model
 #' @param filter.correlated.tf.exp.dnam  If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 #' triplet will be removed.
+#' @param filter.correlated.target.exp.dnam  If wilcoxon test of target expression Q1 and Q4 is not significant (pvalue > 0.05),
+#' triplet will be removed.
 #' @param filter.triplet.by.sig.term Filter significant triplets ?
 #' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
 #' @param stage.wise.analysis A boolean indicating if stagewise analysis should be performed
@@ -118,6 +120,7 @@ interaction_model <- function(
   sig.threshold = 0.05,
   fdr = TRUE,
   filter.correlated.tf.exp.dnam = TRUE,
+  filter.correlated.target.exp.dnam = TRUE,
   filter.triplet.by.sig.term = TRUE,
   stage.wise.analysis = TRUE,
   verbose = FALSE
@@ -295,8 +298,13 @@ interaction_model <- function(
   }
   
   if (filter.correlated.tf.exp.dnam) {
-    if(verbose)  message("Filtering results to wilcoxon test TF Q1 vs Q4 not significant")
+    if(verbose)  message("Filtering results to remove the significant in the wilcoxon test TF Q1 vs Q4")
     ret <- ret %>% dplyr::filter(.data$TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue > sig.threshold)
+  }
+  
+  if (filter.correlated.target.exp.dnam) {
+    if(verbose)  message("Filtering results to keep only the significant in the wilcoxon test target Q1 vs Q4")
+    ret <- ret %>% dplyr::filter(.data$Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue < sig.threshold)
   }
   
   # make the output more clear

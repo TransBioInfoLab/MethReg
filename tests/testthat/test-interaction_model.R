@@ -36,6 +36,7 @@ test_that("interaction_model handles 0 cases in more than 25% of samples with ze
         dnam =  dnam,
         exp = exp,
         filter.correlated.tf.exp.dna = FALSE,
+        filter.correlated.target.exp.dnam = FALSE,
         sig.threshold = 1,
         stage.wise.analysis = FALSE,
         fdr = FALSE
@@ -88,6 +89,7 @@ test_that("interaction_model performs rlm if no 0", {
         dnam =  dnam,
         exp = exp,
         filter.correlated.tf.exp.dna = FALSE,
+        filter.correlated.target.exp.dnam = FALSE,
         stage.wise.analysis = FALSE,
         sig.threshold = 1,
         fdr = FALSE

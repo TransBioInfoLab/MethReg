@@ -104,7 +104,16 @@
 #'    "target" = "ENSG00000232886",
 #'    "TF" = "ENSG00000232888"
 #')
-#' results <- interaction_model(triplet, dnam, exp)
+#' results <- interaction_model(
+#'    triplet, 
+#'    dnam, 
+#'    exp, 
+#'    stage.wise.analysis = FALSE, 
+#'    sig.threshold = 1,
+#'    filter.correlated.tf.exp.dnam = FALSE,
+#'    filter.correlated.target.exp.dnam = FALSE,
+#'    filter.triplet.by.sig.term = FALSE
+#' )
 #' @export
 #' @importFrom rlang .data
 #' @importFrom MASS rlm psi.bisquare

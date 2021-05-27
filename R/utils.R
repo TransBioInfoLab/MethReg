@@ -304,7 +304,7 @@ register_cores <- function(cores){
 #' @description Subset a granges object to those not overlapping promoter regions
 #' (default +- 2kb away from TSS)
 #' @importFrom IRanges subsetByOverlaps psetdiff extractList
-#' @importFrom("methods", "as")
+#' @importFrom methods as
 #' @noRd
 subset_by_non_promoter_regions <- function(
   regions.gr,

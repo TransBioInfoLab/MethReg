@@ -193,7 +193,7 @@ plot_interaction_model <-  function(
           } else {
             plots <- ggarrange( 
               plots.top,
-              plots$dnam.target.quantile,
+              plots$tf.target.quantile,
               nrow = 2
             )
           }

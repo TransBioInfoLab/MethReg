@@ -357,7 +357,8 @@ get_triplet_data <- function(
   exp,
   dnam,
   row.triplet,
-  tf.es
+  tf.es,
+  add.groups = FALSE
 ){
   rna.target <- exp[which(rownames(exp) == row.triplet$target), , drop = FALSE]
   met <- dnam[which(rownames(dnam) == as.character(row.triplet$regionID)), , drop = FALSE]
@@ -373,6 +374,22 @@ get_triplet_data <- function(
     met = met %>% as.numeric,
     rna.tf = rna.tf %>% as.numeric
   )
+  
+  if(add.groups){
+    quant.met <-  quantile(data$met,na.rm = TRUE)
+    low.cutoff <- quant.met[2]
+    upper.cutoff <- quant.met[4]
+    data$metGrp <- NA
+    data$metGrp[data$met <= low.cutoff] <- "DNAm low"
+    data$metGrp[data$met <=  >= upper.cutoff] <- "DNAm high"
+    
+    quant.rna.tf <-  quantile(data$rna.tf,na.rm = TRUE)
+    low.cutoff <- quant.rna.tf[2]
+    upper.cutoff <- quant.rna.tf[4]
+    data$TF.group <- NA
+    data$TF.group[data$rna.tf <= low.cutoff] <- "TF low"
+    data$TF.group[data$rna.tf >= upper.cutoff] <- "TF high"
+  }
   data
 }
 

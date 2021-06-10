@@ -381,7 +381,7 @@ get_triplet_data <- function(
     upper.cutoff <- quant.met[4]
     data$metGrp <- NA
     data$metGrp[data$met <= low.cutoff] <- "DNAm low"
-    data$metGrp[data$met <=  >= upper.cutoff] <- "DNAm high"
+    data$metGrp[data$met >= upper.cutoff] <- "DNAm high"
     
     quant.rna.tf <-  quantile(data$rna.tf,na.rm = TRUE)
     low.cutoff <- quant.rna.tf[2]

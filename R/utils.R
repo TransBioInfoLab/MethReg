@@ -446,7 +446,7 @@ make_dnam_se <- function(
   rowRanges$probeID <- names(rowRanges)
   regions.name <-  make_names_from_granges(rowRanges)
   names(rowRanges) <- regions.name
-  rownames(dnam) <- regions.name
+  rownames(assay) <- regions.name
   
   # Create SummarizedExperiment
   if(verbose)  message("oo Preparing SummarizedExperiment object")

@@ -93,7 +93,7 @@ get_met_probes_info <- function(
   check_package("sesameData")
   check_package("sesame")
   
-  sesameDataCacheAll()
+  #sesameDataCacheAll(showProgress = TRUE)
   sesameDataGet(
     str_c(
       ifelse(arrayType == "450k","HM450","EPIC"),

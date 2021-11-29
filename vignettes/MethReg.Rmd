@@ -15,6 +15,7 @@ output:
     df_print: paged
     code_download: false
     toc_depth: 3
+link-citations: true
 bibliography: bibliography.bib    
 editor_options:
   chunk_output_type: inline    
@@ -225,11 +226,46 @@ SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 ```
 
 ###  Creating triplet dataset
+
 #### Creating triplet dataset using distance based approaches and JASPAR2020
 
 In this section, **regions** refer to the regions where CpGs are located. 
 
-The function `create_triplet_distance_based` provides three different methods to 
+
+##### Linking a region to a target gene
+
+To evaluate the DNA methylation effect on the expression of a gene, 
+first we need to define which are the possible affected genes. 
+For this we initially define if the DNA methylation occurred withing a promoter regions, 
+defined as 2 kbp upstream and 2 kbp downstream of the transcription start site (TSS), 
+or in a non-promoter region, also known as distal regions, that could behave like enhancer of the gene expression.
+
+Enhancers can increase the transcription of genes and are found in different locations 
+(upstream or downstream of genes, within introns). 
+Their functional complexity lies in the possibility genes located more distantly than 
+the neighboring genes and being able to regulate multiple genes [@pennacchio2013enhancers]. 
+Also, enhancer–promoter looping could happen at two sequences within approximately 1 Mb of each other  [@pennacchio2013enhancers]. 
+@williamson2011enhancers also highlighted not only that a proportion of enhancers 
+are situated hundreds to thousands of kilobases from their target genes, 
+often in large gene-poor regions, but also the promiscuous activity when placed within gene-rich domains. 
+
+These promoters and enhancers interactions could be further identified using Chromosome conformation capture techniques such as 3C, 4C, Hi-C. 
+However, in the lack of this information one could use the position information in the genome to link an enhancer to a candidate target gene. 
+Such problem is also identified in the GWAS studies, for example, 
+@brodie2016far found that affected genes are often up to $2 Mbps$ away from the 
+associated SNP and highlighted that some studies suggested to use a cutoff of $500 Kbps$
+since enhancers and repressors may be as distant as $500 Kbps$ from their genes. 
+The issue of this method is that with a big window in gene-rich regions would map 
+to several genes, and a small window might not map the gene-poor region, making the decision on the window size very difficult. 
+Another method was presented by @yao2015inferring which provided 
+a linkage method based on a fixed quantity of genes upstream and downstream of the enhancers.
+
+MethReg offer two methods for enhancer linking 1) a window-based method similar to the ones in the GWAS studies, 
+2) a fixed number of genes upstream and downstream of the DNA methylation loci similar to the one suggested by @yao2015inferring, 
+and one method for promoter linking, which maps to the gene of the promoter region.
+
+
+The function `create_triplet_distance_based` provides those three different methods to 
 link a region to a target gene: 
 
 1. Mapping the region to the closest gene (`target.method = "genes.promoter.overlap"`)
@@ -238,6 +274,9 @@ of the region (`target.method = "nearby.genes"`) [@silva2019elmer].
 3. Mapping the region to all the genes within a window 
 (default size = 500 kbp around the region, i.e. +- 250 kbp from start or end 
 of the region) (`target.method = "window"`) [@reese2019epigenome].
+
+
+
 
 
 ```{r plot, fig.cap = "Different target linking strategies", echo = FALSE}
@@ -259,9 +298,23 @@ open-access database of curated, non-redundant transcription
 factor (TF)-binding profiles [@JASPAR2020; @fornes2020jaspar], which contains 
 more the 500 human TF motifs.
 
+
+The motif search width of the scanned region is one important parameter. 
+Although TF recognizes short specific DNA sequence motifs ($6–12 bp$) [@leporcq2020tfmotifview], 
+the output of a ChIP-seq experiment can include peaks longer than $1000 bp$ [@boeva2016analysis], but
+most of the motifs are found $\pm$ $50-75 bp$ from the TF peak center [@heinz2010simple].
+Also, recently, it has been shown by @grossman2018positional that TFs have different positional 
+bindings around nucleosome-depleted regions of DNA, which could range from $\pm200bp$  around 
+the center of the DNaseI-hypersensitive (DHS) sites defined by the Roadmap Epigenomics project and 
+@wang2019identification showed that the methylation levels at UM (unmethylated motifs) and MM (methylated Motifs) were also altered within that range. 
+Since a single CpG is only 1bp, to predict if the methylation at the loci would affect the TF binding site, 
+we suggest using a motif search window no bigger than $400bp$.
+
 The argument `motif.search.window.size` will be used to extend the region when scanning
 for the motifs, for example, a `motif.search.window.size` of `50` will add `25` bp 
 upstream and `25` bp downstream of the original region.
+
+
 
 As an example, the following scripts link CpGs with the probes in gene 
 promoter region (method 1. above)
@@ -273,7 +326,7 @@ triplet.promoter <- create_triplet_distance_based(
   genome = "hg38",
   target.promoter.upstream.dist.tss = 2000,
   target.promoter.downstream.dist.tss = 2000,
-  motif.search.window.size = 500,
+  motif.search.window.size = 400,
   motif.search.p.cutoff  = 1e-08,
   cores = 1  
 )
@@ -307,7 +360,7 @@ triplet.distal.nearby.genes <- create_triplet_distance_based(
     target.num.flanking.genes = 5,
     target.window.size = 500 * 10^3,
     target.rm.promoter.regions.from.distal.linking = TRUE,
-    motif.search.window.size = 500,
+    motif.search.window.size = 400,
     motif.search.p.cutoff  = 1e-08,
     cores = 1  
 )
@@ -345,7 +398,7 @@ triplet.promoter.remap <- create_triplet_distance_based(
   genome = "hg19",
   target.method =  "genes.promoter.overlap",
   TF.peaks.gr = remapCatalog,
-  motif.search.window.size = 500,
+  motif.search.window.size = 400,
   max.distance.region.target = 10^6,
 ) 
 ```
@@ -382,7 +435,7 @@ Finally, triplets can be identified using TF-target from regulon databases with 
   triplet.regulon <- create_triplet_regulon_based(
     region = dna.met.chr21.se,
     genome = "hg38",  
-    motif.search.window.size = 500,
+    motif.search.window.size = 400,
     tf.target = regulons.dorothea,
     max.distance.region.target = 10^6 # 1Mbp
   ) 

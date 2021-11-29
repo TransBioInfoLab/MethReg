@@ -144,9 +144,11 @@ plot_interaction_model <-  function(
       
       # Reformat p-values for better looking on the plots
       idx <- grep("pval|fdr|value",colnames(row.triplet))
-      row.triplet[,idx] <- format.pval(row.triplet[,idx],digits = 3)
+      idx <- idx[!is.na(as.numeric(row.triplet[idx]))]
+      row.triplet[,idx] <- format.pval(row.triplet[,idx] %>% as.numeric(),digits = 3)
       idx <- grep("estimate|median|minus",colnames(row.triplet))
-      row.triplet[,idx] <- format(row.triplet[,idx],digits = 3)
+      idx <- idx[!is.na(as.numeric(row.triplet[idx]))]
+      row.triplet[,idx] <- format(row.triplet[,idx] %>% as.numeric(),digits = 3)
       
       plots <- get_plot_results(
         df = df,

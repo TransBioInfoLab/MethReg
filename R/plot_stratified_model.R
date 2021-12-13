@@ -20,11 +20,11 @@
 #' and the following scatter plots: 1) TF vs DNAm, 2) Target vs DNAm,
 #' 3) Target vs TF, 4) Target vs TF for samples in Q1 and Q4 for DNA methylation,
 #' 5) Target vs DNAm for samples in Q1 and Q4 for the TF
-#' @param dnam.group.threshold DNA methylation percentage threshold in the range (0.0,0.5] used to define 
-#' samples in the low methylated group and high methylated group. For example,
-#' if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
-#' methylation will be in the low group and the samples in the highest 30\% will be in 
-#' the high group. Default is 0.25 (25\%).
+#' @param dnam.group.threshold DNA methylation threshold percentage to define samples 
+#' in the low methylated group and high methylated group. For example, 
+#' setting the threshold to 0.3 (30\%) will assign samples with the lowest 30\% 
+#' methylation in the low group and the highest 30\% methylation in the high group. 
+#' Default is 0.25 (25\%), accepted threshold range (0.0,0.5].
 #' @importFrom ggpubr ggscatter ggarrange ggtexttable ttheme
 #' @importFrom ggplot2 xlab ylab geom_smooth
 #' @importFrom tibble as_tibble

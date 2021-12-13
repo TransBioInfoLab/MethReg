@@ -31,11 +31,11 @@ interaction_model(
  (columns: samples in the same order as \code{dnam},
 rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 
-\item{dnam.group.threshold}{DNA methylation percentage threshold in the range (0.0,0.5] used to define 
-samples in the low methylated group and high methylated group. For example,
-if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
-methylation will be in the low group and the samples in the highest 30\% will be in 
-the high group. Default is 0.25 (25\%).}
+\item{dnam.group.threshold}{DNA methylation threshold percentage to define samples 
+in the low methylated group and high methylated group. For example, 
+setting the threshold to 0.3 (30\%) will assign samples with the lowest 30\% 
+methylation in the low group and the highest 30\% methylation in the high group. 
+Default is 0.25 (25\%), accepted threshold range (0.0,0.5].}
 
 \item{cores}{Number of CPU cores to be used. Default 1.}
 

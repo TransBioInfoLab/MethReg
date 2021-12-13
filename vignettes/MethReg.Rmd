@@ -553,7 +553,8 @@ $$\text{Stratified Model: } log_2(RNA target) \sim log_2(TF)$$
 results.stratified.model <- stratified_model(
     triplet = results.interaction.model,
     dnam = dna.met.chr21.se,
-    exp = gene.exp.chr21.se
+    exp = gene.exp.chr21.se,
+    dnam.group.threshold = 0.25
 )
 ```
 
@@ -574,7 +575,8 @@ the DNA methylation matrix and the gene expression matrix as input.
 plots <- plot_interaction_model(
     triplet.results = results.interaction.model[1,], 
     dnam = dna.met.chr21.se, 
-    exp = gene.exp.chr21.se
+    exp = gene.exp.chr21.se,
+    dnam.group.threshold = 0.25
 )
 ```
 

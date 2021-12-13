@@ -24,7 +24,7 @@ get_human_tfs <- function() {
 #' if (interactive()) file.url <- get_lambert_tf()
 #' @noRd
 get_lambert_tf <- function(
-    bfc = BiocFileCache::BiocFileCache(ask = FALSE)
+    bfc = BiocFileCache::BiocFileCache(cache = getBFCOption("CACHE"),ask = FALSE)
 ) {
 
     check_package("BiocFileCache")

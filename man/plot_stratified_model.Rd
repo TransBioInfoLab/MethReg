@@ -11,7 +11,8 @@ plot_stratified_model(
   metadata,
   label.dnam = "beta-value",
   label.exp = "expression",
-  tf.activity.es = NULL
+  tf.activity.es = NULL,
+  dnam.group.threshold = 0.25
 )
 }
 \arguments{
@@ -34,6 +35,12 @@ color the samples}
 
 \item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
 to be used in linear models instead of TF gene expression.}
+
+\item{dnam.group.threshold}{DNA methylation percentage threshold in the range (0.0,0.5] used to define 
+samples in the low methylated group and high methylated group. For example,
+if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
+methylation will be in the low group and the samples in the highest 30\% will be in 
+the high group. Default is 0.25 (25\%).}
 }
 \value{
 A ggplot object, includes a table with results from fitting stratified model,

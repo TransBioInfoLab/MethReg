@@ -353,11 +353,11 @@ get_plot_results <- function(
   }
   
   # quantile plots met
-  quantile_upper_cutoff <-  quantile(data$met,na.rm = TRUE,  1 - dnam.group.threshold)
-  quantile_lower_cutoff <-  quantile(data$met,na.rm = TRUE,  dnam.group.threshold)
+  quantile_upper_cutoff <-  quantile(df$met,na.rm = TRUE,  1 - dnam.group.threshold)
+  quantile_lower_cutoff <-  quantile(df$met,na.rm = TRUE,  dnam.group.threshold)
   
-  range1 <- paste0("[",paste(round(c(min(data$met,na.rm = TRUE),quantile_lower_cutoff), digits = 3),collapse = ","),"]")
-  range2 <- paste0("[",paste(round(c(quantile_upper_cutoff,max(data$met,na.rm = TRUE)), digits = 3),collapse = ","),"]")
+  range1 <- paste0("[",paste(round(c(min(df$met,na.rm = TRUE),quantile_lower_cutoff), digits = 3),collapse = ","),"]")
+  range2 <- paste0("[",paste(round(c(quantile_upper_cutoff,max(df$met,na.rm = TRUE)), digits = 3),collapse = ","),"]")
   
   df$DNAm.group <- NA
   df$DNAm.group[df$met >= quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
@@ -372,11 +372,11 @@ get_plot_results <- function(
   )
   
   # quantile plots TF
-  quantile_upper_cutoff <-  quantile(data$rna.tf,na.rm = TRUE,  1 - dnam.group.threshold)
-  quantile_lower_cutoff <-  quantile(data$rna.tf,na.rm = TRUE,  dnam.group.threshold)
+  quantile_upper_cutoff <-  quantile(df$rna.tf,na.rm = TRUE,  1 - dnam.group.threshold)
+  quantile_lower_cutoff <-  quantile(df$rna.tf,na.rm = TRUE,  dnam.group.threshold)
   
-  range1 <- paste0("[",paste(round(c(min(data$rna.tf,na.rm = TRUE),quantile_lower_cutoff), digits = 3),collapse = ","),"]")
-  range2 <- paste0("[",paste(round(c(quantile_upper_cutoff,max(data$rna.tf,na.rm = TRUE)), digits = 3),collapse = ","),"]")
+  range1 <- paste0("[",paste(round(c(min(df$rna.tf,na.rm = TRUE),quantile_lower_cutoff), digits = 3),collapse = ","),"]")
+  range2 <- paste0("[",paste(round(c(quantile_upper_cutoff,max(df$rna.tf,na.rm = TRUE)), digits = 3),collapse = ","),"]")
   
   df$TF.group <- NA
   df$TF.group[df$rna.tf >= quantile_upper_cutoff] <- paste0("TF high quartile ", range2)

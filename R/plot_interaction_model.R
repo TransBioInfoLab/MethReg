@@ -21,6 +21,11 @@
 #' a linear model significant
 #' of not. Default 0.001. This will be used to classify the TF role and DNAm
 #' effect.
+#' @param dnam.group.threshold DNA methylation percentage threshold in the range (0.0,0.5] used to define 
+#' samples in the low methylated group and high methylated group. For example,
+#' if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
+#' methylation will be in the low group and the samples in the highest 30\% will be in 
+#' the high group. Default is 0.25 (25\%).
 #' @param genome Genome of reference to be added to the plot as text
 #' @param label.dnam Used for label text. Option "beta-value" and "residuals"
 #' @param label.exp Used for label text. Option "expression" and "residuals"
@@ -80,11 +85,15 @@ plot_interaction_model <-  function(
   metadata,
   tf.activity.es = NULL,
   tf.dnam.classifier.pval.thld = 0.001,
+  dnam.group.threshold = 0.25, 
   label.dnam = "beta-value",
   label.exp = "expression",
   genome = "hg38",
   add.tf.vs.exp.scatter.plot = FALSE
 ){
+  
+  if(!is(dnam.group.threshold,"numeric")) stop("dnam.group.threshold should be a value in the following interval (0,0.5]")
+  if(dnam.group.threshold > 0.5) stop("dnam.group.threshold maximum valuee is 0.5")
   
   genome <- match.arg(genome, choices = c("hg38","hg19"))
   label.dnam <- match.arg(label.dnam, choices = c("beta-value","residuals"))
@@ -156,7 +165,8 @@ plot_interaction_model <-  function(
         color = color,
         use_tf_enrichment_scores = !is.null(tf.activity.es),
         label.dnam = label.dnam,
-        label.exp = label.exp
+        label.exp = label.exp,
+        dnam.group.threshold = dnam.group.threshold
       )
       
       table.plots <- get_table_plot(row.triplet, genome)
@@ -329,7 +339,9 @@ get_plot_results <- function(
   row.triplet,
   color,
   use_tf_enrichment_scores = FALSE,
-  label.dnam, label.exp
+  label.dnam, 
+  label.exp,
+  dnam.group.threshold = 0.25
 ){
   
   target.lab <- bquote(atop("Target" ~.(row.triplet$target_symbol %>% as.character()), ~.(label.exp)))
@@ -340,12 +352,12 @@ get_plot_results <- function(
     tf.lab <- bquote("TF" ~.(row.triplet$TF_symbol %>% as.character()) ~.(label.exp))
   }
   
-  # quintile plots met
-  quant <- quantile(df$met,na.rm = TRUE)
-  quantile_lower_cutoff <- quant[2]
-  quantile_upper_cutoff <- quant[4]
-  range1 <- paste0("[",paste(round(quant[1:2], digits = 3), collapse = ","),"]")
-  range2 <- paste0("[",paste(round(quant[4:5], digits = 3), collapse = ","),"]")
+  # quantile plots met
+  quantile_upper_cutoff <-  quantile(data$met,na.rm = TRUE,  1 - dnam.group.threshold)
+  quantile_lower_cutoff <-  quantile(data$met,na.rm = TRUE,  dnam.group.threshold)
+  
+  range1 <- paste0("[",paste(round(c(min(data$met,na.rm = TRUE),quantile_lower_cutoff), digits = 3),collapse = ","),"]")
+  range2 <- paste0("[",paste(round(c(quantile_upper_cutoff,max(data$met,na.rm = TRUE)), digits = 3),collapse = ","),"]")
   
   df$DNAm.group <- NA
   df$DNAm.group[df$met >= quantile_upper_cutoff] <- paste0("DNAm high quartile ", range2)
@@ -359,12 +371,12 @@ get_plot_results <- function(
     )
   )
   
-  # quintile plots TF
-  quant <- quantile(df$rna.tf, na.rm = TRUE)
-  quantile_lower_cutoff <- quant[2]
-  quantile_upper_cutoff <- quant[4]
-  range1 <- paste0("[",paste(round(quant[1:2], digits = 3),collapse = ","),"]")
-  range2 <- paste0("[",paste(round(quant[4:5], digits = 3),collapse = ","),"]")
+  # quantile plots TF
+  quantile_upper_cutoff <-  quantile(data$rna.tf,na.rm = TRUE,  1 - dnam.group.threshold)
+  quantile_lower_cutoff <-  quantile(data$rna.tf,na.rm = TRUE,  dnam.group.threshold)
+  
+  range1 <- paste0("[",paste(round(c(min(data$rna.tf,na.rm = TRUE),quantile_lower_cutoff), digits = 3),collapse = ","),"]")
+  range2 <- paste0("[",paste(round(c(quantile_upper_cutoff,max(data$rna.tf,na.rm = TRUE)), digits = 3),collapse = ","),"]")
   
   df$TF.group <- NA
   df$TF.group[df$rna.tf >= quantile_upper_cutoff] <- paste0("TF high quartile ", range2)

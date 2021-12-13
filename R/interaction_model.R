@@ -11,13 +11,18 @@
 #' @param exp A matrix or SummarizedExperiment object object
 #'  (columns: samples in the same order as \code{dnam},
 #' rows: genes represented by ensembl IDs (e.g. ENSG00000239415))
+#' @param dnam.group.threshold DNA methylation percentage threshold in the range (0.0,0.5] used to define 
+#' samples in the low methylated group and high methylated group. For example,
+#' if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
+#' methylation will be in the low group and the samples in the highest 30\% will be in 
+#' the high group. Default is 0.25 (25\%).
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param tf.activity.es A matrix with normalized enrichment scores for each TF across all samples
 #' to be used in linear models instead of TF gene expression. See \code{\link{get_tf_ES}}.
 #' @param sig.threshold Threshold to filter significant triplets.
-#' Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model
+#' Select if interaction.pval < 0.05 or pval.dnam < 0.05 or pval.tf < 0.05 in binary model
 #' @param fdr Uses fdr when using sig.threshold.
-#' Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model
+#' Select if interaction.fdr < 0.05 or fdr.dnam < 0.05 or fdr.tf < 0.05 in binary model
 #' @param filter.correlated.tf.exp.dnam  If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 #' triplet will be removed.
 #' @param filter.correlated.target.exp.dnam  If wilcoxon test of target expression Q1 and Q4 is not significant (pvalue > 0.05),
@@ -105,9 +110,10 @@
 #'    "TF" = "ENSG00000232888"
 #')
 #' results <- interaction_model(
-#'    triplet, 
-#'    dnam, 
-#'    exp, 
+#'    triplet = triplet, 
+#'    dnam = dnam, 
+#'    exp = exp, 
+#'     dnam.group.threshold = 0.25,
 #'    stage.wise.analysis = FALSE, 
 #'    sig.threshold = 1,
 #'    filter.correlated.tf.exp.dnam = FALSE,
@@ -124,6 +130,7 @@ interaction_model <- function(
   triplet,
   dnam,
   exp,
+  dnam.group.threshold = 0.25,
   cores = 1,
   tf.activity.es = NULL,
   sig.threshold = 0.05,
@@ -139,6 +146,9 @@ interaction_model <- function(
   
   if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
   if (missing(exp)) stop("Please set exp argument with gene expression matrix")
+  
+  if(!is(dnam.group.threshold,"numeric")) stop("dnam.group.threshold should be a value in the following interval (0,0.5]")
+  if(dnam.group.threshold > 0.5) stop("dnam.group.threshold maximum valuee is 0.5")
   
   if (is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
   if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
@@ -215,11 +225,10 @@ interaction_model <- function(
         tf.es = tf.activity.es
       )
       
-      quant.met <-  quantile(data$met,na.rm = TRUE)
-      quant.diff <- data.frame("met.IQR" = quant.met[4] - quant.met[2])
-      
-      low.cutoff <- quant.met[2]
-      upper.cutoff <- quant.met[4]
+      upper.cutoff <-  quantile(data$met,na.rm = TRUE,  1 - dnam.group.threshold)
+      low.cutoff <-  quantile(data$met,na.rm = TRUE,  dnam.group.threshold)
+     
+      quant.diff <- data.frame("met.IQR" = upper.cutoff - upper.cutoff)
       
       data.high.low <- data %>% filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
       data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)

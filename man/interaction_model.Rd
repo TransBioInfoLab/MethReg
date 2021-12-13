@@ -9,6 +9,7 @@ interaction_model(
   triplet,
   dnam,
   exp,
+  dnam.group.threshold = 0.25,
   cores = 1,
   tf.activity.es = NULL,
   sig.threshold = 0.05,
@@ -30,16 +31,22 @@ interaction_model(
  (columns: samples in the same order as \code{dnam},
 rows: genes represented by ensembl IDs (e.g. ENSG00000239415))}
 
+\item{dnam.group.threshold}{DNA methylation percentage threshold in the range (0.0,0.5] used to define 
+samples in the low methylated group and high methylated group. For example,
+if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
+methylation will be in the low group and the samples in the highest 30\% will be in 
+the high group. Default is 0.25 (25\%).}
+
 \item{cores}{Number of CPU cores to be used. Default 1.}
 
 \item{tf.activity.es}{A matrix with normalized enrichment scores for each TF across all samples
 to be used in linear models instead of TF gene expression. See \code{\link{get_tf_ES}}.}
 
 \item{sig.threshold}{Threshold to filter significant triplets.
-Select if interaction.pval < 0.05 or pval.dnam <0.05 or pval.tf < 0.05 in binary model}
+Select if interaction.pval < 0.05 or pval.dnam < 0.05 or pval.tf < 0.05 in binary model}
 
 \item{fdr}{Uses fdr when using sig.threshold.
-Select if interaction.fdr < 0.05 or fdr.dnam <0.05 or fdr.tf < 0.05 in binary model}
+Select if interaction.fdr < 0.05 or fdr.dnam < 0.05 or fdr.tf < 0.05 in binary model}
 
 \item{filter.correlated.tf.exp.dnam}{If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 triplet will be removed.}
@@ -142,9 +149,10 @@ triplet <- data.frame(
    "TF" = "ENSG00000232888"
 )
 results <- interaction_model(
-   triplet, 
-   dnam, 
-   exp, 
+   triplet = triplet, 
+   dnam = dnam, 
+   exp = exp, 
+    dnam.group.threshold = 0.25,
    stage.wise.analysis = FALSE, 
    sig.threshold = 1,
    filter.correlated.tf.exp.dnam = FALSE,

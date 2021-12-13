@@ -20,6 +20,11 @@
 #' a linear model significant
 #' of not. Default 0.001. This will be used to classify the TF role and DNAm
 #' effect.
+#' @param dnam.group.threshold DNA methylation percentage threshold in the range (0.0,0.5] used to define 
+#' samples in the low methylated group and high methylated group. For example,
+#' if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
+#' methylation will be in the low group and the samples in the highest 30\% will be in 
+#' the high group. Default is 0.25 (25\%).
 #' @return A dataframe with \code{Region, TF, target, TF_symbol target_symbol},
 #' results for
 #' fitting linear models to samples with low methylation
@@ -117,206 +122,212 @@
 #' @importFrom tibble tibble
 #' @importFrom rlang .data
 stratified_model <- function(
-    triplet,
-    dnam,
-    exp,
-    cores = 1,
-    tf.activity.es = NULL,
-    tf.dnam.classifier.pval.thld = 0.001
+  triplet,
+  dnam,
+  exp,
+  cores = 1,
+  tf.activity.es = NULL,
+  tf.dnam.classifier.pval.thld = 0.001,
+  dnam.group.threshold = 0.25
 ){
-
-    if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
-    if (missing(exp)) stop("Please set exp argument with gene expression matrix")
-
-    if (is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
-    if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
-
-    if (!all(grepl("ENSG", rownames(exp)))) {
-        stop("exp must have the following row names as ENSEMBL IDs (i.e. ENSG00000239415)")
+  
+  if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
+  if (missing(exp)) stop("Please set exp argument with gene expression matrix")
+  
+  if (is(dnam,"SummarizedExperiment")) dnam <- assay(dnam)
+  if (is(exp,"SummarizedExperiment")) exp <- assay(exp)
+  
+  if (!all(grepl("ENSG", rownames(exp)))) {
+    stop("exp must have the following row names as ENSEMBL IDs (i.e. ENSG00000239415)")
+  }
+  
+  if (missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
+  if (!all(c("regionID","TF","target") %in% colnames(triplet))) {
+    stop("triplet must have the following columns names: regionID, TF, target")
+  }
+  
+  message("Removing genes with RNA expression equal to 0 for all samples from triplets")
+  exp <- filter_genes_zero_expression_all_samples(exp)
+  
+  message("Removing triplet with no DNA methylation information for more than 25% of the samples")
+  regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
+  dnam <- dnam[regions.keep,,drop = FALSE]
+  
+  triplet <- triplet %>% dplyr::filter(
+    .data$target %in% rownames(exp) &
+      .data$regionID %in% rownames(dnam)
+  )
+  
+  triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
+  triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
+  
+  # Remove cases where target is also the TF if it exists
+  triplet <- triplet %>% dplyr::filter(
+    .data$TF != .data$target
+  )
+  
+  if (!is.null(tf.activity.es)) {
+    
+    if(any(is.na(rownames(tf.activity.es))))
+      tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
+    
+    if (!all(grepl("^ENSG", rownames(tf.activity.es)))) {
+      rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
     }
-
-    if (missing(triplet)) stop("Please set triplet argument with interactors (region,TF, target gene) data frame")
-    if (!all(c("regionID","TF","target") %in% colnames(triplet))) {
-        stop("triplet must have the following columns names: regionID, TF, target")
-    }
-
-    message("Removing genes with RNA expression equal to 0 for all samples from triplets")
-    exp <- filter_genes_zero_expression_all_samples(exp)
-
-    message("Removing triplet with no DNA methylation information for more than 25% of the samples")
-    regions.keep <- (rowSums(is.na(dnam)) < (ncol(dnam) * 0.75)) %>% which %>% names
-    dnam <- dnam[regions.keep,,drop = FALSE]
-
+    
     triplet <- triplet %>% dplyr::filter(
-        .data$target %in% rownames(exp) &
-            .data$regionID %in% rownames(dnam)
+      .data$TF %in% rownames(tf.activity.es)
     )
-
-    triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
-    triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
-
-    # Remove cases where target is also the TF if it exists
+  } else {
     triplet <- triplet %>% dplyr::filter(
-        .data$TF != .data$target
+      .data$TF %in% rownames(exp)
     )
-
-    if (!is.null(tf.activity.es)) {
-
-      if(any(is.na(rownames(tf.activity.es))))
-        tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
+  }
+  
+  if (nrow(triplet) == 0) {
+    stop("We were not able to find the same rows from triple in the data, please check the input.")
+  }
+  
+  parallel <- register_cores(cores)
+  
+  out <- plyr::adply(
+    .data = triplet,
+    .margins = 1,
+    .fun = function(row.triplet){
       
-        if (!all(grepl("^ENSG", rownames(tf.activity.es)))) {
-            rownames(tf.activity.es) <- map_symbol_to_ensg(rownames(tf.activity.es))
-        }
-
-        triplet <- triplet %>% dplyr::filter(
-            .data$TF %in% rownames(tf.activity.es)
-        )
-    } else {
-        triplet <- triplet %>% dplyr::filter(
-            .data$TF %in% rownames(exp)
-        )
-    }
-
-    if (nrow(triplet) == 0) {
-        stop("We were not able to find the same rows from triple in the data, please check the input.")
-    }
-
-    parallel <- register_cores(cores)
-
-    out <- plyr::adply(
-        .data = triplet,
-        .margins = 1,
-        .fun = function(row.triplet){
-
-            data <- get_triplet_data(
-                exp = exp,
-                dnam = dnam,
-                row.triplet = row.triplet,
-                tf.es = tf.activity.es
-            )
-            stratified_model_results(data, tf.dnam.classifier.pval.thld = 0.001)
-        }, .progress = "time", .parallel = parallel, .inform = TRUE)
-
-    if (!is.null(tf.activity.es)) {
-        colnames(out) <- gsub("rna.tf","es.tf",colnames(out))
-    }
-
-    return(out)
+      data <- get_triplet_data(
+        exp = exp,
+        dnam = dnam,
+        row.triplet = row.triplet,
+        tf.es = tf.activity.es
+      )
+      stratified_model_results(
+        data = data, 
+        tf.dnam.classifier.pval.thld = tf.dnam.classifier.pval.thld, 
+        dnam.group.threshold = dnam.group.threshold
+      )
+    }, .progress = "time", .parallel = parallel, .inform = TRUE)
+  
+  if (!is.null(tf.activity.es)) {
+    colnames(out) <- gsub("rna.tf","es.tf",colnames(out))
+  }
+  
+  return(out)
 }
 
 stratified_model_results <- function(
-    data,
-    tf.dnam.classifier.pval.thld = 0.001
+  data,
+  tf.dnam.classifier.pval.thld = 0.001,
+  dnam.group.threshold = 0.25
 ){
-    low.cutoff <- quantile(data$met, na.rm = TRUE)[2]
-    upper.cutoff <- quantile(data$met, na.rm = TRUE)[4]
-
-    data.low <- data %>% dplyr::filter(.data$met <= low.cutoff)
-    data.high <- data %>% dplyr::filter(.data$met >= upper.cutoff)
-
-    results.low <- stratified_model_aux(data.low,"DNAmlow")
-    results.low.pval <- results.low$pval
-    results.low.estimate <- results.low$estimate
-
-    results.high <- stratified_model_aux(data.high,"DNAmhigh")
-    results.high.pval <- results.high$pval
-    results.high.estimate <- results.high$estimate
-
-    classification <- get_tf_dnam_classification(
-        low.estimate = results.low.estimate,
-        low.pval = results.low.pval,
-        high.estimate = results.high.estimate,
-        high.pval = results.high.pval,
-        pvalue.threshold = tf.dnam.classifier.pval.thld
-    )
-
-    tibble::tibble(
-        "DNAm_low_RLM_target_vs_TF_pvalue" = results.low.pval %>% as.numeric(),
-        "DNAm_low_RLM_target_vs_TF_estimate" = results.low.estimate %>% as.numeric(),
-        "DNAm_high_RLM_target_vs_TF_pvalue" = results.high.pval %>% as.numeric(),
-        "DNAm_high_RLM_target_vs_TF_estimate" = results.high.estimate %>% as.numeric(),
-        "DNAm.effect" = classification$DNAm.effect,
-        "TF.role" = classification$TF.role
-    )
+  upper.cutoff <-  quantile(data$met,na.rm = TRUE,  1 - dnam.group.threshold)
+  low.cutoff <-  quantile(data$met,na.rm = TRUE,  dnam.group.threshold)
+  
+  data.low <- data %>% dplyr::filter(.data$met <= low.cutoff)
+  data.high <- data %>% dplyr::filter(.data$met >= upper.cutoff)
+  
+  results.low <- stratified_model_aux(data.low,"DNAmlow")
+  results.low.pval <- results.low$pval
+  results.low.estimate <- results.low$estimate
+  
+  results.high <- stratified_model_aux(data.high,"DNAmhigh")
+  results.high.pval <- results.high$pval
+  results.high.estimate <- results.high$estimate
+  
+  classification <- get_tf_dnam_classification(
+    low.estimate = results.low.estimate,
+    low.pval = results.low.pval,
+    high.estimate = results.high.estimate,
+    high.pval = results.high.pval,
+    pvalue.threshold = tf.dnam.classifier.pval.thld
+  )
+  
+  tibble::tibble(
+    "DNAm_low_RLM_target_vs_TF_pvalue" = results.low.pval %>% as.numeric(),
+    "DNAm_low_RLM_target_vs_TF_estimate" = results.low.estimate %>% as.numeric(),
+    "DNAm_high_RLM_target_vs_TF_pvalue" = results.high.pval %>% as.numeric(),
+    "DNAm_high_RLM_target_vs_TF_estimate" = results.high.estimate %>% as.numeric(),
+    "DNAm.effect" = classification$DNAm.effect,
+    "TF.role" = classification$TF.role
+  )
 }
 
 #' @importFrom MASS rlm psi.bisquare
 #' @importFrom stats coef pt
 stratified_model_aux <- function(data, prefix = ""){
-    pct.zeros.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
-
-    if (pct.zeros.samples > 0.25) {
-        results <-  tryCatch({
-            pscl::zeroinfl(
-                trunc(rna.target) ~ rna.tf | 1,
-                data = data,
-                dist = "negbin",
-                EM = FALSE) %>% summary %>% coef
-        }, error = function(e){
-            # message("Binary model: ", e)
-            return(NULL)
-        })
-
-        if (is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
-
-        results <- results$count %>% data.frame
-
-        results.pval <- results["rna.tf","Pr...z..",drop = FALSE] %>%
-            t %>%
-            as.data.frame()
-        colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
-
-        results.estimate <- results["rna.tf","Estimate",drop = FALSE] %>%
-            t %>%
-            as.data.frame()
-        colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
-
-    } else {
-
-        results <- tryCatch({
-
-            MASS::rlm(
-                formula = as.formula("rna.target ~ rna.tf"),
-                data = data,
-                psi = psi.bisquare,
-                maxit = 100) %>% summary %>% coef %>% data.frame
-
-        }, error = function(e){
-            # message("Binary model: ", e)
-            return(NULL)
-        })
-
-        if (is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
-
-        degrees.freedom.value <- nrow(data) - 2
-        results$pval <- 2 * (1 - pt( abs(results$t.value), df = degrees.freedom.value) )
-
-        results.pval <- results[-1,4,drop = FALSE] %>% t %>% as.data.frame()
-        colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
-
-        results.estimate <- results[-1,1,drop = FALSE] %>% t %>% as.data.frame()
-        colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
-    }
-
-    return(
-        list(
-            "estimate" = results.estimate,
-            "pval" = results.pval,
-            "Model" = ifelse(pct.zeros.samples > 0.25,
-                             "Zero-inflated Negative Binomial Model",
-                             "Robust Linear Model"),
-            "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
-        )
+  pct.zeros.samples <- sum(data$rna.target == 0, na.rm = TRUE) / nrow(data)
+  
+  if (pct.zeros.samples > 0.25) {
+    results <-  tryCatch({
+      pscl::zeroinfl(
+        trunc(rna.target) ~ rna.tf | 1,
+        data = data,
+        dist = "negbin",
+        EM = FALSE) %>% summary %>% coef
+    }, error = function(e){
+      # message("Binary model: ", e)
+      return(NULL)
+    })
+    
+    if (is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
+    
+    results <- results$count %>% data.frame
+    
+    results.pval <- results["rna.tf","Pr...z..",drop = FALSE] %>%
+      t %>%
+      as.data.frame()
+    colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
+    
+    results.estimate <- results["rna.tf","Estimate",drop = FALSE] %>%
+      t %>%
+      as.data.frame()
+    colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
+    
+  } else {
+    
+    results <- tryCatch({
+      
+      MASS::rlm(
+        formula = as.formula("rna.target ~ rna.tf"),
+        data = data,
+        psi = psi.bisquare,
+        maxit = 100) %>% summary %>% coef %>% data.frame
+      
+    }, error = function(e){
+      # message("Binary model: ", e)
+      return(NULL)
+    })
+    
+    if (is.null(results)) return(stratified_model_aux_no_results(pct.zeros.samples))
+    
+    degrees.freedom.value <- nrow(data) - 2
+    results$pval <- 2 * (1 - pt( abs(results$t.value), df = degrees.freedom.value) )
+    
+    results.pval <- results[-1,4,drop = FALSE] %>% t %>% as.data.frame()
+    colnames(results.pval) <- paste0(prefix,"_pval_",colnames(results.pval))
+    
+    results.estimate <- results[-1,1,drop = FALSE] %>% t %>% as.data.frame()
+    colnames(results.estimate) <- paste0(prefix,"_estimate_",colnames(results.estimate))
+  }
+  
+  return(
+    list(
+      "estimate" = results.estimate,
+      "pval" = results.pval,
+      "Model" = ifelse(pct.zeros.samples > 0.25,
+                       "Zero-inflated Negative Binomial Model",
+                       "Robust Linear Model"),
+      "percet_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
     )
+  )
 }
 stratified_model_aux_no_results <- function(pct.zeros.samples){
-    list("estimate" = NA,
-         "pval" = NA,
-         "Model" = "Robust Linear Model",
-         "percent_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
-    )
-
+  list("estimate" = NA,
+       "pval" = NA,
+       "Model" = "Robust Linear Model",
+       "percent_zero_target_genes" = paste0(round(pct.zeros.samples * 100, digits = 2)," %")
+  )
+  
 }
 
 #' @title TF and DNAm roles classifier
@@ -370,57 +381,57 @@ stratified_model_aux_no_results <- function(pct.zeros.samples){
 #'   high.estimate = 0.2, high.pval = 0.05
 #' )
 get_tf_dnam_classification <- function(
-    low.estimate,
-    low.pval,
-    high.estimate,
-    high.pval,
-    pvalue.threshold = 0.001
+  low.estimate,
+  low.pval,
+  high.estimate,
+  high.pval,
+  pvalue.threshold = 0.001
 ){
-
-    # output
-    classification <- list("DNAm.effect" = NA, "TF.role" = NA)
-
-    pval.vct <- c(low.pval %>% as.numeric, high.pval %>% as.numeric)
-    pval.sig <- pval.vct <= pvalue.threshold
-    pval.sig[is.na(pval.sig)] <- FALSE
-    estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
-
-    if (any(is.na(estimate.vector))) {
-        return(classification)
-    }
-
-    # All estimates are not significant
-    if (!any(pval.sig,na.rm = TRUE)) {
-        return(classification)
-    }
-
-
-    # TF role classification
-    # Activator
-    # Repressor
-    if (all(estimate.vector[pval.sig] > 0)) {
-        classification$TF.role <- "Activator"
-    } else if (all(estimate.vector[pval.sig] < 0)) {
-        classification$TF.role <- "Repressor"
-    } else {
-        # One is + and the other -
-        classification$TF.role <- "Dual"
-    }
-
-    if (is.na(low.pval)) {
-        classification$DNAm.effect <- "Enhancing"
-    } else if (is.na(high.pval)) {
-        classification$DNAm.effect <- "Attenuating"
-    } else if (low.pval < high.pval) {
-        classification$DNAm.effect <- "Attenuating"
-    } else {
-        classification$DNAm.effect <- "Enhancing"
-    }
-
-    if (classification$TF.role == "Dual") {
-        classification$DNAm.effect <- "Invert"
-    }
-
+  
+  # output
+  classification <- list("DNAm.effect" = NA, "TF.role" = NA)
+  
+  pval.vct <- c(low.pval %>% as.numeric, high.pval %>% as.numeric)
+  pval.sig <- pval.vct <= pvalue.threshold
+  pval.sig[is.na(pval.sig)] <- FALSE
+  estimate.vector <- c(low.estimate %>% as.numeric, high.estimate %>% as.numeric)
+  
+  if (any(is.na(estimate.vector))) {
     return(classification)
+  }
+  
+  # All estimates are not significant
+  if (!any(pval.sig,na.rm = TRUE)) {
+    return(classification)
+  }
+  
+  
+  # TF role classification
+  # Activator
+  # Repressor
+  if (all(estimate.vector[pval.sig] > 0)) {
+    classification$TF.role <- "Activator"
+  } else if (all(estimate.vector[pval.sig] < 0)) {
+    classification$TF.role <- "Repressor"
+  } else {
+    # One is + and the other -
+    classification$TF.role <- "Dual"
+  }
+  
+  if (is.na(low.pval)) {
+    classification$DNAm.effect <- "Enhancing"
+  } else if (is.na(high.pval)) {
+    classification$DNAm.effect <- "Attenuating"
+  } else if (low.pval < high.pval) {
+    classification$DNAm.effect <- "Attenuating"
+  } else {
+    classification$DNAm.effect <- "Enhancing"
+  }
+  
+  if (classification$TF.role == "Dual") {
+    classification$DNAm.effect <- "Invert"
+  }
+  
+  return(classification)
 }
 

@@ -11,6 +11,7 @@ plot_interaction_model(
   metadata,
   tf.activity.es = NULL,
   tf.dnam.classifier.pval.thld = 0.001,
+  dnam.group.threshold = 0.25,
   label.dnam = "beta-value",
   label.exp = "expression",
   genome = "hg38",
@@ -38,6 +39,12 @@ to be used in linear models instead of TF gene expression.}
 a linear model significant
 of not. Default 0.001. This will be used to classify the TF role and DNAm
 effect.}
+
+\item{dnam.group.threshold}{DNA methylation percentage threshold in the range (0.0,0.5] used to define 
+samples in the low methylated group and high methylated group. For example,
+if dnam.group.threshold is set to 0.3 (30\%) the  samples with the lowest 30\% of
+methylation will be in the low group and the samples in the highest 30\% will be in 
+the high group. Default is 0.25 (25\%).}
 
 \item{label.dnam}{Used for label text. Option "beta-value" and "residuals"}
 

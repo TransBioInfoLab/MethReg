@@ -5,12 +5,13 @@
 \title{Select regions with variations in DNA methylation
 levels above a threshold}
 \usage{
-filter_dnam_by_quant_diff(dnam, diff.mean.th = 0.2, cores = 1)
+filter_dnam_by_quant_diff(dnam, min.IQR.threshold = 0.2, cores = 1)
 }
 \arguments{
-\item{dnam}{DNA methylation matrix or SumarizedExperiment object}
+\item{dnam}{DNA methylation matrix or SummarizedExperiment object}
 
-\item{diff.mean.th}{Threshold for difference in mean DNAm levels for samples in Q4 and Q1}
+\item{min.IQR.threshold}{Threshold for minimal interquantile range (difference between the 75th and 25th percentiles)
+of the DNAm}
 
 \item{cores}{Number of CPU cores to be used in the analysis. Default: 1}
 }
@@ -19,8 +20,8 @@ A subset of the original matrix only with the
 rows passing the filter threshold.
 }
 \description{
-For each region, compares the mean DNA methylation (DNAm) levels
-in samples with high DNAm  (Q4) vs. low DNAm (Q1) and requires
+For each region, compares the interquantile rang (IQR) of the 
+DNA methylation (DNAm) levels and requires
 the difference to be above a threshold.
 }
 \examples{

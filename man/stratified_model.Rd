@@ -45,7 +45,7 @@ methylation in the low group and the highest 30\% methylation in the high group.
 Default is 0.25 (25\%), accepted threshold range (0.0,0.5].}
 }
 \value{
-A dataframe with \code{Region, TF, target, TF_symbol target_symbol},
+A data frame with \code{Region, TF, target, TF_symbol target_symbol},
 results for
 fitting linear models to samples with low methylation
  (\code{DNAmlow_pval_rna.tf}, \code{DNAmlow_estimate_rna.tf}),

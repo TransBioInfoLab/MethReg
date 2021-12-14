@@ -1,12 +1,13 @@
 #' @title Select regions with variations in DNA methylation
 #' levels above a threshold
 #' @description
-#' For each region, compares the mean DNA methylation (DNAm) levels
-#' in samples with high DNAm  (Q4) vs. low DNAm (Q1) and requires
+#' For each region, compares the interquantile rang (IQR) of the 
+#' DNA methylation (DNAm) levels and requires
 #' the difference to be above a threshold.
-#' @param dnam DNA methylation matrix or SumarizedExperiment object
-#' @param diff.mean.th
-#' Threshold for difference in mean DNAm levels for samples in Q4 and Q1
+#' @param dnam DNA methylation matrix or SummarizedExperiment object
+#' @param min.IQR.threshold
+#' Threshold for minimal interquantile range (difference between the 75th and 25th percentiles)
+#' of the DNAm
 #' @param cores
 #' Number of CPU cores to be used in the analysis. Default: 1
 #' @export
@@ -21,7 +22,7 @@
 #' @importFrom SummarizedExperiment assay<-
 filter_dnam_by_quant_diff <- function(
     dnam,
-    diff.mean.th = 0.2,
+    min.IQR.threshold = 0.2,
     cores = 1
 ){
 
@@ -40,7 +41,7 @@ filter_dnam_by_quant_diff <- function(
     }
 
     IQR <- calculate_IQR(matrix)
-    tab <- plyr::count(IQR$IQR > diff.mean.th)
+    tab <- plyr::count(IQR$IQR > min.IQR.threshold)
     colnames(tab)[1] <- "Status"
     tab$Status[which(tab$Status == FALSE)] <- "Regions below threshold"
     tab$Status[which(tab$Status == TRUE)] <- "Regions above threshold"
@@ -48,7 +49,7 @@ filter_dnam_by_quant_diff <- function(
 
     diff.regions <- c(
         IQR %>%
-            filter(IQR > diff.mean.th) %>%
+            filter(IQR > min.IQR.threshold) %>%
             pull(.data$ID) %>%
             as.character()
     )

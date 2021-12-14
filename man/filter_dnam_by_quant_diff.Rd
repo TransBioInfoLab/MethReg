@@ -20,9 +20,8 @@ A subset of the original matrix only with the
 rows passing the filter threshold.
 }
 \description{
-For each region, compares the interquantile rang (IQR) of the 
-DNA methylation (DNAm) levels and requires
-the difference to be above a threshold.
+Select regions with variations in DNA methylation
+levels above a threshold
 }
 \examples{
 data("dna.met.chr21")

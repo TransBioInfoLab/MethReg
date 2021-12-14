@@ -1,9 +1,8 @@
 #' @title Select regions with variations in DNA methylation
 #' levels above a threshold
 #' @description
-#' For each region, compares the interquantile rang (IQR) of the 
-#' DNA methylation (DNAm) levels and requires
-#' the difference to be above a threshold.
+# For each region, computes the interquartile range (IQR) of the DNA methylation (DNAm) 
+# levels and requires the IQR to be above a threshold
 #' @param dnam DNA methylation matrix or SummarizedExperiment object
 #' @param min.IQR.threshold
 #' Threshold for minimal interquantile range (difference between the 75th and 25th percentiles)
@@ -25,28 +24,28 @@ filter_dnam_by_quant_diff <- function(
     min.IQR.threshold = 0.2,
     cores = 1
 ){
-
+    
     is.se <- is(dnam,"SummarizedExperiment")
     if (is.se) {
         matrix <- assay(dnam)
     } else {
         matrix <- dnam
     }
-
+    
     # remove all NA rows
     keep.rows <- which(rowSums(is.na(matrix)) != ncol(matrix))
     if(length(keep.rows) < nrow(matrix)){
         message("Removing rows with NAs for all samples")
         matrix <- matrix[keep.rows,]
     }
-
+    
     IQR <- calculate_IQR(matrix)
     tab <- plyr::count(IQR$IQR > min.IQR.threshold)
     colnames(tab)[1] <- "Status"
     tab$Status[which(tab$Status == FALSE)] <- "Regions below threshold"
     tab$Status[which(tab$Status == TRUE)] <- "Regions above threshold"
     print(tab)
-
+    
     diff.regions <- c(
         IQR %>%
             filter(IQR > min.IQR.threshold) %>%
@@ -54,7 +53,7 @@ filter_dnam_by_quant_diff <- function(
             as.character()
     )
     matrix <- matrix[diff.regions,,drop = FALSE]
-
+    
     if (is.se) {
         dnam <- dnam[rownames(matrix),]
         assay(dnam) <- matrix
@@ -84,11 +83,15 @@ calculate_IQR <- function(matrix){
 #'   matrix(nrow = 1,dimnames = list(c("row1"), LETTERS[1:10])) %>%
 #'   calculate_mean_q4_minus_mean_q1
 #' @noRd
-calculate_mean_q4_minus_mean_q1 <- function(matrix, cores = 1){
+calculate_mean_q4_minus_mean_q1 <- function(
+    matrix, 
+    cores = 1,
+    dnam.group.threshold = 0.25
+){
     parallel <- register_cores(cores)
-
+    
     plyr::adply(.data = matrix,.margins = 1,.fun = function(row){
-        qs <- quantile(row, probs =  c(0.25,0.75), na.rm = TRUE)
+        qs <- quantile(row, probs =  c(dnam.group.threshold,1 - dnam.group.threshold), na.rm = TRUE)
         qs.mean <- tapply(row, findInterval(row, qs), mean, rm.na = TRUE)
         tibble::tibble("diff.mean" = max(qs.mean) - min(qs.mean))
     },.parallel = parallel, .progress = "time",.id = "ID")
@@ -121,22 +124,22 @@ filter_exp_by_quant_mean_FC <- function(
     fold.change = 1.5,
     cores = 1
 ){
-
+    
     if(is(exp,"SummarizedExperiment")){
         matrix <- assay(exp)
     } else {
         matrix <- exp
     }
-
-
+    
+    
     parallel <- register_cores(cores)
     diff.genes <- plyr::adply(matrix,.margins = 1,.fun = function(row){
         quant <-  quantile(row, na.rm = TRUE)
         quant.fold.change <- data.frame("q4_div_q1" = quant[4] / quant[2])
-
+        
         low.cutoff <- quant[2]
         upper.cutoff <- quant[4]
-
+        
         mean.q1 <- row[row <= low.cutoff] %>% mean(na.rm = TRUE)
         mean.q4 <- row[row >= upper.cutoff] %>% mean(na.rm = TRUE)
         data.frame(
@@ -144,14 +147,14 @@ filter_exp_by_quant_mean_FC <- function(
             stringsAsFactors = FALSE
         )
     }, .progress = "time",.parallel = parallel)
-
-
+    
+    
     tab <- plyr::count(diff.genes$diff_fold_change > fold.change)
     colnames(tab)[1] <- "Status"
     tab$Status[which(tab$Status == FALSE)] <- "Genes below threshold"
     tab$Status[which(tab$Status == TRUE)] <- "Genes above threshold"
     print(tab)
-
+    
     diff.genes <- c(
         diff.genes %>%
             filter(.data$diff_fold_change > fold.change) %>%
@@ -178,16 +181,16 @@ filter_genes_zero_expression <- function(
     exp,
     max.samples.percentage = 0.25
 ){
-
+    
     if (is(exp,"SummarizedExperiment")) {
         matrix <- assay(exp)
     } else {
         matrix <- exp
     }
-
+    
     na.or.zeros <- matrix == 0 | is.na(matrix)
     percent.na.or.zeros <- rowSums(na.or.zeros) / ncol(matrix)
-
+    
     genes.keep <- (percent.na.or.zeros < max.samples.percentage) %>% which %>% names
     message("Removing ", nrow(matrix) - length(genes.keep), " out of ", nrow(matrix), " genes")
     exp[genes.keep,, drop = FALSE]
@@ -213,7 +216,7 @@ filter_genes_zero_expression_all_samples <- function(
     }
     idx.all.zero <- rowSums(exp == 0, na.rm = TRUE) == ncol(exp)
     idx.all.na <- rowSums(is.na(exp)) == ncol(exp)
-
+    
     # do not keep if it is all zero or all NA
     genes.keep <- rownames(exp)[!(idx.all.zero | idx.all.na)] %>% na.omit()
     if(length(genes.keep) < nrow(exp) & length(genes.keep) > 0){
@@ -237,40 +240,40 @@ add_percent_zero_q1_q4 <- function(
     dnam,
     exp
 ){
-
+    
     if (is(exp,"SummarizedExperiment")) {
         exp <- assay(exp)
     }
-
+    
     if (is(dnam,"SummarizedExperiment")) {
         dnam <- assay(dnam)
     }
-
+    
     aux <- plyr::adply(
         unique(region.target[,c("regionID","target")]),
         .margins = 1,
         .fun = function(row) {
-
+            
             rna.target <- exp[rownames(exp) == row$target, , drop = FALSE]
             met <- dnam[rownames(dnam) == as.character(row$regionID), ]
-
+            
             data <- data.frame(
                 rna.target = rna.target %>% as.numeric,
                 met = met %>% as.numeric
             )
-
+            
             quant.met <-  quantile(data$met,na.rm = TRUE)
             low.cutoff <- quant.met[2]
             upper.cutoff <- quant.met[4]
-
+            
             data.high.low <- data %>%
                 filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)
             data.high.low$metGrp <- ifelse(data.high.low$met <= low.cutoff, 0, 1)
-
+            
             pct.zeros.in.quant.samples <- sum(
                 data.high.low$rna.target == 0,
                 na.rm = TRUE) / nrow(data.high.low)
-
+            
             data.frame("% of 0 target genes (Q1 and Q4)" = paste0(
                 round(pct.zeros.in.quant.samples * 100,digits = 2),
                 " %")
@@ -279,6 +282,6 @@ add_percent_zero_q1_q4 <- function(
     )
     region.target$`% of 0 target genes (Q1 and Q4)` <- aux$X..of.0.target.genes..Q1.and.Q4.[
         match(paste0(region.target$regionID,region.target$target),paste0(aux$regionID,aux$target))
-        ]
+    ]
     return(region.target)
 }

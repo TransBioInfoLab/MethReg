@@ -43,7 +43,7 @@ test_that("filter_dnam_by_quant_diff handles NAs for a SE", {
         colData = colData
     )
 
-    filtered <- filter_dnam_by_quant_diff(rse, diff.mean.th = 0.2)
+    filtered <- filter_dnam_by_quant_diff(rse, min.IQR.threshold = 0.2)
     expect_true(is(filtered, "SummarizedExperiment"))
     expect_true("to_keep" %in% rownames(filtered))
     expect_false("to_be_removed" %in% rownames(filtered))

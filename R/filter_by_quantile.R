@@ -1,8 +1,8 @@
 #' @title Select regions with variations in DNA methylation
 #' levels above a threshold
 #' @description
-# For each region, computes the interquartile range (IQR) of the DNA methylation (DNAm) 
-# levels and requires the IQR to be above a threshold
+#' For each region, computes the interquartile range (IQR) of the DNA methylation (DNAm) 
+#' levels and requires the IQR to be above a threshold
 #' @param dnam DNA methylation matrix or SummarizedExperiment object
 #' @param min.IQR.threshold
 #' Threshold for minimal interquantile range (difference between the 75th and 25th percentiles)

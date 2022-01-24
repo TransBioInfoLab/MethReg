@@ -94,20 +94,20 @@
 #'
 #' exp.target <-  runif(20,min = 0,max = 10) %>%
 #'   matrix(ncol = 1) %>%  t
-#' rownames(exp.target) <- c("ENSG00000232886")
+#' rownames(exp.target) <- c("ENSG00000252982")
 #' colnames(exp.target) <- paste0("Samples",1:20)
 #'
 #' exp.tf <- runif(20,min = 0,max = 10) %>%
 #'   matrix(ncol = 1) %>%  t
-#' rownames(exp.tf) <- c("ENSG00000232888")
+#' rownames(exp.tf) <- c("ENSG00000083937")
 #' colnames(exp.tf) <- paste0("Samples",1:20)
 #'
 #' exp <- rbind(exp.tf, exp.target)
 #'
 #' triplet <- data.frame(
 #'    "regionID" =  c("chr3:203727581-203728580"),
-#'    "target" = "ENSG00000232886",
-#'    "TF" = "ENSG00000232888"
+#'    "target" = "ENSG00000252982",
+#'    "TF" = "ENSG00000083937"
 #')
 #' results <- interaction_model(
 #'    triplet = triplet, 
@@ -178,7 +178,7 @@ interaction_model <- function(
   )
   
   if (!is.null(tf.activity.es)) {
-
+    
     if(any(is.na(rownames(tf.activity.es))))
       tf.activity.es <- tf.activity.es[!is.na(rownames(tf.activity.es)),]
     
@@ -207,6 +207,12 @@ interaction_model <- function(
   
   triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
   triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
+  triplet$target_region <- map_ensg_to_region(triplet$target)
+  
+  if(!"distance_region_target_tss" %in% colnames(triplet)){
+    triplet$distance_region_target_tss <- get_target_tss_to_region_distance(triplet$regionID,triplet$target)
+  }
+  
   if(verbose)  message("Evaluating ", nrow(triplet), " triplets")
   
   parallel <- register_cores(cores)
@@ -227,7 +233,7 @@ interaction_model <- function(
       
       upper.cutoff <-  quantile(data$met,na.rm = TRUE,  1 - dnam.group.threshold)
       low.cutoff <-  quantile(data$met,na.rm = TRUE,  dnam.group.threshold)
-     
+      
       quant.diff <- data.frame("met.IQR" = upper.cutoff - upper.cutoff)
       
       data.high.low <- data %>% filter(.data$met <= low.cutoff | .data$met >= upper.cutoff)

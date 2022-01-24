@@ -125,6 +125,45 @@ map_ensg_to_symbol <- function(
 #' @param ensembl.gene.id Gene ensembl ID. A character vectors
 #' @description Given a GRanges returns region name such as chr22:18267969-18268249
 #' @examples
+#' data(gene.exp.chr21.log2)
+#' gene.region <- map_ensg_to_region(rownames(gene.exp.chr21.log2))
+#' @noRd
+map_ensg_to_region <- function(
+  ensembl.gene.id,
+  genome = "hg38"
+){
+  gene.location <- get_gene_information(genome)
+  gene.location <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]
+  region <- paste0("chr",gene.location$chromosome_name,":",gene.location$start_position,"-",gene.location$end_position)
+  return(region)
+}
+
+
+
+#' @param genome Human genome of reference. Options: hg38, hg19.
+#' @param ensembl.gene.id Gene ensembl ID. A character vectors
+#' @description Given a GRanges returns region name such as chr22:18267969-18268249
+#' @examples
+#' data(gene.exp.chr21.log2)
+#' gene.region <- map_ensg_to_region(rownames(gene.exp.chr21.log2))
+#' @noRd
+get_target_tss_to_region_distance <- function(
+  regionID,
+  ensembl.gene.id,
+  genome = "hg38"
+){
+  region.gr <- make_granges_from_names(regionID)
+  gene.tss.location <- get_gene_information(genome,as.granges = TRUE)  %>% resize(1)
+  gene.tss.location <- gene.tss.location[match(ensembl.gene.id,gene.tss.location$ensembl_gene_id),]
+  distance <- paste0(format(distance(region.gr,gene.tss.location)/1000,scientific = F), " kbp")
+  return(distance)
+}
+
+
+#' @param genome Human genome of reference. Options: hg38, hg19.
+#' @param ensembl.gene.id Gene ensembl ID. A character vectors
+#' @description Given a GRanges returns region name such as chr22:18267969-18268249
+#' @examples
 #' gene.symbols <- map_symbol_to_ensg("TP63"s)
 #' @noRd
 map_symbol_to_ensg <- function(

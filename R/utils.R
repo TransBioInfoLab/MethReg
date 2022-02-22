@@ -526,7 +526,9 @@ make_exp_se <- function(
   
   if(verbose)  message("o Creating a SummarizedExperiment from gene expression input")
   gene.info <- get_gene_information(genome = genome, as.granges = TRUE)
-  rowRanges <- gene.info[match(exp %>% rownames(),gene.info$ensembl_gene_id),]
+  exp <- exp[rownames(exp) %in% gene.info$ensembl_gene_id,]
+  idx <- match(exp %>% rownames(),gene.info$ensembl_gene_id)
+  rowRanges <- gene.info[idx,]
   names(rowRanges) <- rowRanges$ensembl_gene_id
   colData <- S4Vectors::DataFrame(samples = colnames(exp))
   

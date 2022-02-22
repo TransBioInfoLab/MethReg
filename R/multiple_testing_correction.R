@@ -127,7 +127,7 @@ calculate_fdr_per_region_adjustment <- function(results){
         results$tripletID <- create_triplet_ID(results)
     }
 
-    for(pval.col in grep("quant_pval_",colnames(results),value = TRUE)){
+    for(pval.col in grep("RLM_.*pvalue",colnames(results),value = TRUE)){
         fdr.col <- gsub("pval","fdr",pval.col)
         fdr.by.region <- results %>%
             group_by(.data$regionID) %>%

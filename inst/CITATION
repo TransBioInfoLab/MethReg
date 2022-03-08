@@ -3,8 +3,18 @@ citHeader("To cite coMethTF in publications use:")
 citEntry(
   entry    = "Article",
   title    = "MethReg: estimating regulatory potential of DNA methylation in gene transcription",
-  author   = "Tiago C. Silva, Juan I. Young, Eden R. Martin, Xi Chen, Lily Wang",
-  journal  = "Manuscript in preparation",
-  year     = "2020",
-  textVersion = paste("MethReg: estimating regulatory potential of DNA methylation in gene transcription")
+  author   = "Silva, Tiago C and Young, Juan I and Martin, Eden R and Chen, X Steven and Wang, Lily",
+  journal  = "Nucleic Acids Research",
+  year     = "2022",
+  textVersion = paste("MethReg: estimating regulatory potential of DNA methylation in gene transcription"),
+    issn = "0305-1048",
+    doi = "10.1093/nar/gkac030",
+    url = "https://doi.org/10.1093/nar/gkac030",
+    note = "gkac030",
+    eprint = "https://academic.oup.com/nar/advance-article-pdf/doi/10.1093/nar/gkac030/42342374/gkac030.pdf"
 )
+
+
+
+
+

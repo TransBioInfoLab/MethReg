@@ -93,15 +93,18 @@ get_met_probes_info <- function(
   check_package("sesameData")
   check_package("sesame")
   
-  #sesameDataCacheAll(showProgress = TRUE)
-  sesameDataGet(
-    str_c(
-      ifelse(arrayType == "450k","HM450","EPIC"),
-      ".",
-      genome,
-      ".manifest"
-    )
+  manifest <-  str_c(
+    ifelse(arrayType == "450k","HM450","EPIC"),
+    ".",
+    genome,
+    ".manifest"
   )
+  ehub <- ExperimentHub()
+  query <- query(ehub, c("sesameData",manifest))
+  ah_id <- query$ah_id[query$rdatadateadded == max(as.Date(query$rdatadateadded))]
+  ExperimentHub()[[ah_id]]
+  #sesameDataCacheAll(showProgress = TRUE)
+  #sesameDataGet(manifest)
 }
 
 

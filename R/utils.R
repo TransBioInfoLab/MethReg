@@ -83,6 +83,8 @@ map_probes_to_regions <- function(
 #' @param genome Human genome of reference hg38 or hg19
 #' @param arrayType "450k" or "EPIC" array
 #' @return A Granges with the DNAm array manifest
+#' @importFrom ExperimentHub ExperimentHub 
+#' @importFrom AnnotationHub query
 get_met_probes_info <- function(
   genome = c("hg38","hg19"),
   arrayType = c("450k","EPIC")
@@ -101,6 +103,7 @@ get_met_probes_info <- function(
   )
   ehub <- ExperimentHub()
   query <- query(ehub, c("sesameData",manifest))
+  query <- query[query$title == manifest,]
   ah_id <- query$ah_id[query$rdatadateadded == max(as.Date(query$rdatadateadded))]
   ExperimentHub()[[ah_id]]
   #sesameDataCacheAll(showProgress = TRUE)

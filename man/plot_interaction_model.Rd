@@ -72,36 +72,38 @@ To consider covariates, RNA can also be the residuals.
 }
 \examples{
 library(dplyr)
-dnam <- runif(20, min = 0,max = 1) \%>\% sort \%>\%
+dnam <- runif(20,min = 0,max = 1) \%>\%
   matrix(ncol = 1) \%>\%  t
 rownames(dnam) <- c("chr3:203727581-203728580")
 colnames(dnam) <- paste0("Samples",1:20)
 
-exp.target <-  runif(20,min = 0,max = 10) \%>\% sort \%>\%
+exp.target <-  runif(20,min = 0,max = 10) \%>\%
   matrix(ncol = 1) \%>\%  t
-rownames(exp.target) <- c("ENSG00000232886")
+rownames(exp.target) <- c("ENSG00000252982")
 colnames(exp.target) <- paste0("Samples",1:20)
 
 exp.tf <- runif(20,min = 0,max = 10) \%>\%
   matrix(ncol = 1) \%>\%  t
-rownames(exp.tf) <- c("ENSG00000101412")
+rownames(exp.tf) <- c("ENSG00000083937")
 colnames(exp.tf) <- paste0("Samples",1:20)
 
 exp <- rbind(exp.tf, exp.target)
 
 triplet <- data.frame(
    "regionID" =  c("chr3:203727581-203728580"),
-   "target" = "ENSG00000232886",
-   "TF" = "ENSG00000101412"
+   "target" = "ENSG00000252982",
+   "TF" = "ENSG00000083937"
 )
-
 results <- interaction_model(
-  triplet = triplet,
-  dnam = dnam,
-  exp = exp,
-  fdr = FALSE,
-  filter.correlated.tf.exp.dna = FALSE,
-  stage.wise.analysis = FALSE
+   triplet = triplet, 
+   dnam = dnam, 
+   exp = exp, 
+    dnam.group.threshold = 0.25,
+   stage.wise.analysis = FALSE, 
+   sig.threshold = 1,
+   filter.correlated.tf.exp.dnam = FALSE,
+   filter.correlated.target.exp.dnam = FALSE,
+   filter.triplet.by.sig.term = FALSE
 )
 plots <- plot_interaction_model(
     triplet.results = results,

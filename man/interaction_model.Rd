@@ -133,20 +133,20 @@ colnames(dnam) <- paste0("Samples",1:20)
 
 exp.target <-  runif(20,min = 0,max = 10) \%>\%
   matrix(ncol = 1) \%>\%  t
-rownames(exp.target) <- c("ENSG00000232886")
+rownames(exp.target) <- c("ENSG00000252982")
 colnames(exp.target) <- paste0("Samples",1:20)
 
 exp.tf <- runif(20,min = 0,max = 10) \%>\%
   matrix(ncol = 1) \%>\%  t
-rownames(exp.tf) <- c("ENSG00000232888")
+rownames(exp.tf) <- c("ENSG00000083937")
 colnames(exp.tf) <- paste0("Samples",1:20)
 
 exp <- rbind(exp.tf, exp.target)
 
 triplet <- data.frame(
    "regionID" =  c("chr3:203727581-203728580"),
-   "target" = "ENSG00000232886",
-   "TF" = "ENSG00000232888"
+   "target" = "ENSG00000252982",
+   "TF" = "ENSG00000083937"
 )
 results <- interaction_model(
    triplet = triplet, 

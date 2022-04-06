@@ -70,6 +70,8 @@ Suggests:
     knitr,
     jpeg,
     sesame,
+    AnnotationHub,
+    ExperimentHub,
     BSgenome.Hsapiens.UCSC.hg38,
     BSgenome.Hsapiens.UCSC.hg19
 VignetteBuilder: knitr

@@ -95,6 +95,9 @@ get_met_probes_info <- function(
   check_package("sesameData")
   check_package("sesame")
   
+  check_package("AnnotationHub")
+  check_package("ExperimentHub")
+  
   manifest <-  str_c(
     ifelse(arrayType == "450k","HM450","EPIC"),
     ".",

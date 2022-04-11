@@ -589,25 +589,34 @@ plots
 
 
 The first row of the figures shows pairwise associations between DNA methylation, 
-TF and target gene expression levels. 
+TF, and target gene expression levels. 
 
-The second row of the figures show how much TF activity on target 
-gene expression levels vary by DNA methylation levels. When TF by methylation 
-interaction is significant (Section 4.1), we expect the association between TF 
-and target gene expression vary depending on whether DNA methylation is low or high. 
+The second row of the figures shows how much TF activity on target gene expression 
+levels vary varies by DNA methylation levels. 
+When TF by methylation interaction is significant (Section 4.1), 
+we expect the association between TF and target gene expression 
+to  vary depending on whether DNA methylation is low or high.
 
 In this example, when DNA methylation is low, target gene expression is relatively 
-independent of the amount of TF available. On the other hand, when DNA methylation 
+independent of the amount of TF available. On the other hand, when the DNA methylation 
 level is high, more abundant TF corresponds to increased gene expression (an activator TF). 
 One possibility is that DNA methylation might enhance TF binding in this case. 
 _**This is an example where DNA methylation and TF work synergistically to affect target gene expression**_. 
 
 While the main goal of MethReg is to prioritize methylation CpGs, also 
 note that without stratifying by DNA methylation, the overall TF-target 
-effects (p = 0.142) is not as significant as the association in stratified 
-analysis in high methylation samples (p = 0.00508). 
+effects (p = 0.971) are not as significant as the association in stratified 
+analysis in high methylation samples (p = 0.0096). 
 _**This demonstrates that by additionally modeling DNA methylation,**_
 _**we can also nominate TF – target associations that might have been missed otherwise**_. 
+
+Note that because of the small sample size (only 38 samples) included in this example for illustration, the P-value for high methylation samples (p = 0.096) 
+is only marginally significant. 
+In real data analysis, we
+expect MethReg to work well with at least 100  matched samples  measured  
+with  both methylations and gene expressions, 
+and we recommend using a more stringent significance threshold (i.e., FDR < 0.05).
+See details in our published paper (Silva et al. 2022, PMID: 35100398).
 
 ## Results interpretation
 

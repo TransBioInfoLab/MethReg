@@ -369,8 +369,10 @@ triplet.distal.nearby.genes <- create_triplet_distance_based(
 #### Creating triplet dataset using distance based approaches and REMAP2020
 
 
-Instead of using JASPAR2020 motifs, we will be using REMAP2020 catalogue of 
-TF peaks which can be access using the package `ReMapEnrich`.
+Instead of using JASPAR2020 motifs, we will be using REMAP2018 catalogue of 
+TF peaks which can be access either using the package `ReMapEnrich`
+or a most updated version (RemMap2022) is available online at https://remap.univ-amu.fr/download_page
+
 
 ```{r, eval = FALSE}
 if (!"BiocManager" %in% rownames(installed.packages()))
@@ -378,13 +380,14 @@ if (!"BiocManager" %in% rownames(installed.packages()))
 BiocManager::install("remap-cisreg/ReMapEnrich", dependencies = TRUE)
 ```
 
-To download  REMAP2020 catalogue (~1Gb) the following functions are used:
+To download  REMAP2018 catalogue (~1Gb) the following functions are used:
 
 ```{R, eval = FALSE}
 library(ReMapEnrich)
 remapCatalog2018hg38 <- downloadRemapCatalog("/tmp/", assembly = "hg38")
 remapCatalog <- bedToGranges(remapCatalog2018hg38)
 ```
+
 
 The function `create_triplet_distance_based` will accept any Granges with TF 
 information in the same format as the `remapCatalog` one.
@@ -499,12 +502,12 @@ results.interaction.model <- interaction_model(
     triplet = triplet.promoter, 
     dnam = dna.met.chr21.se,
     exp = gene.exp.chr21.se,
-    dnam.group.threshold = 0.25,
+    dnam.group.threshold = 0.1,
     sig.threshold = 0.05,
-    fdr = TRUE,
+    fdr = T,
     stage.wise.analysis = FALSE,
-    filter.correlated.tf.exp.dnam = TRUE,
-    filter.triplet.by.sig.term = FALSE
+    filter.correlated.tf.exp.dnam = F,
+    filter.triplet.by.sig.term = T
 )
 ```
 

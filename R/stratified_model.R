@@ -122,13 +122,13 @@
 #' @importFrom tibble tibble
 #' @importFrom rlang .data
 stratified_model <- function(
-  triplet,
-  dnam,
-  exp,
-  cores = 1,
-  tf.activity.es = NULL,
-  tf.dnam.classifier.pval.thld = 0.001,
-  dnam.group.threshold = 0.25
+    triplet,
+    dnam,
+    exp,
+    cores = 1,
+    tf.activity.es = NULL,
+    tf.dnam.classifier.pval.thld = 0.001,
+    dnam.group.threshold = 0.25
 ){
   
   if (missing(dnam)) stop("Please set dnam argument with DNA methylation matrix")
@@ -158,8 +158,13 @@ stratified_model <- function(
       .data$regionID %in% rownames(dnam)
   )
   
-  triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
-  triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
+  if(!"TF_symbol" %in% colnames(triplet)){
+    triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
+  }
+  
+  if(!"target_symbol" %in% colnames(triplet)){
+    triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
+  }
   
   # Remove cases where target is also the TF if it exists
   triplet <- triplet %>% dplyr::filter(
@@ -201,10 +206,16 @@ stratified_model <- function(
         row.triplet = row.triplet,
         tf.es = tf.activity.es
       )
+      interaction.significant = FALSE
+      if("RLM_DNAmGroup:TF_fdr" %in% colnames(row.triplet)){
+        interaction.significant <- ifelse(row.triplet[,"RLM_DNAmGroup:TF_fdr"] < 0.05,TRUE,FALSE)
+      }
+      
       stratified_model_results(
         data = data, 
         tf.dnam.classifier.pval.thld = tf.dnam.classifier.pval.thld, 
-        dnam.group.threshold = dnam.group.threshold
+        dnam.group.threshold = dnam.group.threshold,
+        interaction.significant = interaction.significant
       )
     }, .progress = "time", .parallel = parallel, .inform = TRUE)
   
@@ -216,9 +227,10 @@ stratified_model <- function(
 }
 
 stratified_model_results <- function(
-  data,
-  tf.dnam.classifier.pval.thld = 0.001,
-  dnam.group.threshold = 0.25
+    data,
+    tf.dnam.classifier.pval.thld = 0.001,
+    dnam.group.threshold = 0.25,
+    interaction.significant = FALSE
 ){
   upper.cutoff <-  quantile(data$met,na.rm = TRUE,  1 - dnam.group.threshold)
   low.cutoff <-  quantile(data$met,na.rm = TRUE,  dnam.group.threshold)
@@ -234,6 +246,7 @@ stratified_model_results <- function(
   results.high.pval <- results.high$pval
   results.high.estimate <- results.high$estimate
   
+  
   classification <- get_tf_dnam_classification(
     low.estimate = results.low.estimate,
     low.pval = results.low.pval,
@@ -241,6 +254,10 @@ stratified_model_results <- function(
     high.pval = results.high.pval,
     pvalue.threshold = tf.dnam.classifier.pval.thld
   )
+  
+  if(!interaction.significant){
+    classification$DNAm.effect <- "None"
+  }
   
   tibble::tibble(
     "DNAm_low_RLM_target_vs_TF_pvalue" = results.low.pval %>% as.numeric(),
@@ -381,11 +398,11 @@ stratified_model_aux_no_results <- function(pct.zeros.samples){
 #'   high.estimate = 0.2, high.pval = 0.05
 #' )
 get_tf_dnam_classification <- function(
-  low.estimate,
-  low.pval,
-  high.estimate,
-  high.pval,
-  pvalue.threshold = 0.001
+    low.estimate,
+    low.pval,
+    high.estimate,
+    high.pval,
+    pvalue.threshold = 0.001
 ){
   
   # output
@@ -422,9 +439,9 @@ get_tf_dnam_classification <- function(
     classification$DNAm.effect <- "Enhancing"
   } else if (is.na(high.pval)) {
     classification$DNAm.effect <- "Attenuating"
-  } else if (low.pval < high.pval) {
+  } else if (low.pval < pvalue.threshold & high.pval > pvalue.threshold) {
     classification$DNAm.effect <- "Attenuating"
-  } else {
+  } else if (high.pval < pvalue.threshold & low.pval > pvalue.threshold  ) {
     classification$DNAm.effect <- "Enhancing"
   }
   

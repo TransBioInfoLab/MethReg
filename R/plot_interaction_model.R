@@ -262,7 +262,7 @@ get_table_plot <- function(row.triplet, genome){
     "TF gene Symbol",
     # "Diff. DNAm (Q4 - Q1)",
     "TF role",
-    "DNAm effect"
+    "DNAm effect on TF"
   )
   
   # Add probe ID if existant
@@ -303,10 +303,10 @@ get_table_plot <- function(row.triplet, genome){
   # Get results for linear model with all samples
   #table.plot.lm.all <- get_table_plot_results(row.triplet, type = "all")
   
-  # Get results for linear model with DNAm high samples
+  # Get results for linear model with all samples
   table.plot.lm.quant <- get_table_plot_results(row.triplet, type = "quantile")
   
-  # Get results for linear model with all samples
+  # Get results for linear model with DNAm low samples
   table.plot.lm.dna.low <- get_table_plot_results(row.triplet, type = "DNAmlow")
   
   # Get results for linear model with DNAm high samples

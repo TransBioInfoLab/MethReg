@@ -90,14 +90,14 @@ stage_wise_adjustment <- function(
     # padj: geneID", "txID" ,"gene" ,"transcript"
     # equivalento to: region, triplet, region pval, triplet.pval
 
-    results[[gsub("pval", "region_stage_wise_adj_pval", col)]] <- padj[[3]][match(results$tripletID, padj[[2]])]
-    results[[gsub("pval", "triplet_stage_wise_adj_pval", col)]] <- padj[[4]][match(results$tripletID, padj[[2]])]
+    results[[gsub("pvalue", "region_stage_wise_adj_pvalue", col)]] <- padj[[3]][match(results$tripletID, padj[[2]])]
+    results[[gsub("pvalue", "triplet_stage_wise_adj_pvalue", col)]] <- padj[[4]][match(results$tripletID, padj[[2]])]
     results$tripletID <- NULL
     results <- results %>%
         relocate(
             c(
-                gsub("pval","region_stage_wise_adj_pval",col),
-                gsub("pval","triplet_stage_wise_adj_pval",col)
+                gsub("pvalue","region_stage_wise_adj_pvalue",col),
+                gsub("pvalue","triplet_stage_wise_adj_pvalue",col)
             ),
             .after = col
         )
@@ -128,7 +128,7 @@ calculate_fdr_per_region_adjustment <- function(results){
     }
 
     for(pval.col in grep("RLM_.*pvalue",colnames(results),value = TRUE)){
-        fdr.col <- gsub("pval","fdr",pval.col)
+        fdr.col <- gsub("pval|pvalue","fdr",pval.col)
         fdr.by.region <- results %>%
             group_by(.data$regionID) %>%
             summarise(
@@ -162,7 +162,7 @@ calculate_fdr_per_region_adjustment <- function(results){
 calculate_fdr_adjustment <- function(results){
 
     for(pval.col in grep("quant_pval_",colnames(results),value = TRUE)){
-        fdr.col <- gsub("pval","fdr",pval.col)
+        fdr.col <- gsub("pval|pvalue","fdr",pval.col)
         results[[fdr.col]] <- p.adjust(results[[pval.col]], method = "fdr")
         results <- results %>% relocate(fdr.col, .after = pval.col)
     }

@@ -8,7 +8,7 @@ target gene expression}
 cor_tf_target_gene(
   pair.tf.target,
   exp,
-  tf.activity.es,
+  tf.activity.es = NULL,
   cores = 1,
   verbose = FALSE
 )

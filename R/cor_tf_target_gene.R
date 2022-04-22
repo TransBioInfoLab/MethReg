@@ -45,7 +45,7 @@
 cor_tf_target_gene <- function(
     pair.tf.target,
     exp,
-    tf.activity.es,
+    tf.activity.es = NULL,
     cores = 1,
     verbose = FALSE
 ){
@@ -65,7 +65,7 @@ cor_tf_target_gene <- function(
         stop("exp input is wrong")
     }
 
-    if(!missing(tf.activity.es)){
+    if(!missing(tf.activity.es) & !is.null(tf.activity.es)){
         if (ncol(tf.activity.es) != ncol(exp)) {
             stop("exp and tf.activity.es does not have the same size")
         }
@@ -85,7 +85,7 @@ cor_tf_target_gene <- function(
     pair.tf.target <- pair.tf.target %>% as.data.frame() %>%
         dplyr::filter(.data$target %in% rownames(exp))
 
-    if (missing(tf.activity.es)){
+    if (missing(tf.activity.es) | is.null(tf.activity.es)){
         pair.tf.target <- pair.tf.target %>%
             dplyr::filter(.data$TF %in% rownames(exp))
     } else {
@@ -100,7 +100,7 @@ cor_tf_target_gene <- function(
         )
     }
     # reducing object sizes in case we will make it parallel
-    if (!missing(tf.activity.es)){
+    if (!missing(tf.activity.es) & !is.null(tf.activity.es)){
         idx <- rownames(tf.activity.es) %in% pair.tf.target$TF
         tf.activity.es <- tf.activity.es[idx,,drop = FALSE]
         idx <- rownames(exp) %in% pair.tf.target$target
@@ -119,7 +119,7 @@ cor_tf_target_gene <- function(
 
             tryCatch({
                 target <- exp[pair$target,]
-                if (missing(tf.activity.es)) {
+                if (missing(tf.activity.es) | is.null(tf.activity.es)) {
                     tf <- exp[pair$TF,]
                 } else {
                     tf <- tf.activity.es[pair$TF,]

@@ -205,9 +205,14 @@ interaction_model <- function(
     stop("We were not able to find the same rows from triple in the data, please check the input.")
   }
   
+  if(!"TF_symbol" %in% colnames(triplet))
   triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
-  triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
-  triplet$target_region <- map_ensg_to_region(triplet$target)
+  
+  if(!"target_symbol" %in% colnames(triplet))
+    triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
+  
+  if(!"target_region" %in% colnames(triplet))
+    triplet$target_region <- map_ensg_to_region(triplet$target)
   
   if(!"distance_region_target_tss" %in% colnames(triplet)){
     triplet$distance_region_target_tss <- get_target_tss_to_region_distance(triplet$regionID,triplet$target)

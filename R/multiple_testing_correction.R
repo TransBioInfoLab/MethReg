@@ -68,6 +68,10 @@ stage_wise_adjustment <- function(
         "gene" = gsub("[[:punct:]]", "_", results$regionID)
     )
 
+    if(all(is.na(pScreen.pval))) {
+      stop("Stage wise error. Set it to FALSE")
+      return(results)
+    }
     pScreen.pval.stageRObj <- stageR::stageRTx(
         pScreen = pScreen.pval,
         pConfirmation = pConfirmation,

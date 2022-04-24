@@ -127,19 +127,19 @@
 #' @importFrom stats wilcox.test
 #' @importFrom dplyr group_by summarise filter_at contains vars any_vars pull filter
 interaction_model <- function(
-  triplet,
-  dnam,
-  exp,
-  dnam.group.threshold = 0.25,
-  cores = 1,
-  tf.activity.es = NULL,
-  sig.threshold = 0.05,
-  fdr = TRUE,
-  filter.correlated.tf.exp.dnam = TRUE,
-  filter.correlated.target.exp.dnam = TRUE,
-  filter.triplet.by.sig.term = TRUE,
-  stage.wise.analysis = TRUE,
-  verbose = FALSE
+    triplet,
+    dnam,
+    exp,
+    dnam.group.threshold = 0.25,
+    cores = 1,
+    tf.activity.es = NULL,
+    sig.threshold = 0.05,
+    fdr = TRUE,
+    filter.correlated.tf.exp.dnam = TRUE,
+    filter.correlated.target.exp.dnam = TRUE,
+    filter.triplet.by.sig.term = TRUE,
+    stage.wise.analysis = TRUE,
+    verbose = FALSE
 ){
   
   if (stage.wise.analysis) check_package("stageR")
@@ -206,7 +206,7 @@ interaction_model <- function(
   }
   
   if(!"TF_symbol" %in% colnames(triplet))
-  triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
+    triplet$TF_symbol <- map_ensg_to_symbol(triplet$TF)
   
   if(!"target_symbol" %in% colnames(triplet))
     triplet$target_symbol <- map_ensg_to_symbol(triplet$target)
@@ -221,12 +221,12 @@ interaction_model <- function(
   if(verbose)  message("Evaluating ", nrow(triplet), " triplets")
   
   parallel <- register_cores(cores)
-  
+
   ret <- plyr::adply(
     .data = triplet,
     .margins = 1,
     .fun = function(
-      row.triplet
+    row.triplet
     ){
       
       data <- get_triplet_data(
@@ -283,10 +283,11 @@ interaction_model <- function(
         wilcoxon.tf.q4met.vs.q1met = wilcoxon.tf.q4met.vs.q1met
       )
     },
-    .progress = "time",
-    .parallel = parallel,
-    .inform = TRUE,
-    .paropts = list(.errorhandling = 'pass')
+    .progress = "time"
+    
+    #.parallel = parallel,
+    #.inform = TRUE,
+    #.paropts = list(.errorhandling = 'pass')
   )
   
   if (stage.wise.analysis) {
@@ -365,20 +366,20 @@ interaction_all_model_no_results <- function(){
 interaction_quant_model_no_results <- function(){
   cbind(
     "RLM_metGrp_pvalue" = NA,
-    "RLM_TF_pvalue" = NA,
+    "RLM_rna.tf_pvalue" = NA,
     "RLM_metGrp:rna.tf_pvalue" = NA,
     "RLM_metGrp_estimate" = NA,
-    "RLM_TF_estimate" = NA,
-    "RLM_metGrp:TF_estimate" = NA
+    "RLM_rna.tf_estimate" = NA,
+    "RLM_metGrp:rna.tf_estimate" = NA
   ) %>% as.data.frame()
 }
 
 get_triplet_data <- function(
-  exp,
-  dnam,
-  row.triplet,
-  tf.es,
-  add.groups = FALSE
+    exp,
+    dnam,
+    row.triplet,
+    tf.es,
+    add.groups = FALSE
 ){
   rna.target <- exp[which(rownames(exp) == row.triplet$target), , drop = FALSE]
   met <- dnam[which(rownames(dnam) == as.character(row.triplet$regionID)), , drop = FALSE]
@@ -414,7 +415,7 @@ get_triplet_data <- function(
 }
 
 interaction_model_output <- function(
-  # itx.all,
+    # itx.all,
   #pct.zeros.in.samples,
   quant.diff,
   itx.quant,

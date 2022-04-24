@@ -157,6 +157,9 @@ methReg_analysis <- function(
     filter.correlated.target.exp.dnam = remove.correlated.target.exp.dnam
   )  
   
+  if(nrow(results) == 0){
+    stop("No significant results from the interaction model analysis after filtering.")
+  }
   message("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
   message("o Classification of significant interaction of Target expression, DNAm and TF")
   message("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")

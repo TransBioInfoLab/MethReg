@@ -93,6 +93,7 @@
 #' Note that only triplets with TF expression not significantly different in high vs. low
 #' methylation groups will be evaluated (Wilcoxon test, p > 0.05).
 #'
+#' @export
 methReg_analysis <- function(
     triplet,
     dnam,

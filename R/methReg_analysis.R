@@ -24,10 +24,14 @@
 #' If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 #' triplet will be removed.
 #' @param remove.nonsig.correlated.dnam.target.gene
-#' If spearman correlation of  target expression and DNAm for all samples 
+#' If spearman correlation of target expression and DNAm for all samples 
 #' is not significant (pvalue > 0.05), triplet will be removed
 #' If wilcoxon test of target expression Q1 and Q4 is not significant (pvalue > 0.05),
 #' triplet will be removed.
+#' @param remove.nonsig.correlated.dnam.target.gene.threshold.pvalue
+#' Cut-off for remove.nonsig.correlated.dnam.target.gene in the spearman test
+#' @param remove.nonsig.correlated.dnam.target.gene.threshold.estimate
+#' Cut-off for remove.nonsig.correlated.dnam.target.gene in the spearman test
 #' @param filter.triplet.by.sig.term Filter significant triplets ?
 #' Select triplets if any term is significant
 #' 1) interaction (TF x DNAm) p-value < 0.05 or 

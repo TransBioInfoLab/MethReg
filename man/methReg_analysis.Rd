@@ -47,10 +47,14 @@ Default is 0.25 (25\%), accepted threshold range (0.0,0.5].}
 
 \item{perform.correlation.analaysis}{Perform correlation analysis ?}
 
-\item{remove.nonsig.correlated.dnam.target.gene}{If spearman correlation of  target expression and DNAm for all samples 
+\item{remove.nonsig.correlated.dnam.target.gene}{If spearman correlation of target expression and DNAm for all samples 
 is not significant (pvalue > 0.05), triplet will be removed
 If wilcoxon test of target expression Q1 and Q4 is not significant (pvalue > 0.05),
 triplet will be removed.}
+
+\item{remove.nonsig.correlated.dnam.target.gene.threshold.pvalue}{Cut-off for remove.nonsig.correlated.dnam.target.gene in the spearman test}
+
+\item{remove.nonsig.correlated.dnam.target.gene.threshold.estimate}{Cut-off for remove.nonsig.correlated.dnam.target.gene in the spearman test}
 
 \item{remove.sig.correlated.tf.exp.dnam}{If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 triplet will be removed.}

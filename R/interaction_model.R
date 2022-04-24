@@ -329,12 +329,14 @@ interaction_model <- function(
   
   if (filter.correlated.tf.exp.dnam) {
     if(verbose)  message("Filtering results to remove the significant in the wilcoxon test TF Q1 vs Q4")
-    ret <- ret %>% dplyr::filter(.data$TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue > sig.threshold)
+    ret <- ret %>% 
+      dplyr::filter(.data$TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue > sig.threshold)
   }
   
   if (filter.correlated.target.exp.dnam) {
     if(verbose)  message("Filtering results to keep only the significant in the wilcoxon test target Q1 vs Q4")
-    ret <- ret %>% dplyr::filter(.data$Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue < sig.threshold)
+    ret <- ret %>%
+      dplyr::filter(.data$Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue < sig.threshold)
   }
   
   # make the output more clear

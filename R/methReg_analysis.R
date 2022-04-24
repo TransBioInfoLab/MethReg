@@ -20,10 +20,12 @@
 #' methylation in the low group and the highest 30\% methylation in the high group. 
 #' Default is 0.25 (25\%), accepted threshold range (0.0,0.5].
 #' @param perform.correlation.analaysis Perform correlation analysis ?
-#' @param remove.correlated.tf.exp.dnam  
+#' @param remove.sig.correlated.tf.exp.dnam  
 #' If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 #' triplet will be removed.
-#' @param remove.correlated.target.exp.dnam  
+#' @param remove.nonsig.correlated.dnam.target.gene
+#' If spearman correlation of  target expression and DNAm for all samples 
+#' is not significant (pvalue > 0.05), triplet will be removed
 #' If wilcoxon test of target expression Q1 and Q4 is not significant (pvalue > 0.05),
 #' triplet will be removed.
 #' @param filter.triplet.by.sig.term Filter significant triplets ?
@@ -104,8 +106,7 @@ methReg_analysis <- function(
     remove.nonsig.correlated.dnam.target.gene = FALSE,
     remove.nonsig.correlated.dnam.target.gene.threshold.pvalue = 0.01,
     remove.nonsig.correlated.dnam.target.gene.threshold.estimate = 0.2,
-    remove.correlated.tf.exp.dnam = TRUE,
-    remove.correlated.target.exp.dnam = TRUE,
+    remove.sig.correlated.tf.exp.dnam = TRUE,
     filter.triplet.by.sig.term = TRUE,
     filter.triplet.by.sig.term.using.fdr = TRUE,
     filter.triplet.by.sig.term.pvalue.threshold = 0.05,
@@ -149,13 +150,13 @@ methReg_analysis <- function(
     exp = exp,
     tf.activity.es = tf.activity.es,
     cores = cores,
-    filter.correlated.tf.exp.dnam = remove.correlated.target.exp.dnam,
+    filter.correlated.tf.exp.dnam = remove.sig.correlated.tf.exp.dnam,
     filter.triplet.by.sig.term = filter.triplet.by.sig.term,
     sig.threshold = filter.triplet.by.sig.term.pvalue.threshold,
     fdr = filter.triplet.by.sig.term.using.fdr,
     stage.wise.analysis = multiple.correction.by.stage.wise.analysis,
     dnam.group.threshold = dnam.group.percent.threshold,
-    filter.correlated.target.exp.dnam = remove.correlated.target.exp.dnam
+    filter.correlated.target.exp.dnam = remove.nonsig.correlated.dnam.target.gene
   )  
   
   if(nrow(results) == 0){

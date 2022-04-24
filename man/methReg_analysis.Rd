@@ -14,8 +14,7 @@ methReg_analysis(
   remove.nonsig.correlated.dnam.target.gene = FALSE,
   remove.nonsig.correlated.dnam.target.gene.threshold.pvalue = 0.01,
   remove.nonsig.correlated.dnam.target.gene.threshold.estimate = 0.2,
-  remove.correlated.tf.exp.dnam = TRUE,
-  remove.correlated.target.exp.dnam = TRUE,
+  remove.sig.correlated.tf.exp.dnam = TRUE,
   filter.triplet.by.sig.term = TRUE,
   filter.triplet.by.sig.term.using.fdr = TRUE,
   filter.triplet.by.sig.term.pvalue.threshold = 0.05,
@@ -48,10 +47,12 @@ Default is 0.25 (25\%), accepted threshold range (0.0,0.5].}
 
 \item{perform.correlation.analaysis}{Perform correlation analysis ?}
 
-\item{remove.correlated.tf.exp.dnam}{If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
+\item{remove.nonsig.correlated.dnam.target.gene}{If spearman correlation of  target expression and DNAm for all samples 
+is not significant (pvalue > 0.05), triplet will be removed
+If wilcoxon test of target expression Q1 and Q4 is not significant (pvalue > 0.05),
 triplet will be removed.}
 
-\item{remove.correlated.target.exp.dnam}{If wilcoxon test of target expression Q1 and Q4 is not significant (pvalue > 0.05),
+\item{remove.sig.correlated.tf.exp.dnam}{If wilcoxon test of TF expression Q1 and Q4 is significant (pvalue < 0.05),
 triplet will be removed.}
 
 \item{filter.triplet.by.sig.term}{Filter significant triplets ?

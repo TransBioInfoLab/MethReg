@@ -132,7 +132,7 @@ plot_interaction_model <-  function(
         tf.es =  tf.activity.es
       )
       
-      if(!any(grepl("DNAmlow_pval", colnames(row.triplet)))){
+      if(!any(grepl("DNAm.effect", colnames(row.triplet)))){
         stratified.results <- stratified_model_results(
           df,
           tf.dnam.classifier.pval.thld
@@ -625,13 +625,13 @@ get_scatter_plot_results <- function(
         formatC(
           rlm.res$rlm.val,
           digits = 3,
-          format = ifelse(abs(rlm.res$rlm.val) < 10^-3, "e","f")
+          format = ifelse(is.nan(rlm.res$rlm.val), "e",ifelse(abs(rlm.res$rlm.val) < 10^-3, "e","f"))
         ),
         "\nrlm p-value = ",
         formatC(
           rlm.res$rlm.p.value,
           digits = 3,
-          format = ifelse(rlm.res$rlm.p.value < 10^-3, "e","f")
+          format = ifelse(is.nan(rlm.res$rlm.p.value), "e",ifelse(rlm.res$rlm.p.value < 10^-3, "e","f"))
         )
       )
     )

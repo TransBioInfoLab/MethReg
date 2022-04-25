@@ -443,6 +443,12 @@ get_tf_dnam_classification <- function(
     classification$DNAm.effect <- "Attenuating"
   } else if (high.pval <= pvalue.threshold & low.pval >= pvalue.threshold  ) {
     classification$DNAm.effect <- "Enhancing"
+  } else if (high.pval <= pvalue.threshold &  low.pval <= pvalue.threshold & abs(low.estimate) > abs(high.estimate) ) {
+    # in this case both are significant
+    classification$DNAm.effect <- "Attenuating"
+  } else if (high.pval <= pvalue.threshold &  low.pval <= pvalue.threshold & abs(low.estimate) < abs(high.estimate) ) {
+    # in this case both are significant
+    classification$DNAm.effect <- "Enhancing"
   }
   
   if (classification$TF.role == "Dual") {

@@ -37,7 +37,7 @@ test_that("classification for non-signficant results", {
 
 test_that("classification for signficant results in same direction", {
 
-    # Same direction significants
+    # Same direction both significant
     res <- get_tf_dnam_classification(
         low.estimate = 0.2, low.pval = 0.01,
         high.estimate = 0.8, high.pval = 0.01,

@@ -48,6 +48,7 @@ make_names_from_granges <- function(region){
 #' data(dna.met.chr21)
 #' dna.met.chr21.with.region.name <- map_probes_to_regions(dna.met.chr21)
 #' @importFrom sesameData sesameDataCacheAll sesameDataGet
+#' @import sesame
 #' @noRd
 map_probes_to_regions <- function(
   dnam,

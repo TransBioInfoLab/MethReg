@@ -283,11 +283,10 @@ interaction_model <- function(
         wilcoxon.tf.q4met.vs.q1met = wilcoxon.tf.q4met.vs.q1met
       )
     },
-    .progress = "time"
-    
-    #.parallel = parallel,
-    #.inform = TRUE,
-    #.paropts = list(.errorhandling = 'pass')
+    .progress = "time",
+    .parallel = parallel,
+    .inform = TRUE,
+    .paropts = list(.errorhandling = 'pass')
   )
   
   if (stage.wise.analysis) {

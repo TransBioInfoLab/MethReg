@@ -665,7 +665,7 @@ get_scatter_plot_results <- function(
         formatC(
           rlm.res.low$rlm.p.value,
           digits = 3,
-          format = ifelse(rlm.res.low$rlm.p.value < 10^-3, "e","f")
+          format = ifelse(is.nan(rlm.res.low$rlm.p.value), "e",ifelse(rlm.res.low$rlm.p.value < 10^-3, "e","f"))
         )
       )
     )
@@ -697,7 +697,7 @@ get_scatter_plot_results <- function(
         formatC(
           rlm.res.high$rlm.p.value,
           digits = 3,
-          format = ifelse(rlm.res.high$rlm.p.value < 10^-3, "e","f")
+          format =  ifelse(is.nan(rlm.res.high$rlm.p.value), "e",ifelse(rlm.res.high$rlm.p.value < 10^-3, "e","f"))
         )
       )
     )

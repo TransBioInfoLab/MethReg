@@ -439,9 +439,9 @@ get_tf_dnam_classification <- function(
     classification$DNAm.effect <- "Enhancing"
   } else if (is.na(high.pval)) {
     classification$DNAm.effect <- "Attenuating"
-  } else if (low.pval < pvalue.threshold & high.pval > pvalue.threshold) {
+  } else if (low.pval <= pvalue.threshold & high.pval >= pvalue.threshold) {
     classification$DNAm.effect <- "Attenuating"
-  } else if (high.pval < pvalue.threshold & low.pval > pvalue.threshold  ) {
+  } else if (high.pval <= pvalue.threshold & low.pval >= pvalue.threshold  ) {
     classification$DNAm.effect <- "Enhancing"
   }
   

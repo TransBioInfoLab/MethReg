@@ -209,6 +209,7 @@ stratified_model <- function(
       interaction.significant <- TRUE
       if("RLM_DNAmGroup:TF_pvalue" %in% colnames(row.triplet)){
         interaction.significant <- ifelse(row.triplet[,"RLM_DNAmGroup:TF_pvalue"] < 0.05,TRUE,FALSE)
+        if(is.na(interaction.significant)) interaction.significant <- FALSE
       }
       
       stratified_model_results(

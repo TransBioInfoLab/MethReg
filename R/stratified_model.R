@@ -257,7 +257,7 @@ stratified_model_results <- function(
   )
   
   if(!interaction.significant){
-    classification$DNAm.effect <- "None"
+    classification$DNAm.effect <- "ns"
   }
   
   tibble::tibble(

@@ -119,7 +119,8 @@ create_triplet_distance_based <- function(
         TF.peaks.gr = TF.peaks.gr
     )
     triplet <- dplyr::inner_join(region.target, region.tf)
-
+    triplet <- triplet %>% dplyr::filter(!is.na(.data$TF))
+    
     message("Removing regions and target genes from different chromosomes")
     triplet <- triplet %>% dplyr::filter(!is.na(.data$distance_region_target_tss))
 

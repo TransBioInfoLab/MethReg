@@ -42,7 +42,7 @@ A data frame with the following information: regionID, TF symbol, TF ensembl ID
 }
 \description{
 Given a genomic region, this function maps TF in regions
-using two methods: 1) using motifmatchr nd JASPAR2020 to scan the
+using two methods: 1) using motifmatchr nd JASPAR2022 to scan the
 region for 554 human transcription factors
 binding sites. There is also  an option (argument \code{window.size})
 to extend the scanning region before performing the search, which

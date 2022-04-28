@@ -1,7 +1,7 @@
 #' @title Get human TFs for regions by either scanning it with motifmatchr using
 #' JASPAR 2020 database or overlapping with TF chip-seq from user input
 #' @description Given a genomic region, this function maps TF in regions
-#' using two methods: 1) using motifmatchr nd JASPAR2020 to scan the
+#' using two methods: 1) using motifmatchr nd JASPAR2022 to scan the
 #' region for 554 human transcription factors
 #' binding sites. There is also  an option (argument \code{window.size})
 #' to extend the scanning region before performing the search, which
@@ -59,7 +59,7 @@ get_tf_in_region <- function(
     verbose = FALSE
 ) {
 
-    check_package("JASPAR2020")
+    check_package("JASPAR2022")
     check_package("TFBSTools")
 
     parallel <- register_cores(cores)
@@ -84,9 +84,9 @@ get_tf_in_region <- function(
         }
 
         opts <- list()
-        opts[["species"]] <- 9606 # homo sapies
+        opts[["species"]] <- 9606 # homo sapiens
         # opts[["all_versions"]] <- TRUE
-        PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, opts)
+        PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2022::JASPAR2022, opts)
         motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
         names(PFMatrixList) <- motifs.names
         PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]

@@ -59,7 +59,7 @@ Suggests:
     R.utils,
     doParallel,
     reshape2,
-    JASPAR2020,
+    JASPAR2022,
     TFBSTools,
     motifmatchr,
     matrixStats,

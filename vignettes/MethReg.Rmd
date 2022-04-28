@@ -227,7 +227,7 @@ SummarizedExperiment::rowRanges(gene.exp.chr21.se)[1:5,]
 
 ###  Creating triplet dataset
 
-#### Creating triplet dataset using distance based approaches and JASPAR2020
+#### Creating triplet dataset using distance based approaches and JASPAR2022
 
 In this section, **regions** refer to the regions where CpGs are located. 
 
@@ -292,10 +292,10 @@ For the analysis of probes in distal regions, we recommend setting either
 Note that the distal analysis will be more time and resource consuming. 
 
 
-To link regions to TF using JASPAR2020, MethReg uses `motifmatchr` [@motifmatchr] to scan 
+To link regions to TF using JASPAR2022, MethReg uses `motifmatchr` [@motifmatchr] to scan 
 these regions for occurrences of motifs in the database. JASPAR2020 is an 
 open-access database of curated, non-redundant transcription 
-factor (TF)-binding profiles [@JASPAR2020; @fornes2020jaspar], which contains 
+factor (TF)-binding profiles [@JASPAR2022; @fornes2022jaspar], which contains 
 more the 500 human TF motifs.
 
 

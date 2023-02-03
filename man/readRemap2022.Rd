@@ -4,12 +4,12 @@
 \alias{readRemap2022}
 \title{Access REMAP2022 non-redundant peaks}
 \usage{
-readRemap2022(cell_line, specie = c("homo_sapiens", "mus_musculus"))
+readRemap2022(cell_line, species = c("homo_sapiens", "mus_musculus"))
 }
 \arguments{
 \item{cell_line}{filter peaks using cell line description field}
 
-\item{specie}{which species to access Access REMAP2022 non-redundant peaks.
+\item{species}{which species to access REMAP2022 non-redundant peaks.
 Options are: homo_sapiens or mus_musculus}
 }
 \description{

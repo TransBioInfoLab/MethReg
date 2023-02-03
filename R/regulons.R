@@ -4,25 +4,48 @@
 #' row as ENSG gene IDS and column as samples
 #' @param min.confidence Minimun confidence score  ("A", "B","C","D", "E")
 #' classifying regulons based on their quality from Human DoRothEA database.
+#' @param species which species to access dorothea database.
+#' Options are: homo_sapiens or mus_musculus
+#' @param source which source was used in  dorothea to retrived regulons
+#' Options are: gtex or pancancer
 #' @examples
 #' regulons <- get_regulon_dorothea(min.confidence = "E")
 #' @return A dataframe with tf, confidence and target gene from dorothea package.
 #' @noRd
 get_regulon_dorothea <- function(
-    min.confidence = c("A", "B","C","D", "E")
+    min.confidence = c("A", "B","C","D", "E"),
+    species = c("homo_sapiens","mus_musculus"),
+    source = c("gtex","pancancer")
 ){
-    check_package("dorothea")
-    min.confidence <- match.arg(min.confidence)
-
-    dorothea_hs <- get(utils::data(dorothea_hs, package = "dorothea"))
-    confidence.set <- LETTERS[1:5][1:which(LETTERS[1:5] == min.confidence)]
-    regulons = dorothea_hs %>%
-        filter(.data$confidence %in% confidence.set)
-
-    regulons$tf_ensg <- map_symbol_to_ensg(regulons$tf)
-    regulons$target_ensg <- map_symbol_to_ensg(regulons$target)
-
-    return(regulons)
+  species <- match.arg(species)
+  source <- match.arg(source)
+  
+  check_package("dorothea")
+  min.confidence <- match.arg(min.confidence)
+  
+  if(species == "mus_musculus" & source == "gtex"){ 
+    dorothea <- get(utils::data(dorothea_mm, package = "dorothea"))
+  }
+  
+  if(species == "mus_musculus" & source == "pancancer") {
+    dorothea <- get(utils::data(dorothea_mm_pancancer, package = "dorothea"))
+  }
+  if(species == "homo_sapiens" & source == "gtex") {
+    dorothea <- get(utils::data(dorothea_hs, package = "dorothea"))
+  }
+  
+  if(species == "homo_sapiens" & source == "pancancer" ) {
+    dorothea <- get(utils::data(dorothea_hs_pancancer, package = "dorothea"))
+  }
+  
+  confidence.set <- LETTERS[1:5][1:which(LETTERS[1:5] == min.confidence)]
+  regulons <- dorothea %>%
+    filter(.data$confidence %in% confidence.set)
+  
+  regulons$tf_ensg <- map_symbol_to_ensg(regulons$tf,genome = ifelse(species == "homo_sapiens","hg38","mm39"))
+  regulons$target_ensg <- map_symbol_to_ensg(regulons$target,genome = ifelse(species == "homo_sapiens","hg38","mm39"))
+  
+  return(regulons)
 }
 
 #' @title Calculate enrichment scores for each TF across all samples using
@@ -33,7 +56,7 @@ get_regulon_dorothea <- function(
 #' classifying regulons based on their quality from Human DoRothEA database.
 #' The default minimun confidence score is "B"
 #' @param regulons DoRothEA regulons in table format. Same as \link[dorothea]{run_viper}.
-#' If not specified Bioconductor (human) dorothea regulons besed on GTEx will be.
+#' If not specified Bioconductor (human or mouse) dorothea regulons based on GTEx will be.
 #' used \link[dorothea]{dorothea_hs}.
 #' @examples
 #' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
@@ -43,49 +66,65 @@ get_regulon_dorothea <- function(
 get_tf_ES <- function(
     exp,
     min.confidence = "B",
-    regulons
+    regulons,
+    species = c("homo_sapiens","mus_musculus"),
+    source = c("gtex","pancancer")
 ){
-    check_package("dorothea")
-    check_package("viper")
-
-    min.confidence <- match.arg(
-        arg = min.confidence,
-        choices =   c("A", "B", "C", "D", "E")
+  species <- match.arg(species)
+  source <- match.arg(source)
+  
+  check_package("dorothea")
+  check_package("viper")
+  
+  min.confidence <- match.arg(
+    arg = min.confidence,
+    choices =   c("A", "B", "C", "D", "E")
+  )
+  
+  if (missing(regulons)) {
+    regulons <- get_regulon_dorothea(
+      min.confidence = min.confidence,
+      species = species,
+      source = source
     )
-
-    if (missing(regulons)) {
-        regulons <- get_regulon_dorothea(min.confidence = min.confidence)
-    } else {
-        cols <- c("tf", "target", "mor")
-        if (!all(cols %in% colnames(regulons))) {
-            stop("regulons must have columns tf, target, and mor")
-        }
+  } else {
+    cols <- c("tf", "target", "mor")
+    if (!all(cols %in% colnames(regulons))) {
+      stop("regulons must have columns tf, target, and mor")
     }
-
-    if (all(grepl("ENSG",rownames(exp)))) {
-        rownames(exp) <- map_ensg_to_symbol(rownames(exp))
-    }
-
-    tf_activities <- tryCatch({
-        tf_activities <- dorothea::run_viper(
-            input = exp,
-            regulons = regulons,
-            options =  list(
-                method = "scale",
-                minsize = 4,
-                eset.filter = FALSE,
-                cores = 1,
-                verbose = FALSE
-            )
-        )
-        rownames(tf_activities) <- map_symbol_to_ensg(rownames(tf_activities))
-        tf_activities <- tf_activities[!is.na(rownames(tf_activities)),]
-
-        tf_activities
-    }, error = function(e) {
-        message(e)
-        return(NULL)
-    })
+  }
+  
+  if (all(grepl("ENSG",rownames(exp)))) {
+    rownames(exp) <- map_ensg_to_symbol(
+      rownames(exp),
+      genome = ifelse(species == "homo_sapiens","hg38","mm39")
+    )
+  }
+  
+  tf_activities <- tryCatch({
+    tf_activities <- dorothea::run_viper(
+      input = exp,
+      regulons = regulons,
+      options =  list(
+        method = "scale",
+        minsize = 4,
+        eset.filter = FALSE,
+        cores = 1,
+        verbose = FALSE
+      )
+    )
+    
+    rownames(tf_activities) <- map_symbol_to_ensg(
+      rownames(tf_activities),
+      ifelse(species == "homo_sapiens","hg38","mm39")
+    )
+    tf_activities <- tf_activities[!is.na(rownames(tf_activities)),]
+    
     tf_activities
-
+  }, error = function(e) {
+    message(e)
+    return(NULL)
+  })
+  tf_activities
+  
 }

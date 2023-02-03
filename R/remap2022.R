@@ -1,19 +1,19 @@
 #' @title Access REMAP2022 non-redundant peaks
 #' @description  Access REMAP2022 non-redundant peaks
 #' @param cell_line filter peaks using cell line description field
-#' @param specie which species to access Access REMAP2022 non-redundant peaks.
+#' @param species which species to access REMAP2022 non-redundant peaks.
 #' Options are: homo_sapiens or mus_musculus
 #' @export
 readRemap2022 <- function(
     cell_line,
-    specie = c("homo_sapiens","mus_musculus")
+    species = c("homo_sapiens","mus_musculus")
   ){
   
-  specie <- match.arg(specie)
+  species <- match.arg(species)
   
   url <- dplyr::case_when(
-    specie == "homo_sapiens" ~  "https://remap.univ-amu.fr/storage/remap2022/hg38/MACS2/remap2022_nr_macs2_hg38_v1_0.bed.gz",
-    specie == "mus_musculus" ~  "https://remap.univ-amu.fr/storage/remap2022/mm39/MACS2/remap2022_nr_macs2_mm39_v1_0.bed.gz"
+    species == "homo_sapiens" ~  "https://remap.univ-amu.fr/storage/remap2022/hg38/MACS2/remap2022_nr_macs2_hg38_v1_0.bed.gz",
+    species == "mus_musculus" ~  "https://remap.univ-amu.fr/storage/remap2022/mm39/MACS2/remap2022_nr_macs2_mm39_v1_0.bed.gz"
   )
   
   message("Downloading: ", basename(url))

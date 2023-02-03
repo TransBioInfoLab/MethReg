@@ -5,7 +5,13 @@
 \title{Calculate enrichment scores for each TF across all samples using
 dorothea and viper.}
 \usage{
-get_tf_ES(exp, min.confidence = "B", regulons)
+get_tf_ES(
+  exp,
+  min.confidence = "B",
+  regulons,
+  species = c("homo_sapiens", "mus_musculus"),
+  source = c("gtex", "pancancer")
+)
 }
 \arguments{
 \item{exp}{Gene expression matrix with gene expression counts,

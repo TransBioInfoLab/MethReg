@@ -186,6 +186,79 @@ map_symbol_to_ensg <- function(
 }
 
 
+#' @title Get mouse genome information from biomaRt
+#' @param genome mouse genome of reference. Options: mm10, mm39
+#' @param TSS Add TSS information
+#' @noRd
+get_gene_information_biomart_mouse <- function(
+    genome = c("mm39","mm10"),
+    TSS = FALSE
+){
+  check_package("biomaRt")
+  genome <- match.arg(genome)
+  tries <- 0L
+  msg <- character()
+  while (tries < 3L) {
+    gene.location <- tryCatch({
+      host <- ifelse(
+        genome == "mm10",
+        "https://nov2020.archive.ensembl.org",
+        "www.ensembl.org"
+      )
+      mirror <- list(NULL, "useast", "uswest", "asia")[[tries + 1]]
+      ensembl <- tryCatch({
+        message(
+          ifelse(
+            is.null(mirror),
+            paste0("Accessing ", host, " to get gene information"),
+            paste0("Accessing ", host, " (mirror ", mirror, ")")
+          )
+        )
+        biomaRt::useEnsembl(
+          "ensembl",
+          dataset = "mmusculus_gene_ensembl",
+          host = host,
+          mirror = mirror
+        )
+      }, error = function(e) {
+        message(e)
+        return(NULL)
+      })
+      
+      # Column values we will recover from the database
+      attributes <- c(
+        "ensembl_gene_id",
+        "external_gene_name",
+        "chromosome_name",
+        "strand",
+        "end_position",
+        "start_position",
+        "gene_biotype"
+      )
+      
+      if (TSS)  attributes <- c(attributes, "transcription_start_site")
+      
+      db.datasets <- biomaRt::listDatasets(ensembl)
+      description <- db.datasets[db.datasets$dataset == "mmusculus_gene_ensembl", ]$description
+      message(paste0("Downloading genome information (try:", tries, ") Using: ", description))
+      gene.location <- biomaRt::getBM(
+        attributes = attributes,
+        filters = "chromosome_name",
+        values = c(seq_len(22),"X","Y"),
+        mart = ensembl
+      )
+      gene.location
+    }, error = function(e) {
+      msg <<- conditionMessage(e)
+      tries <<- tries + 1L
+      NULL
+    })
+    if (!is.null(gene.location)) break
+    if (tries == 3L) stop("failed to get URL after 3 tries:", "\n  error: ", msg)
+  }
+  gene.location
+}
+
 #' @title Get human genome information from biomaRt
 #' @param genome Human genome of reference. Options: hg38, hg19.
 #' @param TSS add TSS information
@@ -260,14 +333,21 @@ get_gene_information_biomart <- function(
 
 #' @noRd
 get_gene_information <- function(
-  genome = "hg38",
+  genome = c("hg38","hg19","mm10","mm39"),
   as.granges = FALSE
 ){
-  
+  genome <- match.arg(genome)
   if (genome == "hg19") {
     gene.location <- gene.location.hg19
-  } else {
+  } 
+  if (genome == "hg38") {
     gene.location <- gene.location.hg38
+  }
+  if (genome == "mm10") {
+    gene.location <- gene.location.mm10
+  }
+  if (genome == "mm39") {
+    gene.location <- gene.location.mm39
   }
   
   if (as.granges) {

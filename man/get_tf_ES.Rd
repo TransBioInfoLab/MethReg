@@ -22,7 +22,7 @@ classifying regulons based on their quality from Human DoRothEA database.
 The default minimun confidence score is "B"}
 
 \item{regulons}{DoRothEA regulons in table format. Same as \link[dorothea]{run_viper}.
-If not specified Bioconductor (human) dorothea regulons besed on GTEx will be.
+If not specified Bioconductor (human or mouse) dorothea regulons based on GTEx will be.
 used \link[dorothea]{dorothea_hs}.}
 }
 \value{

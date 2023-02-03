@@ -18,7 +18,7 @@
 #' For example, a value of 50 will
 #' extend 25 bp upstream and 25 bp downstream the region.
 #' The default is not to increase the scanned region.
-#' @param genome Human genome of reference "hg38" or "hg19".
+#' @param genome  genome of reference "hg38" or  "hg19" for human and."mm10", "mm39" for mouse
 #' @param p.cutoff motifmatchr p.cutoff. Default 1e-8.
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param verbose A logical argument indicating if
@@ -43,106 +43,127 @@
 #'    remapCatalog <- bedToGranges(remapCatalog2018hg38)
 #'    regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
 #'    region.tf.remap <- get_tf_in_region(
-#'                    region = regions.names,
-#'                    genome = "hg38",
-#'                    TF.peaks.gr = remapCatalog
+#'            region = regions.names,
+#'            genome = "hg38",
+#'            TF.peaks.gr = remapCatalog
 #'    )
+#'    
+#'    # mouse example
+#'     regions.names <- c(
+#'       "chr1:109631389-109631889",
+#'       "chr4:13162098-13162398",
+#'       "chr6:19631389-19632389"
+#'    )
+#'     get_tf_in_region(
+#'     region = regions.names,
+#'     genome = "mm39",
+#'     verbose = TRUE
+#'     )
 #'  }
 #' @export
 get_tf_in_region <- function(
     region,
     window.size = 0,
-    genome = c("hg19","hg38"),
+    genome = c("hg19","hg38","mm39","mm10"),
     p.cutoff = 1e-8,
     cores = 1,
     TF.peaks.gr = NULL,
     verbose = FALSE
 ) {
-
-    check_package("JASPAR2022")
-    check_package("TFBSTools")
-
-    parallel <- register_cores(cores)
-
-    if (is(region,"character") | is(region,"factor")) {
-        region.gr <- make_granges_from_names(region)
-        region.names <- region
-    } else if (is(region,"GenomicRanges")) {
-        region.gr <- region
-        region.names <- make_names_from_granges(region)
+  
+  check_package("JASPAR2022")
+  check_package("TFBSTools")
+  check_package("motifmatchr")
+  
+  parallel <- register_cores(cores)
+  
+  if (is(region,"character") | is(region,"factor")) {
+    region.gr <- make_granges_from_names(region)
+    region.names <- region
+  } else if (is(region,"GenomicRanges")) {
+    region.gr <- region
+    region.names <- make_names_from_granges(region)
+  }
+  
+  region.gr <- region.gr + (window.size/2)
+  # region <- region.gr %>% resize(width(.) + window.size, fix = "center")
+  
+  genome <- match.arg(genome)
+  
+  if (is.null(TF.peaks.gr)) {
+    
+    if (min(IRanges::width(region.gr)) < 8) {
+      stop("Minimun region size is 8, please set window.size argument")
     }
-
-    region.gr <- region.gr + (window.size/2)
-    # region <- region.gr %>% resize(width(.) + window.size, fix = "center")
-
-    genome <- match.arg(genome)
-
-    if (is.null(TF.peaks.gr)) {
-
-        if (min(IRanges::width(region.gr)) < 8) {
-            stop("Minimun region size is 8, please set window.size argument")
-        }
-
-        opts <- list()
-        opts[["species"]] <- 9606 # homo sapiens
-        # opts[["all_versions"]] <- TRUE
-        PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2022::JASPAR2022, opts)
-        motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
-        names(PFMatrixList) <- motifs.names
-        PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]
-
-        if(verbose)  message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
-        if(verbose)  message("This may take a while...")
-        suppressWarnings({
-            motif.matrix <- motifmatchr::matchMotifs(
-                pwms = PFMatrixList,
-                subject = region.gr,
-                genome = genome,
-                p.cutoff = p.cutoff
-            ) %>% SummarizedExperiment::assay()
-        })
-        rownames(motif.matrix) <- region.names
-
-        # remove motifs not found in any regions
-        motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
-
-        if (ncol(motif.matrix) == 0) {
-            message("No motifs found")
-            return(NULL)
-        }
-
-        if (is(motif.matrix, "lgCMatrix")) {
-            motif.matrix <- motif.matrix[!duplicated(rownames(motif.matrix)),]
-            motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
-        }
-
-        if(verbose)  message("Preparing output")
-        motifs.probes.df <- plyr::alply(
-            colnames(motif.matrix),
-            .margins = 1,
-            function(colum.name){
-                colum <- motif.matrix[,colum.name, drop = FALSE]
-                regions <- rownames(colum)[which(colum %>% pull > 0)];
-                tfs <- colum.name
-                expand.grid(regions,tfs,stringsAsFactors = FALSE)
-            }, .progress = "time",.parallel = parallel)
-        motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
-        colnames(motifs.probes.df) <- c("regionID","TF_symbol")
-
-        motifs.probes.df$TF <- map_symbol_to_ensg(
-            motifs.probes.df$TF_symbol
-        )
-
-        motifs.probes.df <- motifs.probes.df %>% na.omit
-
+    
+    opts <- list()
+    
+    if(genome %in% c("mm10","mm39")){
+      opts[["species"]] <- 10090 # Mus musculus
     } else {
-
-       hits <- findOverlaps(TF.peaks.gr, region.gr, ignore.strand = TRUE)
-       motifs.probes.df <- data.frame(
-           "regionID" = region.names[subjectHits(hits)],
-           "TF_symbol" = TF.peaks.gr$id[queryHits(hits)]
-       )
-       motifs.probes.df$TF <- map_symbol_to_ensg(motifs.probes.df$TF_symbol)
+      opts[["species"]] <- 9606 # homo sapiens
     }
-    return(motifs.probes.df %>% unique)
+    # opts[["all_versions"]] <- TRUE
+    PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2022::JASPAR2022, opts)
+    motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
+    names(PFMatrixList) <- motifs.names
+    PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]
+    
+    if(verbose)  message("Evaluating ", length(PFMatrixList), " JASPAR ",ifelse(genome %in% c("mm10","mm39"),"Mouse","Human")," TF motifs")
+    if(verbose)  message("This may take a while...")
+    
+    suppressWarnings({
+      motif.matrix <- motifmatchr::matchMotifs(
+        pwms = PFMatrixList,
+        subject = region.gr,
+        genome = genome,
+        p.cutoff = p.cutoff
+      ) %>% SummarizedExperiment::assay()
+    })
+    rownames(motif.matrix) <- region.names
+    
+    # remove motifs not found in any regions
+    motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
+    
+    if (ncol(motif.matrix) == 0) {
+      message("No motifs found")
+      return(NULL)
+    }
+    
+    if (is(motif.matrix, "lgCMatrix")) {
+      motif.matrix <- motif.matrix[!duplicated(rownames(motif.matrix)),]
+      motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
+    }
+    
+    if(verbose)  message("Preparing output")
+    
+    motifs.probes.df <- plyr::alply(
+      colnames(motif.matrix),
+      .margins = 1,
+      function(colum.name){
+        colum <- motif.matrix[,colum.name, drop = FALSE]
+        regions <- rownames(colum)[which(colum %>% pull > 0)];
+        tfs <- colum.name
+        expand.grid(regions,tfs,stringsAsFactors = FALSE)
+      }, .progress = "time",.parallel = parallel)
+    motifs.probes.df <- dplyr::bind_rows(motifs.probes.df)
+    colnames(motifs.probes.df) <- c("regionID","TF_symbol")
+    
+    motifs.probes.df$TF <- map_symbol_to_ensg(
+      motifs.probes.df$TF_symbol,
+      genome = genome
+    )
+    
+    motifs.probes.df <- motifs.probes.df %>% na.omit
+    
+  } else {
+    
+    hits <- findOverlaps(TF.peaks.gr, region.gr, ignore.strand = TRUE)
+    motifs.probes.df <- data.frame(
+      "regionID" = region.names[subjectHits(hits)],
+      "TF_symbol" = TF.peaks.gr$id[queryHits(hits)]
+    )
+    motifs.probes.df$TF <- map_symbol_to_ensg(motifs.probes.df$TF_symbol,genome = genome)
+  }
+  return(motifs.probes.df %>% unique)
 }

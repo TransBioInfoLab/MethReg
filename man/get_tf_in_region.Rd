@@ -8,7 +8,7 @@ JASPAR 2020 database or overlapping with TF chip-seq from user input}
 get_tf_in_region(
   region,
   window.size = 0,
-  genome = c("hg19", "hg38"),
+  genome = c("hg19", "hg38", "mm39", "mm10"),
   p.cutoff = 1e-08,
   cores = 1,
   TF.peaks.gr = NULL,
@@ -24,7 +24,7 @@ For example, a value of 50 will
 extend 25 bp upstream and 25 bp downstream the region.
 The default is not to increase the scanned region.}
 
-\item{genome}{Human genome of reference "hg38" or "hg19".}
+\item{genome}{genome of reference "hg38" or  "hg19" for human and."mm10", "mm39" for mouse}
 
 \item{p.cutoff}{motifmatchr p.cutoff. Default 1e-8.}
 
@@ -67,9 +67,21 @@ and TF peaks.
    remapCatalog <- bedToGranges(remapCatalog2018hg38)
    regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
    region.tf.remap <- get_tf_in_region(
-                   region = regions.names,
-                   genome = "hg38",
-                   TF.peaks.gr = remapCatalog
+           region = regions.names,
+           genome = "hg38",
+           TF.peaks.gr = remapCatalog
    )
+   
+   # mouse example
+    regions.names <- c(
+      "chr1:109631389-109631889",
+      "chr4:13162098-13162398",
+      "chr6:19631389-19632389"
+   )
+    get_tf_in_region(
+    region = regions.names,
+    genome = "mm39",
+    verbose = TRUE
+    )
  }
 }

@@ -87,8 +87,8 @@ map_probes_to_regions <- function(
 #' @importFrom ExperimentHub ExperimentHub 
 #' @importFrom AnnotationHub query
 get_met_probes_info <- function(
-  genome = c("hg38","hg19"),
-  arrayType = c("450k","EPIC")
+  genome = c("hg38","hg19","mm39","mm10"),
+  arrayType = c("450k","EPIC","MM285")
 ){
   genome <- match.arg(genome)
   arrayType <- match.arg(arrayType)
@@ -100,7 +100,11 @@ get_met_probes_info <- function(
   check_package("ExperimentHub")
   
   manifest <-  str_c(
-    ifelse(arrayType == "450k","HM450","EPIC"),
+    dplyr::case_when(
+      arrayType == "MM285" ~ "MM285",
+      arrayType == "450k" ~ "HM450",
+      arrayType == "EPIC" ~ "EPIC"
+    ),
     ".",
     genome,
     ".manifest"

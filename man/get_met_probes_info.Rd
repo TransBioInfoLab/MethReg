@@ -4,7 +4,10 @@
 \alias{get_met_probes_info}
 \title{Get HM450/EPIC manifest files from Sesame package}
 \usage{
-get_met_probes_info(genome = c("hg38", "hg19"), arrayType = c("450k", "EPIC"))
+get_met_probes_info(
+  genome = c("hg38", "hg19", "mm39", "mm10"),
+  arrayType = c("450k", "EPIC", "MM285")
+)
 }
 \arguments{
 \item{genome}{Human genome of reference hg38 or hg19}

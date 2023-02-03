@@ -1,17 +1,34 @@
 #' @title Access REMAP2022 non-redundant peaks
 #' @description  Access REMAP2022 non-redundant peaks
 #' @param cell_line filter peaks using cell line description field
+#' @param specie which species to access Access REMAP2022 non-redundant peaks.
+#' Options are: homo_sapiens or mus_musculus
 #' @export
-readRemap2022 <- function(cell_line){
-  url <- "https://remap.univ-amu.fr/storage/remap2022/hg38/MACS2/remap2022_nr_macs2_hg38_v1_0.bed.gz"
-  file <- paste0("readRemap2022/",basename(file))
+readRemap2022 <- function(
+    cell_line,
+    specie = c("homo_sapiens","mus_musculus")
+  ){
+  
+  specie <- match.arg(specie)
+  
+  url <- dplyr::case_when(
+    specie == "homo_sapiens" ~  "https://remap.univ-amu.fr/storage/remap2022/hg38/MACS2/remap2022_nr_macs2_hg38_v1_0.bed.gz",
+    specie == "mus_musculus" ~  "https://remap.univ-amu.fr/storage/remap2022/mm39/MACS2/remap2022_nr_macs2_mm39_v1_0.bed.gz"
+  )
+  
+  message("Downloading: ", basename(url))
+  file <- paste0("readRemap2022/",basename(url))
+  
   if(!file.exists(file)){
     dir.create(dirname(file),showWarnings = FALSE,recursive = TRUE)
-    downloader::download.file(url, file)
+    downloader::download(url, file)
   }
+  
   remapCatalog <- bedToGranges(file)
-  remapCatalog$cell_lines <- gsub("^[[:alnum:]]*:","",gsub("-|,","",remapCatalog$id))
-  remapCatalog$id <- gsub(":[[:alnum:]]*$","",gsub("-|,","",remapCatalog$id))
+  remapCatalog$id <- gsub("-|,","",remapCatalog$id)
+  remapCatalog$cell_lines <- gsub("^[[:alnum:]]*:","",remapCatalog$id)
+  remapCatalog$id <- gsub(":[[:alnum:]]*$","",remapCatalog$id)
+  
   if(!missing(cell_line)){
     metadata <- openxlsx::read.xlsx(
       "https://remap.univ-amu.fr/storage/remap2022/biotypes/remap2022_hsap_biotypes.xlsx"
@@ -21,6 +38,7 @@ readRemap2022 <- function(cell_line){
       dplyr::pull(biotype)
     remapCatalog <- remapCatalog[remapCatalog$cell_lines %in% gsub("-|,","",cell.lines),]
   }
+  
   remapCatalog
 }
 

@@ -131,7 +131,7 @@ get_tf_in_region <- function(
     }
     
     if (is(motif.matrix, "lgCMatrix")) {
-      motif.matrix <- motif.matrix[!duplicated(rownames(motif.matrix)),]
+      motif.matrix <- motif.matrix[!duplicated(rownames(motif.matrix)),, drop = FALSE]
       motif.matrix <- motif.matrix %>% as.matrix() %>% as.data.frame()
     }
     

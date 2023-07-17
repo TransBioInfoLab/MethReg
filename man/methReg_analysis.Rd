@@ -72,6 +72,9 @@ Select triplets if any term is significant
 \item{multiple.correction.by.stage.wise.analysis}{A boolean indicating if stagewise analysis should be performed
 to correct for multiple comparisons. If set to FALSE then FDR analysis is performed.}
 
+\item{tf.dnam.classifier.pval.threshold}{P-value threshold to consider a linear model significant of not. 
+Default 0.001. This will be used to classify the TF role and DNAm effect.}
+
 \item{verbose}{A logical argument indicating if
 messages output should be provided.}
 

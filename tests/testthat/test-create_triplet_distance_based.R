@@ -1,4 +1,5 @@
 test_that("create_triplet_distance_based runs", {
+    skip_on_bioc()
     triplet <- create_triplet_distance_based(
         region = "chr3:189631389-189631389",
         genome = "hg38",

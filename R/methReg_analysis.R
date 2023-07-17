@@ -47,6 +47,8 @@
 #' @param cores Number of CPU cores to be used. Default 1.
 #' @param verbose A logical argument indicating if
 #' messages output should be provided.
+#' @param tf.dnam.classifier.pval.threshold P-value threshold to consider a linear model significant of not. 
+#' Default 0.001. This will be used to classify the TF role and DNAm effect.
 #' @return A dataframe with \code{Region, TF, target, TF_symbo, target_symbol, estimates and P-values},
 #' after fitting robust linear models or zero-inflated negative binomial models (see Details above).
 #'

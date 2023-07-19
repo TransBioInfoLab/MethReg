@@ -23,6 +23,8 @@ test_that("filter_dnam_by_quant_diff handles NAs", {
 
 
 test_that("filter_dnam_by_quant_diff handles NAs for a SE", {
+    library(IRanges)
+    library(SummarizedExperiment)
     dnam <- t(matrix(c(NA,rep(0,13),NA, rep(1,4),NA,rep(NA,10)),ncol = 3))
     nrows <- 3; ncols <- 10
     rowRanges <- GRanges(

@@ -13,6 +13,7 @@ readRemap2022 <- function(cell_line){
   remapCatalog$cell_lines <- gsub("^[[:alnum:]]*:","",gsub("-|,","",remapCatalog$id))
   remapCatalog$id <- gsub(":[[:alnum:]]*$","",gsub("-|,","",remapCatalog$id))
   if(!missing(cell_line)){
+    check_package("openxlsx")
     metadata <- openxlsx::read.xlsx(
       "https://remap.univ-amu.fr/storage/remap2022/biotypes/remap2022_hsap_biotypes.xlsx"
     )
@@ -68,6 +69,7 @@ bedToGranges <- function (path) {
 }
 
 bedImport <- function (path) {
+  check_package("data.table")
   regions <- as.data.frame(
     data.table::fread(
       path, 

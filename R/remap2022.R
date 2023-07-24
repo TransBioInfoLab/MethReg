@@ -6,6 +6,7 @@ readRemap2022 <- function(cell_line){
   url <- "https://remap.univ-amu.fr/storage/remap2022/hg38/MACS2/remap2022_nr_macs2_hg38_v1_0.bed.gz"
   file <- paste0("readRemap2022/",basename(file))
   if(!file.exists(file)){
+    check_package("downloader")
     dir.create(dirname(file),showWarnings = FALSE,recursive = TRUE)
     downloader::download.file(url, file)
   }

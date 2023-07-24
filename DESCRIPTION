@@ -1,7 +1,7 @@
 Package: MethReg
 Type: Package
 Title: Assessing the regulatory potential of DNA methylation regions or sites on gene transcription
-Version: 1.11.4
+Version: 1.11.5
 Authors@R: c(
     person("Tiago", "Silva", email = "tiagochst@gmail.com", role = c("aut", "cre"),
       comment = c(ORCID = "0000-0003-1343-6850")),
@@ -75,7 +75,8 @@ Suggests:
     BSgenome.Hsapiens.UCSC.hg38,
     BSgenome.Hsapiens.UCSC.hg19,
     openxlsx,
-    data.table
+    data.table,
+    downloader
 VignetteBuilder: knitr
 BugReports: https://github.com/TransBioInfoLab/MethReg/issues/
 RoxygenNote: 7.2.3

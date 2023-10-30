@@ -51,10 +51,10 @@ make_names_from_granges <- function(region){
 #' @import sesame
 #' @noRd
 map_probes_to_regions <- function(
-  dnam,
-  genome = c("hg38","hg19"),
-  arrayType = c("450k","EPIC"),
-  rm.masked.probes = TRUE
+    dnam,
+    genome = c("hg38","hg19"),
+    arrayType = c("450k","EPIC"),
+    rm.masked.probes = TRUE
 ){
   genome <- match.arg(genome)
   arrayType <- match.arg(arrayType)
@@ -87,8 +87,8 @@ map_probes_to_regions <- function(
 #' @importFrom ExperimentHub ExperimentHub 
 #' @importFrom AnnotationHub query
 get_met_probes_info <- function(
-  genome = c("hg38","hg19"),
-  arrayType = c("450k","EPIC")
+    genome = c("hg38","hg19"),
+    arrayType = c("450k","EPIC")
 ){
   genome <- match.arg(genome)
   arrayType <- match.arg(arrayType)
@@ -123,8 +123,8 @@ get_met_probes_info <- function(
 #' gene.symbols <- map_ensg_to_symbol(rownames(gene.exp.chr21.log2))
 #' @noRd
 map_ensg_to_symbol <- function(
-  ensembl.gene.id,
-  genome = "hg38"
+    ensembl.gene.id,
+    genome = "hg38"
 ){
   gene.location <- get_gene_information(genome)
   symbols <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]$external_gene_name
@@ -139,8 +139,8 @@ map_ensg_to_symbol <- function(
 #' gene.region <- map_ensg_to_region(rownames(gene.exp.chr21.log2))
 #' @noRd
 map_ensg_to_region <- function(
-  ensembl.gene.id,
-  genome = "hg38"
+    ensembl.gene.id,
+    genome = "hg38"
 ){
   gene.location <- get_gene_information(genome)
   gene.location <- gene.location[match(ensembl.gene.id,gene.location$ensembl_gene_id),]
@@ -158,9 +158,9 @@ map_ensg_to_region <- function(
 #' gene.region <- map_ensg_to_region(rownames(gene.exp.chr21.log2))
 #' @noRd
 get_target_tss_to_region_distance <- function(
-  regionID,
-  ensembl.gene.id,
-  genome = "hg38"
+    regionID,
+    ensembl.gene.id,
+    genome = "hg38"
 ){
   region.gr <- make_granges_from_names(regionID)
   gene.tss.location <- get_gene_information(genome,as.granges = TRUE)  %>% resize(1)
@@ -177,8 +177,8 @@ get_target_tss_to_region_distance <- function(
 #' gene.symbols <- map_symbol_to_ensg("TP63"s)
 #' @noRd
 map_symbol_to_ensg <- function(
-  gene.symbol,
-  genome = "hg38"
+    gene.symbol,
+    genome = "hg38"
 ){
   gene.location <- get_gene_information(genome)
   ensembl_gene_id <- gene.location[match(gene.symbol,gene.location$external_gene_name),]$ensembl_gene_id
@@ -191,8 +191,8 @@ map_symbol_to_ensg <- function(
 #' @param TSS add TSS information
 #' @noRd
 get_gene_information_biomart <- function(
-  genome = c("hg38","hg19"),
-  TSS = FALSE
+    genome = c("hg38","hg19"),
+    TSS = FALSE
 ){
   check_package("biomaRt")
   genome <- match.arg(genome)
@@ -260,8 +260,8 @@ get_gene_information_biomart <- function(
 
 #' @noRd
 get_gene_information <- function(
-  genome = "hg38",
-  as.granges = FALSE
+    genome = "hg38",
+    as.granges = FALSE
 ){
   
   if (genome == "hg19") {
@@ -356,10 +356,10 @@ register_cores <- function(cores){
 #' @importFrom methods as
 #' @noRd
 subset_by_non_promoter_regions <- function(
-  regions.gr,
-  genome,
-  upstream = 2000,
-  downstream = 2000
+    regions.gr,
+    genome,
+    upstream = 2000,
+    downstream = 2000
 ){
   message("o Get promoter regions for ", genome)
   promoter.gr <- get_promoter_regions(
@@ -390,10 +390,10 @@ subset_by_non_promoter_regions <- function(
 #' @importFrom IRanges subsetByOverlaps
 #' @noRd
 subset_by_promoter_regions <- function(
-  regions.gr,
-  genome,
-  upstream = 2000,
-  downstream = 2000
+    regions.gr,
+    genome,
+    upstream = 2000,
+    downstream = 2000
 ){
   message("o Get promoter regions for ", genome)
   promoter.gr <- get_promoter_regions(
@@ -411,9 +411,9 @@ subset_by_promoter_regions <- function(
 #' @noRd
 #' @importFrom GenomicRanges promoters strand strand<-
 get_promoter_regions <- function(
-  genome,
-  upstream = 2000,
-  downstream = 2000
+    genome,
+    upstream = 2000,
+    downstream = 2000
 ){
   
   genes <- get_gene_information(genome = genome, as.granges = TRUE)
@@ -445,11 +445,11 @@ get_promoter_regions <- function(
 #' @return A summarized Experiment object with DNA methylation probes mapped to
 #' genomic regions
 make_dnam_se <- function(
-  dnam,
-  genome = c("hg38","hg19"),
-  arrayType = c("450k","EPIC"),
-  betaToM = FALSE,
-  verbose = FALSE
+    dnam,
+    genome = c("hg38","hg19"),
+    arrayType = c("450k","EPIC"),
+    betaToM = FALSE,
+    verbose = FALSE
 ) {
   genome <- match.arg(genome)
   arrayType <- match.arg(arrayType)
@@ -523,9 +523,9 @@ make_dnam_se <- function(
 #' gene.exp.chr21.log2.se <- make_exp_se(gene.exp.chr21.log2)
 #' @return A summarized Experiment object
 make_exp_se <- function(
-  exp,
-  genome = c("hg38","hg19"),
-  verbose = FALSE
+    exp,
+    genome = c("hg38","hg19"),
+    verbose = FALSE
 ) {
   # Data checking
   genome <- match.arg(genome)
@@ -550,3 +550,158 @@ make_exp_se <- function(
   )
   return(se)
 }
+
+
+#' @title Format methreg results table and export to XLSX file
+#' @export
+#' @examples
+#' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
+#' gene.exp.chr21.log2.se <- make_exp_se(gene.exp.chr21.log2)
+#' @return A summarized Experiment object
+#' @import openxlsx
+export_results_to_table <- function(
+    results,
+    file = "MethReg_results.xlsx"
+){
+  
+  # Create workbook
+  wb <- createWorkbook()
+  addWorksheet(wb, "Results")
+  addWorksheet(wb, "sigTriplets")
+  class(tab$distance_region_target_tss) <- "integer"
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  # Headers
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  
+  hs <- createStyle(
+    fontColour = "#ffffff", fgFill = "#4F80BD",
+    halign = "CENTER", 
+    textDecoration = "Bold",
+    border = "TopBottomLeftRight", 
+    borderColour = "#4F81BD"
+  )
+  
+  # Row numebers
+  writeData(wb, "Results", 1:nrow(results), startRow = 3, startCol = 1)
+  
+  # 1. Triplet data
+  #    - regionID	probeID	target_symbol	TF_symbol
+  writeData(wb, "Results", "Triplet data", startRow = 1, startCol = 2, borders = "surrounding", borderColour = "black")
+  mergeCells(wb, sheet="Results", cols=2:5, rows=1)
+  
+  writeData(
+    wb = wb,
+    sheet = "Results", 
+    x = results %>% dplyr::select(c("regionID","probeID","target_symbol","TF_symbol")),
+    startCol = 2, startRow = 2,
+    borders = "surrounding", borderColour = "black"
+  )
+  
+  
+  # 2. Annotation			
+  #   - distance_region_target_tss	DNAm.effect	TF.role
+  writeData(wb, "Results", "Annotation", startRow = 1, startCol = 6, borders = "surrounding", borderColour = "black")
+  mergeCells(wb, sheet="Results", cols=6:8, rows=1)
+  
+  writeData(
+    wb = wb,
+    sheet = "Results", 
+    x = results %>% dplyr::select(c("distance_region_target_tss","DNAm.effect","TF.role")),
+    startCol = 6, startRow = 2,
+    borders = "surrounding", borderColour = "black"
+  )
+  
+  
+  
+  # 3. DNAm group x TF activity	
+  #   - RLM_DNAmGroup:TF_pvalue	
+  #   - RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue	
+  #   - RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue	
+  #   - RLM_DNAmGroup:TF_estimate
+  
+  for(i in grep("pvalue",colnames(results),value = TRUE)){
+    class(results[[i]]) <- "scientific"
+  }
+
+  for(i in grep("estimate",colnames(results),value = TRUE)){
+    class(results[[i]]) <- "numeric"
+    results[[i]] <- formatC(results[[i]])
+  }
+  
+  writeData(wb, "Results", "DNAm group x TF activity", startRow = 1, startCol = 9)
+  mergeCells(wb, sheet="Results", cols=9:12, rows=1)
+  
+  writeData(
+    wb = wb,
+    sheet = "Results", 
+    x = results %>% 
+      dplyr::select(
+        c(
+          "RLM_DNAmGroup:TF_pvalue","RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue",
+          "RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue","RLM_DNAmGroup:TF_estimate"
+        )
+      ),
+    startCol = 9, startRow = 2, borders = "surrounding", borderColour = "black"
+  )
+  
+  
+  # 4. TF-target association	in low and high DNAm samples				 
+  #  - DNAm_low_RLM_target_vs_TF_pvalue	
+  #  - DNAm_low_RLM_target_vs_TF_estimate	
+  #  - DNAm_high_RLM_target_vs_TF_pvalue	
+  #  - DNAm_high_RLM_target_vs_TF_estimate
+  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = 13)
+  mergeCells(wb, sheet="Results", cols=13:16, rows=1)
+  writeData(
+    wb = wb,
+    sheet = "Results", 
+    x = results %>% 
+      dplyr::select(
+        c(
+          "DNAm_low_RLM_target_vs_TF_pvalue",
+          "DNAm_low_RLM_target_vs_TF_estimate",
+          "DNAm_high_RLM_target_vs_TF_pvalue",
+          "DNAm_high_RLM_target_vs_TF_estimate"
+        )
+      ),
+    startCol = 13, startRow = 2, borders = "surrounding", borderColour = "black"
+  )
+  
+  
+  # 5. Additional Info 						
+  # - RLM_DNAmGroup_estimate	
+  # - RLM_TF_estimate	
+  # - Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue	
+  # - TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue
+  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = 17)
+  mergeCells(wb, sheet="Results", cols=17:20, rows=1)
+  
+  writeData(
+    wb = wb,
+    sheet = "Results", 
+    x = results %>% 
+      dplyr::select(
+        c(
+          "RLM_DNAmGroup_estimate",
+          "RLM_TF_estimate",
+          "Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue",
+          "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
+        )
+      ),
+    startCol = 17, startRow = 2, borders = "surrounding", borderColour = "black"
+  )
+  
+  # Header styles
+  addStyle(wb,sheet = "Results",style = hs,rows = 1, cols = 1:20)
+  
+  # Estimate style
+  #s <- createStyle(numFmt = "0.000")
+  #addStyle(wb, 1, style = "Results", rows = 3:nrow(results), cols = c(12,14,16,17,18), gridExpand = TRUE)
+  
+  setColWidths(wb, sheet = 1, cols = 1:20, widths = "auto")
+  addFilter(wb, 1, row = 2, cols = 2:(ncol(results) + 1))
+  saveWorkbook(wb, file = file, overwrite = TRUE) 
+  
+  
+}
+

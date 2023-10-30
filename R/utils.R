@@ -627,8 +627,6 @@ export_results_to_table <- function(
   triplet_data <- c("regionID","probeID","target","TF","target_symbol","TF_symbol","target_region")
   triplet_data <- intersect(triplet_data,colnames(results))
   
-  
-  
   start <- 2
   end <- start + length(triplet_data) - 1
   writeData(wb, "Results", "Triplet data", startRow = 1, startCol = start, borders = "surrounding", borderColour = "black")
@@ -644,20 +642,21 @@ export_results_to_table <- function(
   
   # 2. Annotation			
   #   - distance_region_target_tss	DNAm.effect	TF.role
+  annotation_cols <- c("distance_region_target_tss","DNAm.effect","TF.role")
+  annotation_cols <- intersect(annotation_cols,colnames(results))
   start <- end + 1
-  end <- start + 2
+  end <- start + length(annotation_cols) - 1
+  
   writeData(wb, "Results", "Annotation", startRow = 1, startCol = start, borders = "surrounding", borderColour = "black")
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   
   writeData(
     wb = wb,
     sheet = "Results", 
-    x = results %>% dplyr::select(c("distance_region_target_tss","DNAm.effect","TF.role")),
+    x = results %>% dplyr::select(annotation_cols),
     startCol = start, startRow = 2,
     borders = "surrounding", borderColour = "black"
   )
-  
-  
   
   # 3. DNAm group x TF activity	
   #   - RLM_DNAmGroup:TF_pvalue	
@@ -668,7 +667,7 @@ export_results_to_table <- function(
   for(i in grep("pvalue",colnames(results),value = TRUE)){
     class(results[[i]]) <- "scientific"
   }
-
+  
   for(i in grep("estimate",colnames(results),value = TRUE)){
     class(results[[i]]) <- "numeric"
     results[[i]] <- formatC(results[[i]])
@@ -701,23 +700,22 @@ export_results_to_table <- function(
   #  - DNAm_low_RLM_target_vs_TF_estimate	
   #  - DNAm_high_RLM_target_vs_TF_pvalue	
   #  - DNAm_high_RLM_target_vs_TF_estimate
+  tf_target_cols <- c(
+    "RLM_DNAmGroup_estimate",
+    "RLM_TF_estimate",
+    "Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue",
+    "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
+  )
+  tf_target_cols <- intersect(tf_target_cols,colnames(results))
   start <- end + 1
-  end <- start + 4 - 1
+  end <- start + length(tf_target_cols) - 1
   
   writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   writeData(
     wb = wb,
     sheet = "Results", 
-    x = results %>% 
-      dplyr::select(
-        c(
-          "DNAm_low_RLM_target_vs_TF_pvalue",
-          "DNAm_low_RLM_target_vs_TF_estimate",
-          "DNAm_high_RLM_target_vs_TF_pvalue",
-          "DNAm_high_RLM_target_vs_TF_estimate"
-        )
-      ),
+    x = results %>% dplyr::select(tf_target_cols),
     startCol = start, startRow = 2, borders = "surrounding", borderColour = "black"
   )
   
@@ -727,24 +725,22 @@ export_results_to_table <- function(
   # - RLM_TF_estimate	
   # - Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue	
   # - TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue
+  additional_cols <- c(
+    "RLM_DNAmGroup_estimate",
+    "RLM_TF_estimate",
+    "Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue",
+    "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
+  )
+  additional_cols <- intersect(additional_cols,colnames(results))
   start <- end + 1
-  end <- start + 4 - 1
+  end <- start + length(additional_cols) - 1
   
   writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
-  
   writeData(
     wb = wb,
     sheet = "Results", 
-    x = results %>% 
-      dplyr::select(
-        c(
-          "RLM_DNAmGroup_estimate",
-          "RLM_TF_estimate",
-          "Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue",
-          "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
-        )
-      ),
+    x = results %>% dplyr::select(additional_cols),
     startCol = start, startRow = 2, borders = "surrounding", borderColour = "black"
   )
   

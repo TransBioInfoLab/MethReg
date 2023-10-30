@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{export_results_to_table}
 \alias{export_results_to_table}
-\title{Format methreg results table and export to XLSX file}
+\title{Format MethReg results table and export to XLSX file}
 \usage{
 export_results_to_table(results, file = "MethReg_results.xlsx")
 }
@@ -10,9 +10,43 @@ export_results_to_table(results, file = "MethReg_results.xlsx")
 A summarized Experiment object
 }
 \description{
-Format methreg results table and export to XLSX file
+Format MethReg results table and export to XLSX file
 }
 \examples{
-gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
-gene.exp.chr21.log2.se <- make_exp_se(gene.exp.chr21.log2)
+library(dplyr)
+dnam <- runif(20,min = 0,max = 1) \%>\%
+  matrix(ncol = 1) \%>\%  t
+rownames(dnam) <- c("chr3:203727581-203728580")
+colnames(dnam) <- paste0("Samples",1:20)
+
+exp.target <-  runif(20,min = 0,max = 10) \%>\%
+  matrix(ncol = 1) \%>\%  t
+rownames(exp.target) <- c("ENSG00000252982")
+colnames(exp.target) <- paste0("Samples",1:20)
+
+exp.tf <- runif(20,min = 0,max = 10) \%>\%
+  matrix(ncol = 1) \%>\%  t
+rownames(exp.tf) <- c("ENSG00000083937")
+colnames(exp.tf) <- paste0("Samples",1:20)
+
+exp <- rbind(exp.tf, exp.target)
+
+triplet <- data.frame(
+   "regionID" =  c("chr3:203727581-203728580"),
+   "target" = "ENSG00000252982",
+   "TF" = "ENSG00000083937"
+)
+results <- interaction_model(
+   triplet = triplet, 
+   dnam = dnam, 
+   exp = exp, 
+    dnam.group.threshold = 0.25,
+   stage.wise.analysis = FALSE, 
+   sig.threshold = 1,
+   filter.correlated.tf.exp.dnam = FALSE,
+   filter.correlated.target.exp.dnam = FALSE,
+   filter.triplet.by.sig.term = FALSE
+)
+results <- results \%>\% stratified_model( dnam = dnam,  exp = exp)
+export_results_to_table(results = results)
 }

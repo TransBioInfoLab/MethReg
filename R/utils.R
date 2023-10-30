@@ -552,11 +552,45 @@ make_exp_se <- function(
 }
 
 
-#' @title Format methreg results table and export to XLSX file
+#' @title Format MethReg results table and export to XLSX file
 #' @export
 #' @examples
-#' gene.exp.chr21.log2 <- get(data("gene.exp.chr21.log2"))
-#' gene.exp.chr21.log2.se <- make_exp_se(gene.exp.chr21.log2)
+#' library(dplyr)
+#' dnam <- runif(20,min = 0,max = 1) %>%
+#'   matrix(ncol = 1) %>%  t
+#' rownames(dnam) <- c("chr3:203727581-203728580")
+#' colnames(dnam) <- paste0("Samples",1:20)
+#'
+#' exp.target <-  runif(20,min = 0,max = 10) %>%
+#'   matrix(ncol = 1) %>%  t
+#' rownames(exp.target) <- c("ENSG00000252982")
+#' colnames(exp.target) <- paste0("Samples",1:20)
+#'
+#' exp.tf <- runif(20,min = 0,max = 10) %>%
+#'   matrix(ncol = 1) %>%  t
+#' rownames(exp.tf) <- c("ENSG00000083937")
+#' colnames(exp.tf) <- paste0("Samples",1:20)
+#'
+#' exp <- rbind(exp.tf, exp.target)
+#'
+#' triplet <- data.frame(
+#'    "regionID" =  c("chr3:203727581-203728580"),
+#'    "target" = "ENSG00000252982",
+#'    "TF" = "ENSG00000083937"
+#')
+#' results <- interaction_model(
+#'    triplet = triplet, 
+#'    dnam = dnam, 
+#'    exp = exp, 
+#'     dnam.group.threshold = 0.25,
+#'    stage.wise.analysis = FALSE, 
+#'    sig.threshold = 1,
+#'    filter.correlated.tf.exp.dnam = FALSE,
+#'    filter.correlated.target.exp.dnam = FALSE,
+#'    filter.triplet.by.sig.term = FALSE
+#' )
+#' results <- results %>% stratified_model( dnam = dnam,  exp = exp)
+#' export_results_to_table(results = results)
 #' @return A summarized Experiment object
 #' @import openxlsx
 export_results_to_table <- function(
@@ -589,10 +623,16 @@ export_results_to_table <- function(
   writeData(wb, "Results", "Triplet data", startRow = 1, startCol = 2, borders = "surrounding", borderColour = "black")
   mergeCells(wb, sheet="Results", cols=2:5, rows=1)
   
+  
+  
+  triplet_data <- c("regionID","probeID","target","TF","target_symbol","TF_symbol","target_region")
+  triplet_data <- intersect(triplet_data,colnames(results))
+  start <- 2
+  end <- start + length(triplet_data)
   writeData(
     wb = wb,
     sheet = "Results", 
-    x = results %>% dplyr::select(c("regionID","probeID","target_symbol","TF_symbol")),
+    x = results %>% dplyr::select(triplet_data),
     startCol = 2, startRow = 2,
     borders = "surrounding", borderColour = "black"
   )
@@ -600,14 +640,16 @@ export_results_to_table <- function(
   
   # 2. Annotation			
   #   - distance_region_target_tss	DNAm.effect	TF.role
-  writeData(wb, "Results", "Annotation", startRow = 1, startCol = 6, borders = "surrounding", borderColour = "black")
-  mergeCells(wb, sheet="Results", cols=6:8, rows=1)
+  start <- end + 1
+  end <- start + 3
+  writeData(wb, "Results", "Annotation", startRow = 1, startCol = start, borders = "surrounding", borderColour = "black")
+  mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   
   writeData(
     wb = wb,
     sheet = "Results", 
     x = results %>% dplyr::select(c("distance_region_target_tss","DNAm.effect","TF.role")),
-    startCol = 6, startRow = 2,
+    startCol = start, startRow = 2,
     borders = "surrounding", borderColour = "black"
   )
   
@@ -628,20 +670,23 @@ export_results_to_table <- function(
     results[[i]] <- formatC(results[[i]])
   }
   
-  writeData(wb, "Results", "DNAm group x TF activity", startRow = 1, startCol = 9)
-  mergeCells(wb, sheet="Results", cols=9:12, rows=1)
+  start <- end + 1
+  end <- start + 4
   
+  writeData(wb, "Results", "DNAm group x TF activity", startRow = 1, startCol = start)
+  mergeCells(wb, sheet="Results", cols=start:end, rows=1)
+  
+  interaction_cols <-   c(
+    "RLM_DNAmGroup:TF_pvalue","RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue",
+    "RLM_DNAmGroup:TF_fdr",
+    "RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue","RLM_DNAmGroup:TF_estimate"
+  )
+  interaction_cols <- intersect(interaction_cols,colnames(results))
   writeData(
     wb = wb,
     sheet = "Results", 
-    x = results %>% 
-      dplyr::select(
-        c(
-          "RLM_DNAmGroup:TF_pvalue","RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue",
-          "RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue","RLM_DNAmGroup:TF_estimate"
-        )
-      ),
-    startCol = 9, startRow = 2, borders = "surrounding", borderColour = "black"
+    x = results %>% dplyr::select(interaction_cols),
+    startCol = start, startRow = 2, borders = "surrounding", borderColour = "black"
   )
   
   
@@ -650,8 +695,11 @@ export_results_to_table <- function(
   #  - DNAm_low_RLM_target_vs_TF_estimate	
   #  - DNAm_high_RLM_target_vs_TF_pvalue	
   #  - DNAm_high_RLM_target_vs_TF_estimate
-  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = 13)
-  mergeCells(wb, sheet="Results", cols=13:16, rows=1)
+  start <- end + 1
+  end <- start + length(interaction_cols)
+  
+  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
+  mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   writeData(
     wb = wb,
     sheet = "Results", 
@@ -664,7 +712,7 @@ export_results_to_table <- function(
           "DNAm_high_RLM_target_vs_TF_estimate"
         )
       ),
-    startCol = 13, startRow = 2, borders = "surrounding", borderColour = "black"
+    startCol = start, startRow = 2, borders = "surrounding", borderColour = "black"
   )
   
   
@@ -673,8 +721,11 @@ export_results_to_table <- function(
   # - RLM_TF_estimate	
   # - Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue	
   # - TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue
-  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = 17)
-  mergeCells(wb, sheet="Results", cols=17:20, rows=1)
+  start <- end + 1
+  end <- start + 4
+  
+  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
+  mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   
   writeData(
     wb = wb,
@@ -688,7 +739,7 @@ export_results_to_table <- function(
           "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
         )
       ),
-    startCol = 17, startRow = 2, borders = "surrounding", borderColour = "black"
+    startCol = start, startRow = 2, borders = "surrounding", borderColour = "black"
   )
   
   # Header styles
@@ -698,10 +749,9 @@ export_results_to_table <- function(
   #s <- createStyle(numFmt = "0.000")
   #addStyle(wb, 1, style = "Results", rows = 3:nrow(results), cols = c(12,14,16,17,18), gridExpand = TRUE)
   
-  setColWidths(wb, sheet = 1, cols = 1:20, widths = "auto")
-  addFilter(wb, 1, row = 2, cols = 2:(ncol(results) + 1))
+  setColWidths(wb, sheet = 1, cols = 1:end, widths = "auto")
+  addFilter(wb, 1, row = 2, cols = 2:(end))
   saveWorkbook(wb, file = file, overwrite = TRUE) 
-  
   
 }
 

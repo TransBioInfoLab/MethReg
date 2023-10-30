@@ -553,6 +553,9 @@ make_exp_se <- function(
 
 
 #' @title Format MethReg results table and export to XLSX file
+#' @description
+#' Receives a methReg results table and create a formatted XLSX file 
+#' to easier readability  and interpretation of the results
 #' @export
 #' @examples
 #' library(dplyr)
@@ -593,6 +596,8 @@ make_exp_se <- function(
 #' export_results_to_table(results = results)
 #' @return A summarized Experiment object
 #' @import openxlsx
+#' @param results MethReg results
+#' @param file xlsx filename used to save
 export_results_to_table <- function(
     results,
     file = "MethReg_results.xlsx"
@@ -601,7 +606,6 @@ export_results_to_table <- function(
   # Create workbook
   wb <- createWorkbook()
   addWorksheet(wb, "Results")
-  addWorksheet(wb, "sigTriplets")
   class(tab$distance_region_target_tss) <- "integer"
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   # Headers
@@ -615,25 +619,25 @@ export_results_to_table <- function(
     borderColour = "#4F81BD"
   )
   
-  # Row numebers
+  # Row numbers
   writeData(wb, "Results", 1:nrow(results), startRow = 3, startCol = 1)
   
   # 1. Triplet data
   #    - regionID	probeID	target_symbol	TF_symbol
-  writeData(wb, "Results", "Triplet data", startRow = 1, startCol = 2, borders = "surrounding", borderColour = "black")
-  mergeCells(wb, sheet="Results", cols=2:5, rows=1)
-  
-  
-  
   triplet_data <- c("regionID","probeID","target","TF","target_symbol","TF_symbol","target_region")
   triplet_data <- intersect(triplet_data,colnames(results))
+  
+  
+  
   start <- 2
-  end <- start + length(triplet_data)
+  end <- start + length(triplet_data) - 1
+  writeData(wb, "Results", "Triplet data", startRow = 1, startCol = start, borders = "surrounding", borderColour = "black")
+  mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   writeData(
     wb = wb,
     sheet = "Results", 
     x = results %>% dplyr::select(triplet_data),
-    startCol = 2, startRow = 2,
+    startCol = start, startRow = 2,
     borders = "surrounding", borderColour = "black"
   )
   
@@ -641,7 +645,7 @@ export_results_to_table <- function(
   # 2. Annotation			
   #   - distance_region_target_tss	DNAm.effect	TF.role
   start <- end + 1
-  end <- start + 3
+  end <- start + 2
   writeData(wb, "Results", "Annotation", startRow = 1, startCol = start, borders = "surrounding", borderColour = "black")
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   
@@ -670,18 +674,20 @@ export_results_to_table <- function(
     results[[i]] <- formatC(results[[i]])
   }
   
+  
+  interaction_cols <-   c(
+    "RLM_DNAmGroup:TF_pvalue",
+    "RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue",
+    "RLM_DNAmGroup:TF_fdr",
+    "RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue",
+    "RLM_DNAmGroup:TF_estimate"
+  )
+  interaction_cols <- intersect(interaction_cols,colnames(results))
   start <- end + 1
-  end <- start + 4
+  end <- start + length(interaction_cols) - 1
   
   writeData(wb, "Results", "DNAm group x TF activity", startRow = 1, startCol = start)
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
-  
-  interaction_cols <-   c(
-    "RLM_DNAmGroup:TF_pvalue","RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue",
-    "RLM_DNAmGroup:TF_fdr",
-    "RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue","RLM_DNAmGroup:TF_estimate"
-  )
-  interaction_cols <- intersect(interaction_cols,colnames(results))
   writeData(
     wb = wb,
     sheet = "Results", 
@@ -696,7 +702,7 @@ export_results_to_table <- function(
   #  - DNAm_high_RLM_target_vs_TF_pvalue	
   #  - DNAm_high_RLM_target_vs_TF_estimate
   start <- end + 1
-  end <- start + length(interaction_cols)
+  end <- start + 4 - 1
   
   writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
@@ -722,7 +728,7 @@ export_results_to_table <- function(
   # - Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue	
   # - TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue
   start <- end + 1
-  end <- start + 4
+  end <- start + 4 - 1
   
   writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
@@ -743,7 +749,7 @@ export_results_to_table <- function(
   )
   
   # Header styles
-  addStyle(wb,sheet = "Results",style = hs,rows = 1, cols = 1:20)
+  addStyle(wb,sheet = "Results",style = hs,rows = 1, cols = 1:end)
   
   # Estimate style
   #s <- createStyle(numFmt = "0.000")

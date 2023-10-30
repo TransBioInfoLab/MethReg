@@ -6,11 +6,17 @@
 \usage{
 export_results_to_table(results, file = "MethReg_results.xlsx")
 }
+\arguments{
+\item{results}{MethReg results}
+
+\item{file}{xlsx filename used to save}
+}
 \value{
 A summarized Experiment object
 }
 \description{
-Format MethReg results table and export to XLSX file
+Receives a methReg results table and create a formatted XLSX file 
+to easier readability  and interpretation of the results
 }
 \examples{
 library(dplyr)

@@ -659,10 +659,11 @@ export_results_to_table <- function(
   )
   
   # 3. DNAm group x TF activity	
+  #   - RLM_DNAmGroup:TF_estimate
   #   - RLM_DNAmGroup:TF_pvalue	
   #   - RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue	
   #   - RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue	
-  #   - RLM_DNAmGroup:TF_estimate
+  #   
   
   for(i in grep("pvalue",colnames(results),value = TRUE)){
     class(results[[i]]) <- "scientific"
@@ -675,11 +676,11 @@ export_results_to_table <- function(
   
   
   interaction_cols <-   c(
+    "RLM_DNAmGroup:TF_estimate",
     "RLM_DNAmGroup:TF_pvalue",
-    "RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue",
     "RLM_DNAmGroup:TF_fdr",
-    "RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue",
-    "RLM_DNAmGroup:TF_estimate"
+    "RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue",
+    "RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue"
   )
   interaction_cols <- intersect(interaction_cols,colnames(results))
   start <- end + 1
@@ -701,16 +702,16 @@ export_results_to_table <- function(
   #  - DNAm_high_RLM_target_vs_TF_pvalue	
   #  - DNAm_high_RLM_target_vs_TF_estimate
   tf_target_cols <- c(
-    "RLM_DNAmGroup_estimate",
-    "RLM_TF_estimate",
-    "Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue",
-    "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
+    "DNAm_low_RLM_target_vs_TF_estimate",
+    "DNAm_low_RLM_target_vs_TF_pvalue",
+    "DNAm_high_RLM_target_vs_TF_estimate",
+    "DNAm_high_RLM_target_vs_TF_pvalue"
   )
   tf_target_cols <- intersect(tf_target_cols,colnames(results))
   start <- end + 1
   end <- start + length(tf_target_cols) - 1
   
-  writeData(wb, "Results", "TF-target association in low and high DNAm samples	", startRow = 1, startCol = start)
+  writeData(wb, "Results", "TF-target association in low and high DNAm samples", startRow = 1, startCol = start)
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   writeData(
     wb = wb,
@@ -725,15 +726,15 @@ export_results_to_table <- function(
   # - RLM_TF_estimate	
   # - Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue	
   # - TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue
-  additional_cols <- c(
-    "RLM_DNAmGroup_estimate",
-    "RLM_TF_estimate",
-    "Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue",
-    "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
-  )
-  additional_cols <- intersect(additional_cols,colnames(results))
-  start <- end + 1
-  end <- start + length(additional_cols) - 1
+  #additional_cols <- c(
+  #  "RLM_DNAmGroup_estimate",
+  #  "RLM_TF_estimate",
+  #  "Target_gene_DNAm_high_vs_Target_gene_DNAm_low_wilcoxon_pvalue",
+  #  "TF_DNAm_high_vs_TF_DNAm_low_wilcoxon_pvalue"
+  #)
+  #additional_cols <- intersect(additional_cols,colnames(results))
+  #start <- end + 1
+  #end <- start + length(additional_cols) - 1
   
   #writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
   #mergeCells(wb, sheet="Results", cols=start:end, rows=1)

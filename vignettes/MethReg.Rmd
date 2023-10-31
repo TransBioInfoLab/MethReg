@@ -550,10 +550,17 @@ The following columns are provided for the results of fitting **quartile model**
 **Selecting the significant triplet!**
 :::
 
-`RLM_DNAmGroup:TF_pvalue` 
-is the correct column for selecting the significant triplet, 
-or `RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue` if `stage.wise.analysis = TRUE`
-)
+`RLM_DNAmGroup:TF_pvalue`:  raw p-value obtained from fitting robust linear model, without any multiple comparison correction
+
+If `state.wise.analysis = TRUE` is selected, MethReg implements the stage-wise procedure for testing interactions by first aggregating all CpG-TF-target gene triplets associated with the same CpG as a group. Then it performs two steps:
+
+(1) In the screening step, MethReg tests the null hypothesis that any of the individual triplets mapped to a CpG has a significant DNAm × TF effect.
+
+(2) In the confirmation step, MethReg tests each triplet associated with the CpG selected in the screening step while controlling FWER as described in Van den Berge et al. (2017, PMID: 28784146)
+
+`RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue`:   p-value obtained in step (1) described above
+
+`RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue`:    this is multiple comparison corrected p-value for each triplet obtained in step (2) above, and should be used to select triplets
 ::::
 
 <br>

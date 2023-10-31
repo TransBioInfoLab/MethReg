@@ -32,6 +32,18 @@ vignette: >
   margin-right: auto;
 }
 body {text-align: justify}
+
+
+.blackbox {
+  padding: 0em;
+  background: white;
+  color: black;
+  border: 3px solid red;
+  border-radius: 0px;
+}
+.center {
+  text-align: center;
+}
 </style>  
   
   
@@ -532,6 +544,19 @@ The following columns are provided for the results of fitting **quartile model**
 * synergistic effects of methylation and TF: 
   + `RLM_DNAmGroup:TF_pvalue`: : p-value for DNA methylation by TF interaction
   + `RLM_DNAmGroup:TF_estimate`: estimated DNA methylation by TF interaction effect
+
+:::: {.blackbox data-latex=""}
+::: {.center data-latex=""}
+**Selecting the significant triplet!**
+:::
+
+`RLM_DNAmGroup:TF_pvalue` 
+is the correct column for selecting the significant triplet, 
+or `RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue` if `stage.wise.analysis = TRUE`
+)
+::::
+
+<br>
 
 ```{R}
 # Results for quartile model

@@ -710,7 +710,7 @@ export_results_to_table <- function(
   start <- end + 1
   end <- start + length(tf_target_cols) - 1
   
-  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
+  writeData(wb, "Results", "TF-target association in low and high DNAm samples	", startRow = 1, startCol = start)
   mergeCells(wb, sheet="Results", cols=start:end, rows=1)
   writeData(
     wb = wb,
@@ -735,14 +735,14 @@ export_results_to_table <- function(
   start <- end + 1
   end <- start + length(additional_cols) - 1
   
-  writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
-  mergeCells(wb, sheet="Results", cols=start:end, rows=1)
-  writeData(
-    wb = wb,
-    sheet = "Results", 
-    x = results %>% dplyr::select(additional_cols),
-    startCol = start, startRow = 2, borders = "surrounding", borderColour = "black"
-  )
+  #writeData(wb, "Results", "TF-target association	in low and high DNAm samples	", startRow = 1, startCol = start)
+  #mergeCells(wb, sheet="Results", cols=start:end, rows=1)
+  #writeData(
+  #  wb = wb,
+  #  sheet = "Results", 
+  #  x = results %>% dplyr::select(additional_cols),
+  #  startCol = start, startRow = 2, borders = "surrounding", borderColour = "black"
+  #)
   
   # Header styles
   addStyle(wb,sheet = "Results",style = hs,rows = 1, cols = 1:end)

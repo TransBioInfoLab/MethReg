@@ -54,5 +54,12 @@ results <- interaction_model(
    filter.triplet.by.sig.term = FALSE
 )
 results <- results \%>\% stratified_model( dnam = dnam,  exp = exp)
-export_results_to_table(results = results)
+export_results_to_table(results = results, file = "MethReg_results.xlsx")
+
+
+results$`RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue` <- results$`RLM_DNAmGroup:TF_pvalue`
+results$`RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue` <- results$`RLM_DNAmGroup:TF_pvalue`
+results$`RLM_DNAmGroup:TF_pvalue` <- NULL
+export_results_to_table(results = results, file = "MethReg_results_stage_wise.xlsx")
+
 }

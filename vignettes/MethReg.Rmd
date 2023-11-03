@@ -561,6 +561,8 @@ If `stage.wise.analysis = TRUE` is selected, MethReg implements the stage-wise p
 `RLM_DNAmGroup:TF_region_stage_wise_adj_pvalue`:   p-value obtained in step (1) described above
 
 `RLM_DNAmGroup:TF_triplet_stage_wise_adj_pvalue`:    this is multiple comparison corrected p-value for each triplet obtained in step (2) above, and should be used to select triplets
+
+For a easier visualization of the results please refer to the `export_results_to_table` function.
 ::::
 
 <br>

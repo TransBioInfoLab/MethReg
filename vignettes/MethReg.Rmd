@@ -552,7 +552,7 @@ The following columns are provided for the results of fitting **quartile model**
 
 `RLM_DNAmGroup:TF_pvalue`:  raw p-value obtained from fitting robust linear model, without any multiple comparison correction
 
-If `state.wise.analysis = TRUE` is selected, MethReg implements the stage-wise procedure for testing interactions by first aggregating all CpG-TF-target gene triplets associated with the same CpG as a group. Then it performs two steps:
+If `stage.wise.analysis = TRUE` is selected, MethReg implements the stage-wise procedure for testing interactions by first aggregating all CpG-TF-target gene triplets associated with the same CpG as a group. Then it performs two steps:
 
 (1) In the screening step, MethReg tests the null hypothesis that any of the individual triplets mapped to a CpG has a significant DNAm × TF effect.
 

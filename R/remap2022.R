@@ -8,7 +8,7 @@ readRemap2022 <- function(cell_line){
   if(!file.exists(file)){
     check_package("downloader")
     dir.create(dirname(file),showWarnings = FALSE,recursive = TRUE)
-    downloader::download.file(url, file)
+    downloader::download(url, file)
   }
   remapCatalog <- bedToGranges(file)
   remapCatalog$cell_lines <- gsub("^[[:alnum:]]*:","",gsub("-|,","",remapCatalog$id))

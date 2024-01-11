@@ -613,7 +613,7 @@ export_results_to_table <- function(
   # Create workbook
   wb <- createWorkbook()
   addWorksheet(wb, "Results")
-  class(tab$distance_region_target_tss) <- "integer"
+  class(results$distance_region_target_tss) <- "integer"
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   # Headers
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

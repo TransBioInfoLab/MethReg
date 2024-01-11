@@ -273,7 +273,7 @@ get_table_plot <- function(row.triplet, genome){
   base_size <- 9
   tab <- row.triplet %>%
     dplyr::select(
-      columns
+      all_of(columns)
     ) %>% t() %>% as_tibble(rownames = "Variable")
   
   tab$Variable <- labels

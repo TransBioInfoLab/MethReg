@@ -233,6 +233,7 @@ plot_interaction_model <-  function(
   out
 }
 
+#' @importFrom dplyr all_of
 get_table_plot <- function(row.triplet, genome){
   
   row.triplet$genome <- genome

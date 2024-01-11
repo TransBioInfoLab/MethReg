@@ -760,7 +760,7 @@ export_results_to_table <- function(
   #addStyle(wb, 1, style = "Results", rows = 3:nrow(results), cols = c(12,14,16,17,18), gridExpand = TRUE)
   
   setColWidths(wb, sheet = 1, cols = 1:end, widths = "auto")
-  addFilter(wb, 1, row = 2, cols = 2:(end))
+  addFilter(wb, 1, rows = 2, cols = 2:(end))
   saveWorkbook(wb, file = file, overwrite = TRUE) 
   
 }

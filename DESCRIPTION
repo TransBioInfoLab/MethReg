@@ -49,7 +49,8 @@ Imports:
     IRanges,
     sfsmisc,
     progress,
-    utils
+    utils,
+    openxlsx
 Suggests: 
     rmarkdown,
     BiocStyle,
@@ -74,7 +75,6 @@ Suggests:
     jpeg,
     BSgenome.Hsapiens.UCSC.hg38,
     BSgenome.Hsapiens.UCSC.hg19,
-    openxlsx,
     data.table,
     downloader
 VignetteBuilder: knitr

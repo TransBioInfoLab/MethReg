@@ -56,7 +56,6 @@ Suggests:
     BiocStyle,
     testthat (>= 2.1.0),
     parallel,
-    downloader,
     R.utils,
     doParallel,
     reshape2,

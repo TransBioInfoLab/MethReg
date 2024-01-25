@@ -1,7 +1,7 @@
 #' @title Get human TFs for regions by either scanning it with motifmatchr using
-#' JASPAR 2020 database or overlapping with TF chip-seq from user input
+#' JASPAR 2024 database or overlapping with TF chip-seq from user input
 #' @description Given a genomic region, this function maps TF in regions
-#' using two methods: 1) using motifmatchr nd JASPAR2022 to scan the
+#' using two methods: 1) using motifmatchr nd JASPAR 2024 to scan the
 #' region for 554 human transcription factors
 #' binding sites. There is also  an option (argument \code{window.size})
 #' to extend the scanning region before performing the search, which
@@ -12,6 +12,9 @@
 #' @importFrom SummarizedExperiment assay
 #' @importFrom DelayedArray colSums
 #' @importFrom IRanges width
+#' @importFrom JASPAR2024 JASPAR2024 db
+#' @importFrom RSQLite dbConnect dbDisconnect
+#' @importFrom TFBSTools getMatrixSet
 #' @param region A vector of region names or GRanges object with the DNA
 #' methylation regions to be scanned for the motifs
 #' @param window.size Integer value to extend the regions.
@@ -59,8 +62,9 @@ get_tf_in_region <- function(
     verbose = FALSE
 ) {
   
-  check_package("JASPAR2022")
+  check_package("JASPAR2024")
   check_package("TFBSTools")
+  check_package("RSQLite")
   
   parallel <- register_cores(cores)
   
@@ -86,12 +90,15 @@ get_tf_in_region <- function(
     opts <- list()
     opts[["species"]] <- 9606 # homo sapiens
     # opts[["all_versions"]] <- TRUE
-    PFMatrixList <- TFBSTools::getMatrixSet(JASPAR2022::JASPAR2022, opts)
+    JASPAR2024 <- JASPAR2024::JASPAR2024()
+    JASPARConnect <- RSQLite::dbConnect(RSQLite::SQLite(), JASPAR2024::db(JASPAR2024))
+    PFMatrixList <- TFBSTools::getMatrixSet(JASPARConnect, opts)
     motifs.names <- lapply(PFMatrixList, function(x)(TFBSTools::name(x)))
     names(PFMatrixList) <- motifs.names
     PFMatrixList <- PFMatrixList[grep("::|var",motifs.names,invert = TRUE)]
+    RSQLite::dbDisconnect(JASPARConnect)
     
-    if(verbose)  message("Evaluating ", length(PFMatrixList), " JASPAR Human TF motifs")
+    if(verbose)  message("Evaluating ", length(PFMatrixList), " JASPAR 2024 Human TF motifs")
     if(verbose)  message("This may take a while...")
     suppressWarnings({
       motif.matrix <- motifmatchr::matchMotifs(
@@ -104,7 +111,7 @@ get_tf_in_region <- function(
     rownames(motif.matrix) <- region.names
     
     # remove motifs not found in any regions
-    motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix) > 0, drop = FALSE]
+    motif.matrix <- motif.matrix[,DelayedArray::colSums(motif.matrix %>% as.matrix) > 0, drop = FALSE]
     
     if (ncol(motif.matrix) == 0) {
       message("No motifs found")

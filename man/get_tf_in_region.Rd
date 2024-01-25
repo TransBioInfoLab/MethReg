@@ -3,7 +3,7 @@
 \name{get_tf_in_region}
 \alias{get_tf_in_region}
 \title{Get human TFs for regions by either scanning it with motifmatchr using
-JASPAR 2020 database or overlapping with TF chip-seq from user input}
+JASPAR 2024 database or overlapping with TF chip-seq from user input}
 \usage{
 get_tf_in_region(
   region,
@@ -42,7 +42,7 @@ A data frame with the following information: regionID, TF symbol, TF ensembl ID
 }
 \description{
 Given a genomic region, this function maps TF in regions
-using two methods: 1) using motifmatchr nd JASPAR2022 to scan the
+using two methods: 1) using motifmatchr nd JASPAR 2024 to scan the
 region for 554 human transcription factors
 binding sites. There is also  an option (argument \code{window.size})
 to extend the scanning region before performing the search, which

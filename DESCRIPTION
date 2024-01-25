@@ -50,7 +50,10 @@ Imports:
     sfsmisc,
     progress,
     utils,
-    openxlsx
+    openxlsx,
+    JASPAR2024,
+    RSQLite,
+    TFBSTools
 Suggests: 
     rmarkdown,
     BiocStyle,
@@ -59,8 +62,6 @@ Suggests:
     R.utils,
     doParallel,
     reshape2,
-    JASPAR2022,
-    TFBSTools,
     motifmatchr,
     matrixStats,
     biomaRt,
@@ -78,7 +79,7 @@ Suggests:
     downloader
 VignetteBuilder: knitr
 BugReports: https://github.com/TransBioInfoLab/MethReg/issues/
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Depends: 
     R (>= 4.0)
 biocViews:

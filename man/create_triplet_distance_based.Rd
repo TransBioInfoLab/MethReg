@@ -3,7 +3,7 @@
 \name{create_triplet_distance_based}
 \alias{create_triplet_distance_based}
 \title{Map DNAm to target genes using distance approaches, and
-TF to the DNAm region using JASPAR2020 TFBS.}
+TF to the DNAm region using JASPAR2024 TFBS.}
 \usage{
 create_triplet_distance_based(
   region,
@@ -76,7 +76,7 @@ This function will map a region to a target gene using three methods
 (mapping to the closest gene,
 mapping to any gene within a given window of distance, or mapping to a
 fixed number of nearby genes upstream or downstream).
-To find TFs binding to the region, JASPAR2020 is used.
+To find TFs binding to the region, JASPAR2024 is used.
 }
 \examples{
 regions.names <- c("chr3:189631389-189632889","chr4:43162098-43163498")
